@@ -6,7 +6,7 @@ from pineboolib.q3widgets import qspinbox
 from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # noqa: F401 # pragma: no cover
 
 
 class FLSpinBox(qspinbox.QSpinBox):

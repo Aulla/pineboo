@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """About_pineboo module."""
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.core.utils import check_dependencies
 
@@ -48,8 +48,8 @@ class AboutPineboo(QtWidgets.QDialog):
             platform.version(),
         )
 
-        if "PyQt5.QtCore" not in check_dependencies.DEPENDENCIES_CHECKED.keys():
-            components += "PyQt5.QtCore: %s\n" % QtCore.QT_VERSION_STR
+        if "PyQt6.QtCore" not in check_dependencies.DEPENDENCIES_CHECKED.keys():
+            components += "PyQt6.QtCore: %s\n" % QtCore.QT_VERSION_STR
 
         for k in check_dependencies.DEPENDENCIES_CHECKED.keys():
             components += "%s: %s\n" % (k, check_dependencies.DEPENDENCIES_CHECKED[k])

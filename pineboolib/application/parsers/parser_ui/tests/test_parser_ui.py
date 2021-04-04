@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
 
 
 class TestQT3UIParser(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestQT3UIParser(unittest.TestCase):
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
         if widget:
-            action = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
+            action = widget.findChild(QtGui.QAction, "ebcomportamiento")
         self.assertTrue(action)
 
     def test_formRecord(self) -> None:
@@ -37,7 +37,9 @@ class TestQT3UIParser(unittest.TestCase):
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
         if widget:
-            bt_01 = widget.findChild(QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildrenRecursively)
+            bt_01 = widget.findChild(
+                QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildOptions.FindChildrenRecursively
+            )
         self.assertTrue(bt_01)
 
     @classmethod

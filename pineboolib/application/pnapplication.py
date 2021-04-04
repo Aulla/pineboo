@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PNApplication Module."""
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .translator import pntranslator
 
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtXml, QtGui  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtXml, QtGui  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -196,7 +196,7 @@ class PNApplication(QtCore.QObject):
         if not self.style:
             self.initStyles()
         # if self.style:
-        #    self.style.exec_()
+        #    self.style.exec()
 
     @decorators.not_implemented_warn
     def showToggleBars(self):
@@ -212,7 +212,7 @@ class PNApplication(QtCore.QObject):
         """Initialize styles."""
 
         self.style_mapper = QtCore.QSignalMapper()
-        self.style_mapper.mapped[str].connect(self.setStyle)  # type: ignore
+        self.style_mapper.mappedString.connect(self.setStyle)  # type: ignore
         style_read = settings.CONFIG.value("application/style", None)
         if not style_read:
             style_read = "Fusion"
@@ -222,7 +222,9 @@ class PNApplication(QtCore.QObject):
         )
 
         if style_menu:
-            action_group = QtWidgets.QActionGroup(style_menu)
+            from PyQt6 import QtGui
+
+            action_group = QtGui.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)  # type: ignore [union-attr] # noqa : F821
                 action_.setObjectName("style_%s" % style_)
@@ -328,7 +330,9 @@ class PNApplication(QtCore.QObject):
         """Start timer."""
         if not self.timer_idle_:
             self.timer_idle_ = QtCore.QTimer()
-            self.timer_idle_.timeout.connect(self.aqAppIdle)
+            self.timer_idle_.timeout.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.aqAppIdle
+            )
         else:
             self.timer_idle_.stop()
 
@@ -485,7 +489,7 @@ class PNApplication(QtCore.QObject):
         """Create a QPixmap from a text."""
 
         from pineboolib.application.utils import xpm
-        from PyQt5 import QtGui
+        from PyQt6 import QtGui
 
         ret_ = QtGui.QPixmap()
 
@@ -501,9 +505,9 @@ class PNApplication(QtCore.QObject):
         if pix_.isNull():
             return ret_
 
-        application.PROJECT.app.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer_ = QtCore.QBuffer()
-        buffer_.open(QtCore.QIODevice.WriteOnly)
+        buffer_.open(QtCore.QIODevice.OpenMode.WriteOnly)
         pix_.save(buffer_, "xpm")
 
         application.PROJECT.app.restoreOverrideCursor()
@@ -519,10 +523,10 @@ class PNApplication(QtCore.QObject):
 
         return img_.scaled(height, height, mode_)
 
-    def timeUser(self) -> "QtCore.QDateTime":
+    def timeUser(self) -> "str":
         """Get amount of time running."""
 
-        return sysbasetype.SysBaseType.time_user_
+        return QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.DateFormat.ISODate)
 
     def call(self, function, argument_list=[], object_content=None, show_exceptions=True) -> Any:
         """Call a QS project function."""
@@ -636,7 +640,7 @@ class PNApplication(QtCore.QObject):
                 dock_widget.setWidget(self._ted_output)
                 dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
                 application.PROJECT.main_window.addDockWidget(
-                    QtCore.Qt.BottomDockWidgetArea, dock_widget
+                    QtCore.Qt.DockWidgetAreas.BottomDockWidgetArea, dock_widget
                 )
 
     def consoleShown(self) -> bool:
@@ -773,15 +777,15 @@ class PNApplication(QtCore.QObject):
                 main_widget,
                 self.tr("Salir ..."),
                 self.tr("¿ Quiere salir de la aplicación ?"),
-                QtWidgets.QMessageBox.Yes,
-                QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.StandardButtons.Yes,
+                QtWidgets.QMessageBox.StandardButtons.No,
             )
-            return ret == QtWidgets.QMessageBox.Yes
+            return ret == QtWidgets.QMessageBox.StandardButtons.Yes
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
 
-        application.PROJECT.app.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
         for item in list_modules:
             self.loadScriptsFromModule(item)
@@ -964,7 +968,10 @@ class PNApplication(QtCore.QObject):
         # from . import flpixmapviewer
 
         file_dialog = QtWidgets.QFileDialog(
-            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), application.PROJECT.tmpdir, "*"
+            QtWidgets.QApplication.focusWidget(),
+            self.tr("Elegir archivo"),
+            application.PROJECT.tmpdir,
+            "*",
         )
         # pixmap_viewer = flpixmapview.FLPixmapView(file_dialog)
 
@@ -974,7 +981,7 @@ class PNApplication(QtCore.QObject):
         # file_dialog.setPreviewMode(QtWidgets.QFileDialog.Contents)
 
         file_name = None
-        if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if file_dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             list_ = file_dialog.selectedFiles()
             if list_:
                 file_name = list_[0]

@@ -1,7 +1,6 @@
 """Flloadmod module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
-from typing import Any
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -36,25 +35,20 @@ class FormInternalObj(qsa.FormDBWidget):
                 )
                 return
 
-            if qsa.from_project("formflreloadlast").cargarModulo(nombre_fichero):
+            if qsa.from_project("formflreloadlast").load_module(nombre_fichero):
                 qsa.aqApp.reinit()
 
-    def dameValor(self, linea: str) -> str:
+    def get_value(self, linea: str) -> str:
         """Return value."""
         return linea
 
 
-def valorPorClave(tabla: str, campo: str, where: str) -> Any:
-    """Return a value from database."""
-    return qsa.util.sqlSelect(tabla, campo, where)
-
-
-def compararVersiones(ver1: str, ver2: str) -> int:
+def version_compare(ver1: str, ver2: str) -> int:
     """Compare two versions and return the hightest."""
-    return qsa.from_project("formflreloadlast").compararVersiones(ver1, ver2)
+    return qsa.from_project("formflreloadlast").version_compare(ver1, ver2)
 
 
-def evaluarDependencias(deps: qsa.Array) -> bool:
+def deps_evaluate(deps: qsa.Array) -> bool:
     """Evaluate dependencies."""
 
     for dep in deps:
@@ -73,11 +67,3 @@ def evaluarDependencias(deps: qsa.Array) -> bool:
                 return False
 
     return True
-
-
-def traducirCadena(cadena: str, path: str, modulo: str) -> str:
-    """Translate string."""
-    return qsa.from_project("formflreloadlast").traducirCadena(cadena, path, modulo)
-
-
-form = None

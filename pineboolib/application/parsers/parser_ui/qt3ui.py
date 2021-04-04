@@ -6,8 +6,8 @@ Loads old Qt3 UI files and creates a Qt5 UI.
 """
 from importlib import import_module
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QWidget
 from xml.etree import ElementTree as ET
 from binascii import unhexlify
 from pineboolib import logging
@@ -205,7 +205,9 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
 
                 if receiver is None:
                     receiver = widget.findChild(
-                        QtCore.QObject, receiv_name, QtCore.Qt.FindChildrenRecursively
+                        QtCore.QObject,
+                        receiv_name,
+                        QtCore.Qt.FindChildOptions.FindChildrenRecursively,
                     )
 
                 if receiver is None:
@@ -392,14 +394,14 @@ def process_item(
             process_item(item, menu_, widget)
 
 
-def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
+def clone_action(action: QtGui.QAction, widget: QWidget) -> None:
     """
     Clone action into widget.
 
     widget: pre-created widget to store the object.
     used only on loadToolBar and process_item
     """
-    real_action = cast(QtWidgets.QAction, widget.findChild(QtWidgets.QAction, action.objectName()))
+    real_action = cast(QtGui.QAction, widget.findChild(QtGui.QAction, action.objectName()))
     if real_action is not None:
         action.setText(real_action.text())
         action.setIcon(real_action.icon())
@@ -409,13 +411,11 @@ def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
         else:
             action.setStatusTip(real_action.whatsThis())
         action.setWhatsThis(real_action.whatsThis())
-        action.triggered.connect(real_action.trigger)
-        action.toggled.connect(real_action.toggle)
+        action.triggered.connect(real_action.trigger)  # type: ignore [attr-defined] # noqa: F821
+        action.toggled.connect(real_action.toggle)  # type: ignore [attr-defined] # noqa: F821
 
 
-def load_action(
-    action: ET.Element, widget: QWidget, action_widget: QtWidgets.QAction = None
-) -> None:
+def load_action(action: ET.Element, widget: QWidget, action_widget: QtGui.QAction = None) -> None:
     """
     Load Action into widget.
 
@@ -425,7 +425,7 @@ def load_action(
     if action_widget is not None:
         new_action = action_widget
     else:
-        new_action = QtWidgets.QAction(widget)
+        new_action = QtGui.QAction(widget)
 
     action_name = action.get("name")
     for root_action in ROOT.findall("actions//action"):  # type: ignore [union-attr] # noqa: F821
@@ -652,7 +652,7 @@ class LoadWidget:
                         )
 
                 self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined] # noqa F821
-                    QtWidgets.QLayout.SetMinAndMaxSize
+                    QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize
                 )
                 self.widget._layout.setObjectName(  # type: ignore [attr-defined] # noqa F821
                     lay_name or "layout"
@@ -722,7 +722,7 @@ class LoadWidget:
                         cast(QtWidgets.QWidget, self.widget).setLayout(lay)
 
                     if isinstance(self.widget, qtoolbar.QToolBar):
-                        if isinstance(new_widget, QtWidgets.QAction):
+                        if isinstance(new_widget, QtGui.QAction):
                             self.widget.addAction(new_widget)
                         else:
                             self.widget.addWidget(cast(QtWidgets.QWidget, new_widget))
@@ -857,12 +857,12 @@ class LoadWidget:
             value = QtCore.QMargins(value, value, value, value)
 
         elif pname == "paletteBackgroundColor":
-            fg_color = widget.palette().color(QtGui.QPalette.Window).name()
+            fg_color = widget.palette().color(QtGui.QPalette.ColorRole.Window).name()
             bg_color = load_variant(xmlprop).name()
             value = "color: %s; background-color: %s" % (fg_color, bg_color)
 
         elif pname == "paletteForegroundColor":
-            bg_color = widget.palette().color(QtGui.QPalette.WindowText).name()
+            bg_color = widget.palette().color(QtGui.QPalette.ColorRole.WindowText).name()
             fg_color = load_variant(xmlprop).name()
 
             if bg_color != fg_color:  # Evitamos todo negro
@@ -909,7 +909,7 @@ class LoadWidget:
         """
         Process a QAction.
         """
-        action = cast(QtWidgets.QAction, create_widget("QAction"))
+        action = cast(QtGui.QAction, create_widget("QAction"))
         for item in xmlaction:
             action_name = item.get("name")
             if action_name in self.translate_properties:
@@ -968,10 +968,10 @@ class LoadWidget:
             elif item.tag == "spacer":
                 # sH = None
                 # sV = None
-                hor_policy = QtWidgets.QSizePolicy.Fixed
-                ver_policy = QtWidgets.QSizePolicy.Fixed
+                hor_policy = QtWidgets.QSizePolicy.Policy.Fixed
+                ver_policy = QtWidgets.QSizePolicy.Policy.Fixed
                 orient_ = None
-                policy_ = QtWidgets.QSizePolicy.Expanding
+                policy_ = QtWidgets.QSizePolicy.Policy.Expanding
                 row_span = item.get("rowspan") or 1
                 col_span = item.get("colspan") or 1
                 # policy_name = None
@@ -982,7 +982,7 @@ class LoadWidget:
                         width = value.width()
                         height = value.height()
                     elif pname == "orientation":
-                        orient_ = 1 if value == 1 else 2  # 1 Horizontal, 2 Vertical
+                        orient_ = 2 if value == 1 else 1  # 1 Horizontal, 2 Vertical
 
                     elif pname == "sizeType":
                         # print("Convirtiendo %s a %s" % (p.find("enum").text, value))
@@ -992,7 +992,7 @@ class LoadWidget:
                         ):
                             policy_ = QtWidgets.QSizePolicy.Policy(value)
                         else:
-                            policy_ = QtWidgets.QSizePolicy.Expanding  # Siempre Expanding
+                            policy_ = QtWidgets.QSizePolicy.Policy.Expanding  # Siempre Expanding
 
                     elif pname == "name":
                         spacer_name = value  # noqa: F841
@@ -1002,8 +1002,18 @@ class LoadWidget:
                 else:
                     ver_policy = policy_
 
-                # print("Nuevo spacer %s (%s,%s,(%s,%s), %s, %s" % (spacer_name, "Horizontal" if orient_ ==
-                #                                                  1 else "Vertical", policy_name, width, height, hor_policy, ver_policy))
+                # print(
+                #    "Nuevo spacer %s (%s,%s,(%s,%s), %s, %s"
+                #    % (
+                #        spacer_name,
+                #        "Horizontal" if orient_ == 1 else "Vertical",
+                #        policy_,
+                #        width,
+                #        height,
+                #        hor_policy,
+                #        ver_policy,
+                #    )
+                # )
                 new_spacer = QtWidgets.QSpacerItem(width, height, hor_policy, ver_policy)
                 if mode == "grid":
                     widget._layout.addItem(new_spacer, row, col, int(row_span), int(col_span))
@@ -1111,16 +1121,24 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
 
         policy = QtWidgets.QSizePolicy()
         for item in variant:
-            ivalue_policy = cast(QtWidgets.QSizePolicy.Policy, int((item.text or "0").strip()))
+            ivalue_policy = int((item.text or "0").strip())
+            real_policy: Any = None
+            for it_ in policy.Policy:
+                if it_.value == ivalue_policy:
+                    real_policy = it_
+                    break
+
             if item.tag == "hsizetype":
-                policy.setHorizontalPolicy(ivalue_policy)
+                policy.setHorizontalPolicy(real_policy)
             elif item.tag == "vsizetype":
-                policy.setVerticalPolicy(ivalue_policy)
+                policy.setVerticalPolicy(real_policy)
             elif item.tag == "horstretch":
                 policy.setHorizontalStretch(ivalue_policy)
             elif item.tag == "verstretch":
                 policy.setVerticalStretch(ivalue_policy)
+
         return policy
+
     elif variant.tag == "size":
         p_sz = QtCore.QSize()
         for item in variant:
@@ -1166,27 +1184,33 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             if value is not None:
                 final = final + int(value)
 
-        return QtCore.Qt.AlignmentFlag(final)
+        return QtCore.Qt.Alignment(final)
 
     elif variant.tag == "enum":
         libs_2: List[Any] = [
             QtCore.Qt,
+            QtCore.Qt.Orientations,
+            QtCore.Qt.Alignment,
+            QtWidgets.QSizePolicy.Policy,
             QtWidgets.QFrame,
             QtWidgets.QSizePolicy,
             QtWidgets.QTabWidget,
+            QtCore.Qt.FocusPolicy,
+            QtWidgets.QFrame.Shadow,
+            QtWidgets.QFrame.Shape,
         ]
         for lib in libs_2:
             value = getattr(lib, text, None)
             if value is not None:
                 return value
         if text in ["GroupBoxPanel", "LineEditPanel"]:
-            return QtWidgets.QFrame.StyledPanel
+            return QtWidgets.QFrame.Shape.StyledPanel
         if text in ("Single", "SingleRow"):
-            return QtWidgets.QAbstractItemView.SingleSelection
+            return QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
         if text == "FollowStyle":
             return "QtWidgets.QTableView {selection-background-color: red;}"
         if text == "MultiRow":
-            return QtWidgets.QAbstractItemView.MultiSelection
+            return QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
 
         att_found = getattr(widget, text, None)
         if att_found is not None:

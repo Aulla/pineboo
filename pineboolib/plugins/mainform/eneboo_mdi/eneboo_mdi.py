@@ -1,7 +1,7 @@
 """Eneboo_mdi module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui, QtCore, QtXml
+from PyQt6 import QtWidgets, QtGui, QtCore, QtXml
 
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
@@ -107,21 +107,21 @@ class MainForm(imainwindow.IMainWindow):
         self.window_menu = QtWidgets.QMenu(self.container_)
         self.window_menu.setObjectName("windowMenu")
 
-        self.window_cascade_action = QtWidgets.QAction(
+        self.window_cascade_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cascada.png")),
             self.tr("Cascada"),
             self.container_,
         )
         self.window_menu.addAction(self.window_cascade_action)
 
-        self.window_tile_action = QtWidgets.QAction(
+        self.window_tile_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("mosaico.png")),
             self.tr("Mosaico"),
             self.container_,
         )
         self.window_menu.addAction(self.window_tile_action)
 
-        self.window_close_action = QtWidgets.QAction(
+        self.window_close_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cerrar.png")),
             self.tr("Cerrar"),
             self.container_,
@@ -142,12 +142,16 @@ class MainForm(imainwindow.IMainWindow):
         self.exit_button.setObjectName("pbSalir")
         self.exit_button.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Q")))
         self.exit_button.setSizePolicy(
-            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+            QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+            )
         )
-        self.exit_button.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.exit_button.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.exit_button.setToolTip(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.setWhatsThis(self.tr("Salir de la aplicación (Ctrl+Q)"))
-        self.exit_button.clicked.connect(self.exit_button_clicked)
+        self.exit_button.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.exit_button_clicked
+        )
 
         self.tool_box_ = QtWidgets.QToolBox(widget)
         self.tool_box_.setObjectName("toolBox")
@@ -191,7 +195,11 @@ class MainForm(imainwindow.IMainWindow):
         if self.window_menu is None:
             raise Exception("initMenuBar. self.window_menu is empty!")
 
-        cast(QtCore.pyqtSignal, self.window_menu.aboutToShow).connect(self.windowMenuAboutToShow)
+        cast(
+            QtCore.pyqtSignal, self.window_menu.aboutToShow
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.windowMenuAboutToShow
+        )
 
     def initToolBar(self) -> None:
         """Initialize toolbar."""
@@ -216,21 +224,25 @@ class MainForm(imainwindow.IMainWindow):
             self.toogle_bars_.setObjectName("toggleBars")
             # self.toogle_bars_.setCheckable(True)
 
-            # ag = QtWidgets.QActionGroup(self.container_)
+            # ag = QtGui.QActionGroup(self.container_)
             # ag.setObjectName("agToggleBars")
 
-            tools_action = QtWidgets.QAction(self.tr("Barra de Herramientas"), self.container_)
+            tools_action = QtGui.QAction(self.tr("Barra de Herramientas"), self.container_)
             tools_action.setObjectName("Herramientas")
             tools_action.setCheckable(True)
             tools_action.setChecked(True)
-            tools_action.triggered.connect(self.toggleToolBar)
+            tools_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.toggleToolBar
+            )
             self.toogle_bars_.addAction(tools_action)
 
-            status_action = QtWidgets.QAction(self.tr("Barra de Estado"), self.container_)
+            status_action = QtGui.QAction(self.tr("Barra de Estado"), self.container_)
             status_action.setObjectName("Estado")
             status_action.setCheckable(True)
             status_action.setChecked(True)
-            status_action.triggered.connect(self.toggleStatusBar)
+            status_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.toggleStatusBar
+            )
             self.toogle_bars_.addAction(status_action)
 
             self.main_widget.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
@@ -335,14 +347,14 @@ class MainForm(imainwindow.IMainWindow):
         for id_area in self.db().managerModules().listIdAreas():
             descript_area = self.db().managerModules().idAreaToDescription(id_area)
             new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
-            new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+            new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
-            new_area_bar.setOrientation(QtCore.Qt.Vertical)
+            new_area_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
             new_area_bar.layout().setSpacing(3)
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
-            action_group = QtWidgets.QActionGroup(new_area_bar)
+            action_group = QtGui.QActionGroup(new_area_bar)
             action_group.setObjectName(descript_area)
-            # ac = QtWidgets.QAction(ag)
+            # ac = QtGui.QAction(ag)
             # ac.setText(descript_area)
             # ac.setUsesDropDown(True)
 
@@ -361,17 +373,17 @@ class MainForm(imainwindow.IMainWindow):
                             str(chr(char_num)),
                             self.tr("Carga Estática desde Disco Duro"),
                         )
-                        new_module_action = QtWidgets.QAction(new_area_bar)
+                        new_module_action = QtGui.QAction(new_area_bar)
                         new_module_action.setObjectName("StaticLoadAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(
-                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                            getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
                         )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(
+                        new_module_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
                             application.PROJECT.aq_app.staticLoaderSetup
                         )
                         action_group.addAction(new_module_action)
@@ -381,18 +393,18 @@ class MainForm(imainwindow.IMainWindow):
                             str(chr(char_num)),
                             self.tr("Reiniciar Script"),
                         )
-                        new_module_action = QtWidgets.QAction(new_area_bar)
+                        new_module_action = QtGui.QAction(new_area_bar)
                         new_module_action.setObjectName("reinitScriptAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(
-                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                            getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
                         )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("reload.png"))
                         )
                         new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(  # type: ignore [arg-type] # noqa: F821
-                            application.PROJECT.aq_app.reinit  # type: ignore [arg-type] # noqa: F821
+                        new_module_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                            application.PROJECT.aq_app.reinit
                         )
                         action_group.addAction(new_module_action)
                         char_num += 1
@@ -401,15 +413,19 @@ class MainForm(imainwindow.IMainWindow):
                         str(chr(char_num)),
                         self.tr("Mostrar Consola de mensajes"),
                     )
-                    new_module_action = QtWidgets.QAction(new_area_bar)
+                    new_module_action = QtGui.QAction(new_area_bar)
                     new_module_action.setObjectName("shConsoleAction")
                     new_module_action.setText(self.tr(descript_module))
-                    new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
+                    new_module_action.setShortcut(
+                        getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
+                    )
                     new_module_action.setIcon(
                         QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("consola.png"))
                     )
                     new_area_bar.addAction(new_module_action)
-                    new_module_action.triggered.connect(application.PROJECT.aq_app.showConsole)
+                    new_module_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                        application.PROJECT.aq_app.showConsole
+                    )
                     action_group.addAction(new_module_action)
                     char_num += 1
 
@@ -417,23 +433,27 @@ class MainForm(imainwindow.IMainWindow):
                     str(chr(char_num)),
                     self.db().managerModules().idModuleToDescription(mod),
                 )
-                new_module_action = QtWidgets.QAction(new_area_bar)
+                new_module_action = QtGui.QAction(new_area_bar)
                 new_module_action.setObjectName(mod)
                 new_module_action.setText(self.tr(descript_module))
-                new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
+                new_module_action.setShortcut(
+                    getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
+                )
                 new_module_action.setIcon(QtGui.QIcon(self.db().managerModules().iconModule(mod)))
                 new_area_bar.addAction(new_module_action)
-                new_module_action.triggered.connect(self.activateModule)
+                new_module_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.activateModule
+                )
                 action_group.addAction(new_module_action)
                 char_num += 1
 
-            # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+            # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
 
             lay = new_area_bar.layout()
             for child in new_area_bar.children():
                 if isinstance(child, QtWidgets.QToolButton):
                     self.mdi_toolbuttons.append(child)
-                    lay.setAlignment(child, QtCore.Qt.AlignCenter)
+                    lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
 
             a_menu = self.modules_menu.addMenu(descript_area)
             for action in action_group.actions():
@@ -441,77 +461,89 @@ class MainForm(imainwindow.IMainWindow):
 
         descript_area = "Configuración"
         config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
-        config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         # config_tool_bar.setFrameStyle(QFrame.NoFrame)
-        config_tool_bar.setOrientation(QtCore.Qt.Vertical)
+        config_tool_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
         # config_tool_bar.layout().setSpacing(3)
         self.tool_box_.addItem(config_tool_bar, self.tr(descript_area))
 
         descript_module = self.tr("Fuente")
-        font_action = QtWidgets.QAction(new_area_bar)
+        font_action = QtGui.QAction(new_area_bar)
         font_action.setObjectName("fontAction")
         font_action.setText(self.tr(descript_module))
         # font_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         font_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("font.png")))
         config_tool_bar.addAction(font_action)
-        font_action.triggered.connect(application.PROJECT.aq_app.chooseFont)
+        font_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.chooseFont
+        )
         action_group.addAction(font_action)
 
         descript_module = self.tr("Estilo")
-        style_action = QtWidgets.QAction(new_area_bar)
+        style_action = QtGui.QAction(new_area_bar)
         style_action.setObjectName("styleAction")
         style_action.setText(self.tr(descript_module))
         # style_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         style_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("estilo.png")))
         config_tool_bar.addAction(style_action)
-        style_action.triggered.connect(application.PROJECT.aq_app.showStyles)
+        style_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.showStyles
+        )
         action_group.addAction(style_action)
 
         descript_module = self.tr("Indice")
-        help_action = QtWidgets.QAction(new_area_bar)
+        help_action = QtGui.QAction(new_area_bar)
         help_action.setObjectName("helpAction")
         help_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         help_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("help_index.png")))
         config_tool_bar.addAction(help_action)
-        help_action.triggered.connect(application.PROJECT.aq_app.helpIndex)
+        help_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.helpIndex
+        )
         action_group.addAction(help_action)
 
         descript_module = self.tr("Acerca de Pineboo")
-        about_pineboo_action = QtWidgets.QAction(new_area_bar)
+        about_pineboo_action = QtGui.QAction(new_area_bar)
         about_pineboo_action.setObjectName("aboutPinebooAction")
         about_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         about_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(about_pineboo_action)
-        about_pineboo_action.triggered.connect(application.PROJECT.aq_app.aboutPineboo)
+        about_pineboo_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.aboutPineboo
+        )
         action_group.addAction(about_pineboo_action)
 
         descript_module = self.tr("Visita Eneboo.org")
-        visit_pineboo_action = QtWidgets.QAction(new_area_bar)
+        visit_pineboo_action = QtGui.QAction(new_area_bar)
         visit_pineboo_action.setObjectName("visitPinebooAction")
         visit_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         visit_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(visit_pineboo_action)
-        visit_pineboo_action.triggered.connect(application.PROJECT.aq_app.urlPineboo)
+        visit_pineboo_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.urlPineboo
+        )
         action_group.addAction(visit_pineboo_action)
 
         descript_module = self.tr("Acerca de Qt")
-        about_qt_action = QtWidgets.QAction(new_area_bar)
+        about_qt_action = QtGui.QAction(new_area_bar)
         about_qt_action.setObjectName("aboutQtAction")
         about_qt_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
         about_qt_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("aboutqt.png")))
         config_tool_bar.addAction(about_qt_action)
-        about_qt_action.triggered.connect(application.PROJECT.aq_app.aboutQt)
+        about_qt_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.aboutQt
+        )
         action_group.addAction(about_qt_action)
 
         lay = config_tool_bar.layout()
         for child in config_tool_bar.children():
             if isinstance(child, QtWidgets.QToolButton):
                 self.mdi_toolbuttons.append(child)
-                lay.setAlignment(child, QtCore.Qt.AlignCenter)
+                lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
 
         if application.PROJECT.aq_app.acl_:
             application.PROJECT.aq_app.acl_.process(self.container_)
@@ -547,37 +579,39 @@ class MainForm(imainwindow.IMainWindow):
         #
         #     obj.installEventFilter(self)
 
-        if event_type == QtCore.QEvent.KeyPress:
+        if event_type == QtCore.QEvent.Type.KeyPress:
             # if obj_ == self.container_:
             #    key_ = cast(QtGui.QKeyEvent, event)
 
             if obj_ == main_widget:
                 key_ = cast(QtGui.QKeyEvent, event)
                 if (
-                    key_.key() == QtCore.Qt.Key_Shift
+                    key_.key() == cast(int, QtCore.Qt.Key.Key_Shift.value)
                     and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
-                    == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                    == QtCore.Qt.KeyboardModifiers.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.activateModule(None)
                     return True
                 elif (
-                    key_.key() == QtCore.Qt.Key_Q
+                    key_.key() == cast(int, QtCore.Qt.Key.Key_Q.value)
                     and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
-                    == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                    == QtCore.Qt.KeyboardModifiers.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.generalExit()
                     return True
-                elif key_.key() == QtCore.Qt.Key_W and key_.modifiers() in [  # type: ignore [comparison-overlap] # noqa: F821
-                    QtCore.Qt.AltModifier,
-                    QtCore.Qt.ControlModifier,
+                elif key_.key() == cast(
+                    int, QtCore.Qt.Key.Key_W.value
+                ) and key_.modifiers() in [  # type: ignore [comparison-overlap] # noqa: F821
+                    QtCore.Qt.KeyboardModifiers.AltModifier,
+                    QtCore.Qt.KeyboardModifiers.ControlModifier,
                 ]:
                     LOGGER.warning("unknown key presset!.")
                     return True
-                elif key_.key() == QtCore.Qt.Key_Escape:
+                elif key_.key() == cast(int, QtCore.Qt.Key.Key_Escape.value):
                     obj_.hide()
                     return True
 
-        elif event_type == QtCore.QEvent.Close:
+        elif event_type == QtCore.QEvent.Type.Close:
             if obj_ is self and not self.is_closing_:
                 ret = self.generalExit()
                 if not ret:
@@ -586,7 +620,7 @@ class MainForm(imainwindow.IMainWindow):
 
             return True
 
-        elif event_type == QtCore.QEvent.WindowActivate:
+        elif event_type == QtCore.QEvent.Type.WindowActivate:
             if obj_ == self.container_:
                 self.activateModule(None)
                 return True
@@ -605,7 +639,7 @@ class MainForm(imainwindow.IMainWindow):
         #    else:
         #        return False
 
-        elif event_type == QtCore.QEvent.Resize and obj_ is self:
+        elif event_type == QtCore.QEvent.Type.Resize and obj_ is self:
             for tool_button in self.mdi_toolbuttons:
                 tool_button.setMinimumWidth(obj_.width() - 10)
 
@@ -655,16 +689,12 @@ class MainForm(imainwindow.IMainWindow):
                         slot = itn.namedItem("slot").toElement().text()
                         if receiver in [idm, "pncore"] and signal == "triggered()":
                             action_list = []
-                            action = cast(
-                                QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
-                            )
+                            action = cast(QtGui.QAction, widget.findChild(QtGui.QAction, sender))
                             if action is not None:
                                 action_list.append(action)
 
                             for menu in widget.findChildren(QtWidgets.QToolBar):
-                                action = cast(
-                                    QtWidgets.QAction, menu.findChild(QtWidgets.QAction, sender)
-                                )
+                                action = cast(QtGui.QAction, menu.findChild(QtGui.QAction, sender))
                                 if action is not None and action not in action_list:
                                     action_list.append(action)
 
@@ -678,11 +708,13 @@ class MainForm(imainwindow.IMainWindow):
                                         slot[0 : slot.find("(")],
                                         None,
                                     )
-                                    action.triggered.connect(slot_obj)
+                                    action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                                        slot_obj
+                                    )
                                 else:
                                     LOGGER.warning("Action %s not found", sender)
 
-                widget.setWindowModality(QtCore.Qt.WindowModal)
+                widget.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
                 self._dict_main_widgets[idm] = widget
                 widget.setObjectName(idm)
                 if application.PROJECT.aq_app.acl_:
@@ -795,16 +827,18 @@ class MainForm(imainwindow.IMainWindow):
                     settings.SETTINGS.value("Geometry/MainWindowHeight", rect_.height())
                 )
 
-                desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
-                inter = desk.intersected(rect_)
-                self.container_.resize(rect_.size())
-                if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
-                    self.container_.move(rect_.topLeft())
+                # FIXME
+                # desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
+                # inter = desk.intersected(rect_)
+                # self.container_.resize(rect_.size())
+                # if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
+                #    self.container_.move(rect_.topLeft())
 
-            else:
-                self.container_.resize(
-                    QtWidgets.QApplication.desktop().availableGeometry(self.container_).size()
-                )
+            # else:
+            # FIXME:
+            # self.container_.resize(
+            #    QtWidgets.QApplication.desktop().availableGeometry(self.container_).size()
+            # )
 
             active_id_module = self.db().managerModules().activeIdModule()
 
@@ -817,8 +851,7 @@ class MainForm(imainwindow.IMainWindow):
                         widget = self._dict_main_widgets[id_module]
                     if widget is None:
                         act = cast(
-                            QtWidgets.QAction,
-                            self.container_.findChild(QtWidgets.QAction, id_module),
+                            QtGui.QAction, self.container_.findChild(QtGui.QAction, id_module)
                         )
                         if not act or not act.isVisible():
                             continue
@@ -873,7 +906,7 @@ class MainForm(imainwindow.IMainWindow):
         # windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, None)
         # if windows_opened:
         #    for it in windows_opened:
-        #        act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
+        #        act = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, it))
         #        if act and act.isVisible():
         # application.PROJECT.aq_app.openMasterForm(it, act.icon())
         #            application.PROJECT.aq_app.openMasterForm(it)
@@ -885,17 +918,18 @@ class MainForm(imainwindow.IMainWindow):
             rect_.setY(settings.SETTINGS.value("%s/Y" % key, rect_.y()))
             rect_.setWidth(settings.SETTINGS.value("%s/Width" % key, rect_.width()))
             rect_.setHeight(settings.SETTINGS.value("%s/Height" % key, rect_.height()))
-            desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
-            inter = desk.intersected(rect_)
-            main_widget.resize(rect_.size())
-            if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
-                main_widget.move(rect_.topLeft())
-            else:
-                main_widget.hide()
-                main_widget.resize(
-                    QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
-                )
-                main_widget.show()
+            # FIXME:
+            # desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
+            # inter = desk.intersected(rect_)
+            # main_widget.resize(rect_.size())
+            # if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
+            #    main_widget.move(rect_.topLeft())
+            # else:
+            #    main_widget.hide()
+            #    main_widget.resize(
+            #        QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
+            #    )
+            #    main_widget.show()
 
     def __del__(self) -> None:
         """Cleanup."""
@@ -924,12 +958,12 @@ class MainForm(imainwindow.IMainWindow):
             view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
             # view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
             # view_back.logo = aqs.AQS.pixmap_fromMimeSource("pineboo-logo.png")
-            view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-            view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+            view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
             self._p_work_space = flworkspace.FLWorkSpace(
                 view_back, self.db().managerModules().activeIdModule()
             )
-            self._p_work_space.setAttribute(QtCore.Qt.WA_NoSystemBackground)
+            self._p_work_space.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground)
             # p_work_space.setScrollBarsEnabled(True)
             # FIXME: setScrollBarsEnabled
             cast(QtWidgets.QMainWindow, self.main_widget).setCentralWidget(view_back)
@@ -1073,9 +1107,15 @@ class MainForm(imainwindow.IMainWindow):
     def initActions(self) -> None:
         """Initialize actions."""
         if self.main_widget is not None and self._p_work_space is not None:
-            self.window_cascade_action.triggered.connect(self._p_work_space.cascadeSubWindows)
-            self.window_tile_action.triggered.connect(self._p_work_space.tileSubWindows)
-            self.window_close_action.triggered.connect(self._p_work_space.closeActiveSubWindow)
+            self.window_cascade_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                self._p_work_space.cascadeSubWindows
+            )
+            self.window_tile_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                self._p_work_space.tileSubWindows
+            )
+            self.window_close_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                self._p_work_space.closeActiveSubWindow
+            )
 
     def initStatusBar(self) -> None:
         """Initialize statusbar."""

@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui
 from typing import Any, Union, Optional
 
 from pineboolib.core import decorators
@@ -70,7 +70,7 @@ class QLabel(QtWidgets.QLabel):
     def set_palette_fore_ground(self, color: QtGui.QColor) -> None:
         """Set palette foreground color."""
         pal = self.palette()
-        pal.setColor(pal.WindowText, color)
+        pal.setColor(pal.ColorRole.WindowText, color)
         self.setPalette(pal)
 
     alignment = property(getAlign, setAlign)  # type: ignore

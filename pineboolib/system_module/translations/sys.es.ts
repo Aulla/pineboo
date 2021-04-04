@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
+<!DOCTYPE TS><TS version="2.0" language="es_ES" sourcelanguage="">
 <context>
     <name>@default</name>
     <message>
-        <location filename="../../application/acls/pnaccesscontrollists.py" line="91"/>
-        <source>Lista de control de acceso errÃ³nea</source>
+        <location filename="../../application/acls/pnaccesscontrollists.py" line="88"/>
+        <source>Lista de control de acceso err&#xc3;&#xb3;nea</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/acls/pnaccesscontrollists.py" line="122"/>
+        <location filename="../../application/acls/pnaccesscontrollists.py" line="119"/>
         <source>Lista de control de acceso cargada</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22,20 +21,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/ui/static_loader.ui" line="31"/>
-        <source>Directorios de búsqueda</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../application/staticloader/ui/static_loader.ui" line="65"/>
         <source>NO DATABASE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/staticloader/ui/static_loader.ui" line="31"/>
+        <source>Directorios de búsqueda</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DlgConnect</name>
     <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.py" line="384"/>
+        <location filename="../../loader/dlgconnect/dlgconnect.py" line="383"/>
         <source>Carpeta profiles</source>
         <translation type="unfinished"></translation>
     </message>
@@ -129,44 +128,44 @@
         <source>Ruta profiles :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
         <source>Contraseña :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
         <source>Descripción :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
         <source>Contraseña BD :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
         <source>Rep. Contraseña BD :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
         <source>Rep. Contraseña :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
         <source>Acceso sin contraseña</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
         <source>Desarrollado por la comunidad Eneboo
  basandose en el proyecto pineboo de:
  David Martínez Martí</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="644"/>
         <source>Copyright © 2012-2019 David Martínez Martí
 
@@ -192,17 +191,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLFieldDB</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="816"/>
+        <location filename="../../fllegacy/flfielddb.py" line="818"/>
         <source>FLFieldDB::value() : No existe el campo %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="3443"/>
+        <location filename="../../fllegacy/flfielddb.py" line="3457"/>
         <source>Error: fieldName vacio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2887"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2902"/>
         <source>Elegir archivo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -210,32 +209,32 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLFormDB</name>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="415"/>
+        <location filename="../../fllegacy/flformdb.py" line="418"/>
         <source>Error I/O al intentar escribir el fichero %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="623"/>
+        <location filename="../../fllegacy/flformdb.py" line="616"/>
         <source>No hay metadatos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="672"/>
+        <location filename="../../fllegacy/flformdb.py" line="647"/>
         <source>F3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="676"/>
+        <location filename="../../fllegacy/flformdb.py" line="651"/>
         <source>Exportar a XML(F3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="692"/>
+        <location filename="../../fllegacy/flformdb.py" line="667"/>
         <source>F8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformdb.py" line="719"/>
+        <location filename="../../fllegacy/flformdb.py" line="694"/>
         <source>Esc</source>
         <translation type="unfinished"></translation>
     </message>
@@ -243,42 +242,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLFormRecordDB</name>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="259"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="242"/>
         <source>F3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="359"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="342"/>
         <source>F8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="298"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="281"/>
         <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="317"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="300"/>
         <source>F6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="338"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="321"/>
         <source>F7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="376"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="359"/>
         <source>F9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="400"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="383"/>
         <source>F10</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformrecorddb.py" line="420"/>
+        <location filename="../../fllegacy/flformrecorddb.py" line="403"/>
         <source>Esc</source>
         <translation type="unfinished"></translation>
     </message>
@@ -286,12 +285,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLFormSearchDB</name>
     <message>
-        <location filename="../../fllegacy/flformsearchdb.py" line="151"/>
+        <location filename="../../fllegacy/flformsearchdb.py" line="150"/>
         <source>F3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flformsearchdb.py" line="167"/>
+        <location filename="../../fllegacy/flformsearchdb.py" line="166"/>
         <source>F8</source>
         <translation type="unfinished"></translation>
     </message>
@@ -299,8 +298,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLManager</name>
     <message>
-        <location filename="../../fllegacy/flmanager.py" line="598"/>
-        <source>No se ha podido crear la tabla </source>
+        <location filename="../../fllegacy/flmanager.py" line="601"/>
+        <source>%s %s could not be created</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -308,12 +307,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <name>FLSerialPort</name>
     <message>
         <location filename="../../fllegacy/flserialport.py" line="84"/>
-        <source>OpciÃ³n deshabilitada</source>
+        <source>Opci&#xc3;&#xb3;n deshabilitada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/flserialport.py" line="84"/>
-        <source>FLSerialPort no estÃ¡ disponible para IOS</source>
+        <source>FLSerialPort no est&#xc3;&#xa1; disponible para IOS</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -335,18 +334,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>FLTableDB</name>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="2589"/>
-        <source>OpciÃ³n deshabilitada</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/fltabledb.py" line="2589"/>
-        <source>Esta opciÃ³n ha sido deshabilitada por el administrador</source>
+        <location filename="../../fllegacy/fltabledb.py" line="2587"/>
+        <source>Opci&#xc3;&#xb3;n deshabilitada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2667"/>
-        <source>SÃ­</source>
+        <source>S&#xc3;&#xad;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -355,63 +349,68 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1462"/>
-        <source>Campo,CondiciÃ³n,Valor,Desde,Hasta</source>
+        <location filename="../../fllegacy/fltabledb.py" line="1477"/>
+        <source>Campo,Condici&#xc3;&#xb3;n,Valor,Desde,Hasta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1520"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1537"/>
         <source>Todos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1525"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1542"/>
         <source>Contiene Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1526"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1543"/>
         <source>Empieza por Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1527"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1544"/>
         <source>Acaba por Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1521"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1538"/>
         <source>Igual a Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1522"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1539"/>
         <source>Distinto de Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1528"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1545"/>
         <source>Mayor que Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1529"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1546"/>
         <source>Menor que Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1530"/>
+        <location filename="../../fllegacy/fltabledb.py" line="1547"/>
         <source>Desde - Hasta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1523"/>
-        <source>VacÃ­o</source>
+        <location filename="../../fllegacy/fltabledb.py" line="1540"/>
+        <source>Vac&#xc3;&#xad;o</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/fltabledb.py" line="1524"/>
-        <source>No VacÃ­o</source>
+        <location filename="../../fllegacy/fltabledb.py" line="1541"/>
+        <source>No Vac&#xc3;&#xad;o</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/fltabledb.py" line="2587"/>
+        <source>Esta opci&#xc3;&#xb3;n ha sido deshabilitada.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -470,31 +469,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="165"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="182"/>
-        <source>&amp;Países</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="191"/>
-        <source>Países</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="208"/>
-        <source>&amp;Series de Facturación</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="211"/>
-        <source>Series de Facturación (Ctrl+S)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="214"/>
-        <source>Series de Facturación</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -772,6 +746,309 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>new item</source>
         <translation type="unfinished"></translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="182"/>
+        <source>&amp;Países</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="191"/>
+        <source>Países</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="208"/>
+        <source>&amp;Series de Facturación</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="211"/>
+        <source>Series de Facturación (Ctrl+S)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="214"/>
+        <source>Series de Facturación</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context encoding="UTF-8">
+    <name>FLWidgetReportViewer</name>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="22"/>
+        <source>Visor de informes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="78"/>
+        <source>Servidor de Correo Saliente</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="107"/>
+        <source>Documento</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="120"/>
+        <source>En&amp;viar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="123"/>
+        <source>Alt+V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="150"/>
+        <source>De</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="179"/>
+        <source>Para</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="208"/>
+        <source>Asunto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="234"/>
+        <source>No enviado</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="246"/>
+        <source>&amp;Menú</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="273"/>
+        <source>Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="301"/>
+        <source>Autocierre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="317"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="329"/>
+        <source>Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="356"/>
+        <source>Resolucion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="392"/>
+        <source>Imprimir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="395"/>
+        <source>&amp;Imprimir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="401"/>
+        <source>Imprime el informe (I)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="404"/>
+        <source>I</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="415"/>
+        <source>Página anterior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="418"/>
+        <source>Página &amp;anterior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="424"/>
+        <source>Muestra la anterior página del informe (Ctrl+A)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="427"/>
+        <source>Ctrl+A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="438"/>
+        <source>Página siguiente</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="441"/>
+        <source>Página &amp;siguiente</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="447"/>
+        <source>Muestra la siguiente página del informe (Ctrl+S)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="450"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="461"/>
+        <source>Página última</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="464"/>
+        <source>Página &amp;última</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="470"/>
+        <source>Muestra la última página del informe (Ctrl+U)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="473"/>
+        <source>Ctrl+U</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="484"/>
+        <source>Salir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="487"/>
+        <source>&amp;Salir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="496"/>
+        <source>Sale de la previsualizacón de informe (Esc)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="499"/>
+        <source>Esc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="510"/>
+        <source>Página primera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="513"/>
+        <source>Página &amp;primera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="522"/>
+        <source>Muestra la primer página del informe (Ctrl+P)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="599"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="539"/>
+        <source>Acercar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="542"/>
+        <source>Ctrl++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="556"/>
+        <source>Alejar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="559"/>
+        <source>Ctrl+-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="576"/>
+        <source>Exportar a CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="573"/>
+        <source>Exportar a &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="579"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="596"/>
+        <source>Exportar a PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="593"/>
+        <source>Exportar a &amp;PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="622"/>
+        <source>Enviar por correo eléctronico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="616"/>
+        <source>&amp;Enviar por correo eléctronico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="625"/>
+        <source>Ctrl+E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="636"/>
+        <source>Valores predeterminados</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="653"/>
+        <source>Exportar a Hoja de Cálculo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="650"/>
+        <source>Exportar a H&amp;oja de Cálculo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/forms/FLWidgetReportViewer.ui" line="656"/>
+        <source>Ctrl+O</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Form</name>
@@ -811,7 +1088,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/flusers.ui" line="14"/>
+        <location filename="../forms/fltest.ui" line="14"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
@@ -865,29 +1142,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>idgroup</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="40"/>
-        <source>Pineboo es un port del motor AbanQ/Eneboo a PyQt5, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
+        <source>Pineboo es un port del motor AbanQ/Eneboo a PyQt6, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
 
 https://github.com/deavid/pineboo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="148"/>
         <source>José A. Fdez Fdez (aullasistemas@gmail.com)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="162"/>
         <source>Miguel J. (miguelajsmaps@gmail.com) *Documentación</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="187"/>
         <source>Librerías</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="247"/>
         <source>Copyright © 2012 David Martínez Martí
 
@@ -909,8 +1186,48 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="22"/>
+        <source>id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="46"/>
+        <source>string_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="53"/>
+        <source>date_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="64"/>
+        <source>time_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="71"/>
+        <source>double_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="82"/>
+        <source>bool_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="89"/>
+        <source>uint_field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/fltest.ui" line="113"/>
+        <source>bloqueo</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
-<context>
+<context encoding="UTF-8">
     <name>Form1</name>
     <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="16"/>
@@ -953,11 +1270,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="47"/>
-        <source>Botón uno</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="80"/>
         <source>flfactppal.iface.getcolor</source>
         <translation type="unfinished"></translation>
@@ -972,171 +1284,176 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>pushButton2</source>
         <translation type="unfinished"></translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="47"/>
+        <source>Botón uno</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainForm</name>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="114"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="110"/>
         <source>Cascada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="121"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="117"/>
         <source>Mosaico</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="128"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="124"/>
         <source>Cerrar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="143"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="139"/>
         <source>Salir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="147"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="143"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="153"/>
-        <source>Salir de la aplicaciÃ³n (Ctrl+Q)</source>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="149"/>
+        <source>Salir de la aplicaci&#xc3;&#xb3;n (Ctrl+Q)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="226"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="222"/>
         <source>Barra de Herramientas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="233"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="229"/>
         <source>Barra de Estado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="247"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="243"/>
         <source>&amp;Ver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="252"/>
-        <source>&amp;MÃ³dulos</source>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="248"/>
+        <source>&amp;M&#xc3;&#xb3;dulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="367"/>
-        <source>Carga EstÃ¡tica desde Disco Duro</source>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="360"/>
+        <source>Carga Est&#xc3;&#xa1;tica desde Disco Duro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="387"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="380"/>
         <source>Reiniciar Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="969"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="977"/>
         <source>Mostrar Consola de mensajes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="455"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="450"/>
         <source>Fuente</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="465"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="460"/>
         <source>Estilo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="475"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="470"/>
         <source>Indice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="485"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="480"/>
         <source>Acerca de Pineboo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="495"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="490"/>
         <source>Visita Eneboo.org</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="505"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="500"/>
         <source>Acerca de Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1045"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1036"/>
         <source>&amp;Ventana</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1089"/>
+        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1080"/>
         <source>Listo.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="741"/>
-        <source>AÃ±adir Marcadores</source>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="732"/>
+        <source>A&#xc3;&#xb1;adir Marcadores</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="766"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="757"/>
         <source>Eliminar Marcador</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="899"/>
-        <source>MenÃº</source>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="907"/>
+        <source>Men&#xc3;&#xba;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="948"/>
-        <source>Configurar carga estÃ¡tica</source>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="956"/>
+        <source>Configurar carga est&#xc3;&#xa1;tica</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="960"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="968"/>
         <source>Recargar scripts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="978"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="986"/>
         <source>&amp;Salir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1064"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1072"/>
         <source>Marcadores</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1068"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1076"/>
         <source>Recientes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1072"/>
-        <source>MÃ³dulos</source>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1080"/>
+        <source>M&#xc3;&#xb3;dulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1080"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1088"/>
         <source>&amp;Vistas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
-        <source>MÃ¡s</source>
+        <source>M&#xc3;&#xa1;s</source>
         <translation type="obsolete">Mais!</translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1215"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1225"/>
         <source>Mas</source>
         <translation type="unfinished">Más</translation>
     </message>
@@ -1144,7 +1461,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>MetaData</name>
     <message>
-        <location filename="../../fllegacy/tests/test_systype.py" line="150"/>
+        <location filename="../../fllegacy/tests/test_systype.py" line="143"/>
         <source>123</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1152,65 +1469,65 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>PNApplication</name>
     <message>
-        <location filename="../../application/pnapplication.py" line="368"/>
+        <location filename="../../application/pnapplication.py" line="375"/>
         <source>Se han detectado transacciones abiertas en estado inconsistente.
-Esto puede suceder por un error en la conexiÃ³n o en la ejecuciÃ³n
-de algÃºn proceso de la aplicaciÃ³n.
+Esto puede suceder por un error en la conexi&#xc3;&#xb3;n o en la ejecuci&#xc3;&#xb3;n
+de alg&#xc3;&#xba;n proceso de la aplicaci&#xc3;&#xb3;n.
 Para mantener la consistencia de los datos se han deshecho las
-Ãºltimas operaciones sobre la base de datos.
-Los Ãºltimos datos introducidos no han sido guardados, por favor
-revise sus Ãºltimas acciones y repita las operaciones que no
+&#xc3;&#xba;ltimas operaciones sobre la base de datos.
+Los &#xc3;&#xba;ltimos datos introducidos no han sido guardados, por favor
+revise sus &#xc3;&#xba;ltimas acciones y repita las operaciones que no
 se han guardado.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/pnapplication.py" line="381"/>
+        <location filename="../../application/pnapplication.py" line="388"/>
         <source>Contexto: %s
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/pnapplication.py" line="608"/>
+        <location filename="../../application/pnapplication.py" line="639"/>
         <source>Mensajes de Eneboo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/pnapplication.py" line="727"/>
+        <location filename="../../application/pnapplication.py" line="772"/>
         <source>Salir ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/pnapplication.py" line="727"/>
-        <source>¿ Quiere salir de la aplicación ?</source>
+        <location filename="../../application/pnapplication.py" line="959"/>
+        <source>Elegir archivo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/pnapplication.py" line="914"/>
-        <source>Elegir archivo</source>
+        <location filename="../../application/pnapplication.py" line="772"/>
+        <source>&#xc2;&#xbf; Quiere salir de la aplicaci&#xc3;&#xb3;n ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PNSqlCursor</name>
     <message>
-        <location filename="../../application/database/pnsqlcursor.py" line="868"/>
+        <location filename="../../application/database/pnsqlcursor.py" line="861"/>
         <source>Aviso</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/database/pnsqlcursor.py" line="2494"/>
-        <source>No hay ningÃºn registro seleccionado</source>
+        <location filename="../../application/database/pnsqlcursor.py" line="2503"/>
+        <source>No hay ning&#xc3;&#xba;n registro seleccionado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/database/pnsqlcursor.py" line="843"/>
-        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
+        <location filename="../../application/database/pnsqlcursor.py" line="836"/>
+        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/database/pnsqlcursor.py" line="868"/>
-        <source>No hay definido ningÃºn formulario para manejar
+        <location filename="../../application/database/pnsqlcursor.py" line="861"/>
+        <source>No hay definido ning&#xc3;&#xba;n formulario para manejar
 registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1218,50 +1535,50 @@ registros de esta tabla : %s</source>
 <context>
     <name>PNStaticLoader</name>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="151"/>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="182"/>
         <source>Carpeta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="151"/>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="182"/>
         <source>Activo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="221"/>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="252"/>
         <source>Selecciones el directorio a insertar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="254"/>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="285"/>
         <source>Selecciones el directorio a modificar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="276"/>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="307"/>
         <source>Borrar registro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="276"/>
-        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="307"/>
+        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Pineboo</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2437"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2442"/>
         <source>Guardar imagen como</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2445"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2450"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2445"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2450"/>
         <source>Error guardando fichero</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1277,70 +1594,70 @@ registros de esta tabla : %s</source>
 <context>
     <name>application</name>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="652"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="779"/>
         <source>Reestructurando registros para %s...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="658"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="785"/>
         <source>Tabla modificada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="952"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1084"/>
         <source>Borrando backups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="1005"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1137"/>
         <source>Comprobando base de datos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flmanager.py" line="1349"/>
+        <location filename="../../fllegacy/flmanager.py" line="1332"/>
         <source>No se ha podido crear los metadatatos para la tabla %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="306"/>
-        <source>Sí</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="306"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="312"/>
         <source>Comprobando indices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="870"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1002"/>
         <source>Revisando tablas fllarge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="918"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1050"/>
         <source>Limpiando tablas fllarge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="1006"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1138"/>
         <source>Borrando flmetadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="1009"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1141"/>
         <source>Borrando flvar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/pnsqlschema.py" line="1015"/>
+        <location filename="../../plugins/sql/pnsqlschema.py" line="1147"/>
         <source>Vacunando base de datos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../../plugins/sql/pnsqlschema.py" line="341"/>
+        <source>Sí</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>application.PROJECT.app</name>
     <message>
-        <location filename="../../application/pnapplication.py" line="793"/>
+        <location filename="../../application/pnapplication.py" line="838"/>
         <source>%s_MULTILANG</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1438,132 +1755,117 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="397"/>
+        <location filename="../forms/ebcomportamiento.ui" line="404"/>
         <source>QT3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="418"/>
+        <location filename="../forms/ebcomportamiento.ui" line="425"/>
         <source>No usar el spacer en modo legacy (Abanq/Eneboo).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="428"/>
-        <source>ORM sqlAlchemy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="456"/>
-        <source>Desactivar conversor de ficheros MTD a model ORM.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="463"/>
-        <source>Desactivar carga de models ORM en QSA.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="473"/>
+        <location filename="../forms/ebcomportamiento.ui" line="435"/>
         <source>KUGAR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="494"/>
+        <location filename="../forms/ebcomportamiento.ui" line="456"/>
         <source>Habilitar modo debug.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="504"/>
+        <location filename="../forms/ebcomportamiento.ui" line="466"/>
         <source>Otros</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="532"/>
+        <location filename="../forms/ebcomportamiento.ui" line="494"/>
         <source>Forzar modo Mobile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="542"/>
+        <location filename="../forms/ebcomportamiento.ui" line="504"/>
         <source>Snapshot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="580"/>
+        <location filename="../forms/ebcomportamiento.ui" line="542"/>
         <source>Traducciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="601"/>
+        <location filename="../forms/ebcomportamiento.ui" line="563"/>
         <source>Usar traducciones QM.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="631"/>
+        <location filename="../forms/ebcomportamiento.ui" line="593"/>
         <source>Ficheros</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="654"/>
+        <location filename="../forms/ebcomportamiento.ui" line="616"/>
         <source>Carpeta temporales:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="668"/>
+        <location filename="../forms/ebcomportamiento.ui" line="630"/>
         <source>Cam&amp;biar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="671"/>
+        <location filename="../forms/ebcomportamiento.ui" line="633"/>
         <source>Alt+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="741"/>
+        <location filename="../forms/ebcomportamiento.ui" line="703"/>
         <source>Actualizaciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="762"/>
+        <location filename="../forms/ebcomportamiento.ui" line="724"/>
         <source>Activar actualizaciones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="771"/>
+        <location filename="../forms/ebcomportamiento.ui" line="733"/>
         <source>Repositorio GIT :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="811"/>
+        <location filename="../forms/ebcomportamiento.ui" line="773"/>
         <source>Buscar Actualizaciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="828"/>
+        <location filename="../forms/ebcomportamiento.ui" line="790"/>
         <source>Globales</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="838"/>
+        <location filename="../forms/ebcomportamiento.ui" line="800"/>
         <source>Datos Vertical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="945"/>
+        <location filename="../forms/ebcomportamiento.ui" line="907"/>
         <source>&amp;Guardar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="948"/>
+        <location filename="../forms/ebcomportamiento.ui" line="910"/>
         <source>Alt+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="955"/>
+        <location filename="../forms/ebcomportamiento.ui" line="917"/>
         <source>&amp;Cancelar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="958"/>
+        <location filename="../forms/ebcomportamiento.ui" line="920"/>
         <source>Alt+C</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1572,103 +1874,103 @@ registros de esta tabla : %s</source>
         <source>Opciones de comportamiento</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="61"/>
         <source>Estas opciones permiten modificar el comportamiento del control FLTableDB. Es muy aconsejable para que el módulo de control de acceso no tenga vulnerabilidaddes</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="74"/>
         <source>Desactivar edición con doble click.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="88"/>
         <source>Desactivar exportar a hoja de cálculo.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="121"/>
         <source>Resolución máxima de imágenes(default 600)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="213"/>
         <source>Menú de acciones</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="234"/>
         <source>Mostrar menú de acciones reducido (sin acciones de la barra de herramientas).</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="265"/>
         <source>Usar en modo DBAdmin. Habilita menú de sistema y funciones en la gestión de tablas.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="328"/>
         <source>Carga Estática</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="349"/>
         <source>Mostrar carga estática en consola.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/ebcomportamiento.ui" line="387"/>
+        <source>Sobreescribir caché siempre.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="394"/>
         <source>Convertir a Python los script QSA al cargar un módulo en la BD.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="449"/>
-        <source>Activar ORM SqlAlchemy.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="525"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="487"/>
         <source>Eliminar carpeta caché al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="563"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="525"/>
         <source>Mostrar botón para capturar pantalla en formularios.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="625"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="587"/>
         <source>Caché</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="680"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="642"/>
         <source>No borrar caché común al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="896"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="858"/>
         <source>Imágenes</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="711"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="673"/>
         <source>No cachear Imágenes.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="846"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="808"/>
         <source>Descripción (acepta HTML)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="860"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="822"/>
         <source>Mostrar información de conexión en la barra de tareas.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="902"/>
+    <message encoding="UTF-8">
+        <location filename="../forms/ebcomportamiento.ui" line="864"/>
         <source>Usar múltiples tablas FLLarge (modo AbanQ).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1699,17 +2001,17 @@ registros de esta tabla : %s</source>
 <context>
     <name>fltable</name>
     <message>
-        <location filename="../../fllegacy/tests/test_fltabledb.py" line="275"/>
+        <location filename="../../fllegacy/tests/test_fltabledb.py" line="261"/>
         <source>Igual a Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_fltabledb.py" line="320"/>
+        <location filename="../../fllegacy/tests/test_fltabledb.py" line="307"/>
         <source>Contiene Valor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_fltabledb.py" line="297"/>
+        <location filename="../../fllegacy/tests/test_fltabledb.py" line="283"/>
         <source>Distinto de Valor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1782,11 +2084,6 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/packager/tests/fixtures/principal/forms/agentes.ui" line="463"/>
-        <source>Dirección</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/agentes.ui" line="488"/>
         <source>direccion</source>
         <translation type="unfinished"></translation>
@@ -1841,6 +2138,11 @@ registros de esta tabla : %s</source>
         <source>email</source>
         <translation type="unfinished"></translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../../application/packager/tests/fixtures/principal/forms/agentes.ui" line="463"/>
+        <source>Dirección</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>formAreas</name>
@@ -1888,7 +2190,7 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context>
+<context encoding="UTF-8">
     <name>mainwindow</name>
     <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="89"/>
@@ -1945,7 +2247,7 @@ registros de esta tabla : %s</source>
         <source>A&amp;yuda</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="94"/>
         <source>&amp;Configuración</source>
         <translation type="unfinished"></translation>
@@ -1986,7 +2288,7 @@ registros de esta tabla : %s</source>
 <context>
     <name>python</name>
     <message>
-        <location filename="../../fllegacy/tests/test_systype.py" line="54"/>
+        <location filename="../../fllegacy/tests/test_systype.py" line="47"/>
         <source>hola python sin group</source>
         <translation>Hola de nuevo!</translation>
     </message>
@@ -1994,27 +2296,12 @@ registros de esta tabla : %s</source>
 <context>
     <name>scripts</name>
     <message>
-        <location filename="../scripts/flreloadbatch.py" line="116"/>
+        <location filename="../scripts/flreloadbatch.py" line="104"/>
         <source>Cancelar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="256"/>
-        <source>Bloqueos de la base de datos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/systype.py" line="283"/>
-        <source>Registro bloqueado</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/systype.py" line="690"/>
-        <source>Seleccionar Fichero</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/tests/test_flutil.py" line="23"/>
+        <location filename="../../application/translator/test/test_pntranslator.py" line="22"/>
         <source>single</source>
         <translation>simple!</translation>
     </message>
@@ -2024,47 +2311,47 @@ registros de esta tabla : %s</source>
         <translation>con variable %s!</translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="69"/>
+        <location filename="../scripts/flmodules.py" line="63"/>
         <source>- Cargando :: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="83"/>
+        <location filename="../scripts/flmodules.py" line="77"/>
         <source>- Actualizando :: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="91"/>
+        <location filename="../scripts/flmodules.py" line="85"/>
         <source>- Backup :: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="115"/>
+        <location filename="../scripts/flmodules.py" line="109"/>
         <source>Convirtiendo %s a kut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="125"/>
+        <location filename="../scripts/flmodules.py" line="119"/>
         <source>Volcando a disco </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="198"/>
+        <location filename="../scripts/flmodules.py" line="178"/>
         <source>Elegir Directorio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="222"/>
+        <location filename="../scripts/flmodules.py" line="202"/>
         <source>Acuerdo de Licencia.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="230"/>
+        <location filename="../scripts/flmodules.py" line="210"/>
         <source>No, no acepto este acuerdo de licencia.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flmodules.py" line="281"/>
+        <location filename="../scripts/flmodules.py" line="261"/>
         <source>* Carga finalizada.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2079,7 +2366,7 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../scripts/flreloadbatch.py" line="115"/>
+        <location filename="../scripts/flreloadbatch.py" line="103"/>
         <source>Aceptar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2089,81 +2376,81 @@ registros de esta tabla : %s</source>
         <translation>Test %s y %s</translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_systype.py" line="53"/>
+        <location filename="../../fllegacy/tests/test_systype.py" line="46"/>
         <source>hola python</source>
         <translation>Holaaaaa</translation>
     </message>
     <message>
-        <location filename="../scripts/flfiles.py" line="56"/>
-        <source>Opción no disponible</source>
+        <location filename="../../fllegacy/systype.py" line="536"/>
+        <source>Seleccionar Eneboo/Abanq Package</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flmodules.py" line="131"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flmodules.py" line="125"/>
         <source>Error de conversión</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flmodules.py" line="227"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flmodules.py" line="207"/>
         <source>Sí, acepto este acuerdo de licencia.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flmodules.py" line="437"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flmodules.py" line="440"/>
         <source>* Exportación finalizada.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flreloadlast.py" line="24"/>
         <source>Módulo a cargar (*.mod)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flreloadlast.py" line="24"/>
         <source>Módulo a cargar</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flreloadlast.py" line="104"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flreloadlast.py" line="92"/>
         <source>Error al crear el área:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flloadmod.py" line="35"/>
         <source>Imposible cargar el módulo.
 Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flloadmod.py" line="89"/>
         <source>Este módulo depende del módulo </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flreloadbatch.py" line="21"/>
         <source>Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../scripts/flreloadbatch.py" line="36"/>
         <source>Error al buscar los módulos en el directorio:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flreloadbatch.py" line="60"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flreloadbatch.py" line="54"/>
         <source>Error al cargar el módulo:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../scripts/flreloadbatch.py" line="118"/>
+    <message encoding="UTF-8">
+        <location filename="../scripts/flreloadbatch.py" line="106"/>
         <source>Seleccione módulos a cargar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context>
+<context encoding="UTF-8">
     <name>sys</name>
     <message>
         <location filename="../forms/sys.ui" line="14"/>
@@ -2335,117 +2622,117 @@ Licencia del módulo no aceptada.</source>
         <source>Opciones de comportamiento del ejecutable</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="122"/>
         <source>Cargar pa&amp;quete de módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="125"/>
         <source>Cargar paquete de módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="135"/>
         <source>&amp;Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="143"/>
         <source>Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="232"/>
         <source>Cargar Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="173"/>
         <source>Recargar Ú&amp;ltimo Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="176"/>
         <source>Recargar Último Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="86"/>
         <source>&amp;Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../forms/sys.ui" line="206"/>
         <source>Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="16"/>
         <source>Administración</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="19"/>
         <source>Administración del sistema</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="92"/>
         <source>Módulos (Ctrl+M)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="95"/>
         <source>Administración de los módulos de aplicación (Ctrl+M)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="112"/>
         <source>Á&amp;reas</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="115"/>
         <source>Áreas (Ctrl+R)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="118"/>
         <source>Áreas de negocio</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="138"/>
         <source>Cargar Módulo (Ctrl+C)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="141"/>
         <source>Carga un módulo desde disco</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="158"/>
         <source>Recargar último módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="260"/>
         <source>Cargar Paquete de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="263"/>
         <source>Cargar Pa&amp;quete de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="266"/>
         <source>Cargar Paquete de Módulos (CTRL + Q)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="269"/>
         <source>Carga Paquetes de Módulos .eneboopkg o .abanq2.4</source>
         <translation type="unfinished"></translation>

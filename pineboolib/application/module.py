@@ -9,11 +9,11 @@ Modules are the declaration of Pineboo source packages where all related functio
 is stored within. Its composed of a name and description; and they contain code, forms, etc.
 """
 
-from pineboolib.core.utils import logging
-from .moduleactions import ModuleActions
 
+from pineboolib import logging
 
-from .utils.path import _path
+from .utils import path
+from . import moduleactions
 
 from typing import Dict, TYPE_CHECKING
 
@@ -64,7 +64,7 @@ class Module(object):
 
         mng_modules = application.PROJECT.conn_manager.managerModules()
 
-        path_xml = _path("%s.xml" % self.name)
+        path_xml = path._path("%s.xml" % self.name)
 
         if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
             ret_xml = mng_modules.contentStatic(
@@ -81,7 +81,7 @@ class Module(object):
         #    self.logger.error("módulo %s: fichero UI no existe", self.name)
         #    return False
         try:
-            self.actions = ModuleActions(self, path_xml, self.name)
+            self.actions = moduleactions.ModuleActions(self, path_xml, self.name)
             self.actions.load()
         except Exception:
             LOGGER.exception("Al cargar módulo %s:", self.name)

@@ -2,7 +2,7 @@
 """
 Defines the PNConnection class.
 """
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.core import settings, utils, decorators
 from pineboolib.core.utils import utils_base
@@ -344,7 +344,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 )
 
                 if res is not None:
-                    if res == QtWidgets.QMessageBox.No:
+                    if res == QtWidgets.QMessageBox.StandardButtons.No:
                         return False
 
             cancel = True

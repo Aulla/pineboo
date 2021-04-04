@@ -4,9 +4,9 @@ QSADictModules.
 Manages read and writting QSA dynamic properties that are loaded during project startup.
 """
 from typing import Any, TYPE_CHECKING
-from pineboolib.core.utils import logging
+from pineboolib import logging
 from . import xmlaction
-from . import proxy as proxy_module
+from . import proxy
 from . import safeqsa
 import sqlalchemy
 import gc
@@ -87,9 +87,7 @@ class QSADictModules:
         return hasattr(cls.qsa_dict_modules(), scriptname)
 
     @classmethod
-    def save_action(
-        cls, scriptname: str, delayed_action: "proxy_module.DelayedObjectProxyLoader"
-    ) -> None:
+    def save_action(cls, scriptname: str, delayed_action: "proxy.DelayedObjectProxyLoader") -> None:
         """
         Save Action into project for QSA.
         """
@@ -137,7 +135,7 @@ class QSADictModules:
             )
             return False
         # Se crea la action del form
-        delayed_action = proxy_module.DelayedObjectProxyLoader(
+        delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s.Action.form%s" % (module.mod.name, name)
         )
         cls.save_action(actionname, delayed_action)
@@ -159,7 +157,7 @@ class QSADictModules:
             )
             return False
         # Se crea la action del formRecord
-        delayed_action = proxy_module.DelayedObjectProxyLoader(
+        delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_record_widget,
             name="QSA.Module.%s.Action.formRecord%s" % (module.mod.name, name),
         )
@@ -185,7 +183,7 @@ class QSADictModules:
                 )
                 return False
 
-            delayed_action = proxy_module.DelayedObjectProxyLoader(
+            delayed_action = proxy.DelayedObjectProxyLoader(
                 action.load_class,
                 name="QSA.Module.%s.Action.class_%s" % (module.mod.name, class_name),
             )
@@ -200,7 +198,7 @@ class QSADictModules:
         list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
         for name in list_:
             att = getattr(qsa_dict_modules, name)
-            if isinstance(att, proxy_module.DelayedObjectProxyLoader) or (
+            if isinstance(att, proxy.DelayedObjectProxyLoader) or (
                 name.endswith(("_orm", "_class")) and not name.startswith("fl")
             ):
                 delattr(qsa_dict_modules, name)

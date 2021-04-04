@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 from .qwidget import QWidget
 
 
@@ -20,7 +20,7 @@ class CheckBox(QWidget):
         self._label = QtWidgets.QLabel(self)
         self._cb = QtWidgets.QCheckBox(self)
         spacer = QtWidgets.QSpacerItem(
-            1, 1, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+            1, 1, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
         )
         _lay = QtWidgets.QHBoxLayout()
         _lay.addWidget(self._cb)

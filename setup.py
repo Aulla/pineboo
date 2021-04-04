@@ -61,7 +61,7 @@ setuptools.setup(
     },
     install_requires=required,
     keywords="erp pineboo eneboo accounting sales warehouse",
-    python_requires="~=3.6",
+    python_requires=">=3.6.9",
     entry_points={
         "console_scripts": [
             "pineboo-parse=pineboolib.application.parsers.parser_qsa.postparse:main",

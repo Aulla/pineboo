@@ -66,7 +66,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         )
 
     def test_basic_3(self) -> None:
-        from PyQt5 import QtCore
+        from PyQt6 import QtCore
         import locale
         import os
         from datetime import date
@@ -88,13 +88,14 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertEqual(model.data(model.index(1, 0)), 6)
 
         cursor.setSort("string_field DESC, double_field DESC")
-        model.sort(0, QtCore.Qt.AscendingOrder)
+        model.sort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.assertEqual(
-            model.data(model.index(0, 5), QtCore.Qt.TextAlignmentRole),
-            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignCenter,
+            model.data(model.index(0, 5), QtCore.Qt.ItemDataRole.TextAlignmentRole),
+            QtCore.Qt.Alignment.AlignVCenter | QtCore.Qt.Alignment.AlignCenter,
         )
         self.assertEqual(
-            model.data(model.index(1, 1), QtCore.Qt.TextAlignmentRole), QtCore.Qt.AlignVCenter
+            model.data(model.index(1, 1), QtCore.Qt.ItemDataRole.TextAlignmentRole),
+            QtCore.Qt.Alignment.AlignVCenter,
         )
         system_date = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")
@@ -104,15 +105,15 @@ class TestPNCursorTableModel(unittest.TestCase):
         date_format = date_format.replace("/", "-")  # Separadores
         date_ = system_date.strftime(date_format)
 
-        self.assertEqual(model.data(model.index(0, 2), QtCore.Qt.DisplayRole), date_)
+        self.assertEqual(model.data(model.index(0, 2), QtCore.Qt.ItemDataRole.DisplayRole), date_)
         self.assertEqual(
-            model.data(model.index(1, 4), QtCore.Qt.DisplayRole),
+            model.data(model.index(1, 4), QtCore.Qt.ItemDataRole.DisplayRole),
             QtCore.QLocale.system().toString(float(0.01), "f", 2),
         )
 
     def test_basic_4(self) -> None:
         """Test basic 4."""
-        from PyQt5 import QtCore, QtGui
+        from PyQt6 import QtCore, QtGui
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor.setSort("string_field DESC")
@@ -120,10 +121,14 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         model = cursor.model()
         self.assertTrue(
-            isinstance(model.data(model.index(0, 5), QtCore.Qt.BackgroundRole), QtGui.QBrush)
+            isinstance(
+                model.data(model.index(0, 5), QtCore.Qt.ItemDataRole.BackgroundRole), QtGui.QBrush
+            )
         )
         self.assertTrue(
-            isinstance(model.data(model.index(0, 5), QtCore.Qt.ForegroundRole), QtGui.QBrush)
+            isinstance(
+                model.data(model.index(0, 5), QtCore.Qt.ItemDataRole.ForegroundRole), QtGui.QBrush
+            )
         )
 
         model.update_rows()
@@ -134,13 +139,13 @@ class TestPNCursorTableModel(unittest.TestCase):
 
     def test_basic_5(self) -> None:
         """Test basic 5."""
-        from PyQt5 import QtCore
+        from PyQt6 import QtCore
 
         cursor = pnsqlcursor.PNSqlCursor("fltest2")
 
         model = cursor.model()
         model.disable_refresh(True)
-        model.sort(1, QtCore.Qt.DescendingOrder)
+        model.sort(1, QtCore.Qt.SortOrder.DescendingOrder)
         self.assertTrue(model._disable_refresh)
         model.disable_refresh(False)
         model.update_rows()

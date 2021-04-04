@@ -10,7 +10,7 @@ import ast
 
 from typing import Any, Dict, Optional, List, Union
 
-from PyQt5 import QtCore, QtWidgets, QtXml
+from PyQt6 import QtWidgets, QtXml
 
 from pineboolib.core import settings
 from pineboolib.core import decorators
@@ -29,8 +29,6 @@ class SysBaseType(object):
     """
     Obtain useful data from the application.
     """
-
-    time_user_ = QtCore.QDateTime.currentDateTime()
 
     @classmethod
     def nameUser(cls) -> str:
@@ -443,7 +441,7 @@ class SysBaseType(object):
             QtWidgets.QApplication.focusWidget(),
             "Pineboo",
             cls.translate(u"Funcionalidad no soportada aún en Pineboo."),
-            QtWidgets.QMessageBox.Ok,
+            QtWidgets.QMessageBox.StandardButtons.Ok,
         )
         return
 

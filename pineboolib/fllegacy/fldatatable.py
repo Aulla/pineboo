@@ -1,7 +1,7 @@
 """Fldatatable module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets, Qt, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import utils_base
@@ -71,8 +71,8 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Pixmap precargados
     """
-    pix_ok_: Qt.QPixmap
-    pix_no_: Qt.QPixmap
+    pix_ok_: str
+    pix_no_: str
 
     """
     Lista con las claves primarias de los registros seleccionados por chequeo
@@ -156,13 +156,13 @@ class FLDataTable(QtWidgets.QTableView):
         self._v_header.setDefaultSectionSize(22)
         self._h_header = self.horizontalHeader()
         self._h_header.setDefaultSectionSize(120)
-        self._h_header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
-        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self._h_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         self.setAlternatingRowColors(True)
         self.setSortingEnabled(True)
-        self.sortByColumn(0, QtCore.Qt.AscendingOrder)
+        self.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.fltable_iface = None
         self.popup_ = popup
 
@@ -193,7 +193,11 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
-                cast(QtCore.pyqtSignal, self.cursor_.commited).disconnect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.refresh
+                )
 
                 cur_chg = True
 
@@ -207,7 +211,11 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.only_table_)
 
-                cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.refresh
+                )
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())
@@ -429,40 +437,48 @@ class FLDataTable(QtWidgets.QTableView):
         col = self.currentColumn()
         num_rows = self.numRows()
         num_cols = self.numCols()
-        if event.type() == QtCore.QEvent.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
             key_event = cast(QtGui.QKeyEvent, event)
 
-            if key_event.key() == QtCore.Qt.Key_Escape and self.popup_ and self.parentWidget():
+            if (
+                key_event.key() == cast(int, QtCore.Qt.Key.Key_Escape)
+                and self.popup_
+                and self.parentWidget()
+            ):
                 self.parentWidget().hide()
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Insert:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Insert):
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_F2:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_F2):
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Up and row == 0:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Up) and row == 0:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Left and col == 0:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Left) and col == 0:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Down and row == num_rows - 1:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Down) and row == num_rows - 1:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Right and col == num_cols - 1:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Right) and col == num_cols - 1:
                 return True
 
-            if key_event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return) and row > -1:
+            if (
+                key_event.key()
+                in (cast(int, QtCore.Qt.Key.Key_Enter), cast(int, QtCore.Qt.Key.Key_Return))
+                and row > -1
+            ):
                 self.recordChoosed.emit()
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Space:
+            if key_event.key() == cast(int, QtCore.Qt.Key.Key_Space):
                 self.setChecked(self.model().index(row, col))
 
             if not settings.CONFIG.value("ebcomportamiento/FLTableShortCut", False):
-                if key_event.key() == QtCore.Qt.Key_A and not self.popup_:
+                if key_event.key() == cast(int, QtCore.Qt.Key.Key_A) and not self.popup_:
                     if (
                         self.cursor_
                         and not self.readonly_
@@ -475,7 +491,7 @@ class FLDataTable(QtWidgets.QTableView):
                     else:
                         return False
 
-                if key_event.key() == QtCore.Qt.Key_C and not self.popup_:
+                if key_event.key() == cast(int, QtCore.Qt.Key.Key_C) and not self.popup_:
                     if (
                         self.cursor_
                         and not self.readonly_
@@ -487,14 +503,14 @@ class FLDataTable(QtWidgets.QTableView):
                     else:
                         return False
 
-                if key_event.key() == QtCore.Qt.Key_M and not self.popup_:
+                if key_event.key() == cast(int, QtCore.Qt.Key.Key_M) and not self.popup_:
                     if self.cursor_ and not self.readonly_ and not self.only_table_:
                         self.cursor_.editRecord()
                         return True
                     else:
                         return False
 
-                if key_event.key() == QtCore.Qt.Key_Delete and not self.popup_:
+                if key_event.key() == cast(int, QtCore.Qt.Key.Key_Delete) and not self.popup_:
                     if (
                         self.cursor_
                         and not self.readonly_
@@ -506,14 +522,14 @@ class FLDataTable(QtWidgets.QTableView):
                     else:
                         return False
 
-                if key_event.key() == QtCore.Qt.Key_V and not self.popup_:
+                if key_event.key() == cast(int, QtCore.Qt.Key.Key_V) and not self.popup_:
                     if self.cursor_ and not self.only_table_:
                         self.cursor_.browseRecord()
                         return True
 
             return False
 
-        return super(FLDataTable, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     def contextMenuEvent(self, event: Any) -> None:
         """
@@ -547,7 +563,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         popup = QMenu(self)
 
-        menu_frame = QWidget(self, QtCore.Qt.Popup)
+        menu_frame = QWidget(self, QtCore.Qt.WindowFlags.Popup)
 
         lay = QVBoxLayout()
         menu_frame.setLayout(lay)
@@ -567,7 +583,7 @@ class FLDataTable(QtWidgets.QTableView):
 
                 sub_popup = QMenu(self)
                 sub_popup.setTitle(mtd.alias())
-                sub_popup_frame = QWidget(sub_popup, QtCore.Qt.Popup)
+                sub_popup_frame = QWidget(sub_popup, QtCore.Qt.WindowFlags.Popup)
                 lay_popup = QVBoxLayout(sub_popup)
                 sub_popup_frame.setLayout(lay_popup)
 
@@ -592,7 +608,9 @@ class FLDataTable(QtWidgets.QTableView):
                         data_table.setColumnHidden(i, True)
 
                 sub_menu = popup.addMenu(sub_popup)
-                sub_menu.hovered.connect(sub_popup_frame.show)
+                sub_menu.hovered.connect(  # type: ignore [attr-defined] # noqa: F821
+                    sub_popup_frame.show
+                )
                 sub_popup_frame.move(
                     tmp_pos.x() + 200, tmp_pos.y()
                 )  # FIXME: Hay que mejorar esto ...
@@ -773,7 +791,7 @@ class FLDataTable(QtWidgets.QTableView):
         else:
             wc_ = self.header().sectionSize(col)
 
-            font_metrics = Qt.QFontMetrics(self.header().font())
+            font_metrics = QtGui.QFontMetrics(self.header().font())
             wh_ = font_metrics.horizontalAdvance(field.alias() + "W")
             if wh_ < wc_:
                 wh_ = wc_
@@ -838,7 +856,7 @@ class FLDataTable(QtWidgets.QTableView):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         """Double click event."""
-        if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.LeftButton:
+        if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.MouseButtons.LeftButton:
             return
 
         self.recordChoosed.emit()

@@ -1,5 +1,5 @@
 """Qmenu module."""
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from typing import List, Any
 from pineboolib import application

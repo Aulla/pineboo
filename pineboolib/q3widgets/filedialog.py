@@ -1,6 +1,6 @@
 """Filedialog module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib.core import system as core_system
 import os
@@ -45,6 +45,6 @@ class FileDialog(object):
             folder = "%s/" % core_system.System.getenv("HOME")
 
         ret = QtWidgets.QFileDialog.getExistingDirectory(
-            None, caption, folder, QtWidgets.QFileDialog.ShowDirsOnly
+            None, caption, folder, QtWidgets.QFileDialog.Options.ShowDirsOnly
         )
         return "%s/" % ret if ret else ""

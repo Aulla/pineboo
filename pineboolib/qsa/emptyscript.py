@@ -58,6 +58,3 @@ class FormInternalObj(formdbwidget.FormDBWidget):
     def interna_init(self) -> None:
         """Run optional inicialize script."""
         pass
-
-
-form = None

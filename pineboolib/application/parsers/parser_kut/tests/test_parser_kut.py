@@ -101,7 +101,7 @@ class TestParser(unittest.TestCase):
         self.assertEqual(parser_tools.getSpecial("NúmPágina", 1), "1")
         self.assertEqual(parser_tools.getSpecial("PageNo", 6), "6")
         self.assertEqual(parser_tools.getSpecial("[NÃºmPÃ¡gina]", 12), "12")
-        from PyQt5 import QtCore
+        from PyQt6 import QtCore
 
         ret_ = QtCore.QLocale.system().toString(float("11.22"), "f", 2)
         xml = et.Element("data")

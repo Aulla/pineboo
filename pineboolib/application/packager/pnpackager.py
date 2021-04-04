@@ -4,7 +4,7 @@ PNPackager package.
 
 Build .eneboopkg packages.
 """
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from pineboolib.core import decorators
 from pineboolib import logging
@@ -233,7 +233,7 @@ class PNPackager(object):
         files_def = self.filesDef(module_folder_list)
 
         file_ = QtCore.QFile(QtCore.QDir.cleanPath(outputfile))
-        if not file_.open(QtCore.QIODevice.WriteOnly):
+        if not file_.open(QtCore.QIODevice.OpenMode.WriteOnly):
             error = "Error opening file %r" % outputfile
             self._addError("pack", error)
             raise Exception(error)
@@ -245,17 +245,17 @@ class PNPackager(object):
             package_name = "AbanQ Packager (Pineboo %s)" % PINEBOO_VER
 
         stream.writeBytes(package_name.encode())
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(QtCore.qCompress(modules_def).data())
-        stream = stream.writeBytes(QtCore.qCompress(files_def).data())
+        stream.writeBytes(b"")
+        stream.writeBytes(b"")
+        stream.writeBytes(b"")
+        stream.writeBytes(QtCore.qCompress(modules_def).data())
+        stream.writeBytes(QtCore.qCompress(files_def).data())
         # FILE CONTENTS
         try:
             for filepath in self._file_list:
                 sys.stdout.write(".")
                 sys.stdout.flush()
-                stream = stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
+                stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
 
         except Exception as exception:
             self._addError("pack (add files)", str(exception))

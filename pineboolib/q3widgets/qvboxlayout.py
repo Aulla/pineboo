@@ -1,6 +1,6 @@
 """Qvboxlayout module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from typing import Optional
 
 
@@ -18,4 +18,4 @@ class QVBoxLayout(QtWidgets.QVBoxLayout):
 
         self.setContentsMargins(0, 2, 0, 2)
         self.setSpacing(1)
-        self.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)

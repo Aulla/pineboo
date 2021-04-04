@@ -1,6 +1,6 @@
 """Qtoolbutton module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
 
 
@@ -82,7 +82,7 @@ class QToolButton(QtWidgets.QToolButton):
     def animateClick(self, num: int) -> None:  # type: ignore [override] # noqa: F821
         """Animateclick Bound method."""
 
-        super().animateClick(num)
+        super().animateClick()
 
     on = property(getOn, setOn)
     enabled = property(getEnabled, setEnabled)

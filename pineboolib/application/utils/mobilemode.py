@@ -2,7 +2,7 @@
 To detect if we are in mobile mode.
 """
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from pineboolib.core import settings
 
@@ -50,7 +50,7 @@ def check_mobile_mode() -> bool:
 
 #    if product_type == "android":
 #        import jnius
-# from PyQt5 import QtAndroidExtras  # type: ignore #noqa: F821
+# from PyQt6 import QtAndroidExtras  # type: ignore #noqa: F821
 # import sys
 
 # android_jni = QtAndroidExtras.QAndroidJniObject("android/content/Context")

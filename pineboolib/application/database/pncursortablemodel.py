@@ -4,7 +4,7 @@ Defines PNCursorTableModel class.
 """
 
 
-from PyQt5 import QtCore, QtGui, Qt, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
@@ -188,7 +188,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._disable_refresh = disable
 
-    def sort(self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder) -> None:
+    def sort(
+        self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.SortOrder.AscendingOrder
+    ) -> None:
         """
         Change order by used ASC/DESC and column.
 
@@ -198,7 +200,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         col = column
         # order 0 ascendente , 1 descendente
         ord = "ASC"
-        if order == 1:
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
             ord = "DESC"
 
         field_mtd = self.metadata().indexFieldObject(col)
@@ -245,7 +247,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._sort_order = ""
         self._sort_order = sort_order
 
-    def data(self, index: QtCore.QModelIndex, role: int = QtCore.Qt.DisplayRole) -> Any:
+    def data(
+        self, index: QtCore.QModelIndex, role: int = QtCore.Qt.ItemDataRole.DisplayRole
+    ) -> Any:
         """
         Retrieve information about a record.
 
@@ -278,7 +282,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 result = QtWidgets.QCheckBox()
                 self._check_column[primary_key] = result
 
-        if self.parent_view and role in [QtCore.Qt.BackgroundRole, QtCore.Qt.ForegroundRole]:
+        if self.parent_view and role in [
+            QtCore.Qt.ItemDataRole.BackgroundRole,
+            QtCore.Qt.ItemDataRole.ForegroundRole,
+        ]:
             fun_get_color, iface = self.parent_view.functionGetColor()
             if fun_get_color is not None:
                 context_ = None
@@ -322,25 +329,25 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # 8 QtCore.Qt.BackgroundRole
         # 9 QtCore.Qt.ForegroundRole
 
-        if role == QtCore.Qt.CheckStateRole and _type == "check":
+        if role == QtCore.Qt.ItemDataRole.CheckStateRole and _type == "check":
             if primary_key in self._check_column.keys():
                 if self._check_column[primary_key].isChecked():
-                    return QtCore.Qt.Checked
+                    return QtCore.Qt.CheckState.Checked
 
-            return QtCore.Qt.Unchecked
+            return QtCore.Qt.CheckState.Unchecked
 
-        elif role == QtCore.Qt.TextAlignmentRole:
-            result = QtCore.Qt.AlignVCenter
+        elif role == QtCore.Qt.ItemDataRole.TextAlignmentRole:
+            result = QtCore.Qt.Alignment.AlignVCenter
             if _type in ("int", "double", "uint"):
-                result = result | QtCore.Qt.AlignRight
+                result = result | QtCore.Qt.Alignment.AlignRight
             elif _type in ("bool", "date", "time"):
-                result = result | QtCore.Qt.AlignCenter
+                result = result | QtCore.Qt.Alignment.AlignCenter
             elif _type in ("unlock", "pixmap"):
-                result = result | QtCore.Qt.AlignHCenter
+                result = result | QtCore.Qt.Alignment.AlignHCenter
 
             return result
 
-        elif role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
+        elif role in (QtCore.Qt.ItemDataRole.DisplayRole, QtCore.Qt.ItemDataRole.EditRole):
             if not field.visible():
                 result = None
             # r = self._vdata[row]
@@ -412,7 +419,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             return result
 
-        elif role == QtCore.Qt.DecorationRole:
+        elif role == QtCore.Qt.ItemDataRole.DecorationRole:
             pixmap = None
             if _type in ("unlock", "pixmap") and self.parent_view:
                 row_height = self.parent_view.rowHeight(row)  # Altura row
@@ -447,8 +454,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         new_pixmap = QtGui.QPixmap(row_width, row_height)  # w , h
                         center_width = (row_width - pixmap.width()) / 2
                         center_height = (row_height - pixmap.height()) / 2
-                        new_pixmap.fill(QtCore.Qt.transparent)
-                        painter = Qt.QPainter(new_pixmap)
+                        new_pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+                        painter = QtGui.QPainter(new_pixmap)
                         painter.drawPixmap(
                             int(center_width),
                             int(center_height),
@@ -461,19 +468,19 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             return pixmap
 
-        elif role == QtCore.Qt.BackgroundRole:
+        elif role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if _type == "bool":
                 if result in (True, "1"):
-                    result = QtGui.QBrush(QtCore.Qt.green)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.green)
                 else:
-                    result = QtGui.QBrush(QtCore.Qt.red)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.red)
 
             elif _type == "check":
                 obj_ = self._check_column[primary_key]
                 result = (
-                    QtGui.QBrush(QtCore.Qt.green)
+                    QtGui.QBrush(QtCore.Qt.GlobalColor.green)
                     if obj_.isChecked()
-                    else QtGui.QBrush(QtCore.Qt.white)
+                    else QtGui.QBrush(QtCore.Qt.GlobalColor.white)
                 )
 
             else:
@@ -487,12 +494,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             return result
 
-        elif role == QtCore.Qt.ForegroundRole:
+        elif role == QtCore.Qt.ItemDataRole.ForegroundRole:
             if _type == "bool":
                 if result in (True, "1"):
-                    result = QtGui.QBrush(QtCore.Qt.black)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.black)
                 else:
-                    result = QtGui.QBrush(QtCore.Qt.white)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.white)
             else:
                 if res_color_function and len(res_color_function) and res_color_function[1] != "":
                     color_ = QtGui.QColor(res_color_function[1])
@@ -516,7 +523,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.endInsertRows()
         top_left = self.index(0, 0)
         botom_rigth = self.index(to_row, self.cols - 1)
-        self.dataChanged.emit(top_left, botom_rigth)
+        self.dataChanged.emit(top_left, botom_rigth)  # type: ignore [attr-defined] # noqa: F821
         self.indexes_valid = True
 
     def _refresh_field_info(self) -> None:
@@ -660,7 +667,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.beginRemoveRows(parent, 0, rows)
         self.endRemoveRows()
         if rows > 0:
-            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
+            cast(
+                QtCore.pyqtSignal, self.rowsRemoved
+            ).emit(  # type: ignore [attr-defined] # noqa: F821
+                parent, 0, rows - 1
+            )
 
         self._refresh_field_info()
 
@@ -1009,22 +1020,25 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
 
     def headerData(
-        self, section: int, orientation: QtCore.Qt.Orientation, role: int = QtCore.Qt.DisplayRole
+        self,
+        section: int,
+        orientation: "QtCore.Qt.Orientations",
+        role: int = QtCore.Qt.ItemDataRole.DisplayRole,
     ) -> Any:
         """
         Retrieve header data.
 
         @param section. Column
         @param orientation. Horizontal, Vertical
-        @param role. QtCore.Qt.DisplayRole only. Every other option is ommitted.
+        @param role. QtCore.Qt.ItemDataRole.DisplayRole only. Every other option is ommitted.
         @return info for section, orientation and role.
         """
-        if role == QtCore.Qt.DisplayRole:
-            if orientation == QtCore.Qt.Horizontal:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            if orientation == QtCore.Qt.Orientations.Horizontal:
                 if not self.col_aliases:
                     self.loadColAliases()
                 return self.col_aliases[section]
-            elif orientation == QtCore.Qt.Vertical:
+            elif orientation == QtCore.Qt.Orientations.Vertical:
                 return section + 1
         return None
 

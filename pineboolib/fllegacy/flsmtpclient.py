@@ -1,6 +1,6 @@
 """Flsmtpclient module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, Qt  # type: ignore
+from PyQt6 import QtCore, QtGui  # type: ignore
 from os.path import basename
 from pineboolib import logging
 
@@ -341,7 +341,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
             )
             if not QtCore.QFile.exists(logo):
                 logo = "%s/logo.png" % application.PROJECT.tmpdir
-                Qt.QPixmap(utils_base.pixmap_from_mime_source("pineboo-logo.png")).save(logo, "PNG")
+                QtGui.QPixmap(utils_base.pixmap_from_mime_source("pineboo-logo.png")).save(
+                    logo, "PNG"
+                )
 
             fp_ = open(logo, "rb")
             logo_part = MIMEImage(fp_.read())

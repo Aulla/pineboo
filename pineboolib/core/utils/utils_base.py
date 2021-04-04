@@ -6,7 +6,7 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 """
 
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore, QtXml, QtWidgets
 
 from . import logging
 from .. import settings
@@ -40,7 +40,7 @@ DECIMAL_SEPARATOR = (
 BASE_DIR = None
 FORCE_DESKTOP = False
 
-_showed_force_desktop_warning = False
+SHOWED_FORCE_DESKTOP_WARNING = False
 
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
@@ -54,6 +54,36 @@ def auto_qt_translate_text(text: Optional[str]) -> str:
             text = match.group(1) if match else ""
 
     return text
+
+
+def qt_translate_noop(string: str, path: str, mod: str) -> str:
+    """Translate string."""
+
+    if string.find(u"QT_TRANSLATE_NOOP") == -1:
+        return string
+    string_list = string[18:-1].split(",")
+    string = string_list[1][1:-1]
+
+    nombre_fichero = os.path.join(
+        path, "translations", "%s.%s.ts" % (mod, QtCore.QLocale().name()[:2])
+    )
+    if not os.path.exists(nombre_fichero):
+        LOGGER.debug("flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero)
+        return string
+
+    fichero = open(nombre_fichero, "r", encoding="ISO-8859-15")
+    file_data = fichero.read()
+    xml_translations = QtXml.QDomDocument()
+    if xml_translations.setContent(file_data):
+        node_mess = xml_translations.elementsByTagName(u"message")
+        for item in range(len(node_mess)):
+            if node_mess.item(item).namedItem(u"source").toElement().text() == string:
+                traduccion = node_mess.item(item).namedItem(u"translation").toElement().text()
+                if traduccion:
+                    string = traduccion
+                    break
+
+    return string
 
 
 AQTT = auto_qt_translate_text
@@ -147,7 +177,7 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
     if not os.path.exists(to_dir):
         os.makedirs(to_dir)
 
-    for file_ in dir.entryList(QtCore.QDir.Files):
+    for file_ in dir.entryList(QtCore.QDir.Filters.Files):
         from_ = from_dir + file_
         to_ = to_dir + file_
         if str(to_).endswith(".src"):
@@ -164,7 +194,7 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
             return False
 
     for dir_ in dir.entryList(
-        cast(QtCore.QDir.Filter, QtCore.QDir.Dirs | QtCore.QDir.NoDotAndDotDot)
+        cast(QtCore.QDir.Filters, QtCore.QDir.Filters.Dirs | QtCore.QDir.Filters.NoDotAndDotDot)
     ):
         from_ = from_dir + dir_
         to_ = to_dir + dir_
@@ -358,115 +388,51 @@ def pretty_print_xml(elem: ElementTree.Element, level: int = 0) -> None:
     it basically walks your tree and adds spaces and newlines so the tree is
     printed in a nice way
     """
-    i = "\n" + level * "  "
+    lev_ = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
+            elem.text = lev_ + "  "
         if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+            elem.tail = lev_
         for elem in elem:
             pretty_print_xml(elem, level + 1)
         if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+            elem.tail = lev_
     else:
         if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+            elem.tail = lev_
 
 
-def format_double(value: Union[int, str, float], part_integer: int, part_decimal: int) -> str:
+def format_double(value: Union[int, str, float], part_integer: int, part_decimal: int = 0) -> str:
     """Convert number into string with fixed point style."""
     if isinstance(value, str) and value == "":
         return value
-    # import locale
-    # p_int = field_meta.partInteger()
-    # p_decimal = field_meta.partDecimal()
-    comma_ = "."
-    value = str(value)
-    found_comma = True if value.find(comma_) > -1 else False
-    # if aqApp.commaSeparator() == comma_:
-    #    d = d.replace(",", "")
-    # else:
-    #    d = d.replace(".","")
-    #    d = d.replace(",",".")
 
-    value = round(float(value), part_decimal)
+    value_array = str(round(float(str(value)), part_decimal)).split(".")
 
-    str_d = str(value)
-    str_integer = str_d[0 : str_d.find(comma_)] if str_d.find(comma_) > -1 else str_d
-    str_decimal = "" if str_d.find(comma_) == -1 else str_d[str_d.find(comma_) + 1 :]
+    str_integer = format_int(value_array[0], part_integer)
+    str_decimal = value_array[1] if len(value_array) > 1 and part_decimal else ""
 
-    if part_decimal > 0:
-        while part_decimal > len(str_decimal):
-            str_decimal += "0"
-
-    str_integer = format_int(str_integer, part_integer)
+    while part_decimal > len(str_decimal):
+        str_decimal += "0"
 
     # Fixme: Que pasa cuando la parte entera sobrepasa el limite, se coge el maximo valor o
-    ret_ = "%s%s%s" % (
-        str_integer,
-        DECIMAL_SEPARATOR if found_comma or part_decimal > 0 else "",
-        str_decimal if part_decimal > 0 else "",
-    )
-    return ret_
+    return "%s%s%s" % (str_integer, DECIMAL_SEPARATOR if str_decimal else "", str_decimal)
 
 
-def format_int(value: Union[str, int, float, None], part_integer: int = None) -> str:
+def format_int(value: Union[str, int, float, None], part_integer: int = 0) -> str:
     """Convert integer into string."""
-    if value is None:
-        return ""
-    str_integer = "{:,d}".format(int(value))
-
-    if DECIMAL_SEPARATOR == ",":
-        str_integer = str_integer.replace(",", ".")
+    if value is not None:
+        str_integer = "{:,d}".format(int(value))
+        value = str_integer.replace(DECIMAL_SEPARATOR, "," if DECIMAL_SEPARATOR == "," else ".")
+        len_value = len(value)
+        return (
+            value[len_value - part_integer :]
+            if part_integer and part_integer < len_value
+            else value
+        )
     else:
-        str_integer = str_integer.replace(".", ",")
-
-    return str_integer
-
-
-# def unformat_number(new_str: str, old_str: Optional[str], type_: str) -> str:
-#    """Undoes some of the locale formatting to ensure float(x) works."""
-#    ret_ = new_str
-#    if old_str is not None:
-
-#        if type_ in ("int", "uint"):
-#            new_str = new_str.replace(",", "")
-#            new_str = new_str.replace(".", "")
-
-#            ret_ = new_str
-
-#        else:
-#            end_comma = False
-#            if new_str.endswith(",") or new_str.endswith("."):
-# Si acaba en coma, lo guardo
-#                end_comma = True
-
-#            ret_ = new_str.replace(",", "")
-#            ret_ = ret_.replace(".", "")
-#            if end_comma:
-#                ret_ = ret_ + "."
-# else:
-#    comma_pos = old_str.find(".")
-#    if comma_pos > -1:
-#            print("Desformateando", new_str, ret_)
-
-# else:
-# pos_comma = old_str.find(".")
-
-# if pos_comma > -1:
-#    if pos_comma > new_str.find("."):
-#        new_str = new_str.replace(".", "")
-
-#        ret_ = new_str[0:pos_comma] + "." + new_str[pos_comma:]
-
-# print("l2", ret_)
-#    return ret_
-
-
-# FIXME: Belongs to RPC drivers
-# def create_dict(method: str, fun: str, id: int, arguments: List[Any] = []) -> Dict[str, Union[str, int, List[Any], Dict[str, Any]]]:
-#     data = [{"function": fun, "arguments": arguments, "id": id}]
-#     return {"method": method, "params": data, "jsonrpc": "2.0", "id": id}
+        return ""
 
 
 def is_deployed() -> bool:
@@ -476,14 +442,13 @@ def is_deployed() -> bool:
 
 def is_library() -> bool:
     """Return if pineboolib is used as external library."""
-    from PyQt5 import QtWidgets
 
-    global _showed_force_desktop_warning
+    global SHOWED_FORCE_DESKTOP_WARNING
 
     if FORCE_DESKTOP:
-        if not _showed_force_desktop_warning:
+        if not SHOWED_FORCE_DESKTOP_WARNING:
             LOGGER.info("is_library: Force Desktop is Activated!")
-            _showed_force_desktop_warning = True
+            SHOWED_FORCE_DESKTOP_WARNING = True
 
         return False
     return QtWidgets.QApplication.platformName() == "offscreen"
@@ -512,8 +477,7 @@ def filedir(*path: str) -> str:
     @return devuelve la ruta absoluta resultado de concatenar los paths que se le pasen y aplicarlos desde la ruta del proyecto.
     Es útil para especificar rutas a recursos del programa.
     """
-    ruta_ = os.path.realpath(os.path.join(get_base_dir(), *path))
-    return ruta_
+    return os.path.realpath(os.path.join(get_base_dir(), *path))
 
 
 def download_files() -> None:
@@ -534,7 +498,7 @@ def download_files() -> None:
 
 def pixmap_from_mime_source(name: str) -> Any:
     """Convert mime source into a pixmap."""
-    from PyQt5 import QtGui
+    from PyQt6 import QtGui
 
     file_name = filedir("./core/images/icons", name)
 
@@ -555,11 +519,11 @@ def print_stack(maxsize: int = 1) -> None:
 def session_id(conn_name: str = "default", with_time: bool = False) -> str:
     """Return session id."""
 
-    result = "%s|%s" % (threading.current_thread().ident, conn_name)
-    if with_time:
-        result += "|%s" % time.time()
-
-    return result
+    return "%s|%s%s" % (
+        threading.current_thread().ident,
+        conn_name,
+        "|%s" % time.time() if with_time else "",
+    )
 
 
 def empty_dir(dir_name: str) -> None:

@@ -4,7 +4,7 @@ PNAccessControlFactory Module.
 
 Manage ACLs between different application objects.
 """
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets, QtGui
 
 from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
@@ -29,7 +29,7 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
         """Process the object."""
 
         if self._perm:
-            for action in main_window.findChildren(QtWidgets.QAction):
+            for action in main_window.findChildren(QtGui.QAction):
                 action_name = action.objectName()
                 if action_name in self._acos_perms.keys():
                     if self._acos_perms[action_name] in ["-w", "--"]:
@@ -46,16 +46,18 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Inicialize."""
 
         super().__init__()
-        from PyQt5 import QtGui
 
         self.pal = QtGui.QPalette()
-        palette_ = QtWidgets.qApp.palette()  # type: ignore[misc] # noqa: F821
-        background_color = palette_.color(QtGui.QPalette.Active, QtGui.QPalette.Background)
-        self.pal.setColor(QtGui.QPalette.Foreground, background_color)
-        self.pal.setColor(QtGui.QPalette.Text, background_color)
-        self.pal.setColor(QtGui.QPalette.ButtonText, background_color)
-        self.pal.setColor(QtGui.QPalette.Base, background_color)
-        self.pal.setColor(QtGui.QPalette.Background, background_color)
+        palette_ = QtWidgets.QApplication.palette()  # type: ignore[misc] # noqa: F821
+        background_color = palette_.color(
+            QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.Base
+        )
+        # FIXMEPYQT6
+        # self.pal.setColor(QtGui.QPalette.Foreground, background_color)
+        self.pal.setColor(QtGui.QPalette.ColorRole.Text, background_color)
+        self.pal.setColor(QtGui.QPalette.ColorRole.ButtonText, background_color)
+        self.pal.setColor(QtGui.QPalette.ColorRole.Base, background_color)
+        # self.pal.setColor(QtGui.QPalette.Background, background_color)
 
     def type(self) -> str:
         """Return target type."""

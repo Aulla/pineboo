@@ -1,6 +1,6 @@
 """Dialog module."""
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from . import qdialog
 from . import qpushbutton
@@ -31,7 +31,7 @@ class Dialog(qdialog.QDialog):
         if title:
             self.setWindowTitle(str(title))
 
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
         self._button_box = QtWidgets.QDialogButtonBox()
@@ -40,10 +40,12 @@ class Dialog(qdialog.QDialog):
         self.okButtonText = "Aceptar"
         self.cancelButtonText = "Cancelar"
 
-        self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
-        self._button_box.addButton(self.cancelButton, QtWidgets.QDialogButtonBox.RejectRole)
-        self.okButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
+        self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.ButtonRole.AcceptRole)
+        self._button_box.addButton(
+            self.cancelButton, QtWidgets.QDialogButtonBox.ButtonRole.RejectRole
+        )
+        self.okButton.clicked.connect(self.accept)  # type: ignore [attr-defined] # noqa: F821
+        self.cancelButton.clicked.connect(self.reject)  # type: ignore [attr-defined] # noqa: F821
         self._tab = qtabwidget.QTabWidget()
         self._tab.hide()
 
@@ -70,7 +72,7 @@ class Dialog(qdialog.QDialog):
         """Execute Dialog."""
 
         self._layout.addWidget(self._button_box)
-        return super().exec_()
+        return super().exec()
 
     def setHeight(self, height: Union[int, float]) -> None:
         """Set height."""

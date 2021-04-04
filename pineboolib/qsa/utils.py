@@ -8,7 +8,7 @@ import sys
 import threading
 import os
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from pineboolib.application import types
 from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
@@ -391,7 +391,7 @@ def start_timer(time: int, fun: Callable) -> "QtCore.QTimer":
     """Create new timer that calls a function."""
     global TIMERS
     timer = QtCore.QTimer()
-    timer.timeout.connect(fun)
+    timer.timeout.connect(fun)  # type: ignore [attr-defined] # noqa: F821
     timer.start(time)
     TIMERS.append(timer)
     return timer
@@ -763,3 +763,9 @@ def memory_status() -> None:
 
     except ImportError:
         LOGGER.warning("need install 'pympler' module first.")
+
+
+def qt_translate_noop(string: str, path: str, mod: str) -> str:
+    """Return a translation."""
+
+    return utils_base.qt_translate_noop(string, path, mod)

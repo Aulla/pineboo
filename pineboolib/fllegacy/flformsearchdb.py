@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib import logging, application
 
-from PyQt5 import QtCore, QtWidgets, Qt, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 
 from pineboolib.core import decorators, settings
@@ -90,7 +90,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         super().__init__(action, parent, load=False)
 
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         if cursor.actionName() != action.name():
             cursor.setAction(action)
 
@@ -104,7 +104,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         self.load()
         self.initForm()
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def load(self):
         """Load control."""
@@ -147,12 +147,14 @@ class FLFormSearchDB(flformdb.FLFormDB):
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(QtGui.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
-            pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
+            pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
-            pushButtonExport.clicked.connect(self.exportToXml)
+            pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.exportToXml
+            )
 
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton(self)
@@ -163,22 +165,26 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
-                push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
+                push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
-                push_button_snapshot.clicked.connect(self.saveSnapShot)
+                push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.saveSnapShot
+                )
 
             spacer = QtWidgets.QSpacerItem(
-                20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
             self.bottomToolbar.layout().addItem(spacer)
 
         if not self.pushButtonAccept:
             self.pushButtonAccept = QtWidgets.QToolButton(self)
             self.pushButtonAccept.setObjectName("pushButtonAccept")
-            self.pushButtonAccept.clicked.connect(self.accept)
+            self.pushButtonAccept.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.accept
+            )
 
         self.pushButtonAccept.setSizePolicy(size_policy)
         self.pushButtonAccept.setMaximumSize(push_button_size)
@@ -186,18 +192,20 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.pushButtonAccept.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
         )
-        # pushButtonAccept->setAccel(Qt.QKeySequence(Qt::Key_F10)); FIXME
+        # pushButtonAccept->setAccel(QtGui.QKeySequence(Qt::Key_F10)); FIXME
         self.pushButtonAccept.setFocus()
         self.pushButtonAccept.setWhatsThis("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setToolTip("Seleccionar registro actual y cerrar formulario (F10)")
-        self.pushButtonAccept.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.pushButtonAccept.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.bottomToolbar.layout().addWidget(self.pushButtonAccept)
         self.pushButtonAccept.show()
 
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton(self)
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            self.pushButtonCancel.clicked.connect(self.reject)
+            self.pushButtonCancel.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.reject
+            )
 
         self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
@@ -205,7 +213,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
         )
-        self.pushButtonCancel.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.pushButtonCancel.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         # pushButtonCancel->setAccel(Esc); FIXME
         self.pushButtonCancel.setWhatsThis("Cerrar formulario sin seleccionar registro (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario sin seleccionar registro (Esc)")
@@ -262,7 +270,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         self.loop = True
         if self.eventloop:
-            self.eventloop.exec_()
+            self.eventloop.exec()
         self.loop = False
         self._in_exec = False
 

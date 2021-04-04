@@ -4,9 +4,8 @@ import os
 import hashlib
 from typing import List, Any
 
-from PyQt5.QtXml import QDomDocument
-from PyQt5 import QtCore
-from pineboolib.core.utils import logging
+from PyQt6.QtXml import QDomDocument
+from pineboolib.core.utils import logging, utils_base
 
 
 LOGGER = logging.get_logger(__name__)
@@ -67,8 +66,13 @@ class FlFiles(object):
 
         nombre_fichero = os.path.join(root_folder, module_file)
         # print("Buscando ...", nombre_fichero)
-        fichero = open(nombre_fichero, "r", encoding="iso-8859-15")
-        datos_module = fichero.read()
+        try:
+            fichero = open(nombre_fichero, "r", encoding="iso-8859-15")
+            datos_module = fichero.read()
+            fichero.close()
+        except Exception as error:
+            LOGGER.error("Error processing %s:%s", nombre_fichero, str(error))
+            return
         xml_module = QDomDocument()
 
         if xml_module.setContent(datos_module):
@@ -88,15 +92,19 @@ class FlFiles(object):
             #        dependencias[i] = node_depend.item(i).toElement().text()
             #        i += 1
 
-        descripcion_modulo = self.traducirCadena(descripcion_modulo, root_folder, modulo)
-        descripcion_area = self.traducirCadena(descripcion_area, root_folder, modulo)
+        descripcion_modulo = utils_base.qt_translate_noop(descripcion_modulo, root_folder, modulo)
+        descripcion_area = utils_base.qt_translate_noop(descripcion_area, root_folder, modulo)
         datos_icono = None
         if os.path.exists(os.path.join(root_folder, nombre_icono)):
-            fichero_icono = open(
-                os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15"
-            )
-            datos_icono = fichero_icono.read()
-            fichero_icono.close()
+            try:
+                fichero_icono = open(
+                    os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15"
+                )
+                datos_icono = fichero_icono.read()
+                fichero_icono.close()
+            except Exception as error:
+                LOGGER.error("Error processing %s:%s", nombre_icono, str(error))
+                return
 
         if area not in [idarea for idarea, descripcion_area in self._areas]:
             self._areas.append([area, descripcion_area])
@@ -106,7 +114,6 @@ class FlFiles(object):
             for idarea, idmodulo, descripcion_modulo, icono_modulo, version_modulo in self._modules
         ]:
             self._modules.append([area, modulo, descripcion_modulo, datos_icono, version])
-
             self.process_files(root_folder, modulo)
 
     def process_files(self, root_folder: str, id_module: str) -> None:
@@ -118,49 +125,27 @@ class FlFiles(object):
                     continue
 
                 if file_name not in [nombre for idmodule, nombre, sha, contenido in self._files]:
-                    fichero = open(
-                        os.path.join(root, file_name),
-                        "r",
-                        encoding="UTF-8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
-                    )
-                    # print("Guardando ...", os.path.join(root, file_name))
-                    data = fichero.read()
-                    byte_data = data.encode()
-                    sha_ = hashlib.new("sha1", byte_data)
-                    string_sha = str(sha_.hexdigest()).upper()
-
-                    self._files.append([id_module, file_name, string_sha, data])
+                    try:
+                        fichero = open(
+                            os.path.join(root, file_name),
+                            "r",
+                            encoding="UTF-8"
+                            if file_name.endswith((".ts", ".py"))
+                            else "ISO-8859-15",
+                        )
+                        # print("Guardando ...", os.path.join(root, file_name))
+                        data = fichero.read()
+                        byte_data = data.encode()
+                        sha_ = hashlib.new("sha1", byte_data)
+                        string_sha = str(sha_.hexdigest()).upper()
+                        self._files.append([id_module, file_name, string_sha, data])
+                    except Exception as error:
+                        LOGGER.error("Error processing %s:%s", file_name, str(error))
+                        return
+                else:
+                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
 
-    def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
-        """Translate string."""
-
-        if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
-            return cadena
-        cadena_list = cadena[18:-1].split(",")
-        cadena = cadena_list[1][1:-1]
-
-        nombre_fichero = os.path.join(
-            path, "translations", "%s.%s.ts" % (modulo, QtCore.QLocale().name()[:2])
-        )
-        if not os.path.exists(nombre_fichero):
-            LOGGER.debug(
-                "flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero
-            )
-            return cadena
-
-        fichero = open(nombre_fichero, "r", encoding="ISO-8859-15")
-        file_data = fichero.read()
-        xml_translations = QDomDocument()
-        if xml_translations.setContent(file_data):
-            node_mess = xml_translations.elementsByTagName(u"message")
-            for item in range(len(node_mess)):
-                if node_mess.item(item).namedItem(u"source").toElement().text() == cadena:
-                    traduccion = node_mess.item(item).namedItem(u"translation").toElement().text()
-                    if traduccion:
-                        cadena = traduccion
-                        break
-
-        return cadena
+            break  # despues de los subdirs salimos...

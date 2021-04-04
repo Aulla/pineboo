@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
 from typing import cast, Optional, Any
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.application.utils.mobilemode import is_mobile_mode
 from pineboolib import logging

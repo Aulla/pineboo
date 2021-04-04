@@ -20,8 +20,7 @@
    <string>Acerca de pineboo</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../../core/images/icono_pi/Symbol_pi_256.png</normaloff>../../../../../core/images/icono_pi/Symbol_pi_256.png</iconset>
+   <iconset>../../../../../core/images/icono_pi/Symbol_pi_256.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -37,7 +36,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Pineboo es un port del motor AbanQ/Eneboo a PyQt5, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
+          <string>Pineboo es un port del motor AbanQ/Eneboo a PyQt6, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
 
 https://github.com/deavid/pineboo</string>
          </property>

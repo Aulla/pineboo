@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Fllineedit module."""
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 from pineboolib import logging
 
 LOGGER = logging.get_logger(__name__)
@@ -50,7 +50,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
                     self.setMaxLength(self._longitud_max)
 
                 elif self._tipo in ("int", "uint", "double"):
-                    self.setAlignment(QtCore.Qt.AlignRight)
+                    self.setAlignment(QtCore.Qt.Alignment.AlignRight)
 
     def setText(self, text_: str, check_focus: bool = True) -> None:
         """Set text to control."""

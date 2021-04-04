@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata, pnrelationmetadata
@@ -427,7 +427,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.setObjectName("FLTableDB")
 
         self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self.refreshDelayed)
+        self._timer.timeout.connect(self.refreshDelayed)  # type: ignore [attr-defined] # noqa: F821
 
         # FIXME: El problema de que aparezca al editar un registro que no es, es por carga doble de initCursor()
         # ...... Cuando se lanza showWidget, y tiene _initCursorWhenLoad, lanza initCursor y luego otra vez.
@@ -818,11 +818,15 @@ class FLTableDB(QtWidgets.QWidget):
             self.refresh(False, True)
 
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(text_search)
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             # self.seekCursor()
             QtCore.QTimer.singleShot(0, self._table_records.ensureRowSelectedVisible)
@@ -855,8 +859,8 @@ class FLTableDB(QtWidgets.QWidget):
             for column in range(model.columnCount()):
                 alias_ = self._table_records.model().headerData(
                     self._table_records.visual_index_to_metadata_index(column),
-                    QtCore.Qt.Horizontal,
-                    QtCore.Qt.DisplayRole,
+                    QtCore.Qt.Orientations.Horizontal,
+                    QtCore.Qt.ItemDataRole.DisplayRole,
                 )
                 list_.append(table_metadata.fieldAliasToName(alias_) or "")
 
@@ -911,8 +915,8 @@ class FLTableDB(QtWidgets.QWidget):
         return self._table_records.model().headerData(
             # self._table_records.selectionModel().selectedColumns(),
             self._table_records.currentColumn(),
-            QtCore.Qt.Horizontal,
-            QtCore.Qt.DisplayRole,
+            QtCore.Qt.Orientations.Horizontal,
+            QtCore.Qt.ItemDataRole.DisplayRole,
         )
 
     def setAliasCheckColumn(self, alias: str) -> None:
@@ -1039,12 +1043,12 @@ class FLTableDB(QtWidgets.QWidget):
         ):
             return super().eventFilter(obj_, event)
 
-        if event.type() == QtCore.QEvent.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
             key = cast(QtGui.QKeyEvent, event)
 
             if isinstance(obj_, fldatatable.FLDataTable):
 
-                if key.key() == QtCore.Qt.Key_F2:
+                if key.key() == cast(int, QtCore.Qt.Key.Key_F2):
                     self._combo_box_field_to_search_1.showPopup()
                     return True
 
@@ -1054,19 +1058,22 @@ class FLTableDB(QtWidgets.QWidget):
 
             elif isinstance(obj_, QtWidgets.QLineEdit):
 
-                if key.key() == QtCore.Qt.Key_Enter or key.key() == QtCore.Qt.Key_Return:
+                if key.key() in (
+                    cast(int, QtCore.Qt.Key.Key_Enter),
+                    cast(int, QtCore.Qt.Key.Key_Return),
+                ):
                     self._table_records.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_Up:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_Up):
                     self._combo_box_field_to_search_1.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_Down:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_Down):
                     self._table_records.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_F2:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_F2):
                     self._combo_box_field_to_search_1.showPopup()
                     return True
 
@@ -1175,17 +1182,17 @@ class FLTableDB(QtWidgets.QWidget):
         """Create all controls."""
 
         size_policy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
         )
         size_policy.setHeightForWidth(True)
 
         size_policy_clean = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
         )
         size_policy_clean.setHeightForWidth(True)
 
         size_policy_group_box = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
         )
 
         self._data_layout = QtWidgets.QHBoxLayout()  # Contiene _tab_data y _tab_filters
@@ -1218,7 +1225,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_data.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_data.setMinimumSize(self._icon_size)
-        self._pb_data.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_data.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_data.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-data.png"))
         )
@@ -1226,13 +1233,15 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_data.setToolTip("Mostrar registros")
         self._pb_data.setWhatsThis("Mostrar registros")
         self._buttons_layout.addWidget(self._pb_data)
-        self._pb_data.clicked.connect(self.activeTabData)
+        self._pb_data.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.activeTabData
+        )
 
         self._pb_filter = QtWidgets.QPushButton(self)
         self._pb_filter.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_filter.setMinimumSize(self._icon_size)
-        self._pb_filter.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_filter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_filter.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-filter.png"))
         )
@@ -1240,13 +1249,15 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_filter.setToolTip("Mostrar filtros")
         self._pb_filter.setWhatsThis("Mostrar filtros")
         self._buttons_layout.addWidget(self._pb_filter)
-        self._pb_filter.clicked.connect(self.activeTabFilter)
+        self._pb_filter.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.activeTabFilter
+        )
 
         self._pb_odf = QtWidgets.QPushButton(self)
         self._pb_odf.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_odf.setMinimumSize(self._icon_size)
-        self._pb_odf.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_odf.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_odf.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-odf.png"))
         )
@@ -1254,7 +1265,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_odf.setToolTip("Exportar a hoja de cálculo")
         self._pb_odf.setWhatsThis("Exportar a hoja de cálculo")
         self._buttons_layout.addWidget(self._pb_odf)
-        self._pb_odf.clicked.connect(self.exportToOds)
+        self._pb_odf.clicked.connect(self.exportToOds)  # type: ignore [attr-defined] # noqa: F821
         if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", "false") == "true":
             self._pb_odf.setDisabled(True)
 
@@ -1262,7 +1273,7 @@ class FLTableDB(QtWidgets.QWidget):
         self.pb_clean.setSizePolicy(size_policy_clean)
         if self._icon_size is not None:
             self.pb_clean.setMinimumSize(self._icon_size)
-        self.pb_clean.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.pb_clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.pb_clean.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-clean.png"))
         )
@@ -1270,10 +1281,12 @@ class FLTableDB(QtWidgets.QWidget):
         self.pb_clean.setToolTip("Limpiar filtros")
         self.pb_clean.setWhatsThis("Limpiar filtros")
         filter_layout.addWidget(self.pb_clean)
-        self.pb_clean.clicked.connect(self.tdbFilterClear)
+        self.pb_clean.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.tdbFilterClear
+        )
 
         spacer = QtWidgets.QSpacerItem(
-            20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+            20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding
         )
         self._buttons_layout.addItem(spacer)
 
@@ -1282,7 +1295,9 @@ class FLTableDB(QtWidgets.QWidget):
         # self._combo_box_field_to_search_1.addItem("*")
         # self._combo_box_field_to_search_2.addItem("*")
         self._line_edit_search = QtWidgets.QLineEdit()
-        self._line_edit_search.textChanged.connect(self.filterRecords)
+        self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.filterRecords
+        )
         label1 = QtWidgets.QLabel()
         label2 = QtWidgets.QLabel()
         label1.setStyleSheet("border: 0px")
@@ -1294,7 +1309,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._tab_control_layout is not None:
             control_frame = QtWidgets.QFrame()
             lay = QtWidgets.QHBoxLayout()
-            control_frame.setFrameStyle(QtWidgets.QFrame.Raised)
+            control_frame.setFrameStyle(cast(int, QtWidgets.QFrame.Shadow.Raised.value))
             control_frame.setStyleSheet("QFrame { border: 1px solid black; }")
             lay.setContentsMargins(2, 2, 2, 2)
             lay.setSpacing(2)
@@ -1321,8 +1336,12 @@ class FLTableDB(QtWidgets.QWidget):
             self._tab_filter.hide()
 
         self._data_layout.addLayout(self._buttons_layout)
-        self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
-        self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+        self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.putFirstCol
+        )
+        self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.putSecondCol
+        )
 
         self._tdb_filter = qtable.QTable()
 
@@ -1335,7 +1354,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._table_records is None:
             self._table_records = fldatatable.FLDataTable(self._tab_data, "tableRecords")
             if self._table_records is not None:
-                self._table_records.setFocusPolicy(QtCore.Qt.StrongFocus)
+                self._table_records.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                 self.setFocusProxy(self._table_records)
                 if self._tab_data_layout is not None:
                     self._tab_data_layout.addWidget(self._table_records)
@@ -1377,7 +1396,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._table_records is None:
             self._table_records = fldatatable.FLDataTable(self._tab_data, "tableRecords")
             if self._table_records is not None:
-                self._table_records.setFocusPolicy(QtCore.Qt.StrongFocus)
+                self._table_records.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                 self.setFocusProxy(self._table_records)
                 if self._tab_data_layout is not None:
                     self._tab_data_layout.addWidget(self._table_records)
@@ -1393,20 +1412,32 @@ class FLTableDB(QtWidgets.QWidget):
 
         if self._check_column_enabled:
             try:
-                self._table_records.clicked.disconnect(self._table_records.setChecked)
+                self._table_records.clicked.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self._table_records.setChecked
+                )
             except Exception:
                 LOGGER.warning("setTableRecordsCursor: Error disconnecting setChecked signal")
-            self._table_records.clicked.connect(self._table_records.setChecked)
+            self._table_records.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self._table_records.setChecked
+            )
 
         t_cursor = self._table_records.cursor_
         if t_cursor is not self.cursor():
             self._table_records.setFLSqlCursor(self.cursor())
             if t_cursor:
-                self._table_records.recordChoosed.disconnect(self.recordChoosedSlot)
-                t_cursor.newBuffer.disconnect(self.currentChangedSlot)
+                self._table_records.recordChoosed.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.recordChoosedSlot
+                )
+                t_cursor.newBuffer.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.currentChangedSlot
+                )
 
-            self._table_records.recordChoosed.connect(self.recordChoosedSlot)
-            self.cursor().newBuffer.connect(self.currentChangedSlot)
+            self._table_records.recordChoosed.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.recordChoosedSlot
+            )
+            self.cursor().newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.currentChangedSlot
+            )
 
     @decorators.pyqt_slot()
     def recordChoosedSlot(self) -> None:
@@ -1463,7 +1494,7 @@ class FLTableDB(QtWidgets.QWidget):
             part_decimal = None
             rx_ = None
 
-            self._tdb_filter.setSelectionMode(QtWidgets.QTableWidget.NoSelection)
+            self._tdb_filter.setSelectionMode(QtWidgets.QTableWidget.SelectionMode.NoSelection)
             self._tdb_filter.setNumCols(5)
 
             not_visibles = 0
@@ -1496,7 +1527,9 @@ class FLTableDB(QtWidgets.QWidget):
                     self.cursor()
                     .model()
                     .headerData(
-                        idx_i + self._sort_column_1, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                        idx_i + self._sort_column_1,
+                        QtCore.Qt.Orientations.Horizontal,
+                        QtCore.Qt.ItemDataRole.DisplayRole,
                     )
                 )
                 _alias = table_metadata.fieldAliasToName(_label)
@@ -1582,7 +1615,7 @@ class FLTableDB(QtWidgets.QWidget):
                                         0, pow(10, part_integer) - 1, part_decimal, editor_le
                                     )
                                 )
-                                editor_le.setAlignment(QtCore.Qt.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
                             elif type_ in ("uint", "int"):
                                 if type_ == "uint":
 
@@ -1601,16 +1634,18 @@ class FLTableDB(QtWidgets.QWidget):
                                         )
                                     )
 
-                                editor_le.setAlignment(QtCore.Qt.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
                             else:  # string, stringlist, timestamp
                                 if len_ > 0:
                                     editor_le.setMaxLength(len_)
                                     if rx_:
                                         editor_le.setValidator(
-                                            QtGui.QRegExpValidator(QtCore.QRegExp(rx_), editor_le)
+                                            QtGui.QRegularExpressionValidator(
+                                                QtCore.QRegularExpression(rx_), editor_le
+                                            )
                                         )
 
-                                editor_le.setAlignment(QtCore.Qt.AlignLeft)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignLeft)
 
                             self._tdb_filter.setCellWidget(_linea, idx_j, editor_le)
 
@@ -1845,14 +1880,18 @@ class FLTableDB(QtWidgets.QWidget):
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_1.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_1.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
                     arg4 = (
                         self.cursor()
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_2.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_2.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
                 else:
                     editor_op_1 = self._tdb_filter.cellWidget(idx, 2)
@@ -1861,7 +1900,9 @@ class FLTableDB(QtWidgets.QWidget):
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_1.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_1.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
 
             if type_ in ("unlock", "bool"):
@@ -1916,13 +1957,13 @@ class FLTableDB(QtWidgets.QWidget):
             self._fake_editor = QtWidgets.QTextEdit(self._tab_data)
 
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+                QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
             )
             size_policy.setHeightForWidth(True)
 
             self._fake_editor.setSizePolicy(size_policy)
             self._fake_editor.setTabChangesFocus(True)
-            self._fake_editor.setFocusPolicy(QtCore.Qt.StrongFocus)
+            self._fake_editor.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
             self.setFocusProxy(self._fake_editor)
             if not self._tab_data_layout:
                 raise Exception("self._tab_data_layout is not defined!")
@@ -2106,10 +2147,10 @@ class FLTableDB(QtWidgets.QWidget):
                     raise Exception("comboBoxFieldSearch2 is not defined!")
 
                 try:
-                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putFirstCol
                     )
-                    self._combo_box_field_to_search_2.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putSecondCol
                     )
                 except Exception:
@@ -2131,12 +2172,16 @@ class FLTableDB(QtWidgets.QWidget):
                         # else:
                         self._combo_box_field_to_search_1.addItem(
                             model.headerData(
-                                visual_column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                                visual_column,
+                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
                         self._combo_box_field_to_search_2.addItem(
                             model.headerData(
-                                visual_column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                                visual_column,
+                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
 
@@ -2144,8 +2189,12 @@ class FLTableDB(QtWidgets.QWidget):
                 self._combo_box_field_to_search_2.addItem("*")
                 self._combo_box_field_to_search_1.setCurrentIndex(self._sort_column_1)
                 self._combo_box_field_to_search_2.setCurrentIndex(self._sort_column_2)
-                self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
-                self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
+                self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
 
             else:
                 self._combo_box_field_to_search_1.addItem("*")
@@ -2167,11 +2216,15 @@ class FLTableDB(QtWidgets.QWidget):
 
         if self._init_search:
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(self._init_search)
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             self._init_search = None
             # self.seekCursor()
@@ -2378,7 +2431,9 @@ class FLTableDB(QtWidgets.QWidget):
         self.moveCol(_index, self._sort_column_1)
         self._table_records.sortByColumn(
             self._sort_column_1,
-            QtCore.Qt.AscendingOrder if self._order_asc_1 else QtCore.Qt.DescendingOrder,
+            QtCore.Qt.SortOrder.AscendingOrder
+            if self._order_asc_1
+            else QtCore.Qt.SortOrder.DescendingOrder,
         )
 
     @decorators.pyqt_slot(int)
@@ -2435,17 +2490,23 @@ class FLTableDB(QtWidgets.QWidget):
 
         if to_ == 0:  # Si ha cambiado la primera columna
             try:
-                self._combo_box_field_to_search_1.currentIndexChanged.disconnect(self.putFirstCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
             except Exception:
                 LOGGER.error("Se ha producido un problema al desconectar")
                 return
 
             self._combo_box_field_to_search_1.setCurrentIndex(from_)
-            self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
+            self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putFirstCol
+            )
 
             # Actializamos el segundo combo
             try:
-                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(self.putSecondCol)
+                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
             except Exception:
                 pass
             # Falta mejorar
@@ -2456,22 +2517,28 @@ class FLTableDB(QtWidgets.QWidget):
                 self._combo_box_field_to_search_2.setCurrentIndex(
                     self._table_records._h_header.logicalIndex(self._sort_column_1)
                 )
-            self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+            self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putSecondCol
+            )
 
         if to_ == 1:  # Si es la segunda columna ...
             try:
-                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(self.putSecondCol)
+                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
             except Exception:
                 pass
             self._combo_box_field_to_search_2.setCurrentIndex(from_)
-            self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+            self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putSecondCol
+            )
 
             if (
                 self._combo_box_field_to_search_1.currentIndex()
                 == self._combo_box_field_to_search_2.currentIndex()
             ):
                 try:
-                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putFirstCol
                     )
                 except Exception:
@@ -2483,7 +2550,9 @@ class FLTableDB(QtWidgets.QWidget):
                     self._combo_box_field_to_search_1.setCurrentIndex(
                         self._table_records._h_header.logicalIndex(self._sort_column_2)
                     )
-                self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
 
         if not text_search:
             text_search = self.cursor().valueBuffer(field.name())
@@ -2493,11 +2562,15 @@ class FLTableDB(QtWidgets.QWidget):
         if text_search:
             self.refresh(False, True)
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(str(text_search))
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             # self.seekCursor()
             QtCore.QTimer.singleShot(0, self._table_records.ensureRowSelectedVisible)
@@ -2597,7 +2670,7 @@ class FLTableDB(QtWidgets.QWidget):
                 QtWidgets.QApplication.activeModalWidget(),
                 self.tr("Opción deshabilitada"),
                 self.tr("Esta opción ha sido deshabilitada."),
-                QtWidgets.QMessageBox.Ok,
+                QtWidgets.QMessageBox.StandardButtons.Ok,
             )
             return
 
@@ -2722,7 +2795,7 @@ class FLTableDB(QtWidgets.QWidget):
         spread_sheet.close()
 
         util.setProgress(tdb_num_rows)
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         file_name = "%s/%s%s.ods" % (
             application.PROJECT.tmpdir,
             metadata.name(),
@@ -2822,7 +2895,9 @@ class FLTableDB(QtWidgets.QWidget):
         if isinstance(ascending, int):
             ascending = ascending == 1
 
-        order = QtCore.Qt.AscendingOrder if ascending else QtCore.Qt.DescendingOrder
+        order = (
+            QtCore.Qt.SortOrder.AscendingOrder if ascending else QtCore.Qt.SortOrder.DescendingOrder
+        )
 
         col = col_order if col_order is not None else self._sort_column_1
 

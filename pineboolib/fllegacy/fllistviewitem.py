@@ -1,19 +1,19 @@
 """Fllistview module."""
 # -*- coding: utf-8 -*-
 
-from PyQt5 import Qt  # type: ignore
+from PyQt6 import QtGui  # type: ignore
 from pineboolib.core import decorators
 from pineboolib import logging
 from pineboolib.q3widgets import qlistview
 from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger("FLListViewItem")
 
 
-class FLListViewItem(Qt.QStandardItem):
+class FLListViewItem(QtGui.QStandardItem):
     """FLListView class."""
 
     _expandable: bool
@@ -39,7 +39,7 @@ class FLListViewItem(Qt.QStandardItem):
                 # self._root = True
                 parent.model().setItem(0, 0, self)
             else:
-                if isinstance(parent, self):
+                if isinstance(parent, self):  # type: ignore [arg-type] # noqa: F821
                     # print("Añadiendo nueva linea a", parent.text(0))
                     cast(FLListViewItem, parent).appendRow(self)
 
@@ -98,7 +98,7 @@ class FLListViewItem(Qt.QStandardItem):
 
             item.setText(value)
 
-    def text(self, col: int) -> str:
+    def text(self, col: int = 0) -> str:
         """Return text from a column."""
 
         ret = ""
@@ -125,7 +125,9 @@ class FLListViewItem(Qt.QStandardItem):
         """Return key."""
 
         if self.parent() and self.column() > 0:
-            return self.parent().child(self.row(), 0).key()
+            return (
+                self.parent().child(self.row(), 0).key()  # type: ignore [attr-defined] # noqa: F821
+            )
         return self._key
 
     def setOpen(self, open: bool) -> None:

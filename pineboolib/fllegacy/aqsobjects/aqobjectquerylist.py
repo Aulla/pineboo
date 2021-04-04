@@ -1,6 +1,6 @@
 """Aqobjectquerylist module."""
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.application import types
 from typing import Union, Optional
@@ -33,6 +33,6 @@ def aq_object_query_list(
     args_.append(object_name)
 
     if recursirve_search:
-        args_.append(QtCore.Qt.FindChildrenRecursively)
+        args_.append(QtCore.Qt.FindChildOptions.FindChildrenRecursively)
 
     return types.Array(obj_.findChildren(*args_))

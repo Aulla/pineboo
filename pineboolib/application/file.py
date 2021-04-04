@@ -1,11 +1,11 @@
 """
 File module.
 """
-import os.path
-from pineboolib.core.utils import logging
+import os
+from pineboolib import logging
 from typing import Optional
 
-from .utils.path import _dir
+from .utils import path
 
 LOGGER = logging.get_logger(__name__)
 
@@ -40,17 +40,12 @@ class File(object):
         else:
             self.name, self.ext = os.path.splitext(filename)
 
-        if self.sha:
-            self.filekey = "%s/%s/file%s/%s/%s%s" % (
-                db_name,
-                module,
-                self.ext,
-                self.name,
-                sha,
-                self.ext,
-            )
-        else:
-            self.filekey = filename
+        self.filekey = (
+            "%s/%s/file%s/%s/%s%s" % (db_name, module, self.ext, self.name, sha, self.ext)
+            if self.sha
+            else filename
+        )
+
         self.basedir = basedir
 
     def path(self) -> str:
@@ -59,9 +54,8 @@ class File(object):
 
         @return Ruta absoluta del fichero
         """
-        if self.basedir:
-            # Probablemente porque es local . . .
-            return _dir(self.basedir, self.filename)
-        else:
-            # Probablemente es remoto (DB) y es una caché . . .
-            return _dir("cache", *(self.filekey.split("/")))
+        return (
+            path._dir(self.basedir, self.filename)
+            if self.basedir
+            else path._dir("cache", *(self.filekey.split("/")))
+        )

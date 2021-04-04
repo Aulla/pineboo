@@ -14,7 +14,7 @@ def monkey_patch_connect() -> None:
 
     This is not stable and should be used with care
     """
-    from PyQt5 import QtCore  # type: ignore
+    from PyQt6 import QtCore  # type: ignore
 
     LOGGER.warning(
         "--trace-signals es experimental. Tiene problemas de memoria y falla en llamadas con un argumento (False)"
@@ -77,7 +77,9 @@ def monkey_patch_connect() -> None:
                 newslot = BoundSignal.slot_decorator(self, slot, stack)
             else:
                 newslot = slot
-            return BoundSignal._CONNECT(self, newslot, type_, no_receiver_check)
+            return BoundSignal._CONNECT(  # type: ignore [call-arg] # noqa: F821
+                self, newslot, type_, no_receiver_check
+            )
 
         def emit(self: Any, *args: Any) -> Any:
             """Proxy original Qt Emit function for tracing signal emits."""

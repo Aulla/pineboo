@@ -1,6 +1,6 @@
 """QPopupmenu module."""
 
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 
 class QPopupMenu(QtWidgets.QMenu):

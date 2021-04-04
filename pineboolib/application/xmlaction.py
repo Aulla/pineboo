@@ -276,14 +276,14 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
-                    from PyQt5 import QtWidgets
+                    from PyQt6 import QtWidgets
 
                     QtWidgets.QMessageBox.information(
                         QtWidgets.QApplication.activeWindow(),
                         "Aviso",
                         "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
                         "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
-                        QtWidgets.QMessageBox.Yes,
+                        QtWidgets.QMessageBox.StandardButtons.Yes,
                     )
 
             LOGGER.warning("formRecord%s is already loaded!", self._record_form)

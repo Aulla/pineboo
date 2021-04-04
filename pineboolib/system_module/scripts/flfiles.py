@@ -6,10 +6,6 @@ from pineboolib.qsa import qsa
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        pass
-
     def init(self) -> None:
         """Init function."""
         fdb_contenido = self.child("contenido")
@@ -17,18 +13,11 @@ class FormInternalObj(qsa.FormDBWidget):
             raise Exception("contenido control not found!.")
 
         fdb_contenido.setText(self.cursor().valueBuffer("contenido"))
-        botonEditar = self.child("botonEditar")
-        pbXMLEditor = self.child("pbXMLEditor")
+        edit_button = self.child("botonEditar")
+        edit_pb_xml = self.child("pbXMLEditor")
 
-        if botonEditar is None:
-            raise Exception("botonEditar control not found!.")
+        if edit_button:
+            edit_button.setEnabled(False)
 
-        if pbXMLEditor is None:
-            raise Exception("pbXMLEditor control not found!.")
-
-        # deshabilitado
-        botonEditar.setEnabled(False)
-        pbXMLEditor.setEnabled(False)
-
-
-form = None
+        if edit_pb_xml:
+            edit_pb_xml.setEnabled(False)

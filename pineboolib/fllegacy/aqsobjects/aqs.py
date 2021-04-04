@@ -5,11 +5,11 @@ AQS package.
 Main entrance to the different AQS resources.
 """
 
-from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
 
 from pineboolib.core.utils import logging
 
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from . import aqshttp, aqods
 
@@ -35,7 +35,7 @@ class SMTP(object):
 class Docker(object):
     """Docker enumerate class."""
 
-    LeftDockWidgetArea: int = 1
+    LeftDockWidgetArea = QtCore.Qt.DockWidgetAreas.LeftDockWidgetArea
     InDock: str = "InDock"
     OutSideDock: str = "OutSideDock"
 
@@ -93,8 +93,12 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
                 QtWidgets.QFrame,
                 QtWidgets.QLabel,
                 QtWidgets.QSizePolicy,
+                QtCore.Qt.TextFlag,
                 QtCore.Qt,
+                QtCore.Qt.TextFormat,
+                QtCore.Qt.CursorShape,
                 QtCore.QEvent,
+                QtCore.QEvent.Type,
             ]:
                 ret_ = getattr(lib, name, None)
                 if ret_ is not None:
@@ -221,8 +225,8 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
         @return sha1 string
         """
 
-        qbyte = QtCore.QByteArray(byte_array)
-        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Sha1)
+        qbyte = QtCore.QByteArray(cast(QtCore.QByteArray, byte_array))
+        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Algorithm.Sha1)
         hash.addData(qbyte.data())
         return hash.result().toHex().data().decode("utf-8").upper()
 

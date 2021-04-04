@@ -1,7 +1,7 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
@@ -308,7 +308,7 @@ class FLManagerModules(object):
                     data = file_.read()
                     file_.close()
 
-                else:  # load from database
+                elif not application.PROJECT.USE_FLFILES_FOLDER:  # load from database
                     data = self.content(file_name)
 
         if data:
@@ -453,12 +453,13 @@ class FLManagerModules(object):
 
             qt3ui.load_ui(form_path, parent)
         else:
-            from PyQt5 import uic  # type: ignore
+            from PyQt6 import uic  # type: ignore
 
             qt_widgets_path = utils_base.filedir("plugins/custom_widgets")
             if qt_widgets_path not in uic.widgetPluginPath:
                 LOGGER.info("Añadiendo path %s a uic.widgetPluginPath", qt_widgets_path)
                 uic.widgetPluginPath.append(qt_widgets_path)
+
             uic.loadUi(form_path, parent)
 
         if geometry[0]:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets, Qt
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings, decorators
@@ -117,7 +117,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         super().__init__(action, parent, load)
 
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
 
         if cursor:
             self.setCursor(cursor)
@@ -239,12 +239,14 @@ class FLFormRecordDB(flformdb.FLFormDB):
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(QtGui.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
-            pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
+            pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
-            pushButtonExport.clicked.connect(self.exportToXml)
+            pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.exportToXml
+            )
 
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
@@ -255,15 +257,17 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
-                push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
+                push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
-                push_button_snapshot.clicked.connect(self.saveSnapShot)
+                push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.saveSnapShot
+                )
 
             spacer = QtWidgets.QSpacerItem(
-                20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
             self.bottomToolbar.layout().addItem(spacer)
 
@@ -274,16 +278,18 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonFirst.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-first-ltr.png"))
                 )
-                self.pushButtonFirst.clicked.connect(self.firstRecord)
+                self.pushButtonFirst.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.firstRecord
+                )
                 self.pushButtonFirst.setSizePolicy(size_policy)
                 self.pushButtonFirst.setMaximumSize(push_button_size)
                 self.pushButtonFirst.setMinimumSize(push_button_size)
-                self.pushButtonFirst.setShortcut(Qt.QKeySequence(self.tr("F5")))
+                self.pushButtonFirst.setShortcut(QtGui.QKeySequence(self.tr("F5")))
                 self.pushButtonFirst.setWhatsThis(
                     "Aceptar los cambios e ir al primer registro (F5)"
                 )
                 self.pushButtonFirst.setToolTip("Aceptar los cambios e ir al primer registro (F5)")
-                self.pushButtonFirst.setFocusPolicy(QtCore.Qt.NoFocus)
+                self.pushButtonFirst.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(self.pushButtonFirst)
                 # self.pushButtonFirst.show()
 
@@ -293,18 +299,20 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonPrevious.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-ltr.png"))
                 )
-                self.pushButtonPrevious.clicked.connect(self.previousRecord)
+                self.pushButtonPrevious.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.previousRecord
+                )
                 self.pushButtonPrevious.setSizePolicy(size_policy)
                 self.pushButtonPrevious.setMaximumSize(push_button_size)
                 self.pushButtonPrevious.setMinimumSize(push_button_size)
-                self.pushButtonPrevious.setShortcut(Qt.QKeySequence(self.tr("F6")))
+                self.pushButtonPrevious.setShortcut(QtGui.QKeySequence(self.tr("F6")))
                 self.pushButtonPrevious.setWhatsThis(
                     "Aceptar los cambios e ir al registro anterior (F6)"
                 )
                 self.pushButtonPrevious.setToolTip(
                     "Aceptar los cambios e ir al registro anterior (F6)"
                 )
-                self.pushButtonPrevious.setFocusPolicy(QtCore.Qt.NoFocus)
+                self.pushButtonPrevious.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(self.pushButtonPrevious)
                 # self.pushButtonPrevious.show()
 
@@ -314,18 +322,20 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonNext.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-rtl.png"))
                 )
-                self.pushButtonNext.clicked.connect(self.nextRecord)
+                self.pushButtonNext.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.nextRecord
+                )
                 self.pushButtonNext.setSizePolicy(size_policy)
                 self.pushButtonNext.setMaximumSize(push_button_size)
                 self.pushButtonNext.setMinimumSize(push_button_size)
-                self.pushButtonNext.setShortcut(Qt.QKeySequence(self.tr("F7")))
+                self.pushButtonNext.setShortcut(QtGui.QKeySequence(self.tr("F7")))
                 self.pushButtonNext.setWhatsThis(
                     "Aceptar los cambios e ir al registro siguiente (F7)"
                 )
                 self.pushButtonNext.setToolTip(
                     "Aceptar los cambios e ir al registro siguiente (F7)"
                 )
-                self.pushButtonNext.setFocusPolicy(QtCore.Qt.NoFocus)
+                self.pushButtonNext.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(self.pushButtonNext)
                 # self.pushButtonNext.show()
 
@@ -335,35 +345,39 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonLast.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-last-ltr.png"))
                 )
-                self.pushButtonLast.clicked.connect(self.lastRecord)
+                self.pushButtonLast.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.lastRecord
+                )
                 self.pushButtonLast.setSizePolicy(size_policy)
                 self.pushButtonLast.setMaximumSize(push_button_size)
                 self.pushButtonLast.setMinimumSize(push_button_size)
-                self.pushButtonLast.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                self.pushButtonLast.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 self.pushButtonLast.setWhatsThis("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setToolTip("Aceptar los cambios e ir al último registro (F8)")
-                self.pushButtonLast.setFocusPolicy(QtCore.Qt.NoFocus)
+                self.pushButtonLast.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(self.pushButtonLast)
                 # self.pushButtonLast.show()
 
         if not self.cursor().modeAccess() == self.cursor().Browse:
             self.pushButtonAcceptContinue = QtWidgets.QToolButton()
             self.pushButtonAcceptContinue.setObjectName("pushButtonAcceptContinue")
-            self.pushButtonAcceptContinue.clicked.connect(self.acceptContinue)
+            self.pushButtonAcceptContinue.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.acceptContinue
+            )
             self.pushButtonAcceptContinue.setSizePolicy(size_policy)
             self.pushButtonAcceptContinue.setMaximumSize(push_button_size)
             self.pushButtonAcceptContinue.setMinimumSize(push_button_size)
             self.pushButtonAcceptContinue.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-refresh.png"))
             )
-            self.pushButtonAcceptContinue.setShortcut(Qt.QKeySequence(self.tr("F9")))
+            self.pushButtonAcceptContinue.setShortcut(QtGui.QKeySequence(self.tr("F9")))
             self.pushButtonAcceptContinue.setWhatsThis(
                 "Aceptar los cambios y continuar con la edición de un nuevo registro (F9)"
             )
             self.pushButtonAcceptContinue.setToolTip(
                 "Aceptar los cambios y continuar con la edición de un nuevo registro (F9)"
             )
-            self.pushButtonAcceptContinue.setFocusPolicy(QtCore.Qt.NoFocus)
+            self.pushButtonAcceptContinue.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(self.pushButtonAcceptContinue)
             if not self._show_accept_continue:
                 self.pushButtonAcceptContinue.close()
@@ -372,7 +386,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if not self.pushButtonAccept:
                 self.pushButtonAccept = QtWidgets.QToolButton()
                 self.pushButtonAccept.setObjectName("pushButtonAccept")
-                self.pushButtonAccept.clicked.connect(self.accept)
+                self.pushButtonAccept.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.accept
+                )
 
             self.pushButtonAccept.setSizePolicy(size_policy)
             self.pushButtonAccept.setMaximumSize(push_button_size)
@@ -380,10 +396,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAccept.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
             )
-            self.pushButtonAccept.setShortcut(Qt.QKeySequence(self.tr("F10")))
+            self.pushButtonAccept.setShortcut(QtGui.QKeySequence(self.tr("F10")))
             self.pushButtonAccept.setWhatsThis("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setToolTip("Aceptar los cambios y cerrar formulario (F10)")
-            self.pushButtonAccept.setFocusPolicy(QtCore.Qt.NoFocus)
+            self.pushButtonAccept.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(self.pushButtonAccept)
             # self.pushButtonAccept.show()
 
@@ -391,25 +407,29 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
             try:
-                self.cursor().autoCommit.connect(self.disablePushButtonCancel)
+                self.cursor().autoCommit.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.disablePushButtonCancel
+                )
             except Exception:
                 pass
 
-            self.pushButtonCancel.clicked.connect(self.reject)
+            self.pushButtonCancel.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.reject
+            )
 
         self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
         self.pushButtonCancel.setMinimumSize(push_button_size)
-        self.pushButtonCancel.setShortcut(Qt.QKeySequence(self.tr("Esc")))
+        self.pushButtonCancel.setShortcut(QtGui.QKeySequence(self.tr("Esc")))
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
         )
         if not self.cursor().modeAccess() == self.cursor().Browse:
-            self.pushButtonCancel.setFocusPolicy(QtCore.Qt.NoFocus)
+            self.pushButtonCancel.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.pushButtonCancel.setWhatsThis("Cancelar los cambios y cerrar formulario (Esc)")
             self.pushButtonCancel.setToolTip("Cancelar los cambios y cerrar formulario (Esc)")
         else:
-            self.pushButtonCancel.setFocusPolicy(QtCore.Qt.StrongFocus)
+            self.pushButtonCancel.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
             self.pushButtonCancel.setFocus()
             # pushButtonCancel->setAccel(4096); FIXME
             self.pushButtonCancel.setWhatsThis("Aceptar y cerrar formulario (Esc)")
@@ -417,12 +437,14 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         # pushButtonCancel->setDefault(true);
         self.bottomToolbar.layout().addItem(
-            QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+            QtWidgets.QSpacerItem(
+                20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
+            )
         )
         self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
         # self.pushButtonAccept.show()
 
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
         # self.toolButtonAccept = QtGui.QToolButton()
         # self.toolButtonAccept.setIcon(QtGui.QIcon(utils_base.filedir("./core/images/icons","gtk-add.png")))
@@ -850,7 +872,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.loop = True
         self.show()
         if self.eventloop:
-            self.eventloop.exec_()
+            self.eventloop.exec()
 
         self.loop = False
 

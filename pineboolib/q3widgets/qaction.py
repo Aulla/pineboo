@@ -1,11 +1,11 @@
 """Qaction module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt6 import QtCore, QtGui  # type: ignore
 from typing import Optional
 
 
-class QAction(QtWidgets.QAction):
+class QAction(QtGui.QAction):
     """QAction class."""
 
     activated = QtCore.pyqtSignal()
@@ -15,7 +15,7 @@ class QAction(QtWidgets.QAction):
         """Inicialize."""
 
         super().__init__(*args)
-        self.triggered.connect(self.send_activated)
+        self.triggered.connect(self.send_activated)  # type: ignore [attr-defined] # noqa: F821
         self._menuText = ""
 
     def send_activated(self, b: Optional[bool] = None) -> None:

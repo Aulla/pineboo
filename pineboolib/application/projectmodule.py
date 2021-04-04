@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
     from .database import pnconnection  # pragma: no cover
     from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtWidgets
+    from PyQt6 import QtWidgets
 
 
 LOGGER = logging.get_logger(__name__)
@@ -55,7 +55,7 @@ class Project(object):
     no_python_cache: bool
     _msg_mng = None
     alternative_folder: Optional[str]
-    _session_func_: Optional[Callable]
+    _session_func_: Optional["Callable"]
 
     areas: Dict[str, "struct.AreaStruct"]
     files: Dict[str, Any]
@@ -205,7 +205,7 @@ class Project(object):
                     self.files[file_name_model].filekey = "%s_model.py" % file_item.filekey
 
             else:
-                LOGGER.info(
+                LOGGER.debug(
                     "%s already exists (%s).", file_name_model, self.files[file_name_model].path()
                 )
 
@@ -635,7 +635,7 @@ class Project(object):
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
 
-            if idmodulo not in self.modules:  # Si el módulo no existe.
+            if idmodulo not in self.modules.keys():  # Si el módulo no existe.
                 continue
 
             elif is_library and nombre.endswith("ui"):  # Si es un UI en modo librería.

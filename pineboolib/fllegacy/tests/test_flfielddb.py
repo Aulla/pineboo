@@ -20,7 +20,7 @@ class TestFLFieldDBString(unittest.TestCase):
         from pineboolib.qsa import dictmodules
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.core.utils import utils_base
-        from PyQt5 import QtWidgets
+        from PyQt6 import QtWidgets
 
         cursor_1 = pnsqlcursor.PNSqlCursor("flmodules")
         cursor_1.select()
@@ -189,9 +189,9 @@ class TestFLFieldDBString(unittest.TestCase):
             "El tipo de campo es %s y se espera qlineedit.QLineEdit" % type(field.editor_),
         )
 
-        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.Normal)
-        field.setEchoMode(fllineedit.FLLineEdit.Password)
-        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.Password)
+        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.EchoMode.Normal)
+        field.setEchoMode(fllineedit.FLLineEdit.EchoMode.Password)
+        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.EchoMode.Password)
 
         self.assertTrue(field.cursor_)
 

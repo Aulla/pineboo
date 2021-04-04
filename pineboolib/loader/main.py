@@ -19,7 +19,7 @@ from typing import List, Type, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from . import projectconfig  # noqa: F401 # pragma: no cover
     import optparse  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtWidgets  # pragma: no cover
+    from PyQt6 import QtWidgets  # pragma: no cover
     from types import TracebackType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
@@ -69,7 +69,7 @@ def startup(enable_gui: bool = None) -> None:
     from .options import parse_options
 
     if not check_dependencies_cli(
-        {"ply": "python3-ply", "PyQt5.QtCore": "python3-pyqt5", "Python": "Python"}
+        {"ply": "python3-ply", "PyQt6.QtCore": "python3-PyQt6", "Python": "Python"}
     ):
         sys.exit(32)
 
@@ -157,7 +157,7 @@ def init_logging(
 
     logging.basicConfig(format=log_format, level=app_loglevel)
     # LOGGER.info("LOG LEVEL: %s", loglevel)
-    disable_loggers = ["PyQt5.uic.uiparser", "PyQt5.uic.properties", "blib2to3.pgen2.driver"]
+    disable_loggers = ["PyQt6.uic.uiparser", "PyQt6.uic.properties", "blib2to3.pgen2.driver"]
     for loggername in disable_loggers:
         modlogger = logging.get_logger(loggername)
         modlogger.setLevel(logging.WARN)
@@ -200,7 +200,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
     # no es capturada dentro de la misma; el programa falla con SegFault.
     # Aunque esto no debería ocurrir, y se debería prevenir lo máximo posible
     # es bastante incómodo y genera problemas graves para detectar el problema.
-    # Agregamos sys.excepthook para controlar esto y hacer que PyQt5 no nos
+    # Agregamos sys.excepthook para controlar esto y hacer que PyQt6 no nos
     # dé un segfault, aunque el resultado no sea siempre correcto:
     sys.excepthook = _excepthook
     # -------------------
@@ -223,7 +223,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
 def setup_gui(app: "QtWidgets.QApplication") -> None:
     """Configure GUI app."""
 
-    from PyQt5 import QtGui
+    from PyQt6 import QtGui
 
     noto_fonts = [
         "NotoSans-BoldItalic.ttf",
@@ -472,7 +472,6 @@ def exec_main(options: "optparse.Values") -> int:
 
         application.PROJECT.main_window = main_form.MainForm()
     # main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
-
     application.PROJECT.message_manager().send("splash", "show")
     _initialize_data()
 
@@ -495,9 +494,11 @@ def exec_main(options: "optparse.Values") -> int:
 def _initialize_data(is_framework: bool = False) -> None:
     """Initialize data."""
 
-    from PyQt5 import QtCore
+    from PyQt6 import QtCore
 
-    application.ID_SESSION = QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)
+    application.ID_SESSION = QtCore.QDateTime.currentDateTime().toString(
+        QtCore.Qt.DateFormat.ISODate
+    )
 
     if is_framework:
         LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
@@ -536,6 +537,6 @@ def _initialize_data(is_framework: bool = False) -> None:
 
 def call_qapplication(args: List[str] = []) -> "QtWidgets.QApplication":
     """Call to QApplication."""
-    from PyQt5 import QtWidgets
+    from PyQt6 import QtWidgets
 
     return QtWidgets.QApplication(args)

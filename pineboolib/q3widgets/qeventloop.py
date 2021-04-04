@@ -1,6 +1,6 @@
 """Qeventloop module."""
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 class QEventLoop(QtCore.QEventLoop):
@@ -12,4 +12,4 @@ class QEventLoop(QtCore.QEventLoop):
 
     def enterLoop(self) -> None:
         """Call exec_ loop."""
-        super().exec_()
+        super().exec()

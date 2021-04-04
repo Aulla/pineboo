@@ -3,7 +3,7 @@
 Module for PNSqlCursor class.
 """
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings, garbage_collector
@@ -162,16 +162,24 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         private_cursor.mode_access_ = self.Browse
         if cursor_relation and relation_mtd is not None:
 
-            cursor_relation.bufferChanged.connect(self.refresh)
-            cursor_relation.newBuffer.connect(self.refresh)
-            cursor_relation.newBuffer.connect(self.clearPersistentFilter)
+            cursor_relation.bufferChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.refresh
+            )
+            cursor_relation.newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.refresh
+            )
+            cursor_relation.newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.clearPersistentFilter
+            )
 
         else:
             self.seek(self.at())
 
         self._valid = True
         private_cursor.timer_ = QtCore.QTimer(self)
-        private_cursor.timer_.timeout.connect(self.refreshDelayed)
+        private_cursor.timer_.timeout.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.refreshDelayed
+        )
 
     def conn(self) -> "iconnection.IConnection":
         """Get current connection for this cursor."""
@@ -842,10 +850,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 QtWidgets.QApplication.focusWidget(),
                 self.tr("Aviso"),
                 self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-                QtWidgets.QMessageBox.Ok,
-                QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.StandardButtons.Ok,
+                QtWidgets.QMessageBox.StandardButtons.No,
             )
-            if res != QtWidgets.QMessageBox.No:
+            if res != QtWidgets.QMessageBox.StandardButtons.No:
 
                 if self.transaction():
                     if not self.refreshBuffer():
@@ -2114,7 +2122,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         new_selection = QtCore.QItemSelection(top_left, botton_right)
         if self._selection is None:
             raise Exception("Call setAction first.")
-        self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
+        self._selection.select(
+            new_selection, QtCore.QItemSelectionModel.SelectionFlags.ClearAndSelect
+        )
         # self.private_cursor._current_changed.emit(self.at())
         if model._current_row_index > -1 and model._current_row_index < self.size():
             self.private_cursor._currentregister = model._current_row_index
@@ -3539,9 +3549,13 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
                 condition_true = (
                     self.cursor_.valueBuffer(self._acos_cond_name) == self._acos_cond_value
                 )
+
             elif self._acos_cond == self.cursor_.RegExp:
-                condition_true = QtCore.QRegExp(str(self._acos_cond_value)).exactMatch(
-                    self.cursor_.valueBuffer(self._acos_cond_name)
+                # condition_true = QtCore.QRegularExpression(str(self._acos_cond_value)).exactMatch(
+                #    self.cursor_.valueBuffer(self._acos_cond_name)
+                # )
+                condition_true = str(self._acos_cond_value) == self.cursor_.valueBuffer(
+                    self._acos_cond_name
                 )
             elif self._acos_cond == self.cursor_.Function:
                 condition_true = (

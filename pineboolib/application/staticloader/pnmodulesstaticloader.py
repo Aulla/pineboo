@@ -6,7 +6,7 @@ Performs load of scripts from disk instead of database.
 """
 
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.core import settings, decorators
 from pineboolib.core.utils import logging, utils_base
@@ -172,17 +172,17 @@ class PNStaticLoader(QtCore.QObject):
         cast(QtWidgets.QTableWidget, tbl_dir).verticalHeader().setVisible(True)
         cast(QtWidgets.QTableWidget, tbl_dir).horizontalHeader().setVisible(True)
 
-        tbl_dir.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        tbl_dir.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         tbl_dir.setAlternatingRowColors(True)
         tbl_dir.setColumnCount(2)
         tbl_dir.setHorizontalHeaderLabels([self.tr("Carpeta"), self.tr("Activo")])
 
         horizontal_header = tbl_dir.horizontalHeader()
         horizontal_header.setSectionsClickable(False)
-        horizontal_header.setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+        horizontal_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Fixed)
 
-        horizontal_header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        horizontal_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        horizontal_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        horizontal_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         self.load()
         cast(
@@ -200,7 +200,11 @@ class PNStaticLoader(QtCore.QObject):
         cast(
             QtWidgets.QToolButton, self._dialog.pbOk  # type: ignore[attr-defined] # noqa: F821
         ).clicked.connect(self._dialog.accept)
-        cast(QtWidgets.QCheckBox, self.chkEnabled).toggled.connect(self.setEnabled)
+        cast(
+            QtWidgets.QCheckBox, self.chkEnabled
+        ).toggled.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.setEnabled
+        )
 
     @decorators.pyqt_slot()
     def load(self) -> None:
@@ -226,11 +230,13 @@ class PNStaticLoader(QtCore.QObject):
 
             for row, info_dir in enumerate(info.dirs_):
                 item = QtWidgets.QTableWidgetItem(info_dir.path_)
-                item.setTextAlignment(QtCore.Qt.AlignVCenter + QtCore.Qt.AlignLeft)
+                item.setTextAlignment(
+                    QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft
+                )
                 tbl_dir.setItem(row, 0, item)
                 chk = QtWidgets.QCheckBox(tbl_dir)
                 chk.setChecked(info_dir.active_)
-                chk.toggled.connect(self.setChecked)
+                chk.toggled.connect(self.setChecked)  # type: ignore [attr-defined] # noqa: F821
                 tbl_dir.setCellWidget(row, 1, chk)
 
             tbl_dir.setCurrentCell(n_rows, 0)
@@ -255,12 +261,12 @@ class PNStaticLoader(QtCore.QObject):
             tbl_dir.setRowCount(n_rows + 1)
 
             item = QtWidgets.QTableWidgetItem(str(dir))
-            item.setTextAlignment(QtCore.Qt.AlignVCenter + QtCore.Qt.AlignLeft)
+            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft)
             tbl_dir.setItem(n_rows, 0, item)
 
             chk = QtWidgets.QCheckBox(tbl_dir)
             chk.setChecked(True)
-            chk.toggled.connect(self.setChecked)
+            chk.toggled.connect(self.setChecked)  # type: ignore [attr-defined] # noqa: F821
 
             tbl_dir.setCellWidget(n_rows, 1, chk)
             tbl_dir.setCurrentCell(n_rows, 0)
@@ -288,7 +294,7 @@ class PNStaticLoader(QtCore.QObject):
                 info.path_ = new_dir
 
             item = QtWidgets.QTableWidgetItem(str(new_dir))
-            item.setTextAlignment(QtCore.Qt.AlignVCenter + QtCore.Qt.AlignLeft)
+            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft)
             tbl_dir.setItem(cur_row, 0, item)
 
     @decorators.pyqt_slot()
@@ -300,12 +306,12 @@ class PNStaticLoader(QtCore.QObject):
         if cur_row == -1:
             return
 
-        if QtWidgets.QMessageBox.No == QtWidgets.QMessageBox.warning(
+        if QtWidgets.QMessageBox.StandardButtons.No == QtWidgets.QMessageBox.warning(
             QtWidgets.QWidget(),
             self.tr("Borrar registro"),
             self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-            QtWidgets.QMessageBox.Ok,
-            QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.StandardButtons.Ok,
+            QtWidgets.QMessageBox.StandardButtons.No,
         ):
             return
 
@@ -342,7 +348,7 @@ class PNStaticLoader(QtCore.QObject):
         """Configure user interface from given widget."""
 
         diag_setup = PNStaticLoader(info, dialog)
-        if QtWidgets.QDialog.Accepted == diag_setup._dialog.exec_():
+        if QtWidgets.QDialog.DialogCode.Accepted == diag_setup._dialog.exec_():
             info.writeSettings()
 
     @staticmethod

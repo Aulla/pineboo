@@ -1,7 +1,7 @@
 """Qhboxlayout module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from typing import Optional
 
 
@@ -20,4 +20,4 @@ class QHBoxLayout(QtWidgets.QHBoxLayout):
 
         self.setContentsMargins(2, 0, 2, 0)
         self.setSpacing(1)
-        self.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)

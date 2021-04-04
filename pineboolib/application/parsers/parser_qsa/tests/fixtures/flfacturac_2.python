@@ -120,10 +120,3 @@ class FormInternalObj(qsa.FormDBWidget):
                 self.child("fdbImporteCobrado").setValue(0)
                 self.child("fdbMedioCobro").setValue("")
                 self.child("fdbCuentaBancaria").setValue("")
-
-
-if TYPE_CHECKING:
-    form: "FormInternalObj" = FormInternalObj()
-    iface = form.iface
-else:
-    form = None

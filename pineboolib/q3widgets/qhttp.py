@@ -1,6 +1,6 @@
 """QHttp module."""
 
-from PyQt5 import QtCore, QtNetwork
+from PyQt6 import QtCore, QtNetwork
 from typing import Union, Optional, cast, Dict, List, Any
 from pineboolib.core import decorators
 
@@ -366,7 +366,11 @@ class QHttp(HttpState, HttpError):
 
         self._manager = QtNetwork.QNetworkAccessManager()
         # self._request = QtNetwork.QNetworkRequest()
-        cast(QtCore.pyqtSignal, self._manager.finished).connect(self._slotNetworkFinished)
+        cast(
+            QtCore.pyqtSignal, self._manager.finished
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkFinished
+        )
 
         self._error_str = self.tr("Unknown error")
 
@@ -460,7 +464,12 @@ class QHttp(HttpState, HttpError):
         for k in request_header._values.keys():
             if k != "host":
                 _request.setRawHeader(
-                    str.encode(k), str.encode(str(request_header._values[k]).lower())
+                    str.encode(  # type: ignore [arg-type] # noqa: F821
+                        k
+                    ),
+                    str.encode(  # type: ignore [arg-type] # noqa: F821
+                        str(request_header._values[k]).lower()
+                    ),
                 )
 
             else:
@@ -473,7 +482,7 @@ class QHttp(HttpState, HttpError):
         method_ = getattr(self._manager, _tipo, None)
         self._data = buffer_
         if self._data is not None:
-            self._data.open(QtCore.QIODevice.ReadWrite)
+            self._data.open(QtCore.QIODevice.OpenMode.ReadWrite)
 
         self._state = self.Connecting
 
@@ -482,8 +491,16 @@ class QHttp(HttpState, HttpError):
         else:
             self._reply = method_(_request, data_)
 
-        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
-        cast(QtCore.pyqtSignal, self._reply.uploadProgress).connect(self._slotNetworkProgressSend)
+        cast(
+            QtCore.pyqtSignal, self._reply.downloadProgress
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkProgressRead
+        )
+        cast(
+            QtCore.pyqtSignal, self._reply.uploadProgress
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkProgressSend
+        )
         self._state = self.Connected
         self._current_id = request_header._id
         self.requestStarted.emit(request_header._id)
@@ -597,7 +614,7 @@ class QHttp(HttpState, HttpError):
 
         if self._data is not None:
             data_ = self._reply.readAll()
-            self._data.write(data_)
+            self._data.write(data_)  # type: ignore [arg-type] # noqa: F821
         else:
             self.readyRead.emit()
 
@@ -613,6 +630,6 @@ class QHttp(HttpState, HttpError):
 
         if self._data is not None:
             data_ = self._reply.readAll()
-            self._data.write(data_)
+            self._data.write(data_)  # type: ignore [arg-type] # noqa: F821
         else:
             self.readyRead.emit()

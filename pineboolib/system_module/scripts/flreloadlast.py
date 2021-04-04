@@ -7,10 +7,6 @@ import os
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        self = self
-
     def init(self) -> None:
         """Init function."""
         pass
@@ -30,10 +26,10 @@ class FormInternalObj(qsa.FormDBWidget):
             util.writeSettingEntry(setting, last_module)
 
         qsa.sys.processEvents()
-        self.cargarModulo(last_module)
+        self.load_module(last_module)
         qsa.sys.reinit()
 
-    def cargarModulo(self, nombre_fichero: str) -> bool:
+    def load_module(self, nombre_fichero: str) -> bool:
         """Load modules."""
         util = qsa.FLUtil()
         fichero = qsa.File(nombre_fichero, "iso-8859-15")
@@ -74,15 +70,15 @@ class FormInternalObj(qsa.FormDBWidget):
             if not isinstance(file_, str):
                 raise Exception("data must be str, not bytes!!")
             file_array = file_.split(u"\n")
-            modulo = self.dameValor(file_array[0])
-            descripcion = self.dameValor(file_array[1])
-            area = self.dameValor(file_array[2]) or ""
-            area_description = self.dameValor(file_array[3])
-            version = self.dameValor(file_array[4])
-            icon_name = self.dameValor(file_array[5])
+            modulo = self.get_value(file_array[0])
+            descripcion = self.get_value(file_array[1])
+            area = self.get_value(file_array[2]) or ""
+            area_description = self.get_value(file_array[3])
+            version = self.get_value(file_array[4])
+            icon_name = self.get_value(file_array[5])
 
-        descripcion = self.traducirCadena(descripcion or "", fichero.path or "", modulo or "")
-        area_description = self.traducirCadena(
+        descripcion = qsa.qt_translate_noop(descripcion or "", fichero.path or "", modulo or "")
+        area_description = qsa.qt_translate_noop(
             area_description or "", fichero.path or "", modulo or ""
         )
         icon_file = qsa.File(qsa.ustr(fichero.path, u"/", icon_name))
@@ -126,7 +122,7 @@ class FormInternalObj(qsa.FormDBWidget):
         # curSeleccion = qsa.FLSqlCursor(u"flmodules")
         modules_cursor.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
         modules_cursor.editRecord(False)
-        qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
+        qsa.from_project("formRecordflmodules").load_from_disk(qsa.ustr(fichero.path, u"/"), False)
         qsa.from_project("formRecordflmodules").accept()
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
         nombre_fichero = "%s" % os.path.abspath(nombre_fichero)
@@ -135,7 +131,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
-    def compararVersiones(self, ver_1: str = "", ver_2: str = "") -> int:
+    def version_compare(self, ver_1: str = "", ver_2: str = "") -> int:
         """Compare versions."""
 
         if ver_1 and ver_2:
@@ -150,44 +146,6 @@ class FormInternalObj(qsa.FormDBWidget):
                     return 2
         return 0
 
-    def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
-        """Translate string."""
-        util = qsa.FLUtil()
-        if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
-            return cadena
-        cadena_list = qsa.QString(cadena)[18:-1].split(",")
-        cadena = cadena_list[1][1:-1]
-        nombre_fichero = None
-        try:
-            nombre_fichero = "%s/translations/%s.%s.ts" % (path, modulo, util.getIdioma())
-        except Exception as error:
-            qsa.debug(str(error))
-            return cadena
-
-        if not qsa.FileStatic.exists(nombre_fichero):
-            qsa.debug("flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero)
-            return cadena
-
-        fichero = qsa.File(nombre_fichero)
-        fichero.open(qsa.File.ReadOnly)
-        file_data = fichero.read()
-        xml_trans = qsa.FLDomDocument()
-        if xml_trans.setContent(file_data):
-            message_node = xml_trans.elementsByTagName(u"message")
-            for item in range(len(message_node)):
-                if message_node.item(item).namedItem(u"source").toElement().text() == cadena:
-                    traduccion = (
-                        message_node.item(item).namedItem(u"translation").toElement().text()
-                    )
-                    if traduccion:
-                        cadena = traduccion
-                        break
-
-        return cadena
-
-    def dameValor(self, linea: str) -> str:
+    def get_value(self, linea: str) -> str:
         """Return value."""
         return linea
-
-
-form = None

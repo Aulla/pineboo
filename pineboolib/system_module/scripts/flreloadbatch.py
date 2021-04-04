@@ -6,9 +6,6 @@ from pineboolib.qsa import qsa
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-
     def init(self) -> None:
         """Init function."""
         pass
@@ -28,9 +25,9 @@ class FormInternalObj(qsa.FormDBWidget):
 
         command_result = qsa.Array()
         if util.getOS() == u"WIN32":
-            command_result = self.ejecutarComando("cmd.exe /C dir /B /S *.mod")
+            command_result = self.command_exec("cmd.exe /C dir /B /S *.mod")
         else:
-            command_result = self.ejecutarComando("find . -name *.mod")
+            command_result = self.command_exec("find . -name *.mod")
 
         if not command_result.ok:
             qsa.MessageBox.warning(
@@ -44,13 +41,13 @@ class FormInternalObj(qsa.FormDBWidget):
 
         opciones = command_result.salida.split(u"\n")
         opciones.pop()
-        modulos = self.elegirOpcion(opciones)
+        modulos = self.options_chooser(opciones)
         if not modulos:
             return
 
         for modulo in modulos:
             qsa.sys.processEvents()
-            if not self.cargarModulo(modulo):
+            if not self.load_module(modulo):
                 qsa.MessageBox.warning(
                     util.translate(u"scripts", u"Error al cargar el módulo:\n") + modulo,
                     qsa.MessageBox.Ok,
@@ -66,7 +63,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         app_.reinit()
 
-    def ejecutarComando(self, comando: str) -> qsa.Array:
+    def command_exec(self, comando: str) -> qsa.Array:
         """Execute a command and return a value."""
         res = qsa.Array()
         qsa.ProcessStatic.execute(comando)
@@ -79,24 +76,20 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return res
 
-    def cargarModulo(self, nombre_fichero: str) -> bool:
+    def load_module(self, nombre_fichero: str) -> bool:
         """Load a module and return True if loaded."""
         util = qsa.FLUtil()
         if util.getOS() == u"WIN32":
             nombre_fichero = nombre_fichero[0 : len(nombre_fichero) - 1]
 
-        return qsa.from_project("formflreloadlast").cargarModulo(nombre_fichero)
+        return qsa.from_project("formflreloadlast").load_module(nombre_fichero)
 
-    def compararVersiones(self, v1: str, v2: str) -> int:
+    def version_compare(self, ver1: str, ver2: str) -> int:
         """Compare two versions and return the highest."""
 
-        return qsa.from_project("formflreloadlast").compararVersiones(v1, v2)
+        return qsa.from_project("formflreloadlast").version_compare(ver1, ver2)
 
-    def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
-        """Translate a string."""
-        return qsa.from_project("formflreloadlast").traducirCadena(cadena, path, modulo)
-
-    def elegirOpcion(self, opciones: qsa.Array) -> qsa.Array:
+    def options_chooser(self, opciones: qsa.Array) -> qsa.Array:
         """Show a choose option dialog and return selected values."""
         util = qsa.FLUtil()
         dialog = qsa.Dialog()
@@ -119,6 +112,3 @@ class FormInternalObj(qsa.FormDBWidget):
                     resultado[len(resultado)] = opciones[num]
 
         return resultado if len(resultado) else qsa.Array()
-
-
-form = None

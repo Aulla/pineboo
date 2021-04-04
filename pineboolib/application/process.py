@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Process Module."""
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 
-# from PyQt5.QtCore import pyqtSignal
+# from PyQt6.QtCore import pyqtSignal
 import sys
 
 # from pineboolib.core import decorators
@@ -44,6 +44,11 @@ class ProcessBaseClass(QtCore.QProcess):
         """Return working directory."""
 
         return super().workingDirectory()
+
+    def readLine(self) -> bytes:  # type: ignore [override] # noqa: F821
+        """Readline overload."""
+
+        return super().readLine().data()
 
     def set_working_directory(self, working_directory: str) -> None:
         """Set working directory."""
@@ -120,8 +125,8 @@ class Process(ProcessBaseClass):
         # cast(pyqtSignal, self.readyReadStandardOutput).connect(self.stdoutReady)
         # cast(pyqtSignal, self.readyReadStandardError).connect(self.stderrReady)
         self._encoding = sys.getfilesystemencoding()
-        self.normalExit = self.NormalExit
-        self.crashExit = self.CrashExit
+        self.normalExit = self.ExitStatus.NormalExit
+        self.crashExit = self.ExitStatus.CrashExit
 
         if args:
             self.setProgram(args[0])
@@ -154,7 +159,7 @@ class Process(ProcessBaseClass):
     def get_is_running(self) -> bool:
         """Return if the process is running."""
 
-        return self.state() in (self.Running, self.Starting)
+        return self.state() in (self.ProcessState.Running, self.ProcessState.Starting)
 
     def exitcode(self) -> Any:
         """Return exit code."""

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor  # pragma: no cover
 
-logger = logging.get_logger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -33,13 +33,13 @@ class FormInternalObj(qsa.FormDBWidget):
             try:
                 codEjercicio = qsa.from_project("flfactppal").iface.pub_ejercicioActual()
             except Exception as e:
-                logger.error(
+                LOGGER.error(
                     "Module flfactppal was loaded but not able to execute <flfactppal.iface.pub_ejercicioActual()>"
                 )
-                logger.error(
+                LOGGER.error(
                     "... this usually means that flfactppal has failed translation to python"
                 )
-                logger.exception(e)
+                LOGGER.exception(e)
 
             if codEjercicio:
                 util = qsa.FLUtil()
@@ -128,6 +128,3 @@ class FormInternalObj(qsa.FormDBWidget):
         """Retrun description string."""
 
         return "Área de prueba T."
-
-
-form = None

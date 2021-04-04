@@ -1,6 +1,6 @@
 """Formdbwidget module."""
 # # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.application import connections
 from pineboolib.fllegacy import flsqlcursor
@@ -65,7 +65,7 @@ class FormDBWidget(QtWidgets.QWidget):
         signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
         if signal_slot:
             for conn_ in self._formconnections:
-                # PyQt5-Stubs misses signal.signal
+                # PyQt6-Stubs misses signal.signal
                 if (
                     conn_[0].signal
                     == signal_slot[0].signal  # type: ignore [attr-defined] # noqa: F821

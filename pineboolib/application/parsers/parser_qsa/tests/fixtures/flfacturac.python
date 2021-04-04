@@ -4011,10 +4011,3 @@ class FormInternalObj(qsa.FormDBWidget):
                 break
 
         return cOut
-
-
-if TYPE_CHECKING:
-    form: "FormInternalObj" = FormInternalObj()
-    iface = form.iface
-else:
-    form = None

@@ -1,7 +1,7 @@
 """Messagebox module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib import application
 from pineboolib.core.utils import logging
@@ -15,15 +15,15 @@ LOGGER = logging.get_logger(__name__)
 class MessageBox:
     """MessageBox class."""
 
-    Yes = QtWidgets.QMessageBox.Yes
-    No = QtWidgets.QMessageBox.No
-    NoButton = QtWidgets.QMessageBox.NoButton
-    Ok = QtWidgets.QMessageBox.Ok
-    Cancel = QtWidgets.QMessageBox.Cancel
-    Ignore = QtWidgets.QMessageBox.Ignore
+    Yes = QtWidgets.QMessageBox.StandardButtons.Yes
+    No = QtWidgets.QMessageBox.StandardButtons.No
+    NoButton = QtWidgets.QMessageBox.StandardButtons.NoButton
+    Ok = QtWidgets.QMessageBox.StandardButtons.Ok
+    Cancel = QtWidgets.QMessageBox.StandardButtons.Cancel
+    Ignore = QtWidgets.QMessageBox.StandardButtons.Ignore
 
     @classmethod
-    def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return a messageBox."""
 
         if not getattr(application, "TESTING_MODE", None):
@@ -38,8 +38,8 @@ class MessageBox:
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         title = "Pineboo"
-        parent = QtWidgets.qApp.activeWindow()
-        buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
+        parent = QtWidgets.QApplication.activeWindow()
+        buttons: List["QtWidgets.QMessageBox.StandardButtons"] = []
         default_button = None
         text = ""
 
@@ -49,7 +49,7 @@ class MessageBox:
             else:
                 if isinstance(argument, str):
                     title = argument
-                elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
+                elif isinstance(argument, QtWidgets.QMessageBox.StandardButtons):
                     if len(buttons) < 2:
                         buttons.append(argument)
                     else:
@@ -66,21 +66,21 @@ class MessageBox:
             else:
                 return msg_box(parent, title, text, *buttons, default_button)
         else:
-            return QtWidgets.QMessageBox.Ok
+            return QtWidgets.QMessageBox.StandardButtons.Ok
 
     @classmethod
-    def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an question messageBox."""
 
         return cls.msgbox("question", *args)
 
     @classmethod
-    def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an information messageBox."""
         return cls.msgbox("information", *args)
 
     @classmethod
-    def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an warning messageBox."""
 
         text_ = args[0] if isinstance(args[0], str) else args[2]
@@ -91,7 +91,7 @@ class MessageBox:
         return result
 
     @classmethod
-    def critical(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def critical(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an critical messageBox."""
 
         text_ = args[0] if isinstance(args[0], str) else args[2]

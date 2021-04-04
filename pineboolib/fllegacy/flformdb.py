@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 import traceback
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib import logging
 
@@ -227,7 +227,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
-        self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         self.setLayout(self.layout_)
 
         self.pushButtonCancel = None
@@ -271,7 +271,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.insertWidget(0, widget)
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
-        self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         if self._ui_name:
 
             if application.PROJECT.conn_manager is None:
@@ -414,7 +414,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if path_file:
             file_ = QtCore.QFile(path_file)
-            if not file_.OpenMode(QtCore.QIODevice.WriteOnly):
+            if not file_.OpenMode(QtCore.QIODevice.OpenMode.WriteOnly):
                 self.tr("Error I/O al intentar escribir el fichero %s" % path_file)
                 return
 
@@ -649,9 +649,11 @@ class FLFormDB(QtWidgets.QDialog):
             pushButtonExport.setToolTip(
                 QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
             )
-            pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
+            pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
-            pushButtonExport.clicked.connect(self.exportToXml)
+            pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.exportToXml
+            )
 
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
@@ -665,19 +667,23 @@ class FLFormDB(QtWidgets.QDialog):
                 push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
-                push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
+                push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
-                push_button_snapshot.clicked.connect(self.saveSnapShot)
+                push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.saveSnapShot
+                )
 
             spacer = QtWidgets.QSpacerItem(
-                20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
             self.bottomToolbar.layout().addItem(spacer)
 
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            cast(QtCore.pyqtSignal, self.pushButtonCancel.clicked).connect(
+            cast(
+                QtCore.pyqtSignal, self.pushButtonCancel.clicked
+            ).connect(  # type: ignore [attr-defined] # noqa: F821
                 cast(Callable, self.close)
             )
 
@@ -693,7 +699,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.pushButtonCancel.setWhatsThis("Cerrar formulario (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario (Esc)")
         self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def formName(self) -> str:
         """
@@ -752,6 +758,11 @@ class FLFormDB(QtWidgets.QDialog):
         self.emitFormClosed()
         self._loaded = False
 
+        # from PyQt6.QtWidgets import qApp
+
+        # qApp.processEvents() #Si se habilita pierde mucho tiempo!
+
+        # self.hide()
         try:
 
             if type(self).__name__ != "FLFormSearchDB":
@@ -880,7 +891,7 @@ class FLFormDB(QtWidgets.QDialog):
         if parent_ and parent_.parent() is None:
 
             qt_rectangle = self.frameGeometry()
-            center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
+            center_point = self.screen().availableGeometry().center()
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
 
@@ -987,7 +998,7 @@ class FLFormDB(QtWidgets.QDialog):
         hblay.setSpacing(0)
         hblay.addStretch()
         self.bottomToolbar.setLayout(hblay)
-        self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bottomToolbar.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.layout_.addWidget(self.bottomToolbar)
 
     action_widget = property(get_action_widget, set_action_widget)

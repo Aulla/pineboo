@@ -3,8 +3,8 @@ Convert a date to different formats.
 """
 
 import datetime
-from PyQt5 import QtCore  # type: ignore
-from PyQt5.QtCore import QDate  # type: ignore
+from PyQt6 import QtCore  # type: ignore
+from PyQt6.QtCore import QDate  # type: ignore
 from typing import Optional, List, Any
 
 
