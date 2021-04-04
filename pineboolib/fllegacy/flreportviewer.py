@@ -148,7 +148,7 @@ class FLReportViewer(QtWidgets.QWidget):
         from PyQt6 import QtPrintSupport
 
         dialog = QtPrintSupport.QPrintDialog()
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             self.report_printed = self._report_engine.printReport(dialog)
             if self._auto_close and self.report_printed:
                 self._w.close()

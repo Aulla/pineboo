@@ -150,7 +150,7 @@ class FLReportEngine(QtCore.QObject):
 
         try:
             from PyQt6.QtPrintSupport import QPrinter
-            from PIL.ImageQt import ImageQt  # type: ignore
+            from PIL.ImageQt import ImageQt
 
             page_filter = []
             if not isinstance(name_or_dialog, str):
@@ -158,14 +158,14 @@ class FLReportEngine(QtCore.QObject):
                 range_ = name_or_dialog.printRange()
                 first = name_or_dialog.fromPage()
                 last = name_or_dialog.toPage()
-                if cast(int, range_) == 2:
+                if range_.value == 2:  # 0 all, 1,selection, 2 range, 3 current page
                     for num in range(first, last + 1):
                         page_filter.append(num)
 
             else:
                 printer = QPrinter()
                 printer.setPrinterName(name_or_dialog)
-                printer.setColorMode(color_mode)  # type: ignore
+                printer.setColorMode(color_mode)
                 if printer.supportsMultipleCopies():
                     printer.setCopyCount(num_copies)
                 else:
