@@ -20,9 +20,7 @@ class PNTranslations(object):
     FLTranslations class manages the different module and application traductions.
     """
 
-    def loadTsFile(
-        self, tor: Any, ts_file_name: Union[bytes, int, str], verbose: bool = False
-    ) -> bool:
+    def loadTsFile(self, tor: Any, ts_file_name: str, verbose: bool = False) -> bool:
         """
         If the .qm does not exist, convert the .ts we give to .qm.
 
@@ -85,7 +83,7 @@ class PNTranslations(object):
         if full_text.find("<!DOCTYPE TS>") >= 0:
             self.releaseTsFile(ts_input_file, verbose, stripped)
 
-        else:
+    """ else:
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project has no connection yet")
 
@@ -100,3 +98,4 @@ class PNTranslations(object):
 
             if not meta_trans:
                 LOGGER.warning("Met no 'TRANSLATIONS' entry in project file '%s'", ts_input_file)
+    """

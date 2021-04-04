@@ -11,7 +11,10 @@ from pineboolib.plugins.dgi import dgi_schema
 from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .dgi_objects import splash_screen, progress_dialog_manager
+    from .dgi_objects import (  # noqa : F401 # pragma: no cover
+        splash_screen,
+        progress_dialog_manager,
+    )
 
 LOGGER = logging.get_logger(__name__)
 

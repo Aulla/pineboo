@@ -86,10 +86,10 @@ class QHttpRequest(object):
     def removeValue(self, key_: str):
         """Remove key from dict."""
 
-        k_ = key_.lower()
-        if k_ in self._values.keys():
-            self._values[k_] = None
-            del self._values[k_]
+        key_ = key_.lower()
+        if key_ in self._values.keys():
+            self._values[key_] = None
+            del self._values[key_]
 
     def setValid(self, valid_: bool) -> None:
         """Set if is valid."""
@@ -113,8 +113,8 @@ class QHttpRequest(object):
         if not self._valid:
             return ""
         ret_ = ""
-        for k, v in self._values:
-            ret_ += "%s:%s\r\n" % (k, v)
+        for key, value in self._values.items():
+            ret_ += "%s:%s\r\n" % (key, value)
 
         return ret_
 
