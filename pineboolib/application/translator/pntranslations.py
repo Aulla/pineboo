@@ -3,10 +3,10 @@
 # -*- coding: utf-8 -*-
 import os
 from pineboolib.core import decorators
-from pineboolib import application, logging
+from pineboolib import logging
 
 from PyQt6 import QtCore
-from typing import Any, Union
+from typing import Any
 
 
 """
@@ -69,7 +69,7 @@ class PNTranslations(object):
         """
 
         verbose = False
-        meta_trans = False
+        # meta_trans = False
 
         file_ = QtCore.QFile(ts_input_file)
         if not file_.open(QtCore.QIODevice.OpenMode.ReadOnly):

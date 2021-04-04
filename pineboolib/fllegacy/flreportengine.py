@@ -1,7 +1,6 @@
 """Flreportengine module."""
 from typing import List
 from PyQt6 import QtXml, QtCore  # type: ignore
-from PyQt6.QtGui import QPainter
 
 from PyQt6.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
@@ -149,8 +148,8 @@ class FLReportEngine(QtCore.QObject):
         """Print report to a printer."""
 
         try:
-            from PyQt6.QtPrintSupport import QPrinter
-            from PIL.ImageQt import ImageQt
+            from PyQt6 import QtPrintSupport, QtGui
+            from PIL.ImageQt import ImageQt  # type: ignore [import]
 
             page_filter = []
             if not isinstance(name_or_dialog, str):
@@ -163,9 +162,9 @@ class FLReportEngine(QtCore.QObject):
                         page_filter.append(num)
 
             else:
-                printer = QPrinter()
+                printer = QtPrintSupport.QPrinter()
                 printer.setPrinterName(name_or_dialog)
-                printer.setColorMode(color_mode)
+                printer.setColorMode(cast(QtPrintSupport.QPrinter.ColorMode, color_mode))
                 if printer.supportsMultipleCopies():
                     printer.setCopyCount(num_copies)
                 else:
@@ -176,13 +175,11 @@ class FLReportEngine(QtCore.QObject):
             printer.setCreator("Pineboo")
             pdf_file = self._parser.get_file_name()
 
-            # print("Procesando", pdf_file, "tmpdir", application.PROJECT.tmpdir)
-
             images = convert_from_path(
                 pdf_file, dpi=self._rel_dpi, output_folder=application.PROJECT.tmpdir
             )
 
-            painter = QPainter()
+            painter = QtGui.QPainter()
             painter.begin(printer)
             first_ = True
             for num, image in enumerate(images):
