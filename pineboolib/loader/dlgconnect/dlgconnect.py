@@ -61,15 +61,11 @@ class DlgConnect(QtWidgets.QWidget):
         self._user_interface: Any = flmanagermodules.FLManagerModules.createUI(dlg_, None, self)
         if not self._user_interface:
             raise Exception("Error creating dlgConnect")
-        # Centrado en pantalla
-        # FIXMEPYQT6
-        # frame_geo = self.frameGeometry()
-        # screen = QtWidgets.QApplication.desktop().screenNumber(
-        #    QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
-        # )
-        # center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
-        # frame_geo.moveCenter(center_point)
-        # self.move(frame_geo.topLeft())
+
+        frame_geo = self.frameGeometry()
+        primary_screen = QtGui.QGuiApplication.primaryScreen()
+        frame_geo.moveCenter(primary_screen.geometry().center())
+        self.move(frame_geo.topLeft())
 
         self._user_interface.pbLogin.clicked.connect(self.open)
         self._user_interface.tbOptions.clicked.connect(self.toggleOptions)

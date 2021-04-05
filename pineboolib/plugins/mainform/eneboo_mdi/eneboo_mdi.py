@@ -827,18 +827,19 @@ class MainForm(imainwindow.IMainWindow):
                     settings.SETTINGS.value("Geometry/MainWindowHeight", rect_.height())
                 )
 
-                # FIXME
-                # desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
-                # inter = desk.intersected(rect_)
-                # self.container_.resize(rect_.size())
-                # if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
-                #    self.container_.move(rect_.topLeft())
+                frame_geo = self.frameGeometry()
+                primary_screen = QtGui.QGuiApplication.primaryScreen()
+                frame_geo.moveCenter(primary_screen.geometry().center())
+                self.move(frame_geo.topLeft())
 
-            # else:
-            # FIXME:
-            # self.container_.resize(
-            #    QtWidgets.QApplication.desktop().availableGeometry(self.container_).size()
-            # )
+                desk = self.container_.frameGeometry()
+                inter = desk.intersected(rect_)
+                self.container_.resize(rect_.size())
+                if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
+                    self.container_.move(rect_.topLeft())
+            else:
+                # FIXME: maximizar?
+                self.container_.resize(self.container_.frameGeometry().size())
 
             active_id_module = self.db().managerModules().activeIdModule()
 
@@ -918,18 +919,18 @@ class MainForm(imainwindow.IMainWindow):
             rect_.setY(settings.SETTINGS.value("%s/Y" % key, rect_.y()))
             rect_.setWidth(settings.SETTINGS.value("%s/Width" % key, rect_.width()))
             rect_.setHeight(settings.SETTINGS.value("%s/Height" % key, rect_.height()))
-            # FIXME:
-            # desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
-            # inter = desk.intersected(rect_)
-            # main_widget.resize(rect_.size())
-            # if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
-            #    main_widget.move(rect_.topLeft())
-            # else:
-            #    main_widget.hide()
-            #    main_widget.resize(
-            #        QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
-            #    )
-            #    main_widget.show()
+
+            desk = main_widget.frameGeometry()
+            inter = desk.intersected(rect_)
+            main_widget.resize(rect_.size())
+            if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
+                main_widget.move(rect_.topLeft())
+            else:
+                # FIXME: maximiza?
+                main_widget.hide()
+                main_widget.resize(desk.size())
+
+                main_widget.show()
 
     def __del__(self) -> None:
         """Cleanup."""

@@ -22,14 +22,10 @@ class SplashScreen(object):
         )
         self._splash.setMask(splash_pix.mask())
 
-        # FIXMEQT6!
-        # frame_geo = self._splash.frameGeometry()
-        # screen = QtWidgets.QApplication.desktop().screenNumber(
-        #    QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
-        # )
-        # center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
-        # frame_geo.moveCenter(center_point)
-        # self._splash.move(frame_geo.topLeft())
+        frame_geo = self._splash.frameGeometry()
+        primary_screen = QtGui.QGuiApplication.primaryScreen()
+        frame_geo.moveCenter(primary_screen.geometry().center())
+        self._splash.move(frame_geo.topLeft())
 
     def showMessage(self, text: str) -> None:
         """Show a message into spalsh screen."""
