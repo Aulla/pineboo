@@ -591,7 +591,7 @@ class PNApplication(QtCore.QObject):
             return
 
         if script_call:
-            LOGGER.warning("script_call not implemented. FIXME!!")
+            self.call(script_call, [], self)
 
         if not main_window.isHidden():
             QtWidgets.QWhatsThis.showText(
