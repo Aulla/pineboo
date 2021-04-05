@@ -73,14 +73,14 @@ setuptools.setup(
         ]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Environment :: X11 Applications :: Qt",
         "Topic :: Office/Business :: Financial :: Accounting",
         "Typing :: Typed",
