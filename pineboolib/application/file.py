@@ -15,6 +15,13 @@ class File(object):
     Manage files from a module.
     """
 
+    module: str
+    filename: str
+    basedir: Optional[str]
+    sha: Optional[str]
+    name: str
+    ext: str
+
     def __init__(
         self,
         module: str,

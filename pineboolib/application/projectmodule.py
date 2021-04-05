@@ -58,8 +58,7 @@ class Project(object):
     _session_func_: Optional["Callable"]
 
     areas: Dict[str, "struct.AreaStruct"]
-    files: Dict[str, Any]
-    tables: Dict[str, Any]
+    files: Dict[str, "file_module.File"]
     actions: Dict[str, "xmlaction.XMLAction"]
 
     modules: Dict[str, "module.Module"]
@@ -76,17 +75,15 @@ class Project(object):
         self.apppath = ""
         self.tmpdir = settings.CONFIG.value("ebcomportamiento/temp_dir", "")
         self.parser = None
-        # self.main_form_name: Optional[str] = None
         self.delete_cache = False
         self.parse_project = True
         self.no_python_cache = False
 
-        self.actions = {}  # FIXME: Add proper type
-        # self.tables = {}  # FIXME: Add proper type
-        self.files = {}  # FIXME: Add proper type
+        self.actions = {}
+        self.files = {}
         self.areas = {}
         self.modules = {}
-        # self.options = Values()
+
         import pathlib
 
         if not self.tmpdir:
@@ -186,11 +183,8 @@ class Project(object):
     def load_orm(self) -> None:
         """Load Orm objects."""
 
-        for file_name_model, file_item in [
-            ["%s_model.py" % item.filename[:-4], item]
-            for item in self.files.values()
-            if item.filename.endswith(".mtd")
-        ]:
+        for file_item in [item for item in self.files.values() if item.filename.endswith(".mtd")]:
+            file_name_model = "%s_model.py" % file_item.filename[:-4]
             if file_name_model not in self.files.keys():
                 path_file = pnmtdparser.mtd_parse(file_item.filename, file_item.path())
                 if path_file:
@@ -360,8 +354,7 @@ class Project(object):
         @param show_exceptions. Boolean que especifica si se muestra los errores.
         @return Boolean con el resultado.
         """
-        # FIXME: No deberíamos usar este método. En Python hay formas mejores
-        # de hacer esto.
+
         LOGGER.trace(
             "JS.CALL: fn:%s args:%s ctx:%s", function, args, object_context, stack_info=True
         )
@@ -427,8 +420,6 @@ class Project(object):
 
             msg = "Convirtiendo a Python . . . %s.qs %s" % (file_name, txt_)
             LOGGER.info(msg)
-
-            # clean_no_python = self.dgi.clean_no_python() # FIXME: No longer needed. Applied on the go.
 
             try:
                 postparse.pythonify([scriptname], ["--strict"])

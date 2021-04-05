@@ -703,7 +703,7 @@ class FLManagerModules(object):
         ret_ = ""
         if not self.conn_.connManager().manager().isSystemTable(file_name):
             if file_name in application.PROJECT.files.keys():
-                ret_ = application.PROJECT.files[file_name].sha
+                ret_ = application.PROJECT.files[file_name].sha or ""
 
         return ret_
 
