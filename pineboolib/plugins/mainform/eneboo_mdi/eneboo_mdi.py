@@ -926,7 +926,7 @@ class MainForm(imainwindow.IMainWindow):
             if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
                 main_widget.move(rect_.topLeft())
             else:
-                # FIXME: maximiza?
+                # FIXME: maximizar?
                 main_widget.hide()
                 main_widget.resize(desk.size())
 
