@@ -320,7 +320,8 @@ class XMLAction(struct.ActionStruct):
         """
         widget = self.load_master_widget()
 
-        base_function = getattr(widget, "iface", widget)
+        base_function = getattr(widget, "iface", None) or widget
+
         main = getattr(base_function, "main", None)
         if main is None:
             raise Exception("main function not found!")
