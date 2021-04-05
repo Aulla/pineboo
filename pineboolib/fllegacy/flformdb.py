@@ -806,7 +806,8 @@ class FLFormDB(QtWidgets.QDialog):
             parent = self.parent()
 
             if parent and isinstance(parent, QtWidgets.QMdiSubWindow):
-                parent.resize(size)
+                if size:
+                    parent.resize(size)
                 parent.repaint()
 
             # self.initMainWidget()
