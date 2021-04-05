@@ -468,7 +468,7 @@ class MainForm(imainwindow.IMainWindow):
         self.tool_box_.addItem(config_tool_bar, self.tr(descript_area))
 
         descript_module = self.tr("Fuente")
-        font_action = QtGui.QAction(new_area_bar)
+        font_action = QtGui.QAction(config_tool_bar)
         font_action.setObjectName("fontAction")
         font_action.setText(self.tr(descript_module))
         # font_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -477,10 +477,9 @@ class MainForm(imainwindow.IMainWindow):
         font_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.chooseFont
         )
-        action_group.addAction(font_action)
 
         descript_module = self.tr("Estilo")
-        style_action = QtGui.QAction(new_area_bar)
+        style_action = QtGui.QAction(config_tool_bar)
         style_action.setObjectName("styleAction")
         style_action.setText(self.tr(descript_module))
         # style_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -489,10 +488,9 @@ class MainForm(imainwindow.IMainWindow):
         style_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.showStyles
         )
-        action_group.addAction(style_action)
 
         descript_module = self.tr("Indice")
-        help_action = QtGui.QAction(new_area_bar)
+        help_action = QtGui.QAction(config_tool_bar)
         help_action.setObjectName("helpAction")
         help_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -501,10 +499,9 @@ class MainForm(imainwindow.IMainWindow):
         help_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.helpIndex
         )
-        action_group.addAction(help_action)
 
         descript_module = self.tr("Acerca de Pineboo")
-        about_pineboo_action = QtGui.QAction(new_area_bar)
+        about_pineboo_action = QtGui.QAction(config_tool_bar)
         about_pineboo_action.setObjectName("aboutPinebooAction")
         about_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -513,10 +510,9 @@ class MainForm(imainwindow.IMainWindow):
         about_pineboo_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.aboutPineboo
         )
-        action_group.addAction(about_pineboo_action)
 
         descript_module = self.tr("Visita Eneboo.org")
-        visit_pineboo_action = QtGui.QAction(new_area_bar)
+        visit_pineboo_action = QtGui.QAction(config_tool_bar)
         visit_pineboo_action.setObjectName("visitPinebooAction")
         visit_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -525,10 +521,9 @@ class MainForm(imainwindow.IMainWindow):
         visit_pineboo_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.urlPineboo
         )
-        action_group.addAction(visit_pineboo_action)
 
         descript_module = self.tr("Acerca de Qt")
-        about_qt_action = QtGui.QAction(new_area_bar)
+        about_qt_action = QtGui.QAction(config_tool_bar)
         about_qt_action.setObjectName("aboutQtAction")
         about_qt_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -537,7 +532,6 @@ class MainForm(imainwindow.IMainWindow):
         about_qt_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.aboutQt
         )
-        action_group.addAction(about_qt_action)
 
         lay = config_tool_bar.layout()
         for child in config_tool_bar.children():
