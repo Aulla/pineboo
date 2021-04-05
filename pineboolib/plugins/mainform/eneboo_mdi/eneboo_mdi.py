@@ -683,10 +683,14 @@ class MainForm(imainwindow.IMainWindow):
                         itn = connections.at(i).toElement()
                         sender = itn.namedItem("sender").toElement().text()
                         signal = itn.namedItem("signal").toElement().text()
+
                         if signal in ["activated()", "triggered()"]:
                             signal = "triggered()"
                         receiver = itn.namedItem("receiver").toElement().text()
+                        if receiver == "FLWidgetApplication":
+                            receiver = idm
                         slot = itn.namedItem("slot").toElement().text()
+
                         if receiver in [idm, "pncore"] and signal == "triggered()":
                             action_list = []
                             action = cast(QtGui.QAction, widget.findChild(QtGui.QAction, sender))
@@ -895,7 +899,8 @@ class MainForm(imainwindow.IMainWindow):
     def readStateModule(self) -> None:
         """Read settings for module."""
 
-        idm = self.db().managerModules().activeIdModule()
+        mng_modules = self.db().managerModules()
+        idm = mng_modules.activeIdModule()
         if not idm:
             return
 
@@ -903,14 +908,13 @@ class MainForm(imainwindow.IMainWindow):
         if main_widget is None or main_widget.objectName() != idm:
             return
 
-        # FIXME: restore opened windows
-        # windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, None)
-        # if windows_opened:
-        #    for it in windows_opened:
-        #        act = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, it))
-        #        if act and act.isVisible():
-        # application.PROJECT.aq_app.openMasterForm(it, act.icon())
-        #            application.PROJECT.aq_app.openMasterForm(it)
+        windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, None)
+
+        for action_name in windows_opened:
+            action = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, action_name))
+            if action and action.isVisible() and action_name in application.PROJECT.actions.keys():
+                form = mng_modules.createForm(application.PROJECT.actions[action_name])
+                form.show()
 
         rect_ = QtCore.QRect(main_widget.pos(), main_widget.size())
         key = "Geometry/%s" % idm
