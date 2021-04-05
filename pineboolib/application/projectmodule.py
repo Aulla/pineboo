@@ -61,7 +61,7 @@ class Project(object):
     files: Dict[str, Any]
     tables: Dict[str, Any]
     actions: Dict[str, "xmlaction.XMLAction"]
-    translator_: List[Any]
+
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
     USE_FLFILES_FOLDER: str = ""
@@ -80,7 +80,7 @@ class Project(object):
         self.delete_cache = False
         self.parse_project = True
         self.no_python_cache = False
-        self.translator_ = []  # FIXME: Add proper type
+
         self.actions = {}  # FIXME: Add proper type
         # self.tables = {}  # FIXME: Add proper type
         self.files = {}  # FIXME: Add proper type
