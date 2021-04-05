@@ -1,6 +1,6 @@
 black==19.3b0
 fernet
-flake8
+flake8==3.9.0
 mccabe
 mypy==0.780
 mypy-extensions==0.4.3
