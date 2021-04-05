@@ -559,7 +559,13 @@ class MainForm(imainwindow.IMainWindow):
         obj_ = cast(QtWidgets.QWidget, obj_)
         event_type = event.type()
         main_widget = self.main_widget
-        if obj_ != main_widget and not isinstance(obj_, QtWidgets.QMainWindow):
+
+        if (
+            obj_ != main_widget
+            and not isinstance(obj_, QtWidgets.QMainWindow)
+            and not isinstance(obj_, qmainwindow.QMainWindow)
+        ):
+
             return super().eventFilter(obj_, event)
 
         # aw = None
@@ -617,6 +623,8 @@ class MainForm(imainwindow.IMainWindow):
                 if not ret:
                     obj_.setDisabled(False)
                     event.ignore()
+            else:
+                self.writeStateActions(obj_.objectName())
 
             return True
 
@@ -778,12 +786,24 @@ class MainForm(imainwindow.IMainWindow):
                 settings.SETTINGS.set_value("Geometry/MainWindowWidth", self.container_.width())
                 settings.SETTINGS.set_value("Geometry/MainWindowHeight", self.container_.height())
 
-        for map_ in self._map_geometry_form:  # FIXME esto no se rellena nunca
-            key = "Geometry/%s/" % map_.key()
-            settings.SETTINGS.set_value("%s/X" % key, map_.x())
-            settings.SETTINGS.set_value("%s/Y" % key, map_.y())
-            settings.SETTINGS.set_value("%s/Width" % key, map_.width())
-            settings.SETTINGS.set_value("%s/Height" % key, map_.height())
+    def writeStateActions(self, idm: str) -> None:
+        """Write state actions forms."""
+
+        container_ = None
+        for level_widget in QtWidgets.QApplication.topLevelWidgets():
+            if level_widget.objectName() == idm:
+                container_ = level_widget
+                break
+
+        if container_ and idm:
+            for item in [
+                item.widget() for item in container_.findChildren(QtWidgets.QMdiSubWindow)
+            ]:
+                key = "Geometry/%s/" % item._action_name
+                settings.SETTINGS.set_value("%s/X" % key, item.x())
+                settings.SETTINGS.set_value("%s/Y" % key, item.y())
+                settings.SETTINGS.set_value("%s/Width" % key, item.width())
+                settings.SETTINGS.set_value("%s/Height" % key, item.height())
 
     def writeStateModule(self) -> None:
         """Write settings for modules."""
@@ -908,33 +928,38 @@ class MainForm(imainwindow.IMainWindow):
         if main_widget is None or main_widget.objectName() != idm:
             return
 
-        windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, None)
+        self.read_state_widget(idm, main_widget)
 
+        windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, [])
         for action_name in windows_opened:
             action = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, action_name))
             if action and action.isVisible() and action_name in application.PROJECT.actions.keys():
+
                 form = mng_modules.createForm(application.PROJECT.actions[action_name])
+                self.read_state_widget(action_name, form)
                 form.show()
 
-        rect_ = QtCore.QRect(main_widget.pos(), main_widget.size())
-        key = "Geometry/%s" % idm
+    def read_state_widget(self, name: str, widget: QtWidgets.QWidget) -> None:
+        """Read state from a widget."""
+
+        key = "Geometry/%s" % name
+        rect_ = QtCore.QRect(widget.pos(), widget.size())
         if not settings.SETTINGS.value("%s/Maximized" % key, False):
             rect_.setX(settings.SETTINGS.value("%s/X" % key, rect_.x()))
             rect_.setY(settings.SETTINGS.value("%s/Y" % key, rect_.y()))
             rect_.setWidth(settings.SETTINGS.value("%s/Width" % key, rect_.width()))
             rect_.setHeight(settings.SETTINGS.value("%s/Height" % key, rect_.height()))
 
-            desk = main_widget.frameGeometry()
-            inter = desk.intersected(rect_)
-            main_widget.resize(rect_.size())
-            if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
-                main_widget.move(rect_.topLeft())
-            else:
-                # FIXME: maximizar?
-                main_widget.hide()
-                main_widget.resize(desk.size())
+            # desk = widget.frameGeometry()
+            # inter = desk.intersected(rect_)
+            widget.resize(rect_.size())
+            widget.move(rect_.topLeft())
 
-                main_widget.show()
+            # if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
+            #    widget.move(rect_.topLeft())
+            # else:
+            #    widget.hide()
+            #    widget.resize(desk.size())
 
     def __del__(self) -> None:
         """Cleanup."""
