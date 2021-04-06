@@ -27,17 +27,19 @@ Aproximaciones existentes
 ---------------------------
 Solo existe una única aproximación a la ejecución de proyectos de Eneboo:
 
- - Python3.x + PyQt5
- - Permite ejecutarlo en PostgreSQL , SQLite y en MySQL.
+ - Python3.x + PyQt6
+ - Permite ejecutarlo en PostgreSQL, SQLite ,MySQL y MSSQL.
  - Motor realizado integramente en Python
  - Conversión al vuelo de QSA a PY con parseador FLScriptParser2
- - Conversión al vuelo de formularios Qt3 a Qt5 creando un UiLoader manualmente
+ - Conversión al vuelo de formularios Qt3 a Qt4 creando un UiLoader manualmente
+ - Conversión al vuelo de fichero .mtd a modelos sqlAlchemy
+ - Conversión al vuelo de fichros .kut a pdf
 
 
 Dependencias
 ----------------
- - Python 3.x
- - PyQt5
+ - Python >= 3.6.9
+ - PyQt6 >= 6.0.3
  - PsycoPG2
  - Python PLY (flscriptparser)
 
@@ -53,14 +55,14 @@ las siguientes tareas:
  - Impresión con jasperPluging configurado
 
 
-Al iniciar una acción, el formulario es convertido al vuelo a Qt5 (con errores) y
+Al iniciar una acción, el formulario es convertido al vuelo a Qt4 (con errores) y
 el script QS es convertido a Python y ejecutado (con muchos más errores). Se
 lanza el init() automáticamente.
 
 Las referencias entre módulos (flfacturac.iface.XYZ) funcionan con carga de módulo
 retrasada.
 
-La API de QSA y Eneboo está en desarrollo. En la API aún existente son
+La API de QSA y Eneboo está practicamente terminada. En la API aún existente son
 funciones y clases "fake", que desde el script, parece que funcionen pero no
 realizan ningún trabajo. Esto permite ejecutar los scripts, pero no opera correctamente.
 
@@ -86,16 +88,10 @@ sudo apt-get install python3-pip git libmysqlclient-dev
 
 sudo -H pip3 install --upgrade pip
 
-3) Instalar dependencias python3.
+3) Descargamos pineboo
 
-sudo -H pip3 install python-barcode==0.9.0 odfpy==1.4.0  ply==3.11  six==1.10.0 pyqt5==5.12.1 pg8000==1.12.3 psycopg2-binary==2.7.6.1 PyQt5_sip==4.19.14 mysqlclient==1.3.14 SQLAlchemy PyMySQL
+sudo -H pip3 install pineboo
 
-sudo -H pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3
-
-4) Descargamos pineboo
-
-git clone https://github.com/Aulla/pineboo.git
-sudo -H pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3
 
 Al llamar al programa Pineboo éste crea el subdirectorio "/profiles".
 
@@ -105,37 +101,11 @@ Desde ese formulario se configura el acceso a la empresa elegida
 
 Con esto, pineboo debería iniciarse así::
 
-    ./pineboo -l proyecto1
-
-
-Pineboo y Eclipse
----------------------
-Para integrar Pineboo con eclipse. Despues de instalar Eclipse añade los repositorios de PyDev  y Egit
-
-PyDev
-Help > install New Software > Add Repository
-http://pydev.org/updates
-
-Egit
-Help > install New Software > Add Repository
-http://download.eclipse.org/egit/updates
-
-Ahora que tienes los compementos instalados, Create un fork de https://github.com/deavid/pineboo
-Despues importa ese repositorio Git.
-
-Import > Git > Project from Git > Clone URI
-https://github.com/AquiTuUsuario/pineboo
-
+    pineboo
 
 Cosas que se pueden probar en Pineboo
 ----------------------------------------
 La opción --help ofrece un listado de opciones, algunas pueden ser interesantes.
-
-Por ejemplo, para facilitar las pruebas existe el switch -a que ejecuta directamente
-una acción determinada. (Abre el formulario master de esa acción)
-
-Otra opción interesante es --no-python-cache que fuerza a regenerar los ficheros
-de python transformados aunque ya existan. Útil si estamos jugando con flscriptparser.
 
 Los formularios con convertidos al vuelo, y aún requiere este proceso de muchos
 retoques. Las características más usadas funcionan, pero muchas de las cosas
@@ -148,5 +118,5 @@ Los ficheros son convertidos a python y guardados junto al fichero QS de cache.
 Por ejemplo, las conversiones de masterarticulos.qs se pueden ver en la ruta
 `tempdata/cache/nombre_bd/flfactalma/file.qs/masterarticulos/`.
 
-[![pipeline status](https://gitlab.com/deavidsedice/pineboo/badges/master/pipeline.svg)](https://gitlab.com/deavidsedice/pineboo/commits/master)
-[![coverage report](https://gitlab.com/deavidsedice/pineboo/badges/master/coverage.svg)](https://gitlab.com/deavidsedice/pineboo/commits/master)
+[![pipeline status](https://gitlab.com/aulla/pineboo/badges/master/pipeline.svg)](https://gitlab.com/aulla/pineboo/commits/master)
+[![coverage report](https://gitlab.com/aulla/pineboo/badges/master/coverage.svg)](https://gitlab.com/aulla/pineboo/commits/master)
