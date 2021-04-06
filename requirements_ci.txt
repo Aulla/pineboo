@@ -17,6 +17,7 @@ sphinx==3.5.3
 sphinxcontrib-serializinghtml==1.1.4
 sphinx-autodoc-typehints==1.11.1
 sphinx-rtd-theme==0.5.2
+sqlalchemy-stubs
 testresources
 twine
 wheel
