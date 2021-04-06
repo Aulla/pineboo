@@ -22,6 +22,7 @@ before_script:
   - python3 -V | ts # Print out python version for debugging
   - pip3 install --upgrade pip
   - pip3 install -r requirements.txt | ts
+  - pip3 install -r requirements_ci.txt | ts
   # - pip install virtualenv
   # - virtualenv venv
   # - source venv/bin/activate

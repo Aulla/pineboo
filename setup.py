@@ -6,7 +6,7 @@ import subprocess
 from pineboolib import application
 
 
-with open("requirements_api.txt") as f:
+with open("requirements.txt") as f:
     required = f.read().splitlines()
 
 prj_ = application.PROJECT
