@@ -1,3 +1,11 @@
+.. image:: https://gitlab.com/aulla/pineboo/badges/master/pipeline.svg
+    :target: https://gitlab.com/aulla/pineboo/commits/master
+    :alt: pipeline status
+
+.. image:: https://gitlab.com/aulla/pineboo/badges/master/coverage.svg
+    :target: https://gitlab.com/aulla/pineboo/commits/master
+    :alt: coverage report
+
 Pineboo - Manual de supervivencia
 ===================================
 Se ha redactado este manual para las dudas más comunes sobre este proyecto de
@@ -117,11 +125,3 @@ y qsatypes.
 Los ficheros son convertidos a python y guardados junto al fichero QS de cache.
 Por ejemplo, las conversiones de masterarticulos.qs se pueden ver en la ruta
 `tempdata/cache/nombre_bd/flfactalma/file.qs/masterarticulos/`.
-
-.. image:: https://gitlab.com/aulla/pineboo/badges/master/pipeline.svg
-    :target: https://gitlab.com/aulla/pineboo/commits/master
-    :alt: pipeline status
-
-.. image:: https://gitlab.com/aulla/pineboo/badges/master/coverage.svg
-    :target: https://gitlab.com/aulla/pineboo/commits/master
-    :alt: coverage report
