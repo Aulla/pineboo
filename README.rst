@@ -118,5 +118,5 @@ Los ficheros son convertidos a python y guardados junto al fichero QS de cache.
 Por ejemplo, las conversiones de masterarticulos.qs se pueden ver en la ruta
 `tempdata/cache/nombre_bd/flfactalma/file.qs/masterarticulos/`.
 
-[![pipeline status](https://gitlab.com/aulla/pineboo/badges/master/pipeline.svg)](https://gitlab.com/aulla/pineboo/commits/master)
-[![coverage report](https://gitlab.com/aulla/pineboo/badges/master/coverage.svg)](https://gitlab.com/aulla/pineboo/commits/master)
+[![pipeline status](https://gitlab.com/aulla/pineboo/badges/master/pipeline.svg)] (https://gitlab.com/aulla/pineboo/commits/master)
+[![coverage report](https://gitlab.com/aulla/pineboo/badges/master/coverage.svg)] (https://gitlab.com/aulla/pineboo/commits/master)
