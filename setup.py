@@ -34,10 +34,6 @@ for lang in languages:
         raise Exception("Error updating %s file!" % ts_file)
 
 
-# ret = subprocess.call(["pylupdate5", *py_files, *ui_files, "-ts", *ts_files])
-# if ret != 0:
-#    raise Exception("Error updating .ts files!")
-
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
