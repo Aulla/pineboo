@@ -27,7 +27,7 @@ exclude_uis = [
 files.extend([str(fil) for fil in lang_path.glob("**/*.ui")])
 for exclude in exclude_uis:
     files.remove(exclude)
-ts_files = []
+
 for lang in languages:
     ts_file = pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
     if subprocess.call(["pylupdate6", "-ts", ts_file, *files]):
