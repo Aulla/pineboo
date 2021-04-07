@@ -1,5 +1,5 @@
 """
-Module for Eneboo mainForm.
+Module for fllegacy forms.
 
-Creates the UI for the main application.
+Creates the UI's for fllegacy.
 """
