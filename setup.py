@@ -16,17 +16,27 @@ version_ = application.PINEBOO_VER
 
 languages = ["es", "en", "ca", "de", "fr", "gl", "it", "pt"]
 lang_path = pathlib.Path("pineboolib")
-py_files = lang_path.glob("**/*.py")
-ui_files = lang_path.glob("**/*.ui")
+files = [str(fil) for fil in lang_path.glob("**/*.py")]
+exclude_uis = [
+    "pineboolib/application/packager/tests/fixtures/principal/forms/agentes.ui",
+    "pineboolib/application/packager/tests/fixtures/principal/forms/flfactppal.ui",
+    "pineboolib/application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui",
+    "pineboolib/application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui",
+    "pineboolib/fllegacy/forms/FLWidgetReportViewer.ui",
+]
+files.extend([str(fil) for fil in lang_path.glob("**/*.ui")])
+for exclude in exclude_uis:
+    files.remove(exclude)
 ts_files = []
 for lang in languages:
-    ts_files.append(
-        pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
-    )
+    ts_file = pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
+    if subprocess.call(["pylupdate6", "-ts", ts_file, *files]):
+        raise Exception("Error updating %s file!" % ts_file)
 
-ret = subprocess.call(["pylupdate5", *py_files, *ui_files, "-ts", *ts_files])
-if ret != 0:
-    raise Exception("Error updating .ts files!")
+
+# ret = subprocess.call(["pylupdate5", *py_files, *ui_files, "-ts", *ts_files])
+# if ret != 0:
+#    raise Exception("Error updating .ts files!")
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
