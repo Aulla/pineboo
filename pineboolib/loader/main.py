@@ -45,6 +45,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if application.DEVELOPER_MODE:
         LOGGER.warning("Developer mode activated")
         application.PROJECT.setDebugLevel(1000)
+    else:
+        application.PROJECT.setDebugLevel(200)
 
     application.PROJECT.set_app(qapp)
     dgi = dgi_module.load_dgi("qt", None)
