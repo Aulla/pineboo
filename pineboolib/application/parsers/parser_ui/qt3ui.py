@@ -504,8 +504,8 @@ class WidgetResolver:
         if cls is None:
             raise AttributeError("Class %r not found" % classname)
 
-        resolver_cls.KNOWN_WIDGETS[classname] = cls
-        return cls
+        resolver_cls.KNOWN_WIDGETS[classname] = cls  # type: ignore [assignment]
+        return cls  # type: ignore [return-value]
 
 
 # NOTE: This function may create QAction too, which inherits from QObject, not QWidget.

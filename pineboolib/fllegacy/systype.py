@@ -209,7 +209,7 @@ class SysType(sysbasetype.SysBaseType):
         """Call reinit script."""
 
         while application.PROJECT.aq_app._inicializing:
-            application.PROJECT.app.processEvents()
+            application.PROJECT.app.processEvents()  # type: ignore [misc]
 
         application.PROJECT.aq_app.reinit()
 

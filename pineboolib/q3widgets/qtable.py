@@ -95,9 +95,9 @@ class QTable(Q3TableWidget):
 
     def simpleClicked_(self, f, c) -> None:
         """Emit simple clicked signal."""
-        cast(QtCore.pyqtSignal, self.cellClicked).emit(
+        cast(QtCore.pyqtSignal, self.cellClicked).emit(  # type: ignore [attr-defined] # noqa: F821
             f, c
-        )  # type: ignore [attr-defined] # noqa: F821
+        )
 
     @decorators.not_implemented_warn
     def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:

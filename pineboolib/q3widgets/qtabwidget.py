@@ -15,7 +15,7 @@ class QTabWidget(QtWidgets.QTabWidget):
     Left = QtWidgets.QTabWidget.TabPosition.West
     Right = QtWidgets.QTabWidget.TabPosition.East
 
-    def setTabEnabled(self, tab: str, enabled: bool) -> None:
+    def setTabEnabled(self, tab: str, enabled: bool) -> None:  # type: ignore [override]
         """Set a tab enabled."""
         idx = self.indexByName(tab)
         if idx is None:
