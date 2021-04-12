@@ -111,7 +111,7 @@ class SysType(sysbasetype.SysBaseType):
     def translate(cls, *args) -> str:
         """Translate a text."""
 
-        group, text = [args[0], args[1]] if len(args) == 2 else ["scripts", args[1]]
+        group, text = (args[0], args[1]) if len(args) == 2 else ("scripts", args[0])
 
         if text == "MetaData":
             group, text = text, group
@@ -1080,12 +1080,12 @@ class SysType(sysbasetype.SysBaseType):
     def selectModsDialog(self, modified_files: List = []) -> "types.Array":
         """Select modules dialog."""
 
-        dialog = dialog.Dialog()
-        dialog.okButtonText = self.translate(u"Aceptar")
-        dialog.cancelButtonText = self.translate(u"Cancelar")
+        dialog_ = dialog.Dialog()
+        dialog_.okButtonText = self.translate(u"Aceptar")
+        dialog_.cancelButtonText = self.translate(u"Cancelar")
         bgroup = QtWidgets.QGroupBox()
         bgroup.setTitle(self.translate(u"Seleccione módulos a importar"))
-        dialog.add(bgroup)
+        dialog_.add(bgroup)
         res = types.Array()
         check_box = types.Array()
 
@@ -1096,7 +1096,7 @@ class SysType(sysbasetype.SysBaseType):
             check_box[number].checked = True
 
         idx = 0
-        if self.interactiveGUI() and dialog.exec_():
+        if self.interactiveGUI() and dialog_.exec_():
             for number, item in enumerate(modified_files):
                 if check_box[number].checked:
                     res[idx] = item
