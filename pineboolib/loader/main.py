@@ -350,8 +350,6 @@ def exec_main(options: "optparse.Values") -> int:
     # from pineboolib.core.utils.utils_base import filedir
     # from pineboolib.pnsqldrivers import PNSqlDrivers
 
-    from .init_project import init_project
-
     init_cli()
 
     # TODO: Refactorizar función en otras más pequeñas
@@ -481,7 +479,9 @@ def exec_main(options: "optparse.Values") -> int:
     )
     application.PROJECT.aq_app.loadTranslations()
 
-    ret = init_project(
+    from . import init_project
+
+    ret = init_project.init_project(
         dgi,
         options,
         application.PROJECT,

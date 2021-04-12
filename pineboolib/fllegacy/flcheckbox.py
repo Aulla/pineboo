@@ -11,5 +11,5 @@ class FLCheckBox(qcheckbox.QCheckBox):
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None, num_rows: int = None) -> None:
         """Inicialize."""
-        super(FLCheckBox, self).__init__(parent)
+        super().__init__(parent)
         self.setContentsMargins(0, 0, 0, 0)

@@ -187,6 +187,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._table_name = ""
         self._foreign_field = ""
         self._field_relation = ""
+        self._field_name = ""
 
         self._text_label_db = QtWidgets.QLabel()
         self._text_label_db.setObjectName("_text_label_db")
