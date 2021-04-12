@@ -10,40 +10,41 @@ import re
 from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
 
 
-from pineboolib.core.system import System
 from pineboolib.core.utils import utils_base, logging
 
-from pineboolib.core import settings, decorators
+from pineboolib.core import settings, translate
 
 from pineboolib import application
 from pineboolib.application import types, process
 
-from pineboolib.application.database import pnsqlcursor, pnsqlquery
-from pineboolib.application.database import utils as utils_db
+from pineboolib.application.database import pnsqlcursor, pnsqlquery, utils as utils_db
+
 
 from pineboolib.application.packager import pnunpacker
 from pineboolib.application.qsatypes import sysbasetype
 
 
-from .aqsobjects.aqs import AQS
-from .aqsobjects import aqsql
+from .aqsobjects import aqsql, aqs
 
 from . import flutil
 from . import flvar
+from . import flfielddb
+from . import fltabledb
 
-from pineboolib.q3widgets.dialog import Dialog
-from pineboolib.q3widgets.qbytearray import QByteArray
-from pineboolib.q3widgets.messagebox import MessageBox
-from pineboolib.q3widgets.qtextedit import QTextEdit
-from pineboolib.q3widgets.qlabel import QLabel
-from pineboolib.q3widgets.qdialog import QDialog
-from pineboolib.q3widgets.qvboxlayout import QVBoxLayout
-from pineboolib.q3widgets.qhboxlayout import QHBoxLayout
-from pineboolib.q3widgets.qpushbutton import QPushButton
-from pineboolib.q3widgets.filedialog import FileDialog
+from pineboolib.q3widgets import (
+    qdialog,
+    qlabel,
+    qtextedit,
+    qvboxlayout,
+    qhboxlayout,
+    qpushbutton,
+    filedialog,
+    dialog,
+    qbytearray,
+    messagebox,
+)
 
 from typing import cast, Optional, List, Any, Dict, Callable, Union, TYPE_CHECKING
-from pineboolib.fllegacy import flfielddb, fltabledb
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection, isqlcursor  # pragma: no cover
@@ -63,7 +64,7 @@ class AQGlobalFunctionsClass(QtCore.QObject):
     """AQSGlobalFunction class."""
 
     functions_ = types.Array()
-    mappers_: QtCore.QSignalMapper
+    mappers_: "QtCore.QSignalMapper"
 
     def __init__(self):
         """Initialize."""
@@ -87,7 +88,7 @@ class AQGlobalFunctionsClass(QtCore.QObject):
         if fun is not None:
             fun()
 
-    def mapConnect(self, obj: QtWidgets.QWidget, signal: str, function_name: str) -> None:
+    def mapConnect(self, obj: "QtWidgets.QWidget", signal: str, function_name: str) -> None:
         """Add conection to map."""
 
         self.mappers_.mappedString.connect(self.exec_)  # type: ignore
@@ -110,19 +111,14 @@ class SysType(sysbasetype.SysBaseType):
     def translate(cls, *args) -> str:
         """Translate a text."""
 
-        from pineboolib.core import translate
-
-        group = args[0] if len(args) == 2 else "scripts"
-        text = args[1] if len(args) == 2 else args[0]
+        group, text = [args[0], args[1]] if len(args) == 2 else ["scripts", args[1]]
 
         if text == "MetaData":
             group, text = text, group
 
-        text = text.replace(" % ", " %% ")
+        return translate.translate(group, text.replace(" % ", " %% "))
 
-        return translate.translate(group, text)
-
-    def printTextEdit(self, editor: QtWidgets.QTextEdit):
+    def printTextEdit(self, editor: "QtWidgets.QTextEdit"):
         """Print text from a textEdit."""
 
         application.PROJECT.aq_app.printTextEdit(editor)
@@ -147,7 +143,7 @@ class SysType(sysbasetype.SysBaseType):
 
         return application.PROJECT.aq_app.showDocPage(url_)
 
-    def toPixmap(self, value_: str) -> QtGui.QPixmap:
+    def toPixmap(self, value_: str) -> "QtGui.QPixmap":
         """Create a QPixmap from a text."""
 
         return application.PROJECT.aq_app.toPixmap(value_)
@@ -162,7 +158,7 @@ class SysType(sysbasetype.SysBaseType):
 
         return application.PROJECT.aq_app.setMultiLang(enable_, lang_id_)
 
-    def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
+    def fromPixmap(self, pix_: "QtGui.QPixmap") -> str:
         """Return a text from a QPixmap."""
 
         return application.PROJECT.aq_app.fromPixmap(pix_)
@@ -179,8 +175,8 @@ class SysType(sysbasetype.SysBaseType):
             application.PROJECT.actions[action_name_].openDefaultForm()
 
     def scalePixmap(
-        self, pix_: QtGui.QPixmap, width_: int, height_: int, mode_: QtCore.Qt.AspectRatioMode
-    ) -> QtGui.QImage:
+        self, pix_: "QtGui.QPixmap", width_: int, height_: int, mode_: "QtCore.Qt.AspectRatioMode"
+    ) -> "QtGui.QImage":
         """Return QImage scaled from a QPixmap."""
 
         return application.PROJECT.aq_app.scalePixmap(pix_, width_, height_, mode_)
@@ -213,12 +209,12 @@ class SysType(sysbasetype.SysBaseType):
         """Call reinit script."""
 
         while application.PROJECT.aq_app._inicializing:
-            QtWidgets.QApplication.processEvents()
+            application.PROJECT.app.processEvents()
 
         application.PROJECT.aq_app.reinit()
 
     @classmethod
-    def modMainWidget(cls, id_module_: str) -> Optional[QtWidgets.QWidget]:
+    def modMainWidget(cls, id_module_: str) -> Optional["QtWidgets.QWidget"]:
         """Set module MainWinget."""
 
         return application.PROJECT.aq_app.modMainWidget(id_module_)
@@ -232,7 +228,6 @@ class SysType(sysbasetype.SysBaseType):
     @staticmethod
     def execQSA(qsa_file=None, args=None) -> Any:
         """Execute a QS file."""
-        from pineboolib.application import types
 
         try:
             with open(qsa_file, "r") as file_:
@@ -242,7 +237,8 @@ class SysType(sysbasetype.SysBaseType):
         except Exception:
             error = traceback.format_exc()
             LOGGER.warning(error)
-            return None
+
+        return None
 
     @staticmethod
     def dumpDatabase() -> None:
@@ -257,7 +253,7 @@ class SysType(sysbasetype.SysBaseType):
             cursor.checkRisksLocks(True)
 
     @classmethod
-    def mvProjectXml(cls) -> QtXml.QDomDocument:
+    def mvProjectXml(cls) -> "QtXml.QDomDocument":
         """Extract a module defition to a QDomDocument."""
 
         doc_ret_ = QtXml.QDomDocument()
@@ -284,7 +280,7 @@ class SysType(sysbasetype.SysBaseType):
         return doc_ret_
 
     @classmethod
-    def mvProjectModules(cls) -> types.Array:
+    def mvProjectModules(cls) -> "types.Array":
         """Return modules defitions Dict."""
         ret = types.Array()
         doc = cls.mvProjectXml()
@@ -299,7 +295,7 @@ class SysType(sysbasetype.SysBaseType):
         return ret
 
     @classmethod
-    def mvProjectExtensions(cls) -> types.Array:
+    def mvProjectExtensions(cls) -> "types.Array":
         """Return project extensions Dict."""
 
         ret = types.Array()
@@ -332,7 +328,7 @@ class SysType(sysbasetype.SysBaseType):
 
         return value
 
-    def registerUpdate(self, input_: Any = None) -> None:
+    def registerUpdate(self, input_: Optional["types.File"] = None) -> None:
         """Install a package."""
 
         if not input_:
@@ -363,7 +359,7 @@ class SysType(sysbasetype.SysBaseType):
             [u"fecha", u"hora", u"nombre", u"modulesdef", u"filesdef", u"shaglobal"],
             [
                 now[: now.find("T")],
-                str(now)[(len(str(now)) - (8)) :],
+                now[(len(now) - (8)) :],
                 file_name,
                 modules_def,
                 files_def,
@@ -378,7 +374,7 @@ class SysType(sysbasetype.SysBaseType):
             changes = self.localChanges()
         if changes["size"] == 0:
             return True
-        diag = QDialog()
+        diag = qdialog.QDialog()
         diag.caption = self.translate(u"Detectados cambios locales")
         diag.setModal(True)
         txt = u""
@@ -389,15 +385,15 @@ class SysType(sysbasetype.SysBaseType):
         txt += self.translate(u"los cambios que incluye el paquete que quiere cargar.\n\n")
         txt += u"\n\n"
         txt += self.translate(u"Registro de cambios")
-        lay = QVBoxLayout(diag)
+        lay = qvboxlayout.QVBoxLayout(diag)
         # lay.setMargin(6)
         # lay.setSpacing(6)
-        lbl = QLabel(diag)
+        lbl = qlabel.QLabel(diag)
         lbl.setText(txt)
         lbl.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
         lay.addWidget(lbl)
-        ted = QTextEdit(diag)
-        ted.setTextFormat(QTextEdit.LogText)
+        ted = qtextedit.QTextEdit(diag)
+        ted.setTextFormat(qtextedit.QTextEdit.LogText)
         ted.setAlignment(
             cast(
                 QtCore.Qt.Alignment,
@@ -406,17 +402,17 @@ class SysType(sysbasetype.SysBaseType):
         )
         ted.append(self.reportChanges(changes))
         lay.addWidget(ted)
-        lbl2 = QLabel(diag)
+        lbl2 = qlabel.QLabel(diag)
         lbl2.setText(self.translate("¿Que desea hacer?"))
         lbl2.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
         lay.addWidget(lbl2)
-        lay2 = QHBoxLayout()
+        lay2 = qhboxlayout.QHBoxLayout()
         # lay2.setMargin(6)
         # lay2.setSpacing(6)
         lay.addLayout(lay2)
-        push_button_cancel = QPushButton(diag)
+        push_button_cancel = qpushbutton.QPushButton(diag)
         push_button_cancel.setText(self.translate(u"Cancelar"))
-        push_button_accept = QPushButton(diag)
+        push_button_accept = qpushbutton.QPushButton(diag)
         push_button_accept.setText(self.translate(u"continue"))
         lay2.addWidget(push_button_cancel)
         lay2.addWidget(push_button_accept)
@@ -427,7 +423,7 @@ class SysType(sysbasetype.SysBaseType):
         else:
             return True
 
-    def xmlFilesDefBd(self) -> QtXml.QDomDocument:
+    def xmlFilesDefBd(self) -> "QtXml.QDomDocument":
         """Return a QDomDocument with files definition."""
 
         doc = QtXml.QDomDocument(u"files_def")
@@ -446,7 +442,7 @@ class SysType(sysbasetype.SysBaseType):
             if id_module == u"sys":
                 continue
             file_name = str(qry.value(1))
-            ba_ = QByteArray()
+            ba_ = qbytearray.QByteArray()
             ba_.string = self.fromUnicode(str(qry.value(2)), u"iso-8859-15")
             sha = ba_.sha1()
             node_file = doc.createElement(u"file")
@@ -468,10 +464,10 @@ class SysType(sysbasetype.SysBaseType):
                 node_file.appendChild(node)
                 node_text = doc.createTextNode(sha)
                 node.appendChild(node_text)
-                ba_ = QByteArray()
+                ba_ = qbytearray.QByteArray()
                 ba_.string = sha_sum + sha
                 sha_sum = ba_.sha1()
-                ba_ = QByteArray()
+                ba_ = qbytearray.QByteArray()
                 ba_.string = sha_sum_txt + sha
                 sha_sum_txt = ba_.sha1()
 
@@ -484,7 +480,7 @@ class SysType(sysbasetype.SysBaseType):
                 if id_module == u"sys":
                     continue
                 file_name = utils_base.ustr(id_module, u".xpm")
-                ba_ = QByteArray()
+                ba_ = qbytearray.QByteArray()
                 ba_.string = str(qry.value(1))
                 sha = ba_.sha1()
                 node_file = doc.createElement(u"file")
@@ -506,10 +502,10 @@ class SysType(sysbasetype.SysBaseType):
                     node_file.appendChild(node)
                     node_text = doc.createTextNode(sha)
                     node.appendChild(node_text)
-                    ba_ = QByteArray()
+                    ba_ = qbytearray.QByteArray()
                     ba_.string = sha_sum + sha
                     sha_sum = ba_.sha1()
-                    ba_ = QByteArray()
+                    ba_ = qbytearray.QByteArray()
                     ba_.string = sha_sum_txt + sha
                     sha_sum_txt = ba_.sha1()
 
@@ -566,7 +562,9 @@ class SysType(sysbasetype.SysBaseType):
         txt += self.translate(u"¿Desea continuar?")
 
         if warning_bakup and self.interactiveGUI():
-            if MessageBox.Yes != MessageBox.warning(txt, MessageBox.No, MessageBox.Yes):
+            if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
+                txt, messagebox.MessageBox.No, messagebox.MessageBox.Yes
+            ):
                 return False
 
         if input_:
@@ -699,6 +697,12 @@ class SysType(sysbasetype.SysBaseType):
             project_name = u""
         db_project_name = flutil.FLUtil.readDBSettingEntry(u"projectname") or ""
 
+        if project_name == db_project_name:
+            return True
+
+        if project_name and not db_project_name:
+            return flutil.FLUtil.writeDBSettingEntry(u"projectname", project_name)
+
         txt = u""
         txt += self.translate(u"¡¡ CUIDADO !! POSIBLE INCOHERENCIA EN LOS MÓDULOS\n\n")
         txt += self.translate(u"Está intentando cargar un proyecto o rama de módulos cuyo\n")
@@ -711,12 +715,6 @@ class SysType(sysbasetype.SysBaseType):
             u"podría dañar el código, datos y la estructura de tablas de Eneboo.\n\n"
         )
 
-        if project_name == db_project_name:
-            return True
-
-        if project_name and not db_project_name:
-            return flutil.FLUtil.writeDBSettingEntry(u"projectname", project_name)
-
         txt += self.translate(u"- Nombre del proyecto instalado: %s\n") % (str(db_project_name))
         txt += self.translate(u"- Nombre del proyecto a cargar: %s\n\n") % (str(project_name))
         txt += u"\n\n"
@@ -725,11 +723,15 @@ class SysType(sysbasetype.SysBaseType):
             LOGGER.warning(txt)
             return False
         txt += self.translate(u"¿Desea continuar?")
-        return MessageBox.Yes == MessageBox.warning(
-            txt, MessageBox.No, MessageBox.Yes, MessageBox.NoButton, u"Pineboo"
+        return messagebox.MessageBox.Yes == messagebox.MessageBox.warning(
+            txt,
+            messagebox.MessageBox.No,
+            messagebox.MessageBox.Yes,
+            messagebox.MessageBox.NoButton,
+            u"Pineboo",
         )
 
-    def loadModulesDef(self, document: Any) -> bool:
+    def loadModulesDef(self, document: "pnunpacker.PNUnpacker") -> bool:
         """Return QDomDocument with modules definition."""
 
         modules_definition = self.toUnicode(document.getText(), u"utf8")
@@ -810,34 +812,34 @@ class SysType(sysbasetype.SysBaseType):
         if key_remember:
             value_remember = settings.SETTINGS.value(key + key_remember)
             if value_remember and not force_show:
-                return MessageBox.Yes
+                return messagebox.MessageBox.Yes
         if not self.interactiveGUI():
             return True
-        diag = QDialog()
+        diag = qdialog.QDialog()
         diag.caption = txt_caption
         diag.setModal(True)
-        lay = QVBoxLayout(diag)
+        lay = qvboxlayout.QVBoxLayout(diag)
         # lay.setMargin(6)
         lay.setSpacing(6)
-        lay2 = QHBoxLayout(diag)
+        lay2 = qhboxlayout.QHBoxLayout(diag)
         # lay2.setMargin(6)
         lay2.setSpacing(6)
-        label_pix = QLabel(diag)
-        pixmap = AQS.pixmap_fromMimeSource(u"help_index.png")
+        label_pix = qlabel.QLabel(diag)
+        pixmap = aqs.AQS.pixmap_fromMimeSource(u"help_index.png")
         if pixmap:
             label_pix.setPixmap(pixmap)
-            label_pix.setAlignment(AQS.AlignTop)
+            label_pix.setAlignment(aqs.AQS.AlignTop)
         lay2.addWidget(label_pix)
-        lbl = QLabel(diag)
+        lbl = qlabel.QLabel(diag)
         lbl.setText(msg)
-        lbl.setAlignment(cast(QtCore.Qt.Alignment, AQS.AlignTop | AQS.WordBreak))
+        lbl.setAlignment(cast(QtCore.Qt.Alignment, aqs.AQS.AlignTop | aqs.AQS.WordBreak))
         lay2.addWidget(lbl)
-        lay3 = QHBoxLayout(diag)
+        lay3 = qhboxlayout.QHBoxLayout(diag)
         # lay3.setMargin(6)
         lay3.setSpacing(6)
-        push_button_yes = QPushButton(diag)
+        push_button_yes = qpushbutton.QPushButton(diag)
         push_button_yes.setText(txt_yes if txt_yes else self.translate(u"Sí"))
-        push_button_no = QPushButton(diag)
+        push_button_no = qpushbutton.QPushButton(diag)
         push_button_no.setText(txt_no if txt_no else self.translate(u"No"))
         lay3.addWidget(push_button_yes)
         lay3.addWidget(push_button_no)
@@ -852,9 +854,9 @@ class SysType(sysbasetype.SysBaseType):
             lay.addWidget(check_remember)
 
         if not application.PROJECT.app.platformName() == "offscreen":
-            return MessageBox.Yes
+            return messagebox.MessageBox.Yes
 
-        ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
+        ret = messagebox.MessageBox.No if (diag.exec_() == 0) else messagebox.MessageBox.Yes
         if check_remember is not None:
             settings.SETTINGS.set_value(key + key_remember, check_remember.isChecked())
         return ret
@@ -862,7 +864,7 @@ class SysType(sysbasetype.SysBaseType):
     def exportModules(self) -> None:
         """Export modules."""
 
-        dir_base_path = FileDialog.getExistingDirectory(types.Dir.home)
+        dir_base_path = filedialog.FileDialog.getExistingDirectory(types.Dir.home)
         if not dir_base_path:
             return
         data_base_name = application.PROJECT.conn_manager.mainConn()._db_name
@@ -931,7 +933,7 @@ class SysType(sysbasetype.SysBaseType):
         flutil.FLUtil.destroyProgressDialog()
         self.infoMsgBox(self.translate(u"Módulos exportados en:\n") + dir_base_path)
 
-    def xmlModule(self, id_module: str) -> QtXml.QDomDocument:
+    def xmlModule(self, id_module: str) -> "QtXml.QDomDocument":
         """Return xml data from a module."""
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"descripcion,idarea,version")
@@ -1007,28 +1009,27 @@ class SysType(sysbasetype.SysBaseType):
         qry.setSelect(u"nombre,contenido")
         qry.setFrom(u"flfiles")
         qry.setWhere(utils_base.ustr(u"idmodulo='", id_module, u"'"))
-        if not qry.exec_() or qry.size() == 0:
-            return
-        while qry.next():
-            name = qry.value(0)
-            content = qry.value(1)
-            type_ = name[(len(name) - (len(name) - name.rfind(u"."))) :]
-            if type_ == ".xml":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/", name), content)
-            elif type_ == ".ui":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/forms/", name), content)
-            elif type_ == ".qs":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/scripts/", name), content)
-            elif type_ == ".qry":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/queries/", name), content)
-            elif type_ == ".mtd":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/tables/", name), content)
-            elif type_ in (".kut", ".ar", ".jrxml", ".svg"):
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/reports/", name), content)
-            elif type_ == ".ts":
-                self.fileWriteIso(utils_base.ustr(dir_path, u"/translations/", name), content)
-            elif type_ == ".py":
-                self.fileWriteUtf8(utils_base.ustr(dir_path, u"/scripts/", name), content)
+        if qry.exec_():
+            while qry.next():
+                name = qry.value(0)
+                content = qry.value(1)
+                type_ = name[name.rfind(".") :]
+                if type_ == ".xml":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/", name), content)
+                elif type_ == ".ui":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/forms/", name), content)
+                elif type_ == ".qs":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/scripts/", name), content)
+                elif type_ == ".qry":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/queries/", name), content)
+                elif type_ == ".mtd":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/tables/", name), content)
+                elif type_ in (".kut", ".ar", ".jrxml", ".svg"):
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/reports/", name), content)
+                elif type_ == ".ts":
+                    self.fileWriteIso(utils_base.ustr(dir_path, u"/translations/", name), content)
+                elif type_ == ".py":
+                    self.fileWriteUtf8(utils_base.ustr(dir_path, u"/scripts/", name), content)
 
     def importModules(self, warning_bakup: bool = True) -> None:
         """Import modules from a directory."""
@@ -1042,13 +1043,15 @@ class SysType(sysbasetype.SysBaseType):
             txt += u" http://www.infosial.com\n(c) InfoSiAL S.L."
             txt += u"\n\n"
             txt += self.translate(u"¿Desea continuar?")
-            if MessageBox.Yes != MessageBox.warning(txt, MessageBox.No, MessageBox.Yes):
+            if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
+                txt, messagebox.MessageBox.No, messagebox.MessageBox.Yes
+            ):
                 return
 
         key = utils_base.ustr(u"scripts/sys/modLastDirModules_", self.nameBD())
         dir_ant = settings.SETTINGS.value(key)
 
-        dir_modules = FileDialog.getExistingDirectory(
+        dir_modules = filedialog.FileDialog.getExistingDirectory(
             str(dir_ant) if dir_ant else ".", self.translate(u"Directorio de Módulos")
         )
         if not dir_modules:
@@ -1074,10 +1077,10 @@ class SysType(sysbasetype.SysBaseType):
         self.infoMsgBox(self.translate(u"Importación de módulos finalizada."))
         AQTimer.singleShot(0, self.reinit)  # type: ignore [arg-type] # noqa: F821
 
-    def selectModsDialog(self, modified_files: List = []) -> types.Array:
+    def selectModsDialog(self, modified_files: List = []) -> "types.Array":
         """Select modules dialog."""
 
-        dialog = Dialog()
+        dialog = dialog.Dialog()
         dialog.okButtonText = self.translate(u"Aceptar")
         dialog.cancelButtonText = self.translate(u"Cancelar")
         bgroup = QtWidgets.QGroupBox()
@@ -1197,46 +1200,36 @@ class SysType(sysbasetype.SysBaseType):
             return ok_
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
         cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
-        ba_ = QByteArray()
+        ba_ = qbytearray.QByteArray()
         ba_.string = content
+        sha_count = ba_.sha1()
+        copy_content = ""
 
-        if not cur.first():
-            if name.endswith(u".ar"):
-                if not self.importReportAr(file_path_, id_module_, content):
-                    return True
+        if cur.first():
+            copy_content = cur.valueBuffer(u"contenido")
+            cur.setModeAccess(aqsql.AQSql.Edit)
+        else:
+            cur.setModeAccess(aqsql.AQSql.Insert)
+
+        if name.endswith(u".ar"):
+            if not self.importReportAr(file_path_, id_module_, content):
+                return True
+
+        cur.refreshBuffer()
+        cur.setValueBuffer(u"nombre", name)
+        cur.setValueBuffer(u"idmodulo", id_module_)
+        cur.setValueBuffer(u"sha", sha_count)
+        cur.setValueBuffer(u"contenido", content)
+        ok_ = cur.commitBuffer()
+
+        if ok_ and copy_content:
+            date_ = str(types.Date())
             cur.setModeAccess(aqsql.AQSql.Insert)
             cur.refreshBuffer()
-            cur.setValueBuffer(u"nombre", name)
+            cur.setValueBuffer(u"nombre", "%s%s" % (name, date_))
             cur.setValueBuffer(u"idmodulo", id_module_)
-            cur.setValueBuffer(u"sha", ba_.sha1())
-            cur.setValueBuffer(u"contenido", content)
+            cur.setValueBuffer(u"contenido", copy_content)
             ok_ = cur.commitBuffer()
-
-        else:
-            cur.setModeAccess(aqsql.AQSql.Edit)
-            cur.refreshBuffer()
-
-            sha_count = ba_.sha1()
-            if cur.valueBuffer(u"sha") != sha_count:
-                copy_content = cur.valueBuffer(u"contenido")
-                cur.setModeAccess(aqsql.AQSql.Insert)
-                cur.refreshBuffer()
-                date_ = types.Date()
-                cur.setValueBuffer(u"nombre", name + str(date_))
-                cur.setValueBuffer(u"idmodulo", id_module_)
-                cur.setValueBuffer(u"contenido", copy_content)
-                cur.commitBuffer()
-                cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
-                cur.first()
-                cur.setModeAccess(aqsql.AQSql.Edit)
-                cur.refreshBuffer()
-                cur.setValueBuffer(u"idmodulo", id_module_)
-                cur.setValueBuffer(u"sha", sha_count)
-                cur.setValueBuffer(u"contenido", content)
-                ok_ = cur.commitBuffer()
-                if name.endswith(u".ar"):
-                    if not self.importReportAr(file_path_, id_module_, content):
-                        return True
 
         return ok_
 
@@ -1245,10 +1238,12 @@ class SysType(sysbasetype.SysBaseType):
 
         from pineboolib.application.safeqsa import SafeQSA
 
-        if not self.isLoadedModule(u"flar2kut"):
+        if (
+            not self.isLoadedModule(u"flar2kut")
+            or settings.SETTINGS.value(u"scripts/sys/conversionAr") != u"true"
+        ):
             return False
-        if settings.SETTINGS.value(u"scripts/sys/conversionAr") != u"true":
-            return False
+
         content = self.toUnicode(content, u"UTF-8")
         content = SafeQSA.root_module("flar2kut").iface.pub_ar2kut(content)
         file_path_ = utils_base.ustr(file_path_[0 : len(file_path_) - 3], u".kut")
@@ -1314,7 +1309,7 @@ class SysType(sysbasetype.SysBaseType):
             db_.commit()
 
         if self.interactiveGUI():
-            AQS.Application_restoreOverrideCursor()
+            aqs.AQS.Application_restoreOverrideCursor()
 
         return valor_
 
@@ -1338,20 +1333,20 @@ class SysType(sysbasetype.SysBaseType):
         # print("***", pro.stdout)
 
         if pro.stdout.find("git pull") > -1:
-            if MessageBox.Yes != MessageBox.warning(
+            if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
                 "Hay nuevas actualizaciones disponibles para Pineboo. ¿Desea actualizar?",
-                MessageBox.No,
-                MessageBox.Yes,
+                messagebox.MessageBox.No,
+                messagebox.MessageBox.Yes,
             ):
                 return
 
             pro.execute("git pull %s" % url)
 
-            MessageBox.information(
+            messagebox.MessageBox.information(
                 "Pineboo se va a reiniciar ahora",
-                MessageBox.Ok,
-                MessageBox.NoButton,
-                MessageBox.NoButton,
+                messagebox.MessageBox.Ok,
+                messagebox.MessageBox.NoButton,
+                messagebox.MessageBox.NoButton,
                 u"Eneboo",
             )
             # os.execl(executable, os.path.abspath(__file__)) #FIXME
@@ -1361,19 +1356,11 @@ class SysType(sysbasetype.SysBaseType):
 
         return application.PROJECT.conn_manager.qsaExceptions()
 
-    @decorators.not_implemented_warn
     def serverTime(self) -> str:
         """Return time from database."""
-
-        # FIXME: QSqlSelectCursor is not defined. Was an internal of Qt3.3
-        return ""
-        # db = aqApp.db().db()
-        # sql = u"select current_time"
-        # ahora = None
-        # q = QSqlSelectCursor(sql, db)
-        # if q.isActive() and q.next():
-        #     ahora = q.value(0)
-        # return ahora
+        conn = application.PROJECT.conn_manager.useConn("default")
+        result = conn.execute_query("SELECT current_time")
+        return result.fetchone() if result is not None else ""
 
     def localChanges(self) -> Dict[str, Any]:
         """Return xml with local changes."""
@@ -1389,8 +1376,8 @@ class SysType(sysbasetype.SysBaseType):
             )
             return ret
         document_db = self.xmlFilesDefBd()
-        ret = self.diffXmlFilesDef(document_db, document_update)
-        return ret
+
+        return self.diffXmlFilesDef(document_db, document_update)
 
     @classmethod
     def interactiveGUI(cls) -> str:
@@ -1490,14 +1477,14 @@ class AbanQDbDumper(QtCore.QObject):
     _show_gui: bool
     _dir_base: str
     _file_name: str
-    widget_: QDialog
-    _label_dir_base: QLabel
-    pushbutton_change_dir: QPushButton
-    _ted_log: QTextEdit
-    pb_init_dump: QPushButton
+    widget_: "qdialog.QDialog"
+    _label_dir_base: "qlabel.QLabel"
+    pushbutton_change_dir: "qpushbutton.QPushButton"
+    _ted_log: "qtextedit.QTextEdit"
+    pb_init_dump: "qpushbutton.QPushButton"
     state_: types.Array
     _fun_log: Callable
-    proc_: process.Process
+    proc_: "process.Process"
 
     def __init__(
         self,
@@ -1526,51 +1513,51 @@ class AbanQDbDumper(QtCore.QObject):
 
     def buildGui(self) -> None:
         """Build a Dialog for database dump."""
-        self.widget_ = QDialog()
+        self.widget_ = qdialog.QDialog()
         self.widget_.caption = SysType.translate(u"Copias de seguridad")
         self.widget_.setModal(True)
         self.widget_.resize(800, 600)
-        # lay = QVBoxLayout(self.widget_, 6, 6)
-        lay = QVBoxLayout(self.widget_)
+        # lay = qvboxlayout.QVBoxLayout(self.widget_, 6, 6)
+        lay = qvboxlayout.QVBoxLayout(self.widget_)
         frm = QtWidgets.QFrame(self.widget_)
         frm.setFrameShape(QtWidgets.QFrame.Shape.Box)
         frm.setLineWidth(1)
         frm.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
 
-        # lay_frame = QVBoxLayout(frm, 6, 6)
-        lay_frame = QVBoxLayout(frm)
-        lbl = QLabel(frm)
+        # lay_frame = qvboxlayout.QVBoxLayout(frm, 6, 6)
+        lay_frame = qvboxlayout.QVBoxLayout(frm)
+        lbl = qlabel.QLabel(frm)
         lbl.setText(
             SysType.translate(u"Driver: %s")
             % (str(self.db_.driverNameToDriverAlias(self.db_.driverName())))
         )
         lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
-        lbl = QLabel(frm)
+        lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Base de datos: %s") % (str(self.db_.database())))
         lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
-        lbl = QLabel(frm)
+        lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Host: %s") % (str(self.db_.host())))
         lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
-        lbl = QLabel(frm)
+        lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Puerto: %s") % (str(self.db_.port())))
         lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
-        lbl = QLabel(frm)
+        lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Usuario: %s") % (str(self.db_.user())))
         lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
-        lay_aux = QHBoxLayout()
+        lay_aux = qhboxlayout.QHBoxLayout()
         lay_frame.addLayout(lay_aux)
-        self._label_dir_base = QLabel(frm)
+        self._label_dir_base = qlabel.QLabel(frm)
         self._label_dir_base.setText(
             SysType.translate(u"Directorio Destino: %s") % (str(self._dir_base))
         )
         self._label_dir_base.setAlignment(QtCore.Qt.Alignment.AlignVCenter)
         lay_aux.addWidget(self._label_dir_base)
-        self.pushbutton_change_dir = QPushButton(SysType.translate(u"Cambiar"), frm)
+        self.pushbutton_change_dir = qpushbutton.QPushButton(SysType.translate(u"Cambiar"), frm)
         self.pushbutton_change_dir.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Preferred
         )
@@ -1579,14 +1566,16 @@ class AbanQDbDumper(QtCore.QObject):
         )
         lay_aux.addWidget(self.pushbutton_change_dir)
         lay.addWidget(frm)
-        self.pb_init_dump = QPushButton(SysType.translate(u"INICIAR COPIA"), self.widget_)
+        self.pb_init_dump = qpushbutton.QPushButton(
+            SysType.translate(u"INICIAR COPIA"), self.widget_
+        )
         application.connections.connect(self.pb_init_dump, u"clicked()", self, u"initDump()")
         lay.addWidget(self.pb_init_dump)
-        lbl = QLabel(self.widget_)
+        lbl = qlabel.QLabel(self.widget_)
         lbl.setText("Log:")
         lay.addWidget(lbl)
-        self._ted_log = QTextEdit(self.widget_)
-        self._ted_log.setTextFormat(QTextEdit.LogText)
+        self._ted_log = qtextedit.QTextEdit(self.widget_)
+        self._ted_log.setTextFormat(qtextedit.QTextEdit.LogText)
         self._ted_log.setAlignment(
             cast(
                 QtCore.Qt.Alignment,
@@ -1628,7 +1617,7 @@ class AbanQDbDumper(QtCore.QObject):
         """Change base dir."""
         dir_base_path = dir_
         if not dir_base_path:
-            dir_base_path = FileDialog.getExistingDirectory(self._dir_base)
+            dir_base_path = filedialog.FileDialog.getExistingDirectory(self._dir_base)
             if not dir_base_path:
                 return
         self._dir_base = dir_base_path
@@ -1759,13 +1748,15 @@ class AbanQDbDumper(QtCore.QObject):
     def dumpPostgreSQL(self) -> bool:
         """Dump database to PostgreSql file."""
 
+        from pineboolib.core import system as system_mod
+
         pg_dump: str = u"pg_dump"
         command: List[str]
         file_name = "%s.sql" % self._file_name
 
         if SysType.osName() == u"WIN32":
             pg_dump += u".exe"
-            System.setenv(u"PGPASSWORD", self.db_.returnword())
+            system_mod.System.setenv(u"PGPASSWORD", self.db_.returnword())
             command = [
                 pg_dump,
                 u"-f",
@@ -1779,7 +1770,7 @@ class AbanQDbDumper(QtCore.QObject):
                 str(self.db_.database()),
             ]
         else:
-            System.setenv(u"PGPASSWORD", self.db_.returnword())
+            system_mod.System.setenv(u"PGPASSWORD", self.db_.returnword())
             command = [
                 pg_dump,
                 u"-v",
@@ -1857,7 +1848,7 @@ class AbanQDbDumper(QtCore.QObject):
         if not file_.open(types.File.WriteOnly):
             return False
         ts_ = QtCore.QTextStream(file_.ioDevice())
-        # ts_.setCodec(AQS.TextCodec_codecForName(u"utf8"))
+        # ts_.setCodec(aqs.AQS.TextCodec_codecForName(u"utf8"))
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(utils_base.ustr(table, u".*"))
         qry.setFrom(table)
