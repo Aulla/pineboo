@@ -29,4 +29,3 @@ xmlsig
 Pillow==8.2.0
 PyYAML==5.3.1
 PyQt6==6.0.3
-PyQt5-stubs==5.15.2.0
