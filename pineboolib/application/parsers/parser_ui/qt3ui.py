@@ -6,8 +6,7 @@ Loads old Qt3 UI files and creates a Qt5 UI.
 """
 from importlib import import_module
 
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtWidgets import QWidget
+from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 from xml.etree import ElementTree as ET
 from binascii import unhexlify
 from pineboolib import logging
@@ -47,7 +46,7 @@ class Options:
 
 
 # FIXME: widget is QWidget type but Qt5-Stubs for findChild reports QObject instead of Optional[QObject]
-def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> None:
+def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] = None) -> None:
     """
     Load Qt3 UI file from eneboo.
 
@@ -317,7 +316,7 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
     widget.addToolBarBreak()
 
 
-def load_menu_bar(xml: ET.Element, widget: QWidget) -> None:
+def load_menu_bar(xml: "ET.Element", widget: "QtWidgets.QWidget") -> None:
     """
     Load a menu bar into widget.
 
@@ -367,7 +366,9 @@ def load_menu_bar(xml: ET.Element, widget: QWidget) -> None:
 
 
 def process_item(
-    xml: ET.Element, parent: Union[QtWidgets.QMenuBar, QtWidgets.QMenu], widget: QWidget
+    xml: "ET.Element",
+    parent: Union["QtWidgets.QMenuBar", "QtWidgets.QMenu"],
+    widget: "QtWidgets.QWidget",
 ) -> None:
     """
     Process random XML item.
@@ -394,7 +395,7 @@ def process_item(
             process_item(item, menu_, widget)
 
 
-def clone_action(action: QtGui.QAction, widget: QWidget) -> None:
+def clone_action(action: "QtGui.QAction", widget: "QtWidgets.QWidget") -> None:
     """
     Clone action into widget.
 
@@ -415,7 +416,9 @@ def clone_action(action: QtGui.QAction, widget: QWidget) -> None:
         action.toggled.connect(real_action.toggle)  # type: ignore [attr-defined] # noqa: F821
 
 
-def load_action(action: ET.Element, widget: QWidget, action_widget: QtGui.QAction = None) -> None:
+def load_action(
+    action: "ET.Element", widget: "QtWidgets.QWidget", action_widget: "QtGui.QAction" = None
+) -> None:
     """
     Load Action into widget.
 
@@ -467,15 +470,15 @@ class WidgetResolver:
     Resolve classnames into widgets with caching.
     """
 
-    KNOWN_WIDGETS: Dict[str, Type[QtWidgets.QWidget]] = {}
+    KNOWN_WIDGETS: Dict[str, Type["QtWidgets.QWidget"]] = {}
 
     @classmethod
-    def get_widget_class(resolver_cls, classname: str) -> Type[QtWidgets.QWidget]:
+    def get_widget_class(resolver_cls, classname: str) -> Type["QtWidgets.QWidget"]:
         """Get a widget class from class name."""
         if classname in resolver_cls.KNOWN_WIDGETS:
             return resolver_cls.KNOWN_WIDGETS[classname]
 
-        cls: Optional[Type[QtWidgets.QWidget]] = None
+        cls: Optional["QtWidgets.QWidget"] = None
         mod_name_full = "pineboolib.q3widgets.%s" % classname.lower()
         try:
             mod_ = import_module(mod_name_full)
@@ -506,7 +509,7 @@ class WidgetResolver:
 
 
 # NOTE: This function may create QAction too, which inherits from QObject, not QWidget.
-def create_widget(classname: str, parent: Optional[QWidget] = None) -> QtCore.QObject:
+def create_widget(classname: str, parent: Optional["QtWidgets.QWidget"] = None) -> "QtCore.QObject":
     """
     Create a Widget for given class name.
     """
@@ -532,16 +535,16 @@ class LoadWidget:
         "accel": "shortcut",
         "layoutMargin": "contentsMargins",
     }
-    widget: QtCore.QObject
-    parent: QtWidgets.QWidget
-    orig_widget: QtWidgets.QWidget
+    widget: "QtCore.QObject"
+    parent: "QtWidgets.QWidget"
+    orig_widget: "QtWidgets.QWidget"
 
     def __init__(
         self,
-        xml: ET.Element,
-        widget: QtCore.QObject,
-        parent: Optional[QtCore.QObject] = None,
-        orig_widget: Optional[QtCore.QObject] = None,
+        xml: "ET.Element",
+        widget: "QtCore.QObject",
+        parent: Optional["QtCore.QObject"] = None,
+        orig_widget: Optional["QtCore.QObject"] = None,
     ) -> None:
         """
         Load a random widget from given XML.
