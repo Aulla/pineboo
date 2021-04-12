@@ -44,8 +44,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
     if application.DEVELOPER_MODE:
         LOGGER.warning("Developer mode activated")
-    # application.PROJECT.load_version()
-    application.PROJECT.setDebugLevel(1000)
+        application.PROJECT.setDebugLevel(1000)
+
     application.PROJECT.set_app(qapp)
     dgi = dgi_module.load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
