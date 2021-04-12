@@ -56,7 +56,7 @@ as the module selector, or each of the main windows of the modules.
 @author InfoSiAL S.L.
 """
 
-from PyQt6 import QtXml
+from PyQt6 import QtXml  # type: ignore[import]
 from typing import List, Dict
 
 

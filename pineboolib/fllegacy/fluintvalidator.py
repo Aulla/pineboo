@@ -1,10 +1,10 @@
 """Fluintvalidator module."""
 # -*- coding: utf-8 -*-
-from PyQt6 import QtGui
+from PyQt6 import QtGui  # type: ignore[import]
 from typing import Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt6 import QtWidgets  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # type: ignore[import] # noqa: F401 # pragma: no cover
 
 
 class FLUIntValidator(QtGui.QIntValidator):
@@ -19,7 +19,7 @@ class FLUIntValidator(QtGui.QIntValidator):
 
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple[QtGui.QValidator.State, str, int]:
+    def validate(self, input_: str, pos_cursor: int) -> Tuple["QtGui.QValidator.State", str, int]:
         """Valiate a Value."""
 
         if not input_ or self._formatting:

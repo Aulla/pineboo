@@ -1,6 +1,6 @@
 """Flserial por module."""
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 from pineboolib.core import decorators
 from typing import TYPE_CHECKING
 

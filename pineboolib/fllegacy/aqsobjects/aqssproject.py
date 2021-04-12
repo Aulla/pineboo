@@ -1,6 +1,6 @@
 """Aqssproject module."""
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 from pineboolib import application
 

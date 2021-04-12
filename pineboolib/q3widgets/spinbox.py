@@ -1,6 +1,6 @@
 """Spinbox module."""
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 
 class SpinBox(QtWidgets.QWidget):

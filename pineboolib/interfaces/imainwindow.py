@@ -1,6 +1,6 @@
 """IMainWindow module."""
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 from typing import List, TYPE_CHECKING, Optional, Dict
 
@@ -13,10 +13,10 @@ class IMainWindow(QtWidgets.QMainWindow):
 
     _p_work_space: Optional["flworkspace.FLWorkSpace"]
     initialized_mods_: List[str]
-    _dict_main_widgets: Dict[str, QtWidgets.QWidget]
+    _dict_main_widgets: Dict[str, "QtWidgets.QWidget"]
     tab_widget: "QtWidgets.QTabWidget"
-    container_: Optional[QtWidgets.QMainWindow]
-    main_widget: QtWidgets.QWidget
+    container_: Optional["QtWidgets.QMainWindow"]
+    main_widget: "QtWidgets.QWidget"
 
     def __init__(self):
         """Initialize."""

@@ -7,7 +7,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 
 class TestFLFormsearchDB(unittest.TestCase):

@@ -1,7 +1,7 @@
 """Test Eneboo module."""
 
 import unittest
-from PyQt6 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui  # type: ignore[import]
 
 from pineboolib.loader.main import init_testing, finish_testing
 

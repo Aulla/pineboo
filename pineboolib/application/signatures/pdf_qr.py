@@ -1,6 +1,6 @@
 """Pdf_qr module."""
 
-from PyQt6 import QtGui, QtCore
+from PyQt6 import QtGui, QtCore  # type: ignore[import]
 
 from pineboolib import application
 from pineboolib.core.utils import logging

@@ -2,7 +2,7 @@
 """
 Defines the PNConnection class.
 """
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.core import settings, utils, decorators
 from pineboolib.core.utils import utils_base

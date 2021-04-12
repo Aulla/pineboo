@@ -1,6 +1,6 @@
 """QLine module."""
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore[import]
 from typing import Optional
 
 
@@ -39,4 +39,4 @@ class QLine(QtWidgets.QFrame):
         return self._orientation
 
     orientation = property(getOrientation, setOrientation)
-    objectName = property(getObjectName, setObjectName)  # type: ignore
+    objectName = property(getObjectName, setObjectName)

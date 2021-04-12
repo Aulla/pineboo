@@ -7,7 +7,7 @@ import sys
 import re
 
 
-from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import]
 
 
 from pineboolib.core.utils import utils_base, logging
@@ -328,7 +328,7 @@ class SysType(sysbasetype.SysBaseType):
 
         return value
 
-    def registerUpdate(self, input_: Optional["types.File"] = None) -> None:
+    def registerUpdate(self, input_: str = "") -> None:
         """Install a package."""
 
         if not input_:

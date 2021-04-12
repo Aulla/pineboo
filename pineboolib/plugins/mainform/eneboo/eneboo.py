@@ -2,7 +2,7 @@
 """
 Main Eneboo-alike UI.
 """
-from PyQt6 import QtWidgets, QtCore, QtGui, QtXml
+from PyQt6 import QtWidgets, QtCore, QtGui, QtXml  # type: ignore[import]
 
 from pineboolib.core import settings
 from pineboolib.core.utils import utils_base

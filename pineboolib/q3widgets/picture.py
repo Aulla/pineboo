@@ -1,5 +1,5 @@
 """Picture module."""
-from PyQt6 import QtGui
+from PyQt6 import QtGui  # type: ignore[import]
 
 from typing import Callable
 

@@ -43,7 +43,7 @@ class TestAQS(unittest.TestCase):
 
     def test_aqs_attributes(self) -> None:
         """Test AQS Attributes."""
-        from PyQt6 import QtCore, QtGui
+        from PyQt6 import QtCore, QtGui  # type: ignore[import]
 
         at_1 = qsa.AQS.WaitCursor
         at_2 = qsa.AQS.ContextMenu

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
     from .database import pnconnection  # pragma: no cover
     from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
-    from PyQt6 import QtWidgets
+    from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

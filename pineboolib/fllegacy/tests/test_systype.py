@@ -145,7 +145,7 @@ class TestSysType(unittest.TestCase):
     def test_pixmap(self) -> None:
         """Text str to pixmap function."""
         from pineboolib.application.database import pnsqlcursor
-        from PyQt6 import QtCore
+        from PyQt6 import QtCore  # type: ignore[import]
 
         sys = systype.SysType()
         cursor = pnsqlcursor.PNSqlCursor("flmodules")

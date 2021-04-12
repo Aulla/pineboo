@@ -1,7 +1,7 @@
 """Qtextedit module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore[import]
 from pineboolib.core import decorators
 from typing import Optional
 

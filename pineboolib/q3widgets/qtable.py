@@ -2,10 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from typing import Optional, Any, List, Union, cast
-from PyQt6 import QtWidgets, QtCore, QtGui
-from PyQt6.QtCore import Qt
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QAbstractItemView
+from PyQt6 import QtWidgets, QtCore, QtGui  # type: ignore[import]
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import format_double
 from . import qwidget
@@ -41,7 +38,7 @@ class QTable(Q3TableWidget):
     AutoOneFit = 3
     sort_column_: int
 
-    def __init__(self, parent: Optional[QtWidgets.QGroupBox] = None, name: str = None) -> None:
+    def __init__(self, parent: Optional["QtWidgets.QGroupBox"] = None, name: str = None) -> None:
         """Inicialize."""
         super(QTable, self).__init__(parent)
         if not parent:
@@ -53,19 +50,23 @@ class QTable(Q3TableWidget):
         self.cols_list = []
         self.lineaActual = -1
         cast(
-            pyqtSignal, self.currentCellChanged
+            QtCore.pyqtSignal, self.currentCellChanged
         ).connect(  # type: ignore [attr-defined] # noqa: F821
             self.currentChanged_
         )
         cast(
-            pyqtSignal, self.cellDoubleClicked
+            QtCore.pyqtSignal, self.cellDoubleClicked
         ).connect(  # type: ignore [attr-defined] # noqa: F821
             self.doubleClicked_
         )
-        cast(pyqtSignal, self.cellClicked).connect(  # type: ignore [attr-defined] # noqa: F821
+        cast(
+            QtCore.pyqtSignal, self.cellClicked
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
             self.simpleClicked_
         )
-        cast(pyqtSignal, self.itemChanged).connect(  # type: ignore [attr-defined] # noqa: F821
+        cast(
+            QtCore.pyqtSignal, self.itemChanged
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
             self.valueChanged_
         )
         self.read_only_cols = []
@@ -78,19 +79,25 @@ class QTable(Q3TableWidget):
     ) -> None:
         """Emit current changed signal."""
         if current_row > -1 and current_column > -1:
-            cast(pyqtSignal, self.currentChanged).emit(  # type: ignore [attr-defined] # noqa: F821
+            cast(
+                QtCore.pyqtSignal, self.currentChanged
+            ).emit(  # type: ignore [attr-defined] # noqa: F821
                 current_row, current_column
             )
 
     def doubleClicked_(self, f, c) -> None:
         """Emit double clicked signal."""
-        cast(pyqtSignal, self.cellDoubleClicked).emit(  # type: ignore [attr-defined] # noqa: F821
+        cast(
+            QtCore.pyqtSignal, self.cellDoubleClicked
+        ).emit(  # type: ignore [attr-defined] # noqa: F821
             f, c
         )
 
     def simpleClicked_(self, f, c) -> None:
         """Emit simple clicked signal."""
-        cast(pyqtSignal, self.cellClicked).emit(f, c)  # type: ignore [attr-defined] # noqa: F821
+        cast(QtCore.pyqtSignal, self.cellClicked).emit(
+            f, c
+        )  # type: ignore [attr-defined] # noqa: F821
 
     @decorators.not_implemented_warn
     def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:
@@ -110,7 +117,9 @@ class QTable(Q3TableWidget):
         """Emit valueChanged signal."""
 
         if item and self.text(item.row(), item.column()) != "":
-            cast(pyqtSignal, self.valueChanged).emit(  # type: ignore [attr-defined] # noqa: F821
+            cast(
+                QtCore.pyqtSignal, self.valueChanged
+            ).emit(  # type: ignore [attr-defined] # noqa: F821
                 item.row(), item.column()
             )
 
@@ -138,12 +147,14 @@ class QTable(Q3TableWidget):
 
     def setReadOnly(self, b: bool) -> None:
         """Set read only."""
-        if b:
-            self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers)
-        else:
-            self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.AllEditTriggers)
 
-    def selectionMode(self) -> "QAbstractItemView.SelectionMode":
+        self.setEditTriggers(
+            QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers
+            if b
+            else QtWidgets.QAbstractItemView.EditTriggers.AllEditTriggers
+        )
+
+    def selectionMode(self) -> "QtWidgets.QAbstractItemView.SelectionMode":
         """Return selection mode."""
         return super(QTable, self).selectionMode()
 
@@ -176,7 +187,7 @@ class QTable(Q3TableWidget):
         self.setHorizontalHeaderLabels(self.cols_list)
         self.setRowCount(0)
 
-    def setSelectionMode(self, mode: "QAbstractItemView.SelectionMode") -> None:
+    def setSelectionMode(self, mode: "QtWidgets.QAbstractItemView.SelectionMode") -> None:
         """Set selection mode."""
         if mode.value == 999:
             self.setAlternatingRowColors(True)
@@ -253,7 +264,7 @@ class QTable(Q3TableWidget):
                     )
                 )
 
-    def setCellWidget(self, row: int, col: int, obj: QtWidgets.QWidget) -> None:
+    def setCellWidget(self, row: int, col: int, obj: "QtWidgets.QWidget") -> None:
         """Set cell widget."""
 
         super().setCellWidget(row, col, obj)
@@ -290,7 +301,7 @@ class QTable(Q3TableWidget):
                 if b:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags,
                             QtCore.Qt.ItemFlags.ItemIsSelectable
                             | QtCore.Qt.ItemFlags.ItemIsEnabled,
                         )
@@ -298,7 +309,7 @@ class QTable(Q3TableWidget):
                 else:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags,
                             QtCore.Qt.ItemFlags.ItemIsSelectable
                             | QtCore.Qt.ItemFlags.ItemIsEnabled
                             | QtCore.Qt.ItemFlags.ItemIsEditable,
@@ -325,7 +336,7 @@ class QTable(Q3TableWidget):
                 if b:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags,
                             QtCore.Qt.ItemFlags.ItemIsSelectable
                             | QtCore.Qt.ItemFlags.ItemIsEnabled,
                         )
@@ -333,7 +344,7 @@ class QTable(Q3TableWidget):
                 else:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags,
                             QtCore.Qt.ItemFlags.ItemIsSelectable
                             | QtCore.Qt.ItemFlags.ItemIsEnabled
                             | QtCore.Qt.ItemFlags.ItemIsEditable,
@@ -345,7 +356,7 @@ class QTable(Q3TableWidget):
         """Set left margin."""
         pass
 
-    def setCellBackgroundColor(self, row: int, col: int, color: QtGui.QBrush) -> None:
+    def setCellBackgroundColor(self, row: int, col: int, color: "QtGui.QBrush") -> None:
         """Set cell backgroun color."""
         item = self.item(row, col)
 

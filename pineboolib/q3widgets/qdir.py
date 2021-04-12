@@ -1,7 +1,7 @@
 """QDir module."""
 # -*- coding: utf-8 -*-
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 
 class QDir(QtCore.QDir):

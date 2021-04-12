@@ -5,7 +5,7 @@ import os
 from pineboolib.core import decorators
 from pineboolib import logging
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 from typing import Any
 
 

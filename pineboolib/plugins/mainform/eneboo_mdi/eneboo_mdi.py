@@ -1,7 +1,7 @@
 """Eneboo_mdi module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets, QtGui, QtCore, QtXml
+from PyQt6 import QtWidgets, QtGui, QtCore, QtXml  # type: ignore[import]
 
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings

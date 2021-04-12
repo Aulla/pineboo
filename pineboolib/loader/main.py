@@ -19,7 +19,7 @@ from typing import List, Type, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from . import projectconfig  # noqa: F401 # pragma: no cover
     import optparse  # noqa: F401 # pragma: no cover
-    from PyQt6 import QtWidgets  # pragma: no cover
+    from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
     from types import TracebackType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)

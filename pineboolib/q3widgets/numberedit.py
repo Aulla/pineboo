@@ -1,15 +1,13 @@
 """Numberedit module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6.QtWidgets import QWidget  # type: ignore
-from .qlineedit import QLineEdit
-from .qlabel import QLabel
-from .qhboxlayout import QHBoxLayout
-from PyQt6.QtGui import QDoubleValidator  # type: ignore
+from PyQt6 import QtWidgets, QtGui  # type: ignore[import]
+from . import qlineedit, qlabel, qhboxlayout
+
 from typing import Any, SupportsFloat, SupportsInt, Union, cast
 
 
-class NumberEdit(QWidget):
+class NumberEdit(QtWidgets.QWidget):
     """
     NumberEdit class.
     """
@@ -17,17 +15,17 @@ class NumberEdit(QWidget):
     def __init__(self) -> None:
         """Inicialize."""
 
-        super(NumberEdit, self).__init__()
+        super().__init__()
 
-        self.line_edit = QLineEdit(self)
-        self.label_line_edit = QLabel(self)
+        self.line_edit = qlineedit.QLineEdit(self)
+        self.label_line_edit = qlabel.QLabel(self)
         self.label_line_edit.setMinimumWidth(150)
-        lay = QHBoxLayout(self)
+        lay = qhboxlayout.QHBoxLayout(self)
         lay.addWidget(self.label_line_edit)
         lay.addWidget(self.line_edit)
         lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(lay)
-        self.validator = QDoubleValidator()
+        self.validator = QtGui.QDoubleValidator()
         self.line_edit.setValidator(self.validator)
 
     def getValue(self) -> str:
@@ -46,12 +44,12 @@ class NumberEdit(QWidget):
     def getDecimals(self) -> int:
         """Return decimals."""
 
-        return cast(QDoubleValidator, self.line_edit.validator()).decimals()
+        return cast(QtGui.QDoubleValidator, self.line_edit.validator()).decimals()
 
     def setDecimals(self, decimals: Union[bytes, str, SupportsInt]) -> None:
         """Set decimals."""
 
-        cast(QDoubleValidator, self.line_edit.validator()).setDecimals(int(decimals))
+        cast(QtGui.QDoubleValidator, self.line_edit.validator()).setDecimals(int(decimals))
 
     def setMinimum(self, min: Union[bytes, str, SupportsFloat]) -> None:
         """Set minimum value."""
@@ -59,17 +57,17 @@ class NumberEdit(QWidget):
         if min in ["", None]:
             return
 
-        cast(QDoubleValidator, self.line_edit.validator()).setBottom(float(min))
+        cast(QtGui.QDoubleValidator, self.line_edit.validator()).setBottom(float(min))
 
     def getMinimum(self) -> Union[int, float]:
         """Return minimum value."""
 
-        return cast(QDoubleValidator, self.line_edit.validator()).bottom()
+        return cast(QtGui.QDoubleValidator, self.line_edit.validator()).bottom()
 
     def getMaximum(self) -> Union[int, float]:
         """Return maximum value."""
 
-        return cast(QDoubleValidator, self.line_edit.validator()).top()
+        return cast(QtGui.QDoubleValidator, self.line_edit.validator()).top()
 
     def setMaximum(self, max: Union[bytes, str, SupportsFloat]) -> Any:
         """Set maximum value."""
@@ -77,7 +75,7 @@ class NumberEdit(QWidget):
         if max in ["", None]:
             return
 
-        return cast(QDoubleValidator, self.line_edit.validator()).setTop(float(max))
+        return cast(QtGui.QDoubleValidator, self.line_edit.validator()).setTop(float(max))
 
     def getLabel(self) -> str:
         """Return dialog label."""

@@ -5,7 +5,7 @@ AQS package.
 Main entrance to the different AQS resources.
 """
 
-from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import]
 
 from pineboolib.core.utils import logging
 

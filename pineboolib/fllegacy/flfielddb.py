@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata import pnrelationmetadata
@@ -433,7 +433,9 @@ class FLFieldDB(QtWidgets.QWidget):
         #    return ted.textFormat()
         return self._text_format
 
-    def setEchoMode(self, mode: "qlineedit.QLineEdit.EchoMode") -> None:
+    def setEchoMode(
+        self, mode: "qlineedit.QLineEdit.EchoMode"  # type: ignore[name-defined]
+    ) -> None:
         """
         Set the "echo" mode.
 
@@ -442,7 +444,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if isinstance(self.editor_, (fllineedit.FLLineEdit, QtWidgets.QLineEdit)):
             self.editor_.setEchoMode(mode)
 
-    def echoMode(self) -> "qlineedit.QLineEdit.EchoMode":
+    def echoMode(self) -> "qlineedit.QLineEdit.EchoMode":  # type: ignore[name-defined]
         """
         Return the echo mode.
 

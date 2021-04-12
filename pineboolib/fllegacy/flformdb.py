@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 import traceback
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib import logging
 

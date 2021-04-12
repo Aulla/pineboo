@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
-from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore, QtGui  # type: ignore[import]
 
 
 class TestQT3UIParser(unittest.TestCase):

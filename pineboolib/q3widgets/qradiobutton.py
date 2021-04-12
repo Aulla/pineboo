@@ -1,13 +1,12 @@
 """Qradiobutton module."""
 # -*- coding: utf-8 -*-
 
-from PyQt6 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 from pineboolib import logging
 
-from .qbuttongroup import QButtonGroup
+from . import qbuttongroup
 
 from typing import Optional, cast
-from PyQt6.QtCore import pyqtSignal
 
 LOGGER = logging.get_logger(__name__)
 
@@ -17,14 +16,14 @@ class QRadioButton(QtWidgets.QRadioButton):
 
     dg_id: Optional[int]
 
-    def __init__(self, parent: Optional[QButtonGroup] = None) -> None:
+    def __init__(self, parent: Optional["qbuttongroup.QButtonGroup"] = None) -> None:
         """Inicialize."""
 
         super().__init__(parent)
         super().setChecked(False)
         self.dg_id = None
 
-        cast(pyqtSignal, self.clicked).connect(  # type: ignore [attr-defined] # noqa: F821
+        cast(QtCore.pyqtSignal, self.clicked).connect(  # type: ignore [attr-defined] # noqa: F821
             self.send_clicked
         )
 
@@ -33,15 +32,17 @@ class QRadioButton(QtWidgets.QRadioButton):
 
         self.dg_id = id
         if self.parent() and hasattr(self.parent(), "selectedId"):
-            if self.dg_id == cast(QButtonGroup, self.parent()).selectedId:
+            if self.dg_id == cast(qbuttongroup.QButtonGroup, self.parent()).selectedId:
                 self.setChecked(True)
 
     def send_clicked(self) -> None:
         """Send clicked to parent."""
 
         if self.parent() and hasattr(self.parent(), "selectedId"):
-            cast(QButtonGroup, self.parent()).presset.emit(self.dg_id)
-            cast(QButtonGroup, self.parent()).clicked.emit(  # type: ignore [has-type] # noqa: F821
+            cast(qbuttongroup.QButtonGroup, self.parent()).presset.emit(self.dg_id)
+            cast(
+                qbuttongroup.QButtonGroup, self.parent()
+            ).clicked.emit(  # type: ignore [has-type] # noqa: F821
                 self.dg_id
             )
 

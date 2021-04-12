@@ -322,7 +322,7 @@ class TestACLS(unittest.TestCase):
 
     def test_mainwindow_flacos(self) -> None:
         """Test mainwindow flacos."""
-        from PyQt6 import QtGui
+        from PyQt6 import QtGui  # type: ignore[import]
         from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
 

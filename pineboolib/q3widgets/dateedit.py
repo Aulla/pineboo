@@ -1,6 +1,6 @@
 """Dateedit module."""
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 from . import qdateedit
 from pineboolib.application.qsatypes import date as datelib

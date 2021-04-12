@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """About_pineboo module."""
 
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 
 from pineboolib.core.utils import check_dependencies
 

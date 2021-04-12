@@ -2,7 +2,7 @@
 """dlgconnect module."""
 
 import os
-from PyQt6 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore  # type: ignore[import]
 
 
 from pineboolib import logging

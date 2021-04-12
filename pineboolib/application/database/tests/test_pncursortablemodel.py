@@ -66,7 +66,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         )
 
     def test_basic_3(self) -> None:
-        from PyQt6 import QtCore
+        from PyQt6 import QtCore  # type: ignore[import]
         import locale
         import os
         from datetime import date

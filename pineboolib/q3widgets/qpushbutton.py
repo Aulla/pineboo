@@ -1,6 +1,6 @@
 """Qpushbutton module."""
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets, QtCore  # type: ignore
+from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 from pineboolib.core import decorators
 
 from typing import Union, Optional, TYPE_CHECKING

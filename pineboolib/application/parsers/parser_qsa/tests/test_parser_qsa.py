@@ -271,7 +271,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def test_pyconvert_multi(self) -> None:
         """Test pyconvert simultaneously."""
 
-        from PyQt6 import QtCore, QtWidgets
+        from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
         global NUMERO_MULTI
 

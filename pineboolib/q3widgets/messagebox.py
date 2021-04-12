@@ -1,7 +1,7 @@
 """Messagebox module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 from pineboolib import application
 from pineboolib.core.utils import logging

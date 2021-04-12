@@ -276,7 +276,7 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
-                    from PyQt6 import QtWidgets
+                    from PyQt6 import QtWidgets  # type: ignore[import]
 
                     QtWidgets.QMessageBox.information(
                         QtWidgets.QApplication.activeWindow(),

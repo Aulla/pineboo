@@ -4,7 +4,7 @@ Collection of controls used on Pineboo.
 
 Those are loaded from selected DGI.
 """
-from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import] # noqa: F401
 
 from pineboolib.core.system import System  # noqa: F401
 
@@ -59,8 +59,8 @@ from pineboolib.q3widgets.qdir import QDir  # noqa: F401
 
 from pineboolib.q3widgets.qhttp import QHttp, QHttpResponseHeader, QHttpRequestHeader  # noqa: F401
 
-from PyQt6.QtGui import QActionGroup  # noqa: F401
-from PyQt6.QtWidgets import QInputDialog  # noqa: F401
+from PyQt6.QtGui import QActionGroup  # type: ignore[import] # noqa: F401
+from PyQt6.QtWidgets import QInputDialog  # type: ignore[import] # noqa: F401
 from PyQt6.QtWidgets import QApplication  # noqa: F401
 
 
@@ -79,7 +79,7 @@ from PyQt6.QtWidgets import QListWidgetItem  # noqa: F401
 from PyQt6.QtWidgets import QMdiArea  # noqa: F401
 from PyQt6.QtWidgets import QMessageBox  # noqa: F401
 
-from PyQt6.QtCore import QSignalMapper  # noqa: F401
+from PyQt6.QtCore import QSignalMapper  # type: ignore[import] # noqa: F401
 from PyQt6.QtCore import QSize  # noqa: F401
 
 from PyQt6.QtCore import QBuffer  # noqa: F401
@@ -93,7 +93,7 @@ from PyQt6.QtGui import QIcon  # noqa: F401
 from PyQt6.QtGui import QColor  # noqa: F401
 
 
-from PyQt6.QtXml import QDomDocument  # noqa: F401
+from PyQt6.QtXml import QDomDocument  # type: ignore[import] # noqa: F401
 
 # Clases FL
 from PyQt6.QtXml import QDomDocument as FLDomDocument  # noqa: F401

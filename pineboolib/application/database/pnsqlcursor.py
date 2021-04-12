@@ -3,7 +3,7 @@
 Module for PNSqlCursor class.
 """
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings, garbage_collector

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PNApplication Module."""
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base

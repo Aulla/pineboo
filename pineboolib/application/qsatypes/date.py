@@ -2,7 +2,7 @@
 Module for Date type.
 """
 from typing import Union, Optional, Any
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 from pineboolib.application.utils.date_conversion import date_dma_to_amd
 
 
@@ -11,8 +11,8 @@ class Date(object):
     Case que gestiona un objeto tipo Date.
     """
 
-    date_: QtCore.QDate
-    time_: QtCore.QTime
+    date_: "QtCore.QDate"
+    time_: "QtCore.QTime"
 
     def __init__(self, *args: Union["Date", QtCore.QDate, str, QtCore.QTime, int]) -> None:
         """Create new Date object."""

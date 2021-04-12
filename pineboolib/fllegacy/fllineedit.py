@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Fllineedit module."""
 
-from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui  # type: ignore[import]
 from pineboolib import logging
 
 LOGGER = logging.get_logger(__name__)

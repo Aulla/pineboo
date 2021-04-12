@@ -1,6 +1,6 @@
 """Test_settings module."""
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing

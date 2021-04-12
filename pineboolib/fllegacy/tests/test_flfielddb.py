@@ -20,7 +20,7 @@ class TestFLFieldDBString(unittest.TestCase):
         from pineboolib.qsa import dictmodules
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.core.utils import utils_base
-        from PyQt6 import QtWidgets
+        from PyQt6 import QtWidgets  # type: ignore[import]
 
         cursor_1 = pnsqlcursor.PNSqlCursor("flmodules")
         cursor_1.select()

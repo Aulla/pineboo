@@ -1,9 +1,9 @@
 """Line module."""
 
-from .qline import QLine
+from . import qline
 
 
-class Line(QLine):
+class Line(qline.QLine):
     """Line class."""
 
     pass

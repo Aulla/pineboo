@@ -1,6 +1,6 @@
 """Qtabwidget module."""
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore[import]
 from pineboolib import logging
 from typing import Optional, Union
 
@@ -15,7 +15,7 @@ class QTabWidget(QtWidgets.QTabWidget):
     Left = QtWidgets.QTabWidget.TabPosition.West
     Right = QtWidgets.QTabWidget.TabPosition.East
 
-    def setTabEnabled(self, tab: str, enabled: bool) -> None:  # type: ignore
+    def setTabEnabled(self, tab: str, enabled: bool) -> None:
         """Set a tab enabled."""
         idx = self.indexByName(tab)
         if idx is None:

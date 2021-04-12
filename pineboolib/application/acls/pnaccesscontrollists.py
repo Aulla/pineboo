@@ -4,7 +4,7 @@ PNAccessControlList Module.
 
 Manage access lists to limit the application to users..
 """
-from PyQt6 import QtCore, QtXml
+from PyQt6 import QtCore, QtXml  # type: ignore[import]
 
 from pineboolib import application
 

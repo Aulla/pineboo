@@ -1,7 +1,7 @@
 """Qaction module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, QtGui  # type: ignore
+from PyQt6 import QtCore, QtGui  # type: ignore[import]
 from typing import Optional
 
 

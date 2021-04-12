@@ -5,7 +5,7 @@ import datetime
 import glob
 from datetime import date
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application.utils import date_conversion

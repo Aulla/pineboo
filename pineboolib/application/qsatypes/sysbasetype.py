@@ -10,7 +10,7 @@ import ast
 
 from typing import Any, Dict, Optional, List, Union
 
-from PyQt6 import QtWidgets, QtXml
+from PyQt6 import QtWidgets, QtXml  # type: ignore[import]
 
 from pineboolib.core import settings
 from pineboolib.core import decorators

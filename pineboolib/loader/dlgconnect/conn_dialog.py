@@ -3,7 +3,7 @@
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt6 import QtWidgets  # pragma: no cover
+    from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
     from pineboolib.loader.projectconfig import ProjectConfig  # pragma: no cover
 
 

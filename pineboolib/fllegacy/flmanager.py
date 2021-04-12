@@ -1,7 +1,7 @@
 """Flmanager module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, QtXml
+from PyQt6 import QtCore, QtXml  # type: ignore[import]
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base

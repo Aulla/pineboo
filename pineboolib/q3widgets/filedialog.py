@@ -1,6 +1,6 @@
 """Filedialog module."""
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets  # type: ignore[import]
 
 from pineboolib.core import system as core_system
 import os

@@ -1,6 +1,6 @@
 """PNSqlSchema module."""
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib import logging, application
 

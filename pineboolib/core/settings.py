@@ -17,14 +17,14 @@ import json
 import time
 from .utils import logging
 
-from PyQt6.QtCore import QSettings, QSize
+from PyQt6 import QtCore  # type: ignore[import]
 
 from typing import Dict, List, Any, Union, Tuple, Type
 
 LOGGER = logging.get_logger(__name__)
 
 
-class PinebooSettings(QSettings):
+class PinebooSettings(QtCore.QSettings):
     """Manipulate settings for the specified file."""
 
     CACHE_TIME_SEC = 30
@@ -36,21 +36,25 @@ class PinebooSettings(QSettings):
         "name" will be used for creating/opening the INI file.
         Values are saved in JSON oposed to plain text.
         """
-        format_ = QSettings.Format.IniFormat  # QSettings.NativeFormat - usar solo ficheros ini.
-        scope_ = QSettings.Scope.UserScope
+        format_ = (
+            QtCore.QSettings.Format.IniFormat
+        )  # QtCore.QSettings.NativeFormat - usar solo ficheros ini.
+        scope_ = QtCore.QSettings.Scope.UserScope
         self.organization = "Eneboo"
         self.application = "Pineboo" + name
         self.cache: Dict[str, Tuple[float, Any]] = {}
         super().__init__(format_, scope_, self.organization, self.application)
 
     @staticmethod
-    def dump_qsize(value: "QSize") -> Dict[str, Any]:
-        """Convert QSize into a Dict suitable to be converted to JSON."""
-        return {"__class__": "QSize", "width": value.width(), "height": value.height()}
+    def dump_qsize(value: "QtCore.QSize") -> Dict[str, Any]:
+        """Convert QtCore.QSize into a Dict suitable to be converted to JSON."""
+        return {"__class__": "QtCore.QSize", "width": value.width(), "height": value.height()}
 
-    def dump_value(self, value: Union["QSize", str, bool, int, List[str], Dict[Any, Any]]) -> str:
+    def dump_value(
+        self, value: Union["QtCore.QSize", str, bool, int, List[str], Dict[Any, Any]]
+    ) -> str:
         """Convert Any value into JSON to be used for saving in INI."""
-        if isinstance(value, QSize):
+        if isinstance(value, QtCore.QSize):
             value = self.dump_qsize(value)
         return json.dumps(value)
 
@@ -59,8 +63,8 @@ class PinebooSettings(QSettings):
         value: Any = json.loads(value_text)
         if isinstance(value, dict) and "__class__" in value.keys():
             classname = value["__class__"]
-            if classname == "QSize":
-                return QSize(value["width"], value["height"])
+            if classname == "QtCore.QSize":
+                return QtCore.QSize(value["width"], value["height"])
         return value
 
     def value(self, key: str, def_value: Any = None, type: Type = None) -> Any:
@@ -99,7 +103,7 @@ class PinebooSettings(QSettings):
             LOGGER.debug("Error trying to parse json for %s: %s (%s)", key, exc, value)
             return value
 
-    def set_value(self, key: str, value: Union["QSize", str, bool, int, List[Any]]) -> None:
+    def set_value(self, key: str, value: Union["QtCore.QSize", str, bool, int, List[Any]]) -> None:
         """Set a value into INI file for specified key."""
         LOGGER.debug("%s.set_value(%s) <- %s %r", self.application, key, type(value), value)
         curtime = time.time()

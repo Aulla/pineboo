@@ -1,6 +1,6 @@
 """QIconSet module."""
 
-from PyQt6 import QtGui
+from PyQt6 import QtGui  # type: ignore[import]
 
 
 class QIconSet(QtGui.QIcon):

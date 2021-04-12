@@ -1,6 +1,6 @@
 """FLJasperEngine module."""
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 
 class FLJasperEngine(QtCore.QObject):

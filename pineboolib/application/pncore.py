@@ -1,5 +1,5 @@
 """PNCore class is used for receive signal from mainforms."""
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 
 class PNCore(QtWidgets.QWidget):

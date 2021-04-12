@@ -1,6 +1,6 @@
 """Object_class module."""
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 from typing import Set, Tuple, Any
 from pineboolib.application import connections

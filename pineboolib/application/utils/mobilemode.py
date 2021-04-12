@@ -2,7 +2,7 @@
 To detect if we are in mobile mode.
 """
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 from pineboolib.core import settings
 

@@ -14,7 +14,7 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils import date_conversion, xpm
 from pineboolib.core import settings
 
-from PyQt6 import QtXml, QtCore
+from PyQt6 import QtXml, QtCore  # type: ignore[import]
 
 from pineboolib.application.database import pnsqlquery
 
@@ -177,7 +177,7 @@ class KParserTools(object):
         ret = None
         table_name = "fllarge"
         if ref_key is not None:
-            from PyQt6.QtGui import QPixmap
+            from PyQt6.QtGui import QPixmap  # type: ignore[import]
 
             value = None
             tmp_dir = settings.CONFIG.value("ebcomportamiento/temp_dir")

@@ -8,10 +8,10 @@ import sys
 import threading
 import os
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 from pineboolib.application import types
-from pineboolib.core.utils import utils_base
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import utils_base, logging
+
 from pineboolib import application
 
 from .dictmodules import from_project

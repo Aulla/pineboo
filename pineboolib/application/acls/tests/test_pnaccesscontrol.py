@@ -1,6 +1,6 @@
 """Test_pnaccesscontrol module."""
 
-from PyQt6 import QtXml
+from PyQt6 import QtXml  # type: ignore[import]
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing

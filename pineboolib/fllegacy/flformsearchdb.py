@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib import logging, application
 
-from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui  # type: ignore[import]
 
 
 from pineboolib.core import decorators, settings

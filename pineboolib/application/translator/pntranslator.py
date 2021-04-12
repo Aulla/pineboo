@@ -7,7 +7,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core import settings
 from pineboolib import application
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 
 from . import pntranslations

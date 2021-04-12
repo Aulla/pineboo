@@ -1,7 +1,7 @@
 """Flnetwork module."""
 
 # # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, QtNetwork
+from PyQt6 import QtCore, QtNetwork  # type: ignore[import]
 
 from typing import Optional, cast, Any
 

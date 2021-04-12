@@ -2,8 +2,7 @@
 # # -*- coding: utf-8 -*-
 from importlib import import_module
 
-import PyQt6
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtXml, QtGui, QtCore  # type: ignore[import]
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
@@ -48,7 +47,7 @@ class DgiQt(dgi_schema.DgiSchema):
             cls = getattr(mod_, name, None)
 
         if cls is None:
-            array_mod = [PyQt6.QtWidgets, PyQt6.QtXml, PyQt6.QtGui, PyQt6.QtCore]
+            array_mod = [QtWidgets, QtXml, QtGui, QtCore]
             for mod in array_mod:
                 cls = getattr(mod, name, None)
                 if cls is not None:

@@ -4,7 +4,7 @@ PNPackager package.
 
 Build .eneboopkg packages.
 """
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore[import]
 
 from pineboolib.core import decorators
 from pineboolib import logging

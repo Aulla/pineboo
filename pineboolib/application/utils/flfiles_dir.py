@@ -4,7 +4,7 @@ import os
 import hashlib
 from typing import List, Any
 
-from PyQt6.QtXml import QDomDocument
+from PyQt6.QtXml import QDomDocument  # type: ignore[import]
 from pineboolib.core.utils import logging, utils_base
 
 

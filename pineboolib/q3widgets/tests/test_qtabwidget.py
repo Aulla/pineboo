@@ -1,5 +1,5 @@
 """Test_qtabwidget module."""
-from PyQt6 import QtGui
+from PyQt6 import QtGui  # type: ignore[import]
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing

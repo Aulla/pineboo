@@ -4,7 +4,7 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core import decorators
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 
 class TestQHttp(unittest.TestCase):

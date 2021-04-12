@@ -4,7 +4,7 @@ Defines PNCursorTableModel class.
 """
 
 
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging, utils_base
 

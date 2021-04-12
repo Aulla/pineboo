@@ -1,6 +1,6 @@
 """Aqobjectquerylist module."""
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.application import types
 from typing import Union, Optional

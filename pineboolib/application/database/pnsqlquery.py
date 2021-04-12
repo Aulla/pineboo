@@ -471,7 +471,7 @@ class PNSqlQuery(object):
         if self.private_query._parameter_dict:
             for key, parameter in self.private_query._parameter_dict.items():
                 if parameter is None:
-                    from PyQt6 import QtWidgets
+                    from PyQt6 import QtWidgets  # type: ignore[import]
 
                     dialog = QtWidgets.QInputDialog()
 

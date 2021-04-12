@@ -1,7 +1,7 @@
 """Fldatatable module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui  # type: ignore[import]
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import utils_base

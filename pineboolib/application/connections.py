@@ -3,7 +3,7 @@ Manage Qt Signal-Slot connections.
 """
 
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 from pineboolib import logging
 
 import inspect
@@ -296,3 +296,5 @@ def solve_connection(
                 )
                 return None
             return original_signal, original_slot
+
+    return None

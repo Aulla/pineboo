@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt6 import QtGui
-from PyQt6.QtGui import QValidator
+from PyQt6 import QtGui  # type: ignore[import]
 
 from pineboolib import application
 
@@ -34,7 +33,7 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
         self.setNotation(self.Notation.StandardNotation)
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple[QValidator.State, str, int]:
+    def validate(self, input_: str, pos_cursor: int) -> Tuple["QtGui.QValidator.State", str, int]:
         """Return if a value is valid."""
         value_in = input_
 
