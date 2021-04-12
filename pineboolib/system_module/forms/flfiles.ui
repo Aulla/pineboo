@@ -15,8 +15,8 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="FLFieldDB" name="nombre">
-     <property name="fieldName">
+    <widget class="FLFieldDB" name="nombre" native="true">
+     <property name="fieldName" stdset="0">
       <string>nombre</string>
      </property>
     </widget>
@@ -37,8 +37,8 @@
       </spacer>
      </item>
      <item>
-      <widget class="FLFieldDB" name="fLFieldDB1_2">
-       <property name="fieldName">
+      <widget class="FLFieldDB" name="sha" native="true">
+       <property name="fieldName" stdset="0">
         <string>sha</string>
        </property>
       </widget>
@@ -73,7 +73,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>../../core/images/icons/edit_file_xml.png</iconset>
+        <iconset>
+         <normaloff>../../core/images/icons/edit_file_xml.png</normaloff>../../core/images/icons/edit_file_xml.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -89,7 +90,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>../../core/images/icons/edit_file.png</iconset>
+        <iconset>
+         <normaloff>../../core/images/icons/edit_file.png</normaloff>../../core/images/icons/edit_file.png</iconset>
        </property>
        <property name="iconSize">
         <size>
