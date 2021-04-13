@@ -3,19 +3,19 @@ Data Types for QSA.
 """
 import codecs
 import os
-import os.path
 import collections
-from typing import Any, Optional, Dict, Union, Generator, List
 
-from PyQt6 import QtCore  # type: ignore
-from PyQt6.QtCore import QIODevice  # type: ignore
 
+from PyQt6 import QtCore  # type: ignore [import]
+
+from pineboolib.core.utils import utils_base
 from pineboolib.core import decorators, settings
 
-from pineboolib.core.utils import logging
-from pineboolib.core.utils.utils_base import StructMyDict, filedir
-
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
+
+from .. import logging
+
+from typing import Any, Optional, Dict, Union, Generator, List
 
 LOGGER = logging.get_logger(__name__)
 
@@ -49,7 +49,7 @@ class QString(str):
     Emulate original QString as was removed from PyQt6.
     """
 
-    def mid(self, start: int, length: Optional[int] = None) -> str:
+    def mid(self, start: int, length: int = 0) -> str:
         """
         Cut sub-string.
 
@@ -57,19 +57,14 @@ class QString(str):
         @param length. Longitud de la cadena. Si no se especifica , es hasta el final
         @return sub cadena de texto.
         """
-        if length is None:
-            return self[start:]
-        else:
-            return self[start : start + length]
+
+        return self[start:] if not length else self[start : start + length]
 
     @staticmethod
     def fromCharCode(*args: int) -> str:
         """Return a char list values."""
-        ret: str = ""
-        for i in args:
-            ret += chr(i)
 
-        return ret
+        return "".join([chr(val) for val in args])
 
 
 def function(*args: str) -> Any:
@@ -132,11 +127,11 @@ function anon(%s) {
     return getattr(forminternalobj(), "anon", None)
 
 
-def object_(value: Optional[Dict[str, Any]] = None) -> StructMyDict:
+def object_(value: Optional[Dict[str, Any]] = None) -> "utils_base.StructMyDict":
     """
     Object type "object".
     """
-    return StructMyDict(value or {})
+    return utils_base.StructMyDict(value or {})
 
 
 String = QString
@@ -202,16 +197,15 @@ class Array(object):
         @return Valor del registro especificado
         """
         if isinstance(key, int):
-            i = 0
-            for key_ in self._dict.keys():
-                if key == i:
-                    return self._dict[key_]
-                i += 1
+            keys_list = list(self._dict.keys())
+            if key < len(keys_list):
+                return self._dict[keys_list[key]]
 
         elif isinstance(key, slice):
             LOGGER.warning("FIXME: Array __getitem__%s con slice" % key)
         else:
-            return self._dict[key] if key in self._dict.keys() else None
+            if key in self._dict.keys():
+                return self._dict[key]
 
         return None
 
@@ -245,61 +239,34 @@ class Array(object):
 
     def splice(self, *args: Any) -> None:
         """Cut or replace array."""
+        new_dict = {}
+
         if len(args) == 2:  # Delete
-            pos_ini = args[0]
-            length_ = args[1]
-            i = 0
-            pos_x = 0
-            new = {}
-            for key in self._dict.keys():
-                if i >= pos_ini and pos_x < length_:
-                    new[key] = self._dict[key]
-                    pos_x += 1
 
-                i += 1
-
-            self._dict = new
+            for key in list(self._dict.keys())[args[0] : args[0] + args[1]]:
+                new_dict[key] = self._dict[key]
 
         elif len(args) > 2 and args[1] == 0:  # Insertion
 
-            pos = 0
-            new_dict = {}
             fix_pos = 0
-            for pos in range(len(self._dict)):
-                new_dict[fix_pos] = self._dict[pos]
-                fix_pos += 1
-
+            for pos in range(len(self._dict.keys())):
+                new_dict[pos + fix_pos] = self._dict[pos]
                 if pos == args[0]:
-                    for i in range(2, len(args)):
-                        new_dict[fix_pos] = args[i]
+                    for new_value in args[2:]:
                         fix_pos += 1
-
-            self._dict = new_dict
+                        new_dict[pos + fix_pos] = new_value
 
         elif len(args) > 2 and args[1] > 0:  # Replacement
-            pos_ini = args[0]
-            replacement_size = args[1]
-            new_values = args[2:]
 
-            i = 0
-            pos_x = 0
-            new = {}
-            for key in self._dict.keys():
-                if i < pos_ini:
-                    new[key] = self._dict[key]
+            for pos, key in enumerate(self._dict.keys()):
+                if pos == args[0]:
+                    for new_value in args[2:]:
+                        new_dict[new_value] = new_value
                 else:
-                    if pos_x < replacement_size:
-                        if pos_x == 0:
-                            for new_value in new_values:
-                                new[new_value] = new_value
+                    if pos < args[0] or pos >= args[0] + args[1]:
+                        new_dict[key] = self._dict[key]
 
-                        pos_x += 1
-                    else:
-                        new[key] = self._dict[key]
-
-                i += 1
-
-            self._dict = new
+        self._dict = new_dict
 
     def __len__(self) -> int:
         """Return size of array."""
@@ -324,12 +291,13 @@ class Array(object):
         """Return a position value and delte it from list."""
 
         value = self._dict[position]
+        self._dict[position] = None
         del self._dict[position]
 
         return value
 
 
-AttributeDict = StructMyDict
+AttributeDict = utils_base.StructMyDict
 
 
 class Dir(object):
@@ -420,7 +388,7 @@ class Dir(object):
 
         @param val. Ruta especificada
         """
-        os.chdir(val or filedir("."))
+        os.chdir(val or utils_base.filedir("."))
 
     def getCurrent(self) -> str:
         """Return current folder."""
@@ -428,28 +396,24 @@ class Dir(object):
 
     def set_current(self, new_path: Optional[str] = None) -> None:
         """Set new patch."""
-        os.chdir(new_path or filedir("."))
+        os.chdir(new_path or utils_base.filedir("."))
 
-    def mkdir(self, name: Optional[str] = None) -> None:
+    def mkdir(self, name: str = "") -> None:
         """
         Create a new folder.
 
         @param name. Nombre de la ruta a crear
         """
-        if name is None:
-            name = ""
-
-            if self.path is None:
-                raise ValueError("self.path is not defined!")
+        if not name and self.path is None:
+            raise ValueError("self.path is not defined!")
 
         if self.path:
-            name_ = self.path + "/" + name
-        else:
-            name_ = name
+            name = self.path + "/" + name
+
         try:
-            os.stat(name_)
+            os.stat(name)
         except Exception:
-            os.mkdir(name_)
+            os.mkdir(name)
 
     def cd(self, path: str) -> None:
         """Change dir."""
@@ -488,11 +452,11 @@ class FileBaseClass(object):
     Constants for File and FileStatic.
     """
 
-    ReadOnly = QIODevice.OpenMode.ReadOnly
-    WriteOnly = QIODevice.OpenMode.WriteOnly
-    ReadWrite = QIODevice.OpenMode.ReadWrite
-    Append = QIODevice.OpenMode.Append
-    ioDevice = QIODevice
+    ReadOnly = QtCore.QIODevice.OpenMode.ReadOnly
+    WriteOnly = QtCore.QIODevice.OpenMode.WriteOnly
+    ReadWrite = QtCore.QIODevice.OpenMode.ReadWrite
+    Append = QtCore.QIODevice.OpenMode.Append
+    ioDevice = QtCore.QIODevice
 
     @staticmethod
     def exists(name: str) -> bool:
@@ -531,7 +495,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     """
 
     _file_name: str
-    _mode: "QIODevice.OpenMode"
+    _mode: "QtCore.QIODevice.OpenMode"
 
     _encode: str
     _last_seek: int
@@ -556,7 +520,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._mode = self.ReadWrite
 
-    def open(self, mode: "QIODevice.OpenMode") -> bool:
+    def open(self, mode: "QtCore.QIODevice.OpenMode") -> bool:
         """Open file."""
 
         self._mode = mode
@@ -566,7 +530,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         return True
 
-    def ioDevice(self) -> QIODevice:  # type: ignore [override] # noqa: F821
+    def ioDevice(self) -> "QtCore.QIODevice":  # type: ignore [override] # noqa: F821
         """Return ioDevice mode."""
         return self._q_file
 
@@ -610,9 +574,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        mode = "w"
-        if self._mode == self.Append:
-            mode = "a"
+        mode = "a" if self._mode == self.Append else "w"
 
         if not isinstance(data, str):
             data = data.decode(self._encode)
@@ -839,10 +801,8 @@ class FileStatic(FileBaseClass):
         @param data. Valores a guardar en el fichero
         @param length. Tamaño de data. (No se usa)
         """
-        if isinstance(data, str):
-            bytes_ = data.encode("ISO-8859-15")
-        else:
-            bytes_ = data
+
+        bytes_ = data.encode("ISO-8859-15") if isinstance(data, str) else data
 
         with open(file_, "wb") as file:
             file.write(bytes_)

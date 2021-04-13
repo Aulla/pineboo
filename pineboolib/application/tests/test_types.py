@@ -159,6 +159,8 @@ class TestString(unittest.TestCase):
         """Test fromCharCode."""
         temp: str = types.String.fromCharCode(13, 10)
         self.assertEqual(temp, "\r\n")
+        temp2: str = types.String.fromCharCode()
+        self.assertEqual(temp2, "")
 
 
 class TestFile(unittest.TestCase):
