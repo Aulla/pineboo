@@ -2,23 +2,22 @@
 XMLAction module.
 """
 
-from pineboolib import application
+
 from pineboolib.core.utils import struct, utils_base
 from pineboolib.core import garbage_collector
-from pineboolib import logging
 
-from xml.etree import ElementTree as ET  # noqa: F401
-import threading
+from pineboolib.application.database import pnsqlcursor
+from pineboolib import logging, application
 
 from . import load_script
 
+import threading
 from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
-
 
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401 # pragma: no cover
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
-
+    from xml.etree import ElementTree as ET  # noqa: F401 # pragma: no cover
     from pineboolib.qsa import formdbwidget  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
@@ -79,7 +78,6 @@ class XMLAction(struct.ActionStruct):
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
         if not self._cursor and self._table:
-            from pineboolib.application.database import pnsqlcursor
 
             # LOGGER.warning("Creando cursor para %s %s", self._name, self._master_widget)
             self._cursor = pnsqlcursor.PNSqlCursor(self._name)
@@ -168,14 +166,7 @@ class XMLAction(struct.ActionStruct):
         Load master form.
         """
         if not self.is_form_loaded(self._master_widget):
-            load = False
-            if not self._table:
-                if self._master_widget is None:
-                    load = True
-            else:
-                load = True
-
-            if load:
+            if self._table or (not self._table and self._master_widget is None):
                 self._master_widget = self.load_widget(
                     self._master_script if self._table else self._name
                 )
@@ -276,14 +267,10 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
-                    from PyQt6 import QtWidgets  # type: ignore[import]
-
-                    QtWidgets.QMessageBox.information(
-                        QtWidgets.QApplication.activeWindow(),
-                        "Aviso",
-                        "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
-                        "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
-                        QtWidgets.QMessageBox.StandardButtons.Yes,
+                    msg = "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
+                    "No se abrirán mas para evitar ciclos repetitivos de edición de registros."
+                    application.PROJECT.message_manager().send(
+                        "msgBoxInfo", None, [msg, None, "Aviso"]
                     )
 
             LOGGER.warning("formRecord%s is already loaded!", self._record_form)
@@ -320,7 +307,7 @@ class XMLAction(struct.ActionStruct):
         """
         widget = self.load_master_widget()
 
-        base_function = getattr(widget, "iface", None) or widget
+        base_function = getattr(widget, "iface", widget)
 
         main = getattr(base_function, "main", None)
         if main is None:
