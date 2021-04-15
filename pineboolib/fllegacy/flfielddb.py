@@ -1218,9 +1218,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         editor_dbl.setText(default_value)
 
             else:
-                if not value:
-                    value = 0.0
-                text_ = str(round(float(value), part_decimal))
+                text_ = str(round(float(value), part_decimal)) if value else ""
                 pos_dot = text_.find(".")
 
                 if pos_dot is not None and pos_dot > -1:
