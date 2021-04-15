@@ -909,17 +909,19 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def isNull(self, field_name: str) -> bool:
         """Get if a field is null."""
-        if self.private_cursor.buffer_ is not None:
-            return self.buffer().is_null(field_name)
-        else:
-            return True
+
+        return (
+            self.buffer().is_null(field_name) if self.private_cursor.buffer_ is not None else True
+        )
 
     def isCopyNull(self, field_name: str) -> bool:
         """Get if a field was null before changing."""
-        if self.private_cursor._buffer_copy is not None:
-            return self.bufferCopy().is_null(field_name)
-        else:
-            return True
+
+        return (
+            self.bufferCopy().is_null(field_name)
+            if self.private_cursor._buffer_copy is not None
+            else True
+        )
 
     def updateBufferCopy(self) -> None:
         """

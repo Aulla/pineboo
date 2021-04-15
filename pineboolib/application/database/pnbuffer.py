@@ -6,14 +6,13 @@ Manage buffers used by PNSqlCursor.
 Buffers are the data records pointed to by a PNSqlCursor.
 """
 from pineboolib.application import types
-from pineboolib.core.utils import utils_base, logging
+from pineboolib import logging
+from pineboolib.core.utils import utils_base
 
 import datetime
-
 import sqlalchemy
 
 from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
-
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor  # pragma: no cover
@@ -68,14 +67,9 @@ class PNBuffer(object):
         if not cursor:
             raise Exception("Missing cursor")
         self._cursor = cursor
-        # self.field_dict_ = {}
-        # self.line_: int = -1
-        # self.inicialized_: bool = False
         self._orm_obj = None
         self._generated_fields = []
         self._cache_buffer = {}
-        # tmd = self._cursor.metadata()
-        # campos = tmd.fieldList()
 
     def prime_insert(self, row: int = None) -> None:
         """
@@ -83,10 +77,6 @@ class PNBuffer(object):
 
         @param row = cursor line.
         """
-        # if self.inicialized_:
-        #    LOGGER.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self._cursor.curName())
-
-        # self.primeUpdate(row)
         self.clear()
 
         self._orm_obj = self._cursor._cursor_model(session=self._cursor.db().session())
@@ -97,14 +87,6 @@ class PNBuffer(object):
 
         self.clear()
         self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
-
-    # def prime_delete(self) -> None:
-    #    """Load registr for delete."""
-
-    #    self.clear()
-    #    self._current_model_obj = self.model.get_obj_from_row(
-    #        self._cursor.currentRegister()
-    #    )
 
     def setNull(self, name) -> None:
         """
@@ -124,7 +106,6 @@ class PNBuffer(object):
 
         if field_name in self._cache_buffer.keys():
             value = self._cache_buffer[field_name]
-
         else:
             if self._orm_obj and sqlalchemy.inspect(self._orm_obj).expired:
                 self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
@@ -153,8 +134,7 @@ class PNBuffer(object):
         """Set values to cache_buffer."""
 
         if field_name in self._cursor.metadata().fieldNames():
-            type_ = self._cursor.metadata().field(field_name).type()
-            if type_ == "bool":
+            if self._cursor.metadata().field(field_name).type() == "bool":
                 if isinstance(value, str):
                     value = utils_base.text2bool(value)
             self._cache_buffer[field_name] = value
@@ -269,12 +249,11 @@ class PNBuffer(object):
 
     def is_valid(self) -> bool:
         """Return if buffer object is valid."""
-        metadata = self._cursor.metadata()
-        pk_field = metadata.primaryKey()
+
         try:
             if not self._orm_obj:
                 return False
-            value = getattr(self._orm_obj, pk_field)  # noqa: F841
+            value = getattr(self._orm_obj, self._cursor.metadata().primaryKey())  # noqa: F841
         except sqlalchemy.orm.exc.ObjectDeletedError:  # type: ignore [attr-defined] # noqa: F821
             return False
 
