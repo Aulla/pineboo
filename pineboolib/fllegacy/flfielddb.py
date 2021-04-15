@@ -1077,8 +1077,11 @@ class FLFieldDB(QtWidgets.QWidget):
         nulo = False
         if not field_name:
             value = self.cursor_.valueBuffer(self._field_name)
-            if self._field_relation:
-                nulo = self.cursor_.bufferIsNull(self._field_relation)
+            nulo = (
+                self.cursor_.isNull(self._field_relation)
+                if self._field_relation
+                else self.cursor_.isNull(self._field_name)
+            )
 
             # if self.cursor_.cursorRelation():
             # print(1)
@@ -1208,17 +1211,16 @@ class FLFieldDB(QtWidgets.QWidget):
                 LOGGER.debug("Error al desconectar señal textChanged", exc_info=True)
             text_ = None
 
-            if nulo and value is None:
+            if nulo:
                 default_value = field.defaultValue()
 
-                if field.allowNull():
-                    editor_dbl.setText("" if default_value is None else default_value)
-                else:
-                    if default_value is not None:
-                        editor_dbl.setText(default_value)
+                if field.allowNull() or default_value is not None:
+                    editor_dbl.setText(default_value or "")
 
             else:
-                text_ = str(round(float(value), part_decimal)) if value else ""
+                if not value:
+                    value = 0.0
+                text_ = str(round(float(value), part_decimal))
                 pos_dot = text_.find(".")
 
                 if pos_dot is not None and pos_dot > -1:
