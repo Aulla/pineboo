@@ -1,6 +1,8 @@
 """Test_pnsqldrivers module."""
 
 import unittest
+from pineboolib import application
+
 from pineboolib.loader.main import init_testing
 
 
@@ -14,20 +16,21 @@ class TestPNSqlDriversManager(unittest.TestCase):
 
     def test_full(self) -> None:
         """Test full."""
-        from pineboolib import application
 
-        conn_ = application.PROJECT.conn_manager.mainConn()
+        mng_ = application.PROJECT.conn_manager
 
-        self.assertEqual(conn_._driver_sql.defaultDriverName(), "FLsqlite")
-        self.assertEqual(conn_._driver_sql.driverName(), "FLsqlite")
+        self.assertEqual(mng_._drivers_sql_manager.defaultDriverName(), "FLsqlite")
+        self.assertEqual(mng_._drivers_sql_manager.driverName(), "FLsqlite")
         # self.assertTrue(
         #    conn_._driver_sql.isDesktopFile(
         #        conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())
         #    )
         # )
         self.assertEqual(
-            conn_._driver_sql.port(conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())),
+            mng_._drivers_sql_manager.port(
+                mng_._drivers_sql_manager.nameToAlias(mng_._drivers_sql_manager.driverName())
+            ),
             "0",
         )
-        self.assertEqual(conn_._driver_sql.aliasToName(""), "FLsqlite")
-        self.assertEqual(conn_._driver_sql.aliasToName(), "FLsqlite")
+        self.assertEqual(mng_._drivers_sql_manager.aliasToName(""), "FLsqlite")
+        self.assertEqual(mng_._drivers_sql_manager.aliasToName(), "FLsqlite")

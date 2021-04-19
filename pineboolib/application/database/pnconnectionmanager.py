@@ -77,7 +77,7 @@ class PNConnectionManager(QtCore.QObject):
         pnsqlcursor.CONNECTION_CURSORS = {}
 
         main_conn._name = "main_conn"
-        if main_conn._drivers_sql_manager.loadDriver(main_conn._driver_name):
+        if self._drivers_sql_manager.loadDriver(main_conn._driver_name):
             main_conn.conn = main_conn.conectar(
                 main_conn._db_name,
                 main_conn._db_host,
@@ -165,11 +165,6 @@ class PNConnectionManager(QtCore.QObject):
                 if not self.removeConn(name):
                     raise Exception("a problem existes deleting older connection")
 
-            # if len(self.connections_dict.keys()) > self.limit_connections:
-            #    raise Exception("Connections limit reached!")
-            # if self._drivers_sql_manager is None:
-            #    raise Exception("No driver selected")
-
             main_conn = self.mainConn()
             if main_conn is None:
                 raise Exception("main_conn is empty!!")
@@ -180,7 +175,7 @@ class PNConnectionManager(QtCore.QObject):
                 return main_conn
 
             if name.lower() in ["default", "dbaux", "aux"]:  # Las abrimos automáticamene!
-                if connection_._drivers_sql_manager.loadDriver(connection_._driver_name):
+                if self._drivers_sql_manager.loadDriver(connection_._driver_name):
                     connection_.conn = connection_.conectar(
                         connection_._db_name,
                         connection_._db_host,
