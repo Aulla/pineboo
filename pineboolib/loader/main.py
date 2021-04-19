@@ -344,13 +344,6 @@ def exec_main(options: "optparse.Values") -> int:
     Handles optionlist and help.
     Also initializes all the objects
     """
-    # FIXME: This function should not initialize the program
-
-    # -------------------
-
-    # import pineboolib.pnapplication
-    # from pineboolib.core.utils.utils_base import filedir
-    # from pineboolib.pnsqldrivers import PNSqlDrivers
 
     init_cli()
 

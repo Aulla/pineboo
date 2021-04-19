@@ -179,13 +179,9 @@ class SysBaseType(object):
         if db_name is None:
             conn_db = application.PROJECT.conn_manager.useConn(driver_or_conn)
             if not conn_db.isOpen():
-                if (
-                    conn_db._driver_name
-                    and conn_db._driver_sql
-                    and conn_db._driver_sql.loadDriver(conn_db._driver_name)
-                ):
+                if conn_db._drivers_sql_manager.loadDriver(conn_db._driver_name):
                     main_conn = application.PROJECT.conn_manager.mainConn()
-                    conn_db._driver = conn_db._driver_sql.driver()
+                    conn_db._driver = conn_db._drivers_sql_manager.driver()
                     conn_db.conn = conn_db.conectar(
                         main_conn._db_name,
                         main_conn._db_host,
@@ -207,10 +203,12 @@ class SysBaseType(object):
 
             conn_db = application.PROJECT.conn_manager.useConn(conn_name, db_name)
             if not conn_db.isOpen():
-                if conn_db._driver_sql is None:
+                if conn_db._drivers_sql_manager is None:
                     raise Exception("driverSql not loaded!")
                 conn_db._driver_name = driver_or_conn.lower()
-                if conn_db._driver_name and conn_db._driver_sql.loadDriver(conn_db._driver_name):
+                if conn_db._driver_name and conn_db._drivers_sql_manager.loadDriver(
+                    conn_db._driver_name
+                ):
                     conn_db.conn = conn_db.conectar(db_name, db_host, db_port, db_user, db_pw)
 
                     if isinstance(conn_db.conn, bool):

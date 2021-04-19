@@ -8,6 +8,7 @@ from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
 from . import pnsqlcursor
+from . import pnsqldriversmanager
 
 from sqlalchemy import exc
 import threading
@@ -25,6 +26,7 @@ LOGGER = logging.get_logger(__name__)
 class PNConnectionManager(QtCore.QObject):
     """PNConnectionManager Class."""
 
+    _drivers_sql_manager: "pnsqldriversmanager.PNSqlDriversManager"
     _manager: Optional["flmanager.FLManager"]
     _manager_modules: Optional["flmanagermodules.FLManagerModules"]
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
@@ -53,6 +55,7 @@ class PNConnectionManager(QtCore.QObject):
         self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
         self.SAFE_TIME_SLEEP = 0.01
         self.safe_mode_level = 0
+        self._drivers_sql_manager = pnsqldriversmanager.PNSqlDriversManager()
 
         LOGGER.debug("Initializing PNConnection Manager:")
         LOGGER.debug(
@@ -74,7 +77,7 @@ class PNConnectionManager(QtCore.QObject):
         pnsqlcursor.CONNECTION_CURSORS = {}
 
         main_conn._name = "main_conn"
-        if main_conn._driver_name and main_conn._driver_sql.loadDriver(main_conn._driver_name):
+        if main_conn._drivers_sql_manager.loadDriver(main_conn._driver_name):
             main_conn.conn = main_conn.conectar(
                 main_conn._db_name,
                 main_conn._db_host,
@@ -153,6 +156,8 @@ class PNConnectionManager(QtCore.QObject):
         #    return self
         self.check_alive_connections()
 
+        connection_: "pnconnection.PNConnection"
+
         if name_conn_ in self.connections_dict.keys() and not db_name:
             connection_ = self.connections_dict[name_conn_]
         else:
@@ -162,7 +167,7 @@ class PNConnectionManager(QtCore.QObject):
 
             # if len(self.connections_dict.keys()) > self.limit_connections:
             #    raise Exception("Connections limit reached!")
-            # if self._driver_sql is None:
+            # if self._drivers_sql_manager is None:
             #    raise Exception("No driver selected")
 
             main_conn = self.mainConn()
@@ -175,9 +180,7 @@ class PNConnectionManager(QtCore.QObject):
                 return main_conn
 
             if name.lower() in ["default", "dbaux", "aux"]:  # Las abrimos automáticamene!
-                if connection_._driver_name and connection_._driver_sql.loadDriver(
-                    connection_._driver_name
-                ):
+                if connection_._drivers_sql_manager.loadDriver(connection_._driver_name):
                     connection_.conn = connection_.conectar(
                         connection_._db_name,
                         connection_._db_host,

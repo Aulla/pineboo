@@ -37,14 +37,14 @@ class DlgConnect(QtWidgets.QWidget):
         """
         Initialize.
         """
-        from pineboolib.application.database import pnsqldrivers
+        from pineboolib.application.database import pnsqldriversmanager
 
         super().__init__()
         self._options_showed = False
         self._min_size = QtCore.QSize(350, 140)
         self._max_size = QtCore.QSize(350, 495)
         self.profile_dir: str = projectconfig.ProjectConfig.profile_dir
-        self.sql_drivers = pnsqldrivers.PNSqlDrivers()
+        self.sql_drivers = pnsqldriversmanager.PNSqlDriversManager()
         self.edit_mode = False
         self.profiles = {}
         self.selected_project_config = None

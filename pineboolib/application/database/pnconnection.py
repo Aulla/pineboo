@@ -7,7 +7,6 @@ from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 from pineboolib.core import settings, utils, decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
-from . import pnsqldrivers
 from pineboolib import application
 
 import time
@@ -17,7 +16,7 @@ from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor, isqlschema  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
     from . import pnconnectionmanager  # pragma: no cover
 
@@ -39,15 +38,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_password: str = ""
     # conn: Optional["base.Connection"] = None  # Connection from the actual driver
 
-    _driver_sql: "pnsqldrivers.PNSqlDrivers"
     _driver_name: str
     # currentSavePoint_: Optional[PNSqlSavePoint]
     # stackSavePoints_: List[PNSqlSavePoint]
     # queueSavePoints_: List[PNSqlSavePoint]
     _interactive_gui: str
-    _db_aux = None
     _is_open: bool
-    _driver = None
+    _driver: Optional["isqlschema.ISqlSchema"]
     _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
     connections_dict: Dict[str, "iconnection.IConnection"] = {}
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
@@ -68,11 +65,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         super().__init__()
         self.update_activity_time()
-        self.conn = None
+        self.conn = False
         self._transaction_level = 0
         self._driver = None
         self._db_name = db_name
-        self._driver_sql = pnsqldrivers.PNSqlDrivers()
 
         conn_manager = application.PROJECT.conn_manager
         self._conn_manager = conn_manager
@@ -94,7 +90,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._db_password = db_password
 
         if driver_alias:
-            self._driver_name = self._driver_sql.aliasToName(driver_alias)
+            self._driver_name = self._conn_manager._drivers_sql_manager.aliasToName(driver_alias)
 
         self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
@@ -149,7 +145,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def driver(self) -> Any:
         """Return the instance of the driver that is using the connection."""
         if self._driver is None:
-            self._driver = self._driver_sql.driver()
+            self._driver = self._conn_manager._drivers_sql_manager.driver()
 
         self.update_activity_time()
         return self._driver
@@ -192,7 +188,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_port: Optional[int],
         db_user_name: Optional[str],
         db_password: str = "",
-    ) -> Any:
+    ) -> Union["base.Connection", bool]:
         """Request a connection to the database."""
 
         self._db_name = db_name
@@ -229,10 +225,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def driverNameToDriverAlias(self, name: str) -> str:
         """Return the alias from the name of a sql driver."""
 
-        if self._driver_sql is None:
-            raise Exception("driverNameoDriverAlias. Sql driver manager is not defined")
-
-        return self._driver_sql.nameToAlias(name)
+        return self._conn_manager._drivers_sql_manager.nameToAlias(name)
 
     def lastError(self) -> str:
         """Return the last error reported by the sql driver."""
@@ -299,11 +292,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Make a transaction or savePoint according to transaction level."""
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
-            if self._transaction_level:
-                text_ = "Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)
-            else:
-                text_ = "Iniciando Transacción... %s" % self._transaction_level
-
+            text_ = (
+                "Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)
+                if self._transaction_level
+                else "Iniciando Transacción... %s" % self._transaction_level
+            )
             application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         # LOGGER.warning(
@@ -558,14 +551,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def normalizeValue(self, text: str) -> Optional[str]:
         """Return the value of a correctly formatted string to the database type from a string."""
-
-        if getattr(self.driver(), "normalizeValue", None):
-            return self.driver().normalizeValue(text)
-
-        LOGGER.warning(
-            "PNConnection: El driver %s no dispone de normalizeValue(text)", self.driverName()
-        )
-        return text
+        return self.driver().normalizeValue(text)
 
     def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
         """Return a correct UPDATE query for the database type."""

@@ -10,19 +10,22 @@ import os
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.singleton import Singleton
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces import isqlschema  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
 
-class PNSqlDrivers(object, metaclass=Singleton):
+class PNSqlDriversManager(object, metaclass=Singleton):
     """
-    PNSqlDrivers class.
+    PNSqlDriversManager class.
 
     Manage the different available sql drivers.
     """
 
-    _driver: Any
+    _driver: "isqlschema.ISqlSchema"
     _default_driver_name: str
     _drivers_dict: Dict[str, str]
     _driver_defaultr_port: Dict[str, int]
@@ -74,11 +77,15 @@ class PNSqlDrivers(object, metaclass=Singleton):
         @return True or False.
         """
 
+        if not driver_name:
+            return False
+
         module_path = "pineboolib.plugins.sql.%s" % driver_name.lower()
-        if module_path in sys.modules:
-            module_obj = importlib.reload(sys.modules[module_path])
-        else:
-            module_obj = importlib.import_module(module_path)
+        module_obj = (
+            importlib.reload(sys.modules[module_path])
+            if module_path in sys.modules
+            else importlib.import_module(module_path)
+        )
         self._driver = getattr(module_obj, driver_name.upper())()
 
         if self.driver():
@@ -157,7 +164,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
 
         return list
 
-    def driver(self) -> Any:
+    def driver(self) -> "isqlschema.ISqlSchema":
         """
         Link to the used controller.
 

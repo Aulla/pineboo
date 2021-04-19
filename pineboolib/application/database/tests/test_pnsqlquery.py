@@ -8,7 +8,7 @@ from . import fixture_path
 
 
 class TestPNSqlQuery1(unittest.TestCase):
-    """TestPNSqlDrivers Class."""
+    """TestPNSqlQuery1 Class."""
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -332,7 +332,7 @@ class TestPNSqlQuery1(unittest.TestCase):
 
 
 class TestPNSqlQuery2(unittest.TestCase):
-    """TestPNSqlDrivers Class."""
+    """TestPNSqlQuery2 Class."""
 
     @classmethod
     def setUpClass(cls) -> None:

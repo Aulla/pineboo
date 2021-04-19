@@ -184,9 +184,9 @@ class ProjectConfig:
             key64 = base64.urlsafe_b64encode(key)
             self.fernet = fernet.Fernet(key64)
 
-        from pineboolib.application.database import pnsqldrivers
+        from pineboolib.application.database import pnsqldriversmanager
 
-        sql_drivers_manager = pnsqldrivers.PNSqlDrivers()
+        sql_drivers_manager = pnsqldriversmanager.PNSqlDriversManager()
         self.database = self.retrieveCipherSubElement(root, "database-name")
         for item in root.findall("database-server"):
             self.host = self.retrieveCipherSubElement(item, "host")

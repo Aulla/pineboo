@@ -4,8 +4,8 @@ import unittest
 from pineboolib.loader.main import init_testing
 
 
-class TestPNSqlDrivers(unittest.TestCase):
-    """TestPNSqlDrivers Class."""
+class TestPNSqlDriversManager(unittest.TestCase):
+    """TestPNSqlDriversManager Class."""
 
     @classmethod
     def setUpClass(cls) -> None:
