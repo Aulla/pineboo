@@ -116,7 +116,7 @@ class PNSqlDriversManager(object, metaclass=Singleton):
         @param alias =  Alias ​​with which the controller is known.
         @return Driver name or None.
         """
-        if alias == "":
+        if not alias:
             return self._defautl_driver_name
 
         for key, value in self._drivers_dict.items():

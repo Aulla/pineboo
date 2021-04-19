@@ -24,10 +24,7 @@ from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKI
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import (
-        pnfieldmetadata,
-        pntablemetadata,
-    )  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection, isqlcursor, isqlschema  # pragma: no cover
     from pineboolib.fllegacy import fldatatable  # pragma: no cover
     from . import pnconnectionmanager  # pragma: no cover

@@ -89,8 +89,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._db_user_name = db_user_name
         self._db_password = db_password
 
-        if driver_alias:
-            self._driver_name = self._conn_manager._drivers_sql_manager.aliasToName(driver_alias)
+        self._driver_name = conn_manager._drivers_sql_manager.aliasToName(driver_alias)
 
         self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
@@ -570,10 +569,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""
-        if not self._driver_name:
-            return False
 
-        return self.driver().canRegenTables()
+        return self.driver().canRegenTables() if self._driver_name else False
 
     def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> bool:
         """Regenerate a table."""

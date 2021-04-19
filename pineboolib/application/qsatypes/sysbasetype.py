@@ -8,9 +8,9 @@ import platform
 import traceback
 import ast
 
-from typing import Any, Dict, Optional, List, Union, cast
+from typing import Any, Dict, Optional, List, Union
 
-from PyQt6 import QtWidgets, QtXml  # type: ignore[import]
+from PyQt6 import QtWidgets, QtXml, QtCore  # type: ignore[import]
 
 from pineboolib.core import settings
 from pineboolib.core import decorators
@@ -521,7 +521,7 @@ class SysBaseType(object):
     @classmethod
     def testObj(
         cls, container: Optional["QtWidgets.QWidget"] = None, component: str = ""
-    ) -> Optional["QtWidgets.QWidget"]:
+    ) -> Optional[Union["QtCore.QObject", "QtWidgets.QWidget"]]:
         """Test if object does exist."""
 
         object_ = None
@@ -533,11 +533,9 @@ class SysBaseType(object):
                     object_ = child_fun(component)
 
             if object_ is None:
-                LOGGER.warning(
-                    "%s no existe en %s", component, container  # type: ignore [unreachable]
+                LOGGER.warning(  # type: ignore [unreachable]
+                    "%s no existe en %s", component, container
                 )
-            else:
-                object_ = cast(QtWidgets.QWidget, object_)
         return object_
 
     @classmethod

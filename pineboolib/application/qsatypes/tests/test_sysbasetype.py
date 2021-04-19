@@ -45,7 +45,7 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         base_type.write("ISO-8859-15", file_path, "avión, caña")
         self.assertEqual(os.path.exists(file_path), True)
         self.assertEqual(base_type.nameDriver(), "FLsqlite")
-        self.assertEqual(base_type.nameHost(), None)
+        self.assertEqual(base_type.nameHost(), "")
 
     def test_basic_2(self) -> None:
         """Test Basic functions."""
@@ -138,7 +138,7 @@ class TestSysBaseClassDataBase(unittest.TestCase):
             application.PROJECT.conn_manager.useConn("extra")._db_host, prueba_conn_1.host()
         )
         self.assertEqual(
-            application.PROJECT.conn_manager.useConn("extra")._db_host, prueba_conn_1.port()
+            application.PROJECT.conn_manager.useConn("extra")._db_port, prueba_conn_1.port()
         )
 
     @classmethod
