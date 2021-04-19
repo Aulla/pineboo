@@ -4,7 +4,7 @@ Defines the IConnection class.
 """
 
 from pineboolib.core.utils import logging
-from . import isqlschema
+
 
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
     from pineboolib.application.database import pnsqldriversmanager  # pragma: no cover
+    from . import isqlschema  # pragma: no cover
     from sqlalchemy.engine import (
         base,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
@@ -58,7 +59,7 @@ class IConnection:
     def driver(self) -> "isqlschema.ISqlSchema":
         """Return the instance of the driver that is using the connection."""
 
-        return isqlschema.ISqlSchema()
+        return None  # type: ignore [return-value] # pragma: no cover
 
     def database(self) -> Any:
         """Return self."""
