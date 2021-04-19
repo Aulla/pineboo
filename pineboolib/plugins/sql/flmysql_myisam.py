@@ -4,8 +4,7 @@ Module for MYISAM driver.
 
 
 from pineboolib import logging
-from . import pnsqlschema
-
+from pineboolib.interfaces import isqlschema
 from typing import Any, Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
+class FLMYSQL_MYISAM(isqlschema.ISqlSchema):
     """MYISAM Driver class."""
 
     _default_charset: str

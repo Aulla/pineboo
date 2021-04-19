@@ -7,8 +7,7 @@ from pineboolib import logging, application
 
 from pineboolib.fllegacy import flutil
 
-from . import pnsqlschema
-
+from pineboolib.interfaces import isqlschema
 
 import os
 
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLSQLITE(pnsqlschema.PNSqlSchema):
+class FLSQLITE(isqlschema.ISqlSchema):
     """FLSQLITE class."""
 
     db_filename: Optional[str]

@@ -9,10 +9,11 @@ from pineboolib.core.utils import logging
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # pragma: no cover
+    from . import isqlschema  # pragma: no cover
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
+    from pineboolib.application.database import pnsqldriversmanager  # pragma: no cover
     from sqlalchemy.engine import (
         base,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
@@ -28,17 +29,13 @@ class IConnection:
     _db_port: Optional[int]
     _db_user_name: Optional[str]
     _db_password: str = ""
-    conn: Any  # connection from the actual driver
-    _conn_aux: Dict[str, "IConnection"]
-    _driver_sql: Any
-    _current_save_point: Optional[Any]  # Optional["PNSqlSavePoint"]
-    _stack_save_points: List[Any]  # List["PNSqlSavePoint"]
-    _queue_save_points: List[Any]  # List["PNSqlSavePoint"]
+    conn: Union["base.Connection", bool]
     _interactive_gui: str
+    _drivers_sql_manager: "pnsqldriversmanager.PNSqlDriversManager"
     _driver_name: str
     _name: str
     _is_open: bool
-    _driver = None
+    _driver: Optional["isqlschema.ISqlSchema"]
     _last_error: str
     _transaction_level: int
 
@@ -235,7 +232,7 @@ class IConnection:
 
         return True  # pragma: no cover
 
-    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> bool:
+    def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> bool:
         """Regenerate a table."""
 
         return True  # pragma: no cover
@@ -270,13 +267,13 @@ class IConnection:
 
         return False  # pragma: no cover
 
-    def createTable(self, tmd: "PNTableMetaData") -> bool:
-        """Create a table in the database, from a PNTableMetaData."""
+    def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
+        """Create a table in the database, from a pntablemetadata.PNTableMetaData."""
 
         return False  # pragma: no cover
 
-    def mismatchedTable(self, tablename: str, tmd: "PNTableMetaData") -> bool:
-        """Compare an existing table with a PNTableMetaData and return if there are differences."""
+    def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
+        """Compare an existing table with a pntablemetadata.PNTableMetaData and return if there are differences."""
 
         return False  # pragma: no cover
 
@@ -295,8 +292,8 @@ class IConnection:
 
         return ""  # pragma: no cover
 
-    def alterTable(self, table_metadata: "PNTableMetaData") -> bool:
-        """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
+    def alterTable(self, table_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Modify the fields of a table in the database based on the differences of two pntablemetadata.PNTableMetaData."""
 
         return False  # pragma: no cover
 

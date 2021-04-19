@@ -1,4 +1,7 @@
-"""PNSqlSchema module."""
+"""
+ISSqlSchema module.
+"""
+
 
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
@@ -9,7 +12,6 @@ from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
 
 from pineboolib.application import qsadictmodules
-
 
 from typing import Iterable, Optional, Union, List, Any, Dict, cast, Tuple, TYPE_CHECKING
 from pineboolib.core import decorators
@@ -44,8 +46,8 @@ LOGGER = logging.get_logger(__name__)
 ENGINES: Dict[str, "base.Engine"] = {}
 
 
-class PNSqlSchema(object):
-    """PNSqlSchema class."""
+class ISqlSchema(object):
+    """ISqlSchema class."""
 
     version_: str
     name_: str

@@ -5,7 +5,8 @@ from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
 
-from . import pnsqlschema
+from pineboolib.interfaces import isqlschema
+
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 from typing import Optional, Union, List, Any
@@ -13,7 +14,7 @@ from typing import Optional, Union, List, Any
 LOGGER = logging.get_logger(__name__)
 
 
-class FLQPSQL(pnsqlschema.PNSqlSchema):
+class FLQPSQL(isqlschema.ISqlSchema):
     """FLQPSQL class."""
 
     def __init__(self):
