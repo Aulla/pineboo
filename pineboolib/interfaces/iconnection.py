@@ -4,12 +4,12 @@ Defines the IConnection class.
 """
 
 from pineboolib.core.utils import logging
-
+from . import isqlschema
 
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import isqlschema  # pragma: no cover
+
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
@@ -25,9 +25,9 @@ class IConnection:
     """Interface for database cursors which are used to emulate FLSqlCursor."""
 
     _db_name: str
-    _db_host: Optional[str]
-    _db_port: Optional[int]
-    _db_user_name: Optional[str]
+    _db_host: str
+    _db_port: int
+    _db_user_name: str
     _db_password: str = ""
     conn: Optional[Union["base.Connection", bool]]
     _interactive_gui: str
@@ -55,10 +55,10 @@ class IConnection:
         """Return the database name."""
         return ""  # pragma: no cover
 
-    def driver(self) -> Any:
+    def driver(self) -> "isqlschema.ISqlSchema":
         """Return the instance of the driver that is using the connection."""
 
-        return None  # pragma: no cover
+        return isqlschema.ISqlSchema()
 
     def database(self) -> Any:
         """Return self."""
@@ -134,17 +134,17 @@ class IConnection:
 
         return ""  # pragma: no cover
 
-    def host(self) -> Optional[str]:
+    def host(self) -> str:
         """Return the name of the database host."""
 
         return ""  # pragma: no cover
 
-    def port(self) -> Optional[int]:
+    def port(self) -> int:
         """Return the port used by the database."""
 
         return 0  # pragma: no cover
 
-    def user(self) -> Optional[str]:
+    def user(self) -> str:
         """Return the user name used by the database."""
 
         return ""  # pragma: no cover

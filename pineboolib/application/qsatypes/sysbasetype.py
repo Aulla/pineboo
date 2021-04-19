@@ -8,7 +8,7 @@ import platform
 import traceback
 import ast
 
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Union, cast
 
 from PyQt6 import QtWidgets, QtXml  # type: ignore[import]
 
@@ -154,12 +154,12 @@ class SysBaseType(object):
         application.PROJECT.conn_manager.manager().cleanupMetaData()
 
     @classmethod
-    def nameDriver(cls, conn_name: str = "default") -> Any:
+    def nameDriver(cls, conn_name: str = "default") -> str:
         """Get driver name."""
         return application.PROJECT.conn_manager.useConn(conn_name).driverName()
 
     @classmethod
-    def nameHost(cls, conn_name: str = "default") -> Any:
+    def nameHost(cls, conn_name: str = "default") -> str:
         """Get database host name."""
         return application.PROJECT.conn_manager.useConn(conn_name).host()
 
@@ -167,17 +167,17 @@ class SysBaseType(object):
     def addDatabase(
         cls,
         driver_or_conn: str,
-        db_name: Optional[str] = None,
-        db_user: Optional[str] = None,
-        db_pw: Optional[str] = None,
-        db_host: Optional[str] = None,
-        db_port: Optional[int] = None,
-        conn_name: Optional[str] = None,
+        db_name: str = "",
+        db_user: str = "",
+        db_pw: str = "",
+        db_host: str = "",
+        db_port: int = 0,
+        conn_name: str = "",
     ) -> bool:
         """Add a new database."""
 
         mng_ = application.PROJECT.conn_manager
-        if db_name is None:
+        if not db_name:
             conn_db = mng_.useConn(driver_or_conn)
 
             if not conn_db.isOpen():
@@ -197,7 +197,7 @@ class SysBaseType(object):
                     conn_db._is_open = True
 
         else:
-            if conn_name is None or db_name is None:
+            if not conn_name or not db_name:
                 raise Exception(
                     "Invalid connection data. conn_name: %s, driver_name: %s, database_name: %s, user_name: %s, db_host: %s, port: %s"
                     % (conn_name, driver_or_conn, db_name, db_user, db_host, db_port)
@@ -221,7 +221,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def removeDatabase(cls, conn_name: str = "default") -> Any:
+    def removeDatabase(cls, conn_name: str = "default") -> bool:
         """Remove a database."""
         return application.PROJECT.conn_manager.removeConn(conn_name)
 
@@ -250,7 +250,9 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def diffXmlFilesDef(cls, xml_old: QtXml.QDomNode, xml_new: QtXml.QDomNode) -> Dict[str, Any]:
+    def diffXmlFilesDef(
+        cls, xml_old: "QtXml.QDomNode", xml_new: "QtXml.QDomNode"
+    ) -> Dict[str, Any]:
         """Create a Diff for XML."""
         array_old = cls.filesDefToArray(xml_old)
         array_new = cls.filesDefToArray(xml_new)
@@ -289,7 +291,7 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def filesDefToArray(cls, xml: QtXml.QDomNode) -> Dict[str, Dict[str, str]]:
+    def filesDefToArray(cls, xml: "QtXml.QDomNode") -> Dict[str, Dict[str, str]]:
         """Convert Module MOD xml to array."""
         root = xml.firstChild()
         files = root.childNodes()
@@ -444,7 +446,7 @@ class SysBaseType(object):
         return
 
     @classmethod
-    def setObjText(cls, container: QtWidgets.QWidget, component: str, value: str = "") -> bool:
+    def setObjText(cls, container: "QtWidgets.QWidget", component: str, value: str = "") -> bool:
         """Set text to random widget."""
         object_ = cls.testObj(container, component)
         if object_ is None:
@@ -462,7 +464,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def disableObj(cls, container: QtWidgets.QWidget, component: str) -> bool:
+    def disableObj(cls, container: "QtWidgets.QWidget", component: str) -> bool:
         """Disable random widget."""
         object_ = cls.testObj(container, component)
         if not object_:
@@ -480,7 +482,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def enableObj(cls, container: QtWidgets.QWidget, component: str) -> bool:
+    def enableObj(cls, container: "QtWidgets.QWidget", component: str) -> bool:
         """Enable random widget."""
         object_ = cls.testObj(container, component)
         if not object_:
@@ -518,25 +520,29 @@ class SysBaseType(object):
 
     @classmethod
     def testObj(
-        cls, container: Optional[QtWidgets.QWidget] = None, component: str = ""
-    ) -> Optional[QtWidgets.QWidget]:
+        cls, container: Optional["QtWidgets.QWidget"] = None, component: str = ""
+    ) -> Optional["QtWidgets.QWidget"]:
         """Test if object does exist."""
 
-        object_: Any = None
+        object_ = None
         if container is not None:
             object_ = container.findChild(QtWidgets.QWidget, component)
             if object_ is None:
-                child_fun = getattr(container, "child", None)
+                child_fun = getattr(container, "child", None)  # type: ignore [unreachable]
                 if child_fun is not None:
                     object_ = child_fun(component)
 
             if object_ is None:
-                LOGGER.warning("%s no existe en %s", component, container)
+                LOGGER.warning(
+                    "%s no existe en %s", component, container  # type: ignore [unreachable]
+                )
+            else:
+                object_ = cast(QtWidgets.QWidget, object_)
         return object_
 
     @classmethod
     def testAndRun(
-        cls, container: QtWidgets.QWidget, component: str, method: str = "", param: Any = None
+        cls, container: "QtWidgets.QWidget", component: str, method: str = "", param: Any = None
     ) -> bool:
         """Test and execute object."""
         object_ = cls.testObj(container, component)
@@ -548,7 +554,7 @@ class SysBaseType(object):
 
     @classmethod
     def runObjMethod(
-        cls, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
+        cls, container: "QtWidgets.QWidget", component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
         object_ = cls.testObj(container, component)
@@ -562,7 +568,7 @@ class SysBaseType(object):
 
     @classmethod
     def connectSS(
-        cls, sender: QtWidgets.QWidget, signal: str, receiver: QtWidgets.QWidget, slot: str
+        cls, sender: "QtWidgets.QWidget", signal: str, receiver: "QtWidgets.QWidget", slot: str
     ) -> bool:
         """Connect signal to slot."""
         if not sender:

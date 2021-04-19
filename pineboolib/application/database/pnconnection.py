@@ -32,9 +32,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _name: str
 
     _db_name: str
-    _db_host: Optional[str]
-    _db_port: Optional[int]
-    _db_user_name: Optional[str]
+    _db_host: str
+    _db_port: int
+    _db_user_name: str
     _db_password: str = ""
     # conn: Optional["base.Connection"] = None  # Connection from the actual driver
 
@@ -55,9 +55,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def __init__(
         self,
         db_name: str,
-        db_host: Optional[str] = None,
-        db_port: Optional[int] = None,
-        db_user_name: Optional[str] = None,
+        db_host: str = "",
+        db_port: int = 0,
+        db_user_name: str = "",
         db_password: str = "",
         driver_alias: str = "",
     ) -> None:
@@ -77,7 +77,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if "main_conn" in conn_manager.connections_dict.keys():
             main_conn_ = conn_manager.connections_dict["main_conn"]
-            if main_conn_._db_name == db_name and db_host is None:
+            if main_conn_._db_name == db_name and db_host:
                 db_host = main_conn_._db_host
                 db_port = main_conn_._db_port
                 db_user_name = main_conn_._db_user_name
@@ -184,9 +184,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def conectar(
         self,
         db_name: str,
-        db_host: Optional[str],
-        db_port: Optional[int],
-        db_user_name: Optional[str],
+        db_host: str = "",
+        db_port: int = 0,
+        db_user_name: str = "",
         db_password: str = "",
     ) -> Union["base.Connection", bool]:
         """Request a connection to the database."""
@@ -232,17 +232,17 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().last_error()
 
-    def host(self) -> Optional[str]:
+    def host(self) -> str:
         """Return the name of the database host."""
 
         return self._db_host
 
-    def port(self) -> Optional[int]:
+    def port(self) -> int:
         """Return the port used by the database."""
 
         return self._db_port
 
-    def user(self) -> Optional[str]:
+    def user(self) -> str:
         """Return the user name used by the database."""
 
         return self._db_user_name

@@ -52,6 +52,11 @@ def connect_to_db(config: "projectconfig.ProjectConfig") -> "pnconnection.PNConn
 
     port = int(config.port) if config.port else None
     connection = pnconnection.PNConnection(
-        config.database, config.host, port, config.username, config.password or "", config.type
+        config.database,
+        config.host or "",
+        port or 0,
+        config.username or "",
+        config.password or "",
+        config.type,
     )
     return connection

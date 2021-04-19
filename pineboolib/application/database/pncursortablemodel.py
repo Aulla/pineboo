@@ -24,12 +24,13 @@ from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKI
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401 # pragma: no cover
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
-    from pineboolib.interfaces import iconnection, isqlcursor  # pragma: no cover
+    from pineboolib.application.metadata import (
+        pnfieldmetadata,
+        pntablemetadata,
+    )  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection, isqlcursor, isqlschema  # pragma: no cover
     from pineboolib.fllegacy import fldatatable  # pragma: no cover
     from . import pnconnectionmanager  # pragma: no cover
-    from pineboolib.plugins.sql import pnsqlschema  # pragma: no cover
     from . import pnbuffer  # pragma: no cover
 
 DEBUG = False
@@ -1074,7 +1075,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         return self._parent.buffer()
 
     @property
-    def driver_sql(self) -> "pnsqlschema.PNSqlSchema":
+    def driver_sql(self) -> "isqlschema.ISqlSchema":
         """Return driver sql."""
 
         return self.db.driver()
