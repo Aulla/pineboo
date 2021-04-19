@@ -65,7 +65,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         super().__init__()
         self.update_activity_time()
-        self.conn = False
+        self.conn = None
         self._transaction_level = 0
         self._driver = None
         self._db_name = db_name

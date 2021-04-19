@@ -29,7 +29,7 @@ class IConnection:
     _db_port: Optional[int]
     _db_user_name: Optional[str]
     _db_password: str = ""
-    conn: Union["base.Connection", bool]
+    conn: Optional[Union["base.Connection", bool]]
     _interactive_gui: str
     _drivers_sql_manager: "pnsqldriversmanager.PNSqlDriversManager"
     _driver_name: str
