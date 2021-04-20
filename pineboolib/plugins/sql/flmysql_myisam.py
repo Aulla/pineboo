@@ -4,8 +4,8 @@ Module for MYISAM driver.
 
 
 from pineboolib import logging
-from pineboolib.interfaces import isqlschema
-from typing import Any, Optional, List, TYPE_CHECKING
+from pineboolib.interfaces import isqldriver
+from typing import Any, Optional, List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLMYSQL_MYISAM(isqlschema.ISqlSchema):
+class FLMYSQL_MYISAM(isqldriver.ISqlDriver):
     """MYISAM Driver class."""
 
     _default_charset: str
@@ -306,7 +306,7 @@ class FLMYSQL_MYISAM(isqlschema.ISqlSchema):
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
-    ) -> Optional["base.Connection"]:
+    ) -> Union["base.Connection", bool]:
         """Connect to database."""
 
         if self._no_inno_db:

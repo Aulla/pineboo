@@ -7,7 +7,7 @@ from pineboolib import logging, application
 
 from pineboolib.fllegacy import flutil
 
-from pineboolib.interfaces import isqlschema
+from pineboolib.interfaces import isqldriver
 
 import os
 
@@ -28,10 +28,8 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLSQLITE(isqlschema.ISqlSchema):
+class FLSQLITE(isqldriver.ISqlDriver):
     """FLSQLITE class."""
-
-    db_filename: Optional[str]
 
     def __init__(self):
         """Inicialize."""
@@ -40,8 +38,7 @@ class FLSQLITE(isqlschema.ISqlSchema):
         self.name_ = "FLsqlite"
         self.error_list = []
         self.alias_ = "SQLite3 (SQLITE3)"
-        self.db_filename = None
-        self.db_ = None
+        self.db_filename = ""
         self.mobile_ = True
         self.desktop_file = True
         self._null = ""

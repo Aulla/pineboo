@@ -12,14 +12,12 @@ from pineboolib import application
 import time
 
 
-from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
+from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor, isqlschema  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor, isqldriver  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
-    from . import pnconnectionmanager  # pragma: no cover
-
     from sqlalchemy.engine import base  # pragma: no cover
     from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821 # pragma: no cover
 
@@ -28,29 +26,6 @@ LOGGER = utils.logging.get_logger(__name__)
 
 class PNConnection(QtCore.QObject, iconnection.IConnection):
     """Wrapper for database cursors which are used to emulate FLSqlCursor."""
-
-    _name: str
-
-    _db_name: str
-    _db_host: str
-    _db_port: int
-    _db_user_name: str
-    _db_password: str = ""
-    # conn: Optional["base.Connection"] = None  # Connection from the actual driver
-
-    _driver_name: str
-    # currentSavePoint_: Optional[PNSqlSavePoint]
-    # stackSavePoints_: List[PNSqlSavePoint]
-    # queueSavePoints_: List[PNSqlSavePoint]
-    _interactive_gui: str
-    _is_open: bool
-    _driver: Optional["isqlschema.ISqlSchema"]
-    _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
-    connections_dict: Dict[str, "iconnection.IConnection"] = {}
-    _conn_manager: "pnconnectionmanager.PNConnectionManager"
-    _last_activity_time: float
-    # _current_transaction: Optional["session.Session"]
-    _last_error: str
 
     def __init__(
         self,
@@ -77,7 +52,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if "main_conn" in conn_manager.connections_dict.keys():
             main_conn_ = conn_manager.connections_dict["main_conn"]
-            if main_conn_._db_name == db_name and db_host:
+            if main_conn_._db_name == self._db_name and not db_host:
                 db_host = main_conn_._db_host
                 db_port = main_conn_._db_port
                 db_user_name = main_conn_._db_user_name
@@ -123,13 +98,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._is_open and self.driver().is_open()
 
-    def tables(self, tables_type: Optional[Union[str, int]] = "") -> List[str]:
+    def tables(self, tables_type: Union[str, int] = "") -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
 
         types = ["", "Tables", "SystemTables", "Views"]
 
         if isinstance(tables_type, int):
-            item = None
+            item = ""
             if tables_type < len(types):
                 item = types[tables_type]
         else:
@@ -141,7 +116,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return the database name."""
         return self.driver().DBName()
 
-    def driver(self) -> Any:
+    def driver(self) -> "isqldriver.ISqlDriver":
         """Return the instance of the driver that is using the connection."""
         if self._driver is None:
             self._driver = self._conn_manager._drivers_sql_manager.driver()
@@ -199,7 +174,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         #    self.driver().alias_ = self.driverName() + ":" + self._name
         self.driver().db_ = self
         LOGGER.debug("")
-        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
+        result: Union["base.Connection", bool] = self.driver().connect(
+            db_name, db_host, db_port, db_user_name, db_password
+        )
         LOGGER.debug(
             " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s, STATUS: %s",
             self._name,
@@ -552,10 +529,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return the value of a correctly formatted string to the database type from a string."""
         return self.driver().normalizeValue(text)
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
-        """Return a correct UPDATE query for the database type."""
+    # def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
+    #    """Return a correct UPDATE query for the database type."""
 
-        return self.driver().queryUpdate(name, update, filter)
+    #    return self.driver().queryUpdate(name, update, filter)
 
     def execute_query(self, qry) -> Any:
         """Execute a query in a database cursor."""

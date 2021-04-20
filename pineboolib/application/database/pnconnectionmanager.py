@@ -35,7 +35,6 @@ class PNConnectionManager(QtCore.QObject):
 
     current_atomic_sessions: Dict[str, str]
     current_thread_sessions: Dict[str, str]
-    # current_conn_sessions: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
     REMOVE_CONNECTIONS_AFTER_ATOMIC: bool = False
     SAFE_TIME_SLEEP: float
@@ -48,7 +47,6 @@ class PNConnectionManager(QtCore.QObject):
         self.connections_dict = {}
         self.current_atomic_sessions = {}
         self.current_thread_sessions = {}
-        # self.current_conn_sessions = {}
         self._thread_sessions = {}
         self._manager = None
         self._manager_modules = None
@@ -67,14 +65,11 @@ class PNConnectionManager(QtCore.QObject):
     def setMainConn(self, main_conn: "pnconnection.PNConnection") -> bool:
         """Set main connection."""
         if "main_conn" in self.connections_dict:
-            conn_ = self.connections_dict["main_conn"]
-            if main_conn.conn is not conn_.conn:
-                conn_.close()
-                del conn_
+            if main_conn.conn is not self.connections_dict["main_conn"].conn:
+                self.connections_dict["main_conn"].close()
                 del self.connections_dict["main_conn"]
 
-        del pnsqlcursor.CONNECTION_CURSORS
-        pnsqlcursor.CONNECTION_CURSORS = {}
+        pnsqlcursor.CONNECTION_CURSORS.clear()
 
         main_conn._name = "main_conn"
         if self._drivers_sql_manager.loadDriver(main_conn._driver_name):
@@ -95,14 +90,11 @@ class PNConnectionManager(QtCore.QObject):
 
     def mainConn(self) -> "pnconnection.PNConnection":
         """Return main conn."""
-        ret_: "pnconnection.PNConnection"
 
         if "main_conn" in self.connections_dict.keys():
-            ret_ = self.connections_dict["main_conn"]
+            return self.connections_dict["main_conn"]
         else:
             raise Exception("main_conn is empty!")
-
-        return ret_
 
     def remove_session(self, session: "orm_session.Session") -> bool:
         """Remove session."""
@@ -125,13 +117,10 @@ class PNConnectionManager(QtCore.QObject):
             if self.connections_dict[key] is None:
                 continue
 
-            # if "main_conn" in self.connections_dict.keys():
-            #    if self.connections_dict["main_conn"].conn is conn_:
-            #        continue
             self.connections_dict[key].close()
             del self.connections_dict[key]
 
-        self.connections_dict = {}
+        self.connections_dict.clear()
         del self._manager
         del self._manager_modules
         del self
@@ -145,71 +134,64 @@ class PNConnectionManager(QtCore.QObject):
         Allow you to select a connection.
         """
 
-        name: str
-        if isinstance(name_or_conn, iconnection.IConnection):
-            name = name_or_conn.connectionName()
-        else:
-            name = name_or_conn
+        name: str = name_or_conn.connectionName() if isinstance(
+            name_or_conn, iconnection.IConnection
+        ) else name_or_conn
 
         name_conn_: str = utils_base.session_id(name)
-        # if name in ("default", None):
-        #    return self
         self.check_alive_connections()
 
-        connection_: "pnconnection.PNConnection"
-
         if name_conn_ in self.connections_dict.keys() and not db_name:
-            connection_ = self.connections_dict[name_conn_]
+            return self.connections_dict[name_conn_]
         else:
-            if db_name:
-                if not self.removeConn(name):
-                    raise Exception("a problem existes deleting older connection")
-
             main_conn = self.mainConn()
             if main_conn is None:
                 raise Exception("main_conn is empty!!")
-            connection_ = pnconnection.PNConnection(main_conn._db_name if not db_name else db_name)
-            connection_._name = name
 
             if name == "main_conn":
                 return main_conn
+            else:
 
-            if name.lower() in ["default", "dbaux", "aux"]:  # Las abrimos automáticamene!
-                if self._drivers_sql_manager.loadDriver(connection_._driver_name):
-                    connection_.conn = connection_.conectar(
-                        connection_._db_name,
-                        connection_._db_host,
-                        connection_._db_port,
-                        connection_._db_user_name,
-                        connection_._db_password,
-                    )
-                    connection_._is_open = True
+                if db_name:
+                    if not self.removeConn(name):
+                        raise Exception("a problem existes deleting older connection")
 
-            # if connection_.conn is None:
-            # LOGGER.warning("Connection %s is closed!", name, stack_info=True)
+                new_conn: "pnconnection.PNConnection" = pnconnection.PNConnection(
+                    db_name or main_conn._db_name
+                )
+                new_conn._name = name
 
-            self.connections_dict[name_conn_] = connection_
+                if name.lower() in ["default", "dbaux", "aux"]:  # Las abrimos automáticamene!
+                    if self._drivers_sql_manager.loadDriver(new_conn._driver_name):
+                        new_conn.conn = new_conn.conectar(
+                            new_conn._db_name,
+                            new_conn._db_host,
+                            new_conn._db_port,
+                            new_conn._db_user_name,
+                            new_conn._db_password,
+                        )
+                        new_conn._is_open = True
 
-        return connection_
+                self.connections_dict[name_conn_] = new_conn
+
+                return new_conn
 
     def enumerate(self) -> Dict[str, "pnconnection.PNConnection"]:
         """Return dict with own database connections."""
 
         dict_ = {}
         id_thread = threading.current_thread().ident
-        for key in self.connections_dict.keys():
-            if key.find("|") > -1:
-                connection_data = key.split("|")
-                if connection_data[0] == str(id_thread):
-                    dict_[connection_data[1]] = self.connections_dict[key]
+        for key, value in self.connections_dict.items():
+            connection_data = key.split("|")
+            if connection_data[0] == str(id_thread):
+                dict_[connection_data[1]] = value
 
         return dict_
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
-        name_conn_: str = name
-        if name.find("|") == -1:
-            name_conn_ = utils_base.session_id(name)
+
+        name_conn_: str = utils_base.session_id(name) if name.find("|") == -1 else name
 
         result = True
 
@@ -222,10 +204,9 @@ class PNConnectionManager(QtCore.QObject):
                     if application.SHOW_CONNECTION_EVENTS:
                         LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
-                    self.connections_dict[  # type: ignore [union-attr] # noqa: F821
+                    self.connections_dict[
                         name_conn_
-                    ]._driver.db_ = None
-
+                    ].driver().db_ = None  # type: ignore [assignment]
                     obj_ = self.connections_dict[name_conn_]
                     garbage_collector.check_delete(obj_, name_conn_)
 
@@ -254,13 +235,12 @@ class PNConnectionManager(QtCore.QObject):
             if thread_session_identifier.startswith(conn_name):
                 self.delete_session(thread_session_identifier)
 
-    def delete_session(self, session_id: str) -> None:
+    def delete_session(self, session_id: str = "") -> None:
         """Delete a session."""
 
-        if session_id and session_id in self._thread_sessions:
-            session = self._thread_sessions[session_id]
+        if session_id in self._thread_sessions:
             try:
-                self.remove_session(session)
+                self.remove_session(self._thread_sessions[session_id])
             except Exception:
                 pass
 
@@ -317,11 +297,11 @@ class PNConnectionManager(QtCore.QObject):
         """Test a specific connection."""
 
         result = True
-        if isinstance(conn_or_session, pnconnection.PNConnection):
-            session = conn_or_session.session(False)
-        else:
-            session = conn_or_session
-
+        session = (
+            conn_or_session.session(False)
+            if isinstance(conn_or_session, pnconnection.PNConnection)
+            else conn_or_session
+        )
         try:
             session.execute("SELECT 1").fetchone()
             result = hasattr(session, "commit")
@@ -359,8 +339,7 @@ class PNConnectionManager(QtCore.QObject):
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
 
-        connections = self.enumerate()
-        for conn_name in connections.keys():
+        for conn_name in self.enumerate().keys():
             if self.removeConn(conn_name):
                 self.useConn(conn_name)
 

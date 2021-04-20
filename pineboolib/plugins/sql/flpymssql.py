@@ -8,7 +8,7 @@ from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
-from pineboolib.interfaces import isqlschema
+from pineboolib.interfaces import isqldriver
 
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLPYMSSQL(isqlschema.ISqlSchema):
+class FLPYMSSQL(isqldriver.ISqlDriver):
     """FLPYMSSQL class."""
 
     def __init__(self):

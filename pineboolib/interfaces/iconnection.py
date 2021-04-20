@@ -13,8 +13,12 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
-    from pineboolib.application.database import pnsqldriversmanager  # pragma: no cover
-    from . import isqlschema  # pragma: no cover
+    from pineboolib.application.database import (
+        pnsqldriversmanager,
+        pnconnectionmanager,
+    )  # pragma: no cover
+    from . import isqldriver, isqlcursor  # pragma: no cover
+
     from sqlalchemy.engine import (
         base,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
@@ -36,9 +40,13 @@ class IConnection:
     _driver_name: str
     _name: str
     _is_open: bool
-    _driver: Optional["isqlschema.ISqlSchema"]
     _last_error: str
     _transaction_level: int
+    _conn_manager: "pnconnectionmanager.PNConnectionManager"
+    _last_activity_time: float
+    _driver: Optional["isqldriver.ISqlDriver"]
+    _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
+    connections_dict: Dict[str, "IConnection"] = {}
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""
@@ -48,7 +56,7 @@ class IConnection:
         """Indicate if a connection is open."""
         return False  # pragma: no cover
 
-    def tables(self, tables: Optional[Union[str, int]] = None) -> List[str]:
+    def tables(self, tables: Union[str, int] = "") -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
         return []  # pragma: no cover
 
@@ -56,7 +64,7 @@ class IConnection:
         """Return the database name."""
         return ""  # pragma: no cover
 
-    def driver(self) -> "isqlschema.ISqlSchema":
+    def driver(self) -> "isqldriver.ISqlDriver":
         """Return the instance of the driver that is using the connection."""
 
         return None  # type: ignore [return-value] # pragma: no cover
@@ -283,10 +291,10 @@ class IConnection:
 
         return None  # pragma: no cover
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
-        """Return a correct UPDATE query for the database type."""
+    # def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
+    #    """Return a correct UPDATE query for the database type."""
 
-        return ""  # pragma: no cover
+    #    return ""  # pragma: no cover
 
     def execute_query(self, query: str) -> Any:
         """Execute a query in a database cursor."""

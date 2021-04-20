@@ -46,26 +46,27 @@ LOGGER = logging.get_logger(__name__)
 ENGINES: Dict[str, "base.Engine"] = {}
 
 
-class ISqlSchema(object):
-    """ISqlSchema class."""
+class ISqlDriver(object):
+    """ISqlDriver class."""
 
     version_: str
     name_: str
     alias_: str
     error_list: List[str]
     _last_error: str
-    db_: Any
+    db_: "iconnection.IConnection"
     _dbname: str
+    db_filename: str
     mobile_: bool
     pure_python_: bool
     default_port: int
     cursor_proxy: Dict[str, "result.ResultProxy"]
     open_: bool
     desktop_file: bool
-    _true: Any
-    _false: Any
-    _like_true: Any
-    _like_false: Any
+    _true: Union[str, bool]
+    _false: Union[str, bool]
+    _like_true: str
+    _like_false: str
     _null: str
     _text_like: str
     _text_cascade: str
@@ -98,8 +99,6 @@ class ISqlSchema(object):
         self._parse_porc = True
 
         self._last_error = ""
-        self.db_ = None
-
         self._text_cascade = "CASCADE"
         self._true = "1"
         self._false = "0"
@@ -141,7 +140,7 @@ class ISqlSchema(object):
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
-    ) -> Optional["base.Connection"]:
+    ) -> Union["base.Connection", bool]:
         """Connect to database."""
 
         self.setDBName(db_name)
@@ -156,7 +155,7 @@ class ISqlSchema(object):
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if not application.PROJECT.DGI.localDesktop():
-                return None
+                return False
 
             _last_error = self.last_error()
             found = False
@@ -177,7 +176,7 @@ class ISqlSchema(object):
                     ),
                 )
                 if ret == QtWidgets.QMessageBox.StandardButtons.No:
-                    return None
+                    return False
                 else:
                     try:
                         tmp_conn = self.getAlternativeConn(
@@ -196,7 +195,7 @@ class ISqlSchema(object):
 
                                 tmp_conn.execute("ROLLBACK")
                                 tmp_conn.close()
-                                return None
+                                return False
 
                             tmp_conn.close()
                             conn_ = self.getConn(
@@ -212,8 +211,7 @@ class ISqlSchema(object):
                             QtWidgets.QMessageBox.StandardButtons.Ok,
                         )
                         LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
-                        return None
-
+                        return False
         if conn_ is not None:
             # if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
             #    self._engine = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
@@ -223,7 +221,7 @@ class ISqlSchema(object):
         else:
             LOGGER.error("connect: %s", self.last_error())
 
-        return conn_
+        return conn_ or False
 
     def setDBName(self, name: str) -> None:
         """Set DB Name."""
