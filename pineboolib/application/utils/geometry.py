@@ -2,16 +2,13 @@
 Manage form sizes.
 """
 
+from PyQt6 import QtCore
+
 from pineboolib.core import settings
 from pineboolib import application
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from PyQt6.QtCore import QSize  # type: ignore # pragma: no cover
-
-
-def save_geometry_form(name: str, geo: "QSize") -> None:
+def save_geometry_form(name: str, geo: "QtCore.QSize") -> None:
     """
     Save the geometry of a window.
 
@@ -26,7 +23,7 @@ def save_geometry_form(name: str, geo: "QSize") -> None:
     settings.SETTINGS.set_value(name, geo)
 
 
-def load_geometry_form(name: str) -> "QSize":
+def load_geometry_form(name: str) -> "QtCore.QSize":
     """
     Load the geometry of a window.
 
@@ -39,5 +36,5 @@ def load_geometry_form(name: str) -> "QSize":
     name = "geo/%s/%s" % (application.PROJECT.conn_manager.mainConn().DBName(), name)
     value = settings.SETTINGS.value(name, None)
     if isinstance(value, dict):
-        value = [size["width"], size["height"]]
+        value = QtCore.QSize(int(value["width"]), int(value["height"]))
     return value
