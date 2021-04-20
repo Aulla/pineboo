@@ -596,6 +596,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         is_null = False
+        data = None
 
         if hasattr(self, "editor_"):
 
@@ -611,12 +612,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 elif is_null:
                     return
 
-                if is_null:
-                    self.cursor_.setValueBuffer(
-                        self._field_name, QtCore.QDate().toString("dd-MM-yyyy")
-                    )
-                else:
-                    self.cursor_.setValueBuffer(self._field_name, data)
+                data = QtCore.QDate().toString("dd-MM-yyyy") if is_null else data
 
             elif isinstance(self.editor_, fltimeedit.FLTimeEdit):
                 data = str(self.editor_.time().toString("hh:mm:ss"))
@@ -630,21 +626,13 @@ class FLFieldDB(QtWidgets.QWidget):
                 elif is_null:
                     return
 
-                if is_null:
-                    self.cursor_.setValueBuffer(
-                        self._field_name, str(QtCore.QTime().toString("hh:mm:ss"))
-                    )
-                else:
-                    self.cursor_.setValueBuffer(self._field_name, data)
+                data = str(QtCore.QTime().toString("hh:mm:ss")) if is_null else data
 
             elif isinstance(self.editor_, flcheckbox.FLCheckBox):
-                data = bool(self.editor_.checkState())
-
+                data = self.editor_.checked
                 if not self.cursor_.bufferIsNull(self._field_name):
                     if data == bool(self.cursor_.valueBuffer(self._field_name)):
                         return
-
-                self.cursor_.setValueBuffer(self._field_name, data)
 
             elif isinstance(self.editor_, qtextedit.QTextEdit):
                 data = str(self.editor_.toPlainText())
@@ -652,15 +640,13 @@ class FLFieldDB(QtWidgets.QWidget):
                     if self.cursor_.valueBuffer(self._field_name) == data:
                         return
 
-                self.cursor_.setValueBuffer(self._field_name, data)
-
             elif isinstance(self.editor_, fllineedit.FLLineEdit):
 
                 data = self.editor_.text()
+
                 if not self.cursor_.bufferIsNull(self._field_name):
                     if data == self.cursor_.valueBuffer(self._field_name):
                         return
-                self.cursor_.setValueBuffer(self._field_name, data)
 
             elif isinstance(self.editor_, qcombobox.QComboBox):
                 data = str(self.editor_.getCurrentText())
@@ -669,11 +655,12 @@ class FLFieldDB(QtWidgets.QWidget):
                     if data == self.cursor_.valueBuffer(self._field_name):
                         return
 
-                self.cursor_.setValueBuffer(self._field_name, str(data))
-
         elif hasattr(self, "_editor_img"):
-            if not data == self.cursor_.valueBuffer(self._field_name):
-                self.cursor_.setValueBuffer(self._field_name, data)
+            if data == self.cursor_.valueBuffer(self._field_name):
+                return
+
+        if data is not None:
+            self.cursor_.setValueBuffer(self._field_name, data)
 
     def status(self) -> None:
         """
