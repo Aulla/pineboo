@@ -37,4 +37,7 @@ def load_geometry_form(name: str) -> "QSize":
         raise Exception("Project is not connected yet")
 
     name = "geo/%s/%s" % (application.PROJECT.conn_manager.mainConn().DBName(), name)
-    return settings.SETTINGS.value(name, None)
+    value = settings.SETTINGS.value(name, None)
+    if isinstance(value, dict):
+        value = [size["width"], size["height"]]
+    return value
