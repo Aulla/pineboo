@@ -2,9 +2,9 @@
 
 import os
 import hashlib
-from typing import List, Any
+from typing import List
 
-from PyQt6.QtXml import QDomDocument  # type: ignore[import]
+from PyQt6 import QtXml  # type: ignore[import]
 from pineboolib.core.utils import logging, utils_base
 
 
@@ -15,9 +15,9 @@ class FlFiles(object):
     """FlFiles class."""
 
     _root_dir: str
-    _areas: List[List[Any]]
-    _modules: List[List[Any]]
-    _files: List[List[Any]]
+    _areas: List[List[str]]
+    _modules: List[List[str]]
+    _files: List[List[str]]
 
     def __init__(self, folder: str = "") -> None:
         """Initialize."""
@@ -31,17 +31,17 @@ class FlFiles(object):
         else:
             LOGGER.warning("FLFILES_FOLDER: folder %s not found", self._root_dir)
 
-    def areas(self) -> List[List[Any]]:
+    def areas(self) -> List[List[str]]:
         """Return areas info."""
 
         return self._areas
 
-    def modules(self) -> List[List[Any]]:
+    def modules(self) -> List[List[str]]:
         """Return modules info."""
 
         return self._modules
 
-    def files(self) -> List[List[Any]]:
+    def files(self) -> List[List[str]]:
         """Return files info."""
 
         return self._files
@@ -73,8 +73,8 @@ class FlFiles(object):
         except Exception as error:
             LOGGER.error("Error processing %s:%s", nombre_fichero, str(error))
             return
-        xml_module = QDomDocument()
-
+        xml_module = QtXml.QDomDocument()
+        descripcion_modulo: str
         if xml_module.setContent(datos_module):
             node_module = xml_module.namedItem(u"MODULE")
             modulo = node_module.namedItem(u"name").toElement().text()
@@ -94,7 +94,7 @@ class FlFiles(object):
 
         descripcion_modulo = utils_base.qt_translate_noop(descripcion_modulo, root_folder, modulo)
         descripcion_area = utils_base.qt_translate_noop(descripcion_area, root_folder, modulo)
-        datos_icono = None
+        datos_icono: str = ""
         if os.path.exists(os.path.join(root_folder, nombre_icono)):
             try:
                 fichero_icono = open(

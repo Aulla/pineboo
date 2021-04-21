@@ -2,24 +2,22 @@
 """Check the application dependencies."""
 
 import sys
-from pineboolib.core.utils import logging
-from pineboolib.core.utils.utils_base import is_deployed
-from pineboolib.core.utils.check_dependencies import get_dependency_errors
-from pineboolib.core.utils.check_dependencies import DependencyCheck, DependencyError
-
+from pineboolib.core.utils import logging, utils_base, check_dependencies as core_check_dependencies
 from pineboolib import application
 
 LOGGER = logging.get_logger(__name__)
 
 
-def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
+def check_dependencies(dict_: "core_check_dependencies.DependencyCheck", exit: bool = True) -> bool:
     """
     Check if a package is installed and return the result.
 
     @param dict_. Dict with the name of the agency and the module to be checked.
     @param exit . Exit if dependence fails.
     """
-    dep_error: DependencyError = get_dependency_errors(dict_)
+    dep_error: "core_check_dependencies.DependencyError" = core_check_dependencies.get_dependency_errors(
+        dict_
+    )
     if not dep_error:
         return True
     msg = ""
@@ -37,7 +35,7 @@ def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
 
             MessageBox.warning(None, "Pineboo - Dependencias Incumplidas -", msg, MessageBox.Ok)
 
-        if not is_deployed():
+        if not utils_base.is_deployed():
             sys.exit(32)
 
     return False

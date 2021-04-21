@@ -2,7 +2,7 @@
 Manage form sizes.
 """
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore  # type: ignore
 
 from pineboolib.core import settings
 from pineboolib import application

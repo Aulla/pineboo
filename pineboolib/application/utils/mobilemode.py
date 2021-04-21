@@ -4,8 +4,6 @@ To detect if we are in mobile mode.
 
 from PyQt6 import QtCore  # type: ignore[import]
 
-from pineboolib.core import settings
-
 MOBILE_MODE = None
 
 
@@ -28,18 +26,13 @@ def check_mobile_mode() -> bool:
 
     @return True or False.
     """
-    is_mobile = False
-    sys_info = QtCore.QSysInfo()
-    product_type = sys_info.productType()
+    from pineboolib.core import settings
 
-    if product_type in ("android", "ios"):
-        is_mobile = True
-
-    else:
-
-        is_mobile = settings.CONFIG.value(u"ebcomportamiento/mobileMode", False)
-
-    return is_mobile
+    return (
+        True
+        if QtCore.QSysInfo().productType() in ("android", "ios")
+        else settings.CONFIG.value(u"ebcomportamiento/mobileMode", False)
+    )
 
 
 # def grand_storage_access():

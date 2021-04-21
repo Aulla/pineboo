@@ -2,10 +2,12 @@
 Convert a date to different formats.
 """
 
-import datetime
+
 from PyQt6 import QtCore  # type: ignore
-from PyQt6.QtCore import QDate  # type: ignore
-from typing import Optional, List, Any
+
+from pineboolib.application.qsatypes import date
+import datetime
+from typing import Optional, List, Union
 
 
 def date_dma_to_amd(date_str: str) -> Optional[str]:
@@ -51,7 +53,7 @@ def date_dma_to_amd(date_str: str) -> Optional[str]:
     return "%s-%s-%s" % (ano_, mes_, dia_) if ano_ else ""
 
 
-def date_amd_to_dma(date_str: str) -> Optional[str]:
+def date_amd_to_dma(date_str: str) -> str:
     """
     Convert year, month day to day, month, year.
 
@@ -60,7 +62,7 @@ def date_amd_to_dma(date_str: str) -> Optional[str]:
     """
 
     if not date_str:
-        return None
+        return ""
 
     date_str = str(date_str)
     if date_str.find("T") > -1:
@@ -93,7 +95,9 @@ def date_amd_to_dma(date_str: str) -> Optional[str]:
     return "%s-%s-%s" % (dia_, mes_, ano_) if ano_ else ""
 
 
-def convert_to_qdate(date: Any) -> QDate:
+def convert_to_qdate(
+    value: Union["datetime.date", "date.Date", str, "QtCore.QDate"]
+) -> "QtCore.QDate":
     """
     Convert different date formats to QDate.
 
@@ -101,17 +105,16 @@ def convert_to_qdate(date: Any) -> QDate:
     @return QDate with the value of the given date.
     """
 
-    internal_date = getattr(date, "date_", None)  # For types.Date
-    if internal_date is not None:
-        date = date.toString()  # QDate -> str
-    elif isinstance(date, datetime.date):
-        date = str(date)
+    if isinstance(value, date.Date):
+        value = value.toString()  # QDate -> str
+    elif isinstance(value, datetime.date):
+        value = str(value)
 
-    if isinstance(date, str):
-        if "T" in date:
-            date = date[: date.find("T")]
+    if isinstance(value, str):
+        if "T" in value:
+            value = value[: value.find("T")]
 
-        date = date_amd_to_dma(date) if len(date.split("-")[0]) == 4 else date
-        date = QtCore.QDate.fromString(date, "dd-MM-yyyy")
+        new_value = date_amd_to_dma(value) if len(value.split("-")[0]) == 4 else value
+        value = QtCore.QDate.fromString(new_value, "dd-MM-yyyy")
 
-    return date
+    return value
