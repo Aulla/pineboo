@@ -35,19 +35,18 @@ class FLDateEdit(qdateedit.QDateEdit):
         return super().getDate()
 
     def setDate(  # type: ignore [override] # noqa F821
-        self, date: Optional[Union[str, datetime.date, Date, QtCore.QDate]] = None
+        self, date: Union[str, datetime.date, Date, QtCore.QDate] = ""
     ) -> None:
         """Set Date."""
+        new_date: Union[str, datetime.date, Date, QtCore.QDate, None] = None if isinstance(
+            date, QtCore.QDate
+        ) and date.isNull() else date
 
-        if isinstance(date, QtCore.QDate) and date.isNull():
-            date = None
-
-        if date in (None, "NAN", ""):
-            date_ = QtCore.QDate.fromString(str("01-01-2000"), self.DMY)
-        else:
-            date_ = convert_to_qdate(date)
-
-        super().setDate(date_)
+        super().setDate(
+            QtCore.QDate.fromString(str("01-01-2000"), self.DMY)
+            if new_date in (None, "NAN", "")
+            else convert_to_qdate(date)
+        )
         self.setStyleSheet("color: black")
 
     date: Optional[str] = property(getDate, setDate)  # type: ignore [assignment] # noqa F821
