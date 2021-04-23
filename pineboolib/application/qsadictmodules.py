@@ -3,15 +3,20 @@ QSADictModules.
 
 Manages read and writting QSA dynamic properties that are loaded during project startup.
 """
-from typing import Any, TYPE_CHECKING
+
+
+from . import xmlaction, proxy, safeqsa
 from pineboolib import logging
-from . import xmlaction
-from . import proxy
-from . import safeqsa
+
 import sqlalchemy
 import gc
 
+from typing import Any, Optional, Union, TYPE_CHECKING
+
 LOGGER = logging.get_logger(__name__)
+
+if TYPE_CHECKING:
+    from pineboolib.application.database.orm import basemodel
 
 
 class QSADictModules:
@@ -19,7 +24,7 @@ class QSADictModules:
     Manage read and write dynamic properties for QSA.
     """
 
-    _qsa_dict_modules: Any = None
+    _qsa_dict_modules = None
 
     @classmethod
     def qsa_dict_modules(cls) -> Any:
@@ -35,11 +40,11 @@ class QSADictModules:
         return cls._qsa_dict_modules
 
     @classmethod
-    def from_project(cls, scriptname: str) -> Any:
+    def from_project(cls, script_name: str) -> Any:
         """
         Return project object for given name.
         """
-        module_name = scriptname if scriptname != "sys" else "sys_module"
+        module_name = "sys_module" if script_name == "sys" else script_name
 
         ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
         if ret_ is None and not module_name.endswith("orm"):
@@ -47,37 +52,22 @@ class QSADictModules:
 
         return ret_
 
-    # @classmethod
-    # def class_(cls, scriptname: str) -> Any:
-    #    """
-    #    Return project class for given name.
-    #    """
-
-    #    ret_ = getattr(cls.qsa_dict_modules(), scriptname, None)
-    #    if ret_ is not None:
-    #        return ret_.class_()
-    #    else:
-    #        return None
-
     @classmethod
-    def orm_(cls, script_name: str) -> Any:
+    def orm_(cls, script_name: str = "") -> Optional["basemodel.BaseModel"]:
         """Return orm instance."""
 
-        if not script_name:
-            return
+        if script_name:
+            orm = cls.from_project("%s_orm" % (script_name))
+            if orm is not None:
+                init_fn = getattr(orm, "_qsa_init", None)
+                if init_fn:
+                    sqlalchemy.event.listen(orm, "init", init_fn)
 
-        ret_ = None
-        orm = cls.from_project("%s_orm" % (script_name))
-        if orm is not None:
-            init_fn = getattr(orm, "_qsa_init", None)
-            if init_fn:
-                sqlalchemy.event.listen(orm, "init", init_fn)
+                return orm
+            else:
+                LOGGER.error("Model %s not found!", script_name, stack_info=True)
 
-            ret_ = orm
-        else:
-            LOGGER.error("Model %s not found!", script_name, stack_info=True)
-
-        return ret_
+        return None
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
@@ -87,18 +77,24 @@ class QSADictModules:
         return hasattr(cls.qsa_dict_modules(), scriptname)
 
     @classmethod
-    def save_action(cls, scriptname: str, delayed_action: "proxy.DelayedObjectProxyLoader") -> None:
+    def save_action(
+        cls, script_name: str, delayed_action: "proxy.DelayedObjectProxyLoader"
+    ) -> None:
         """
         Save Action into project for QSA.
         """
-        setattr(cls.qsa_dict_modules(), scriptname, delayed_action)
+        setattr(cls.qsa_dict_modules(), script_name, delayed_action)
 
     @classmethod
-    def save_other(cls, scriptname: str, other: Any) -> None:
+    def save_other(
+        cls,
+        script_name: str,
+        other: Optional[Union["proxy.DelayedObjectProxyLoader", "basemodel.BaseModel"]],
+    ) -> None:
         """
         Save other objects for QSA.
         """
-        setattr(cls.qsa_dict_modules(), scriptname, other)
+        setattr(cls.qsa_dict_modules(), script_name, other)
 
     @classmethod
     def save_action_for_root_module(cls, action: "xmlaction.XMLAction") -> bool:

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # pragma: no cover
     from sqlalchemy.ext.declarative import api  # noqa: F401 # pragma: no cover
     from types import ModuleType  # pragma: no cover
+    from pineboolib.application.database.orm import basemodel
 
 LOGGER = logging.get_logger(__name__)
 
@@ -184,7 +185,7 @@ def _resolve_flag(static_flag: str, script: str, script_static: str) -> bool:
     return result
 
 
-def _build_static_flag(flag, script, static) -> None:
+def _build_static_flag(flag: str, script: str, static: str) -> None:
     """Build flag file."""
 
     _remove(flag)
@@ -196,7 +197,7 @@ def _build_static_flag(flag, script, static) -> None:
     file_.write(my_data)
 
 
-def _remove(file_name) -> None:
+def _remove(file_name: str) -> None:
     """Remove file."""
 
     if os.path.exists(file_name):
@@ -209,7 +210,7 @@ def _remove(file_name) -> None:
 def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
     """Return model_class from path."""
 
-    model_class = None
+    model_class: Optional["type"] = None
     script_path_py = _resolve_script("%s_model.py" % script_name, script_path_py)
     if os.path.exists(script_path_py) and pnmtdparser.use_mtd_fields(script_path_py):
         script_path_py = pnmtdparser.populate_fields(script_path_py, "%s.mtd" % script_name)

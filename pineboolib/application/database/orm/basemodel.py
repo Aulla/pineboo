@@ -318,23 +318,24 @@ class BaseModel(object):
                             foreign_table_class = qsadictmodules.QSADictModules.orm_(
                                 foreign_table_mtd.name()
                             )
-                            foreign_field_object = getattr(
-                                foreign_table_class, relation.foreignField()
-                            )
-                            relation_objects = (
-                                foreign_table_class.query(
-                                    self._session._conn_name  # type: ignore [union-attr] # noqa: F821
+                            if foreign_table_class is not None:
+                                foreign_field_object = getattr(
+                                    foreign_table_class, relation.foreignField()
                                 )
-                                .filter(foreign_field_object == getattr(self, field.name()))
-                                .all()
-                            )
-
-                            for obj in relation_objects:
-                                if not obj.delete():
-                                    self._error_manager(
-                                        "_delete_cascade",
-                                        "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
+                                relation_objects = (
+                                    foreign_table_class.query(
+                                        self._session._conn_name  # type: ignore [union-attr] # noqa: F821
                                     )
+                                    .filter(foreign_field_object == getattr(self, field.name()))
+                                    .all()
+                                )
+
+                                for obj in relation_objects:
+                                    if not obj.delete():
+                                        self._error_manager(
+                                            "_delete_cascade",
+                                            "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
+                                        )
 
     def _flush(self) -> None:
         """Flush data."""
