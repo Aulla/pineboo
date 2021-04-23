@@ -6,6 +6,8 @@ Those are loaded from selected DGI.
 """
 from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import] # noqa: F401
 
+from typing import Any
+
 from pineboolib.core.system import System  # noqa: F401
 
 from .utils import MathClass, NumberAttr, user_id, session  # noqa: F401
@@ -189,6 +191,8 @@ from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 from pineboolib.application.database.orm.utils import OrmManager
 from pineboolib.application.database.utils import ClassManager
 
+from pineboolib.application.qsadictmodules import from_project, orm_  # noqa: F401
+
 
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
@@ -214,22 +218,16 @@ QS_PROJECT = AQSSProject()
 MATH = MathClass()
 NUMBER_ATT = NumberAttr()
 AQ_APP = application.PROJECT.aq_app
-# FIXME: meter todo QSA
-# from pineboolib.fllegacy.aqsobjects.aqsobjectfactory import *
-
-# FIXME: Belongs to RPC drivers
-# def GET(function_name, arguments=[], conn=None) -> Any:
-#     if conn is None:
-#         conn = project.conn
-#     if hasattr(conn.driver(), "send_to_server"):
-#         return conn.driver().send_to_server(create_dict("call_function", function_name, conn.driver().id_, arguments))
-#     else:
-#         return "Funcionalidad no soportada"
 
 
-# from pineboolib.fllegacy.aqsobjects.aqsobjectfactory import *  # noqa:
+class Application:
+    """
+    Emulate QS Application class.
 
-# aqApp -- imported from loader.main after reload_from_DGI() call, as it is a cyclic dependency
+    The "Data" module uses "Application.formRecorddat_processes" to read the module.
+    """
 
-# System = System_class()
-# qsa_sys = SysType()
+    def __getattr__(self, name: str) -> Any:
+        """Emulate any method and retrieve application action module specified."""
+
+        from_project(name)

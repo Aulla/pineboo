@@ -17,7 +17,7 @@ class TestFLFieldDBString(unittest.TestCase):
     def test_basic(self) -> None:
         """Test string FLFieldDB mode."""
 
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.core.utils import utils_base
         from PyQt6 import QtWidgets  # type: ignore[import]
@@ -28,7 +28,7 @@ class TestFLFieldDBString(unittest.TestCase):
         cursor_1.refreshBuffer()
         cursor_1.insertRecord(False)
 
-        module_ = dictmodules.from_project("formRecordflmodules")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflmodules")
         self.assertTrue(module_)
 
         cursor_2 = module_.cursor()
@@ -76,9 +76,9 @@ class TestFLFieldDBString(unittest.TestCase):
     def test_button_in_empty_buffer(self) -> None:
         """Check that the button is displayed on a control that points to a non-existent field."""
         from pineboolib.fllegacy import flfielddb
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
 
-        module_ = dictmodules.from_project("formRecordflmodules")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflmodules")
         parent = module_.parent()
         new_field = flfielddb.FLFieldDB(parent)
         new_field.setObjectName("fake_control")
@@ -96,10 +96,10 @@ class TestFLFieldDBString(unittest.TestCase):
         """Check if the empty value is 00-00-0000."""
         from pineboolib.fllegacy import flfielddb
         from pineboolib.application.metadata import pnfieldmetadata
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
         from pineboolib import application
 
-        module_ = dictmodules.from_project("formRecordflmodules")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflmodules")
         parent = module_.parent()
         table_mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         field_mtd = pnfieldmetadata.PNFieldMetaData(
@@ -174,10 +174,10 @@ class TestFLFieldDBString(unittest.TestCase):
 
     def test_basic_2(self) -> None:
         """Test basics 2."""
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
         from pineboolib.fllegacy import fllineedit
 
-        module_ = dictmodules.from_project("formRecordflmodules")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflmodules")
         field = module_.child("flfielddb_2")
         self.assertTrue(field)
         self.assertEqual(field._text_label_db.text(), "Versión")

@@ -34,7 +34,8 @@ from .utils import thread_session_new, thread_session_current, thread_session_fr
 from .utils import pool_status, set_user_id, memory_status, qt_translate_noop  # noqa: F401
 from .utils import available_thread_sessions, ws_channel_send_type, is_valid_session  # noqa: F401
 from .decorators import atomic, serialize  # noqa: F401
-from .dictmodules import Application, from_project, orm_  # noqa: F401
+
+from .pncontrolsfactory import from_project, orm_, Application  # noqa: F401
 
 
 # QT

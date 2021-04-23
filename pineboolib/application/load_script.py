@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # pragma: no cover
     from sqlalchemy.ext.declarative import api  # noqa: F401 # pragma: no cover
     from types import ModuleType  # pragma: no cover
-    from pineboolib.application.database.orm import basemodel
 
 LOGGER = logging.get_logger(__name__)
 

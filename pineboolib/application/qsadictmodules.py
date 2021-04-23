@@ -6,7 +6,7 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 
 
 from . import xmlaction, proxy, safeqsa
-from pineboolib import logging
+from pineboolib import logging, application
 
 import sqlalchemy
 import gc
@@ -30,13 +30,12 @@ class QSADictModules:
     def qsa_dict_modules(cls) -> Any:
         """Retrieve QSA module, hidding it from MyPy."""
         if cls._qsa_dict_modules is None:
-            # FIXME: This loads from QSA module. Avoid if possible. (how?)
             if TYPE_CHECKING:
-                qsa_dict_modules: Any = None  # pragma: no cover
+                qsa_dict_modules_tree: Any = None  # pragma: no cover
             else:
-                from pineboolib.qsa import qsa as qsa_dict_modules
+                from . import modules_tree as qsa_dict_modules_tree
 
-            cls._qsa_dict_modules = qsa_dict_modules
+            cls._qsa_dict_modules = qsa_dict_modules_tree
         return cls._qsa_dict_modules
 
     @classmethod
@@ -53,11 +52,17 @@ class QSADictModules:
         return ret_
 
     @classmethod
-    def orm_(cls, script_name: str = "") -> Optional["basemodel.BaseModel"]:
+    def orm_(cls, action_name: str = "") -> Any:
         """Return orm instance."""
 
-        if script_name:
-            orm = cls.from_project("%s_orm" % (script_name))
+        table_name = (
+            application.PROJECT.actions[action_name]._table
+            if action_name in application.PROJECT.actions.keys()
+            else action_name
+        )
+
+        if table_name:
+            orm = cls.from_project("%s_orm" % (table_name))
             if orm is not None:
                 init_fn = getattr(orm, "_qsa_init", None)
                 if init_fn:
@@ -65,7 +70,7 @@ class QSADictModules:
 
                 return orm
             else:
-                LOGGER.error("Model %s not found!", script_name, stack_info=True)
+                LOGGER.error("Model %s not found!", table_name, stack_info=True)
 
         return None
 
@@ -200,3 +205,7 @@ class QSADictModules:
                 delattr(qsa_dict_modules, name)
 
         gc.collect()
+
+
+from_project = QSADictModules.from_project
+orm_ = QSADictModules.orm_

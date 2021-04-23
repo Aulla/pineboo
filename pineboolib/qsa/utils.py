@@ -9,12 +9,10 @@ import threading
 import os
 
 from PyQt6 import QtCore  # type: ignore[import]
-from pineboolib.application import types
+from pineboolib.application import types, qsadictmodules
 from pineboolib.core.utils import utils_base, logging
 
 from pineboolib import application
-
-from . import dictmodules
 
 from typing import (
     Any,
@@ -562,7 +560,7 @@ class NumberAttr:
 def user_id() -> str:
     """Return user_id."""
 
-    result = getattr(dictmodules.from_project("sys").iface, "current_user")
+    result = getattr(qsadictmodules.QSADictModules.from_project("sys").iface, "current_user")
     if not result:
         result = application.PROJECT.session_id()
     return result
@@ -571,7 +569,7 @@ def user_id() -> str:
 def set_user_id(user_id: str) -> None:
     """Set user id."""
 
-    dictmodules.from_project("sys").iface.current_user = user_id
+    qsadictmodules.from_project("sys").iface.current_user = user_id
 
 
 def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Session"]:

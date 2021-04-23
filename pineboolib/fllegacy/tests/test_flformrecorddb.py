@@ -18,7 +18,7 @@ class TestFLFormrecordCursor(unittest.TestCase):
     def test_cursor_asignment(self) -> None:
         """Test flformrecord cursor assignment"""
 
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
         from pineboolib.application.database import pnsqlcursor
 
         from pineboolib.fllegacy import systype
@@ -38,7 +38,7 @@ class TestFLFormrecordCursor(unittest.TestCase):
 
         cursor_3 = pnsqlcursor.PNSqlCursor("flareas")
 
-        module_ = dictmodules.from_project("formRecordflareas")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflareas")
         self.assertTrue(module_)
         cursor_2 = module_.cursor()
 
@@ -47,9 +47,9 @@ class TestFLFormrecordCursor(unittest.TestCase):
 
     def test_flformrecord_show_again_and_others(self) -> None:
         """Check if a FLformRecordDB is shown again"""
-        from pineboolib.qsa import dictmodules
+        from pineboolib.application import qsadictmodules
 
-        module_ = dictmodules.from_project("formRecordflareas")
+        module_ = qsadictmodules.QSADictModules.from_project("formRecordflareas")
         form = module_.form
         self.assertFalse(form.accept())
         pb_cancel = form.pushButtonCancel
