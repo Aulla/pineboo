@@ -128,7 +128,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             return
 
-        private_cursor.mode_access_ = PNSqlCursor.Browse
+        private_cursor.mode_access_ = self.Browse
 
         # if self.private_cursor.cursor_relation_:
         #    self.private_cursor.cursor_relation_.bufferChanged.disconnect(self.refresh)
@@ -159,7 +159,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         )
         self.setName(mtd.name(), autopopulate)
 
-        private_cursor.mode_access_ = self.Browse
         if cursor_relation and relation_mtd is not None:
 
             cursor_relation.bufferChanged.connect(  # type: ignore [attr-defined] # noqa: F821
@@ -254,13 +253,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param PNAction object
         @return True if success, otherwise False.
         """
-        new_action = None
-        if isinstance(action_or_name, str):
-            new_action = self.db().connManager().manager().action(action_or_name.lower())
-            # if action.table() == "":
-            #    action.setTable(a)
-        else:
-            new_action = action_or_name
+
+        new_action = (
+            self.db().connManager().manager().action(action_or_name.lower())
+            if isinstance(action_or_name, str)
+            else action_or_name
+        )
 
         if not new_action.table():
             return False
@@ -285,7 +283,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else:  # La action previa existe y no es la misma tabla
                 self._action = new_action
                 self.private_cursor.buffer_ = None
-                self.private_cursor.metadata_ = None
 
         if self._action:
             self.private_cursor.metadata_ = (
@@ -293,41 +290,33 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             self.private_cursor.doAcl()
             self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
-            # if not self.private_cursor._model:
-            #    return False
-
-            # if not self.private_cursor.buffer_:
-            #    self.prime_insert()
-
             self._selection = QtCore.QItemSelectionModel(self.private_cursor._model)
             self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-            # self._currentregister = self.selection().currentIndex().row()
-            # self.private_cursor.metadata_ = self.db().manager().metadata(self._action.table())
             self.private_cursor._activated_check_integrity = True
             self.private_cursor._activated_commit_actions = True
             return True
 
         return False
 
-    def setMainFilter(self, filter: str = "", do_refresh: bool = True) -> None:
+    def setMainFilter(self, filter_: str = "", do_refresh: bool = True) -> None:
         """
         Set main cursor filter.
 
-        @param f String containing the filter in SQL WHERE format (excluding WHERE)
-        @param doRefresh By default, refresh the cursor afterwards. Set to False to avoid this.
+        @param filter_ String containing the filter in SQL WHERE format (excluding WHERE)
+        @param do_refresh By default, refresh the cursor afterwards. Set to False to avoid this.
         """
         if self.private_cursor._model:
-            self.private_cursor._model.where_filters["main-filter"] = filter
+            self.private_cursor._model.where_filters["main-filter"] = filter_
             if do_refresh:
                 self.refresh()
 
-    def setModeAccess(self, m: int) -> None:
+    def setModeAccess(self, mode_access: int) -> None:
         """
         Set cursor access mode.
 
-        @param m PNSqlCursor::Mode constant which inidicates access mode.
+        @param mode_access PNSqlCursor::Mode constant which inidicates access mode.
         """
-        self.private_cursor.mode_access_ = m
+        self.private_cursor.mode_access_ = mode_access
 
     def connectionName(self) -> str:
         """
@@ -436,8 +425,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         database = self.db()
         manager = database.connManager().manager()
-        if manager is None:
-            raise Exception("no manager")
 
         if value and field.type() == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
@@ -499,7 +486,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         field_metadata = table_metadata.field(field_name)
         if field_metadata is None:
-            LOGGER.warning("valueBuffer(): No existe el campo %s:%s", self._name, field_name)
+            LOGGER.warning("valueBuffer(): No existe el campo %s:%s.", self._name, field_name)
             return None
 
         value = self.buffer().value(field_name)
@@ -542,8 +529,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     else self.db().connManager().manager().fetchLargeValue(value)
                 )
 
-                if v_large:
-                    value = v_large
+                value = v_large if v_large else value
             elif type_ == "double":
                 value = float(value)  # type: ignore [arg-type] # noqa: F821
             elif type_ in ("int", "uint"):
@@ -600,8 +586,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     else self.db().connManager().manager().fetchLargeValue(value)
                 )
 
-                if v_large:
-                    value = v_large
+                value = v_large if v_large else value
         else:
             if type_ in ("string", "stringlist", "date", "timestamp"):
                 value = ""
@@ -612,65 +597,63 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return value
 
-    def setEdition(self, b: bool, m: Optional[str] = None) -> None:
+    def setEdition(self, value: bool, modifier: Optional[str] = None) -> None:
         """
         Put cursor into "edition" mode.
 
         @param b TRUE or FALSE
         """
         # FIXME: What is "edition" ??
-        if m is None:
-            self.private_cursor.edition_ = b
+        if modifier is None:
+            self.private_cursor.edition_ = value
             return
 
-        state_changes = b != self.private_cursor.edition_
+        state_changes = value != self.private_cursor.edition_
 
         if state_changes and not self.private_cursor.edition_states_:
             self.private_cursor.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
 
-        # if self.private_cursor.edition_states_ is None:
-        #     return
-
-        i = self.private_cursor.edition_states_.find(m)
-        if not i and state_changes:
-            i = pnboolflagstate.PNBoolFlagState()
-            i.modifier_ = m
-            i.prev_value_ = self.private_cursor.edition_
-            self.private_cursor.edition_states_.append(i)
-        elif i:
+        state_modifier = self.private_cursor.edition_states_.find(modifier)
+        if not state_modifier:
             if state_changes:
-                self.private_cursor.edition_states_.pushOnTop(i)
-                i.prev_value_ = self.private_cursor.edition_
+                state_modifier = pnboolflagstate.PNBoolFlagState()
+                state_modifier.modifier_ = modifier
+                state_modifier.prev_value_ = self.private_cursor.edition_
+                self.private_cursor.edition_states_.append(state_modifier)
+        else:
+            if state_changes:
+                self.private_cursor.edition_states_.pushOnTop(state_modifier)
+                state_modifier.prev_value_ = self.private_cursor.edition_
             else:
-                self.private_cursor.edition_states_.erase(i)
+                self.private_cursor.edition_states_.erase(state_modifier)
 
         if state_changes:
-            self.private_cursor.edition_ = b
+            self.private_cursor.edition_ = value
 
-    def restoreEditionFlag(self, m: str) -> None:
+    def restoreEditionFlag(self, modifier: str) -> None:
         """Restore Edition flag to its previous value."""
         edition_state = self.private_cursor.edition_states_
         if edition_state:
 
-            i = edition_state.find(m)
+            state_modifier = edition_state.find(modifier)
 
-            if i and i == edition_state.current():
-                self.private_cursor.edition_ = i.prev_value_
+            if state_modifier:
+                if state_modifier == edition_state.current():
+                    self.private_cursor.edition_ = state_modifier.prev_value_
 
-            if i:
-                edition_state.erase(i)
+                edition_state.erase(state_modifier)
 
-    def setBrowse(self, b: bool, m: Optional[str] = None) -> None:
+    def setBrowse(self, value: bool, modifier: Optional[str] = None) -> None:
         """
         Put cursor into browse mode.
 
-        @param b TRUE or FALSE
+        @param value TRUE or FALSE
         """
-        if not m:
-            self.private_cursor.browse_ = b
+        if not modifier:
+            self.private_cursor.browse_ = value
             return
 
-        state_changes = b != self.private_cursor.browse_
+        state_changes = value != self.private_cursor.browse_
 
         if state_changes and not self.private_cursor.browse_states_:
             self.private_cursor.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
@@ -678,33 +661,34 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.browse_states_:
             return
 
-        i = self.private_cursor.browse_states_.find(m)
-        if not i and state_changes:
-            i = pnboolflagstate.PNBoolFlagState()
-            i.modifier_ = m
-            i.prev_value_ = self.private_cursor.browse_
-            self.private_cursor.browse_states_.append(i)
-        elif i:
+        state_modifier = self.private_cursor.browse_states_.find(modifier)
+        if not state_modifier:
             if state_changes:
-                self.private_cursor.browse_states_.pushOnTop(i)
-                i.prev_value_ = self.private_cursor.browse_
+                state_modifier = pnboolflagstate.PNBoolFlagState()
+                state_modifier.modifier_ = modifier
+                state_modifier.prev_value_ = self.private_cursor.browse_
+                self.private_cursor.browse_states_.append(state_modifier)
+        else:
+            if state_changes:
+                self.private_cursor.browse_states_.pushOnTop(state_modifier)
+                state_modifier.prev_value_ = self.private_cursor.browse_
             else:
-                self.private_cursor.browse_states_.erase(i)
+                self.private_cursor.browse_states_.erase(state_modifier)
 
         if state_changes:
-            self.private_cursor.browse_ = b
+            self.private_cursor.browse_ = value
 
-    def restoreBrowseFlag(self, m: str) -> None:
+    def restoreBrowseFlag(self, modifier: str) -> None:
         """Restores browse flag to its previous state."""
         browse_state = self.private_cursor.browse_states_
         if browse_state:
-            i = browse_state.find(m)
+            state_modifier = browse_state.find(modifier)
 
-            if i and i == browse_state.current():
-                self.private_cursor.browse_ = i.prev_value_
+            if state_modifier:
+                if state_modifier == browse_state.current():
+                    self.private_cursor.browse_ = state_modifier.prev_value_
 
-            if i:
-                browse_state.erase(i)
+                browse_state.erase(state_modifier)
 
     # def meta_model(self) -> Callable:
     #    """
@@ -712,7 +696,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     #    """
     #    return self.meta_model if application.PROJECT.DGI.use_model() else None
 
-    def setContext(self, c: Any = None) -> None:
+    def setContext(self, context: Any = None) -> None:
         """
         Set cursor context for script execution.
 
@@ -722,8 +706,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param c Execution Context
         """
-        if c:
-            self.private_cursor.ctxt_ = weakref.ref(c)
+        if context:
+            self.private_cursor.ctxt_ = weakref.ref(context)
 
     def context(self) -> Any:
         """
@@ -750,15 +734,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name Nombre del campo a comprobar
         @return TRUE si está deshabilitado y FALSE en caso contrario
         """
-        ret = False
-        mode_access = self.modeAccess()
-        if mode_access in (self.Insert, self.Edit):
+
+        if self.modeAccess() in (self.Insert, self.Edit):
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata() is not None:
                     field = self.private_cursor.relation_.field()
                     if field.lower() == field_name.lower():
-                        ret = True
-        return ret
+                        return True
+        return False
 
     def inTransaction(self) -> bool:
         """
@@ -846,12 +829,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.private_cursor.mode_access_ = mode_
 
         if mode_ == self.Del:
-            res = QtWidgets.QMessageBox.warning(
-                QtWidgets.QApplication.focusWidget(),
-                self.tr("Aviso"),
-                self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-                QtWidgets.QMessageBox.StandardButtons.Ok,
-                QtWidgets.QMessageBox.StandardButtons.No,
+            msg = self.tr("El registro activo será borrado. ¿ Está seguro ?")
+
+            res = application.PROJECT.message_manager().send(
+                "msgBoxWarning",
+                None,
+                [
+                    msg,
+                    QtWidgets.QApplication.focusWidget(),
+                    self.tr("Aviso"),
+                    [
+                        QtWidgets.QMessageBox.StandardButtons.Ok,
+                        QtWidgets.QMessageBox.StandardButtons.No,
+                    ],
+                ],
             )
             if res != QtWidgets.QMessageBox.StandardButtons.No:
 
@@ -871,13 +862,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
 
         elif not self._action.formRecord():
-            QtWidgets.QMessageBox.warning(
-                QtWidgets.QApplication.focusWidget(),
-                self.tr("Aviso"),
-                self.tr(
-                    "No hay definido ningún formulario para manejar\nregistros de esta tabla : %s"
-                    % self.curName()
-                ),
+            msg = self.tr(
+                "No hay definido ningún formulario para manejar\nregistros de esta tabla : %s"
+                % self.curName()
+            )
+
+            application.PROJECT.message_manager().send(
+                "msgBoxWarning", None, [msg, QtWidgets.QApplication.focusWidget(), self.tr("Aviso")]
             )
 
         elif self.refreshBuffer():  # Hace doTransaction antes de abrir formulario y crear savepoint
@@ -960,33 +951,33 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else False
         )
 
-    def setAskForCancelChanges(self, a: bool) -> None:
+    def setAskForCancelChanges(self, ask: bool) -> None:
         """
         Set value for FLSqlCursor::_ask_for_cancel_changes .
 
         @param a If True, a popup will appear warning the user for unsaved changes on cancel.
         """
-        self.private_cursor._ask_for_cancel_changes = a
+        self.private_cursor._ask_for_cancel_changes = ask
 
-    def setActivatedCheckIntegrity(self, a: bool) -> None:
+    def setActivatedCheckIntegrity(self, ask: bool) -> None:
         """
         Enable or disable integrity checks.
 
         @param a TRUE los activa y FALSE los desactiva
         """
-        self.private_cursor._activated_check_integrity = a
+        self.private_cursor._activated_check_integrity = ask
 
     def activatedCheckIntegrity(self) -> bool:
         """Retrieve if integrity checks are enabled."""
         return self.private_cursor._activated_check_integrity
 
-    def setActivatedCommitActions(self, a: bool) -> None:
+    def setActivatedCommitActions(self, ask: bool) -> None:
         """
         Enable or disable before/after commit actions.
 
         @param a True to enable, False to disable.
         """
-        self.private_cursor._activated_commit_actions = a
+        self.private_cursor._activated_commit_actions = ask
 
     def activatedCommitActions(self) -> bool:
         """
