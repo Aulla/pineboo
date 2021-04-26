@@ -77,11 +77,11 @@ class IManager(object):
         """Finish?."""
         return None  # pragma: no cover
 
-    def formatAssignValue(self, *args, **kwargs) -> str:
+    def formatAssignValue(self, *args) -> str:
         """Format value for DB update."""
         return ""  # pragma: no cover
 
-    def formatAssignValueLike(self, *args, **kwargs) -> str:
+    def formatAssignValueLike(self, *args) -> str:
         """Format value for DB "LIKE" statement."""
         return ""  # pragma: no cover
 

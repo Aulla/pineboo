@@ -385,11 +385,11 @@ class FLManager(QtCore.QObject, IManager):
         root_ = ElementTree.fromstring(qry_)
 
         for child in root_:
-
+            text_ = child.text or ""
             value = (
-                child.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                text_.replace("\t", "").replace("\n", "").replace("\r", "").strip()
                 if child.tag in ["select", "from", "tables", "order"]
-                else None
+                else ""
             )
             if child.tag == "select":
                 qry.setSelect(value)
@@ -401,34 +401,26 @@ class FLManager(QtCore.QObject, IManager):
                 qry.setOrderBy(value)
             elif child.tag == "where":
                 for child_where in root_.iter("where"):
-                    value = (
-                        child_where.text.replace("\t", "")
-                        .replace("\n", "")
-                        .replace("\r", "")
-                        .strip()
-                    )
+                    text_ = child_where.text or ""
+                    value = text_.replace("\t", "").replace("\n", "").replace("\r", "").strip()
                     qry.setWhere(value)
             elif child.tag == "group":
                 for level, child_group in enumerate(root_.findall("group")):
                     child_level = child_group.find("level")
                     child_field = child_group.find("field")
-                    if getattr(child_field, "text", None) and getattr(child_level, "text", None):
-                        value_level = int(
-                            child_level.text.replace("\t", "")
-                            .replace("\n", "")
-                            .replace("\r", "")
-                            .strip()
-                        )
-                        if level == value_level:
-                            qry.addGroup(
-                                pngroupbyquery.PNGroupByQuery(
-                                    level,
-                                    child_field.text.replace("\t", "")
-                                    .replace("\n", "")
-                                    .replace("\r", "")
-                                    .strip(),
-                                )
+                    if hasattr(child_field, "text") and hasattr(child_level, "text"):
+                        text_level = getattr(child_level, "text", "")
+                        if level == int(
+                            text_level.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                        ):
+                            text_value_level = (
+                                getattr(child_field, "text", "")
+                                .replace("\t", "")
+                                .replace("\n", "")
+                                .replace("\r", "")
+                                .strip()
                             )
+                            qry.addGroup(pngroupbyquery.PNGroupByQuery(level, text_value_level))
 
         return qry
 
