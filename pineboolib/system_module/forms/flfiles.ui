@@ -16,7 +16,7 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="FLFieldDB" name="nombre" native="true">
-     <property name="fieldName" stdset="0">
+     <property name="fieldName">
       <string>nombre</string>
      </property>
     </widget>
@@ -28,7 +28,7 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
+       <property name="sizeHint">
         <size>
          <width>328</width>
          <height>20</height>
@@ -38,7 +38,7 @@
      </item>
      <item>
       <widget class="FLFieldDB" name="sha" native="true">
-       <property name="fieldName" stdset="0">
+       <property name="fieldName">
         <string>sha</string>
        </property>
       </widget>
@@ -59,7 +59,7 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
+       <property name="sizeHint">
         <size>
          <width>438</width>
          <height>20</height>
