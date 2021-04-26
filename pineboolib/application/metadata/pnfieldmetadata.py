@@ -63,74 +63,74 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
     def inicializeNewFLFieldMetaData(
         self,
-        n: str,
-        a: str,
-        aN: bool,
-        isPrimaryKey: bool,
-        t: str,
-        length_: int = 0,
-        c: bool = False,
-        v: bool = True,
-        ed: bool = True,
-        pI: int = 4,
-        pD: int = 0,
-        iNX: bool = False,
-        uNI: bool = False,
-        coun: bool = False,
-        defValue: Optional[str] = None,
-        oT: bool = False,
-        rX: Optional[str] = None,
-        vG: bool = True,
-        gen: bool = True,
-        iCK: bool = False,
+        field_name: str,
+        alias: str,
+        allow_null: bool,
+        is_pk: bool,
+        field_type: str,
+        length: int = 0,
+        is_calculated: bool = False,
+        is_visible: bool = True,
+        is_editable: bool = True,
+        part_integer: int = 4,
+        part_decimal: int = 0,
+        is_index: bool = False,
+        is_unique: bool = False,
+        is_counter: bool = False,
+        default_value: Optional[str] = None,
+        out_transaction: bool = False,
+        regular_expr: Optional[str] = None,
+        is_visible_grid: bool = True,
+        is_generated: bool = True,
+        is_ck: bool = False,
     ) -> None:
         """
         Initialize with the information collected.
 
-        @param n Field Name.
-        @param to Alias ​​del campo, used in form labels.
-        @param aN TRUE if it allows nulls (NULL), FALSE if it allows them (NOT NULL).
-        @param _isPrimaryKey TRUE if it is a primary key, FALSE if it is not a primary key, be
+        @param field_name Field Name.
+        @param alias Alias ​​del campo, used in form labels.
+        @param allow_null TRUE if it allows nulls (NULL), FALSE if it allows them (NOT NULL).
+        @param is_pk TRUE if it is a primary key, FALSE if it is not a primary key, be
                 primary key implies being Index and Unique.
-        @param t Field type.
-        @param l Length of the field in characters, provided it is of type string
+        @param field_type Field type.
+        @param length Length of the field in characters, provided it is of type string
                of characters.
-        @param c Indicates if the field is calculated.
-        @param v Indicates if the field is visible.
-        @param ed Indicates if the field is editable.
-        @param pI Indicates the number of digits of the whole part.
-        @param pD Indicates the number of decimals.
-        @param iNX TRUE if the field is index.
-        @param uNI TRUE if the field determines unique records.
-        @param coun Indicates if it is an accountant. For automatic references.
-        @param defValue Default value for the field.
-        @param oT Indicates if the changes in the field are out of transaction.
-        @param rX Regular expression used as a validation mask.
-        @param vG Indicates if the field is visible in the grid of the table.
-        @param gen Indicates if the field is generated.
-        @param iCK Indicates if it is a composite key.
+        @param is_calculated Indicates if the field is calculated.
+        @param is_visible Indicates if the field is visible.
+        @param is_editable Indicates if the field is editable.
+        @param part_integer Indicates the number of digits of the whole part.
+        @param part_decimal Indicates the number of decimals.
+        @param is_index TRUE if the field is index.
+        @param is_unique TRUE if the field determines unique records.
+        @param is_counter Indicates if it is an accountant. For automatic references.
+        @param default_value Default value for the field.
+        @param out_transaction Indicates if the changes in the field are out of transaction.
+        @param regular_expr Regular expression used as a validation mask.
+        @param is_visible_grid Indicates if the field is visible in the grid of the table.
+        @param is_generated Indicates if the field is generated.
+        @param is_ck Indicates if it is a composite key.
         """
         self.private = PNFieldMetaDataPrivate(
-            n,
-            a,
-            aN,
-            isPrimaryKey,
-            t,
-            length_,
-            c,
-            v,
-            ed,
-            pI,
-            pD,
-            iNX,
-            uNI,
-            coun,
-            defValue,
-            oT,
-            rX,
-            vG,
-            gen,
-            iCK,
+            field_name,
+            alias,
+            allow_null,
+            is_pk,
+            field_type,
+            length,
+            is_calculated,
+            is_visible,
+            is_editable,
+            part_integer,
+            part_decimal,
+            is_index,
+            is_unique,
+            is_counter,
+            default_value,
+            out_transaction,
+            regular_expr,
+            is_visible_grid,
+            is_generated,
+            is_ck,
         )
 
     def name(self) -> str:
@@ -408,10 +408,9 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @return FLFieldMetaData object that defines the field associated with it, or 0 if there is no associated field.
         """
         table_mtd = self.metadata()
-        if table_mtd is not None:
-            return table_mtd.field(self.private.associated_field_name)
-
-        return None
+        return (
+            table_mtd.field(self.private.associated_field_name) if table_mtd is not None else None
+        )
 
     def associatedFieldFilterTo(self) -> str:
         """
@@ -483,7 +482,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         return None
 
-    def setOptionsList(self, ol: str) -> None:
+    def setOptionsList(self, options_list: str) -> None:
         """
         Set the list of options for the field.
 
@@ -492,7 +491,9 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         self.private._options_list = [
             utils_base.AQTT(componente).strip()
-            for componente in ol.split(";" if ol.find("QT_TRANSLATE") > -1 else ",")
+            for componente in options_list.split(
+                ";" if options_list.find("QT_TRANSLATE") > -1 else ","
+            )
         ]
 
     def isCheck(self) -> bool:
@@ -516,13 +517,13 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         return self.private._fully_calculated
 
-    def setFullyCalculated(self, c: bool) -> None:
+    def setFullyCalculated(self, calculated: bool) -> None:
         """
         Specify if a field is fully calculated.
         """
 
-        self.private._fully_calculated = c
-        if c:
+        self.private._fully_calculated = calculated
+        if calculated:
             self.private.generated_ = True
 
     def trimmed(self) -> bool:
@@ -1012,4 +1013,4 @@ class PNFieldMetaDataPrivate(object):
         """
         Clear the list of relationship definitions.
         """
-        self._relation_list = []
+        self._relation_list.clear()

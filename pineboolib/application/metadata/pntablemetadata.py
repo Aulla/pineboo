@@ -212,13 +212,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             if not self.private._primary_key:
                 raise Exception("No primaryKey in %s" % self.private._name)
 
-        ret_ = self.private._primary_key
-
         if prefix_table:
             if "." not in self.private._primary_key:
-                ret_ = "%s.%s" % (self.private._name, self.private._primary_key)
+                return "%s.%s" % (self.private._name, self.private._primary_key)
 
-        return ret_
+        return self.private._primary_key
 
     def fieldNameToAlias(self, field_name: str = "") -> str:
         """
@@ -227,10 +225,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name
         """
 
-        if field_name in self.private._field_alias_map:
-            return self.private._field_alias_map[field_name]
-
-        return ""
+        return (
+            self.private._field_alias_map[field_name]
+            if field_name in self.private._field_alias_map
+            else ""
+        )
 
     def fieldAliasToName(self, alias_name: str = "") -> str:
         """
@@ -239,10 +238,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param aN Field alias name
         """
 
-        if alias_name in self.private._alias_field_map.keys():
-            return self.private._alias_field_map[alias_name]
-
-        return ""
+        return (
+            self.private._alias_field_map[alias_name]
+            if alias_name in self.private._alias_field_map.keys()
+            else ""
+        )
 
     def fieldType(self, field_name: str = "") -> int:
         """
@@ -250,11 +250,14 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         @param fN Field name
         """
-        type_ = None
-        if field_name in self.private._field_names:
-            type_ = self.private._fields_dict[field_name].type()
 
         ret_ = 0
+        type_ = (
+            self.private._fields_dict[field_name].type()
+            if field_name in self.private._field_names
+            else None
+        )
+
         if type_:
             if type_ in ("string", "counter", "timestamp"):
                 ret_ = 3
@@ -300,11 +303,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name in self.fieldNames():
-            return self.fieldNames().index(field_name)
-
-        LOGGER.warning("FLTableMetaData.fieldIsIndex(%s) No encontrado", field_name)
-        return -1
+        return self.fieldNames().index(field_name) if field_name in self.fieldNames() else -1
 
     def fieldIsCounter(self, field_name: str = "") -> bool:
         """
@@ -314,10 +313,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @author Andrés Otón Urbano (baxas@eresmas.com)
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].isCounter()
-
-        return False
+        return (
+            self.private._fields_dict[field_name].isCounter()
+            if field_name in self.private._field_names
+            else False
+        )
 
     def fieldAllowNull(self, field_name: str = "") -> bool:
         """
@@ -326,10 +326,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].allowNull()
-
-        return False
+        return (
+            self.private._fields_dict[field_name].allowNull()
+            if field_name in self.private._field_names
+            else False
+        )
 
     def fieldIsUnique(self, field_name: str = "") -> bool:
         """
@@ -337,10 +338,12 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         @param fN Field name.
         """
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].isUnique()
 
-        return False
+        return (
+            self.private._fields_dict[field_name].isUnique()
+            if field_name in self.private._field_names
+            else False
+        )
 
     def fieldTableM1(self, field_name: str = "") -> str:
         """
@@ -414,10 +417,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return field length.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].length()
-
-        return 0
+        return (
+            self.private._fields_dict[field_name].length()
+            if field_name in self.private._field_names
+            else 0
+        )
 
     def fieldPartInteger(self, field_name: str = "") -> int:
         """
@@ -427,10 +431,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return integer length.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].partInteger()
-
-        return 0
+        return (
+            self.private._fields_dict[field_name].partInteger()
+            if field_name in self.private._field_names
+            else 0
+        )
 
     def fieldPartDecimal(self, field_name: str = "") -> int:
         """
@@ -440,10 +445,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return part decimal length.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].partDecimal()
-
-        return 0
+        return (
+            self.private._fields_dict[field_name].partDecimal()
+            if field_name in self.private._field_names
+            else 0
+        )
 
     def fieldCalculated(self, field_name: str = "") -> bool:
         """
@@ -452,10 +458,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].calculated()
-
-        return False
+        return (
+            self.private._fields_dict[field_name].calculated()
+            if field_name in self.private._field_names
+            else False
+        )
 
     def fieldVisible(self, field_name: str = "") -> bool:
         """
@@ -464,10 +471,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name].visible()
-
-        return False
+        return (
+            self.private._fields_dict[field_name].visible()
+            if field_name in self.private._field_names
+            else False
+        )
 
     def field(self, field_name: str = "") -> Optional["pnfieldmetadata.PNFieldMetaData"]:
         """
@@ -477,10 +485,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return A FLFieldMetaData object with the information or metadata of a given field.
         """
 
-        if field_name in self.private._field_names:
-            return self.private._fields_dict[field_name]
-
-        return None
+        return (
+            self.private._fields_dict[field_name]
+            if field_name in self.private._field_names
+            else None
+        )
 
     def fieldList(self) -> List["pnfieldmetadata.PNFieldMetaData"]:
         """
