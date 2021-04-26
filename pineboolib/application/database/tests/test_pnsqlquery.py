@@ -32,6 +32,8 @@ class TestPNSqlQuery1(unittest.TestCase):
         data[to_param.name()] = to_param.value()
         qry.setParameterDict(data)
 
+        self.assertEqual(qry.groupDict(), {0: "fltest.id"})
+
         self.assertEqual(qry.valueParam("to"), 1)
         qry.setValueParam("to", 2)
         self.assertEqual(qry.valueParam("to"), 2)
