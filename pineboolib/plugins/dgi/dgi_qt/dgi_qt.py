@@ -7,7 +7,7 @@ from PyQt6 import QtWidgets, QtXml, QtGui, QtCore  # type: ignore[import]
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
 
-from typing import Any, Optional, cast, TYPE_CHECKING
+from typing import Any, Optional, cast, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .dgi_objects import (  # noqa : F401 # pragma: no cover
@@ -56,19 +56,23 @@ class DgiQt(dgi_schema.DgiSchema):
         return cls
 
     def msgBoxWarning(
-        self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
+        self,
+        text: str,
+        parent: Optional["QtWidgets.QWidget"] = None,
+        title: str = "Pineboo",
+        buttons: List["QtWidgets.QMessageBox.StandardButtons"] = [
+            QtWidgets.QMessageBox.StandardButtons.Ok
+        ],
     ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
-
-        if parent is None:
-            parent = QtWidgets.QApplication.activeWindow()
 
         LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
-            return QtWidgets.QMessageBox.warning(
-                parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
-            )
+            if parent is None:
+                parent = QtWidgets.QApplication.activeWindow()
+
+            return QtWidgets.QMessageBox.warning(parent, title, text, *buttons)
 
         return None
 
@@ -77,12 +81,9 @@ class DgiQt(dgi_schema.DgiSchema):
     ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
-        if parent is None:
-            parent = QtWidgets.QApplication.activeWindow()
-
-        # LOGGER.warning("%s", text)
-
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+            if parent is None:
+                parent = QtWidgets.QApplication.activeWindow()
             return QtWidgets.QMessageBox.warning(
                 parent,
                 title,
@@ -101,17 +102,15 @@ class DgiQt(dgi_schema.DgiSchema):
     ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
-        if parent is None:
-            parent = QtWidgets.QApplication.activeWindow()
-
         LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+            if parent is None:
+                parent = QtWidgets.QApplication.activeWindow()
 
-            if parent is not None:
-                return QtWidgets.QMessageBox.critical(
-                    parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
-                )
+            return QtWidgets.QMessageBox.critical(
+                parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
+            )
 
         return None
 
@@ -120,15 +119,13 @@ class DgiQt(dgi_schema.DgiSchema):
     ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
-        if parent is None:
-            parent = QtWidgets.QApplication.activeWindow()
-
         LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+            if parent is None:
+                parent = QtWidgets.QApplication.activeWindow()
 
-            if parent is not None:
-                return QtWidgets.QMessageBox.information(parent, title, text)
+            return QtWidgets.QMessageBox.information(parent, title, text)
 
         return None
 
