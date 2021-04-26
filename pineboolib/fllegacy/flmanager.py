@@ -380,20 +380,17 @@ class FLManager(QtCore.QObject, IManager):
         if not qry_:
             return None
 
-        # parser_ = xml.etree.XMLParser(
-        #    ns_clean=True,
-        #    encoding="UTF-8",
-        #    remove_blank_text=True,
-        # )
-
         qry = pnsqlquery.PNSqlQuery()
         qry.setName(name)
         root_ = ElementTree.fromstring(qry_)
 
         for child in root_:
-            value = None
-            if child.tag in ["select", "from", "tables", "order"]:
-                value = child.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+
+            value = (
+                child.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                if child.tag in ["select", "from", "tables", "order"]
+                else None
+            )
             if child.tag == "select":
                 qry.setSelect(value)
             elif child.tag == "from":
@@ -491,8 +488,8 @@ class FLManager(QtCore.QObject, IManager):
 
     def checkMetaData(
         self,
-        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
-        mtd2: "pntablemetadata.PNTableMetaData",
+        metadata_or_name: Union[str, "pntablemetadata.PNTableMetaData"],
+        metadata2: "pntablemetadata.PNTableMetaData",
     ) -> bool:
         """
         Compare the metadata of two tables.
@@ -503,36 +500,32 @@ class FLManager(QtCore.QObject, IManager):
         @param mtd2 Character string with XML describing the second table
         @return TRUE if the two descriptions are equal, and FALSE otherwise
         """
-        if isinstance(mtd1, str):
-            if mtd1 == mtd2.name():
-                return True
-            return False
+        if isinstance(metadata_or_name, str):
+            return metadata_or_name == metadata2.name()
         else:
-            if mtd1 is None or mtd2 is None:
+            if None in [metadata_or_name, metadata2]:
                 return False
 
-            if len(mtd1.fieldList()) != len(mtd2.fieldList()):
+            if len(metadata_or_name.fieldList()) != len(metadata2.fieldList()):
                 return False
 
-            for field1 in mtd1.fieldList():
+            for field1 in metadata_or_name.fieldList():
                 if field1.isCheck():
                     continue
 
-                field2 = mtd2.field(field1.name())
+                field2 = metadata2.field(field1.name())
                 if field2 is None:
                     return False
 
                 if field2.isCheck():
                     continue
 
-                if field1.type() != field2.type() or field1.allowNull() != field2.allowNull():
-                    return False
-
-                if field1.isUnique() != field2.isUnique() or field1.isIndex() != field2.isIndex():
-                    return False
-
                 if (
-                    field1.length() != field2.length()
+                    field1.type() != field2.type()
+                    or field1.allowNull() != field2.allowNull()
+                    or field1.isUnique() != field2.isUnique()
+                    or field1.isIndex() != field2.isIndex()
+                    or field1.length() != field2.length()
                     or field1.partDecimal() != field2.partDecimal()
                     or field1.partInteger() != field2.partInteger()
                 ):
@@ -626,7 +619,7 @@ class FLManager(QtCore.QObject, IManager):
             fmd_or_type if isinstance(fmd_or_type, str) else fmd_or_type.type(), value, upper
         )
 
-    def formatAssignValueLike(self, *args, **kwargs) -> str:
+    def formatAssignValueLike(self, *args) -> str:
         """
         Return the value content of a formatted field to be recognized by the current database, within the SQL WHERE closing.
 
@@ -661,10 +654,7 @@ class FLManager(QtCore.QObject, IManager):
             if mtd_.isQuery() and field_name_.find(".") == -1:
                 qry = pnsqlquery.PNSqlQuery(mtd_.query())
 
-                if qry:
-                    field_list = qry.fieldList()
-
-                for item in field_list:
+                for item in qry.fieldList():
                     item_field_name = item[item.find(".") + 1 :] if item.find(".") > -1 else item
                     if item_field_name == field_name_:
                         break
@@ -705,7 +695,7 @@ class FLManager(QtCore.QObject, IManager):
 
         return str(self.db_.formatValue(field_metadata_or_type, v, upper))
 
-    def formatAssignValue(self, *args, **kwargs) -> str:
+    def formatAssignValue(self, *args) -> str:
         """Return format assign value."""
 
         if args[0] is None:
@@ -717,10 +707,6 @@ class FLManager(QtCore.QObject, IManager):
         value_: Any = None
         upper_: bool = False
 
-        # print("tipo 0", type(args[0]))
-        # print("tipo 1", type(args[1]))
-        # print("tipo 2", type(args[2]))]
-
         if isinstance(args[0], pnfieldmetadata.PNFieldMetaData):
             if len(args) == 3:
                 field_metadata = args[0]
@@ -728,16 +714,12 @@ class FLManager(QtCore.QObject, IManager):
                 if mtd is None:
                     field_name_ = field_metadata.name()
                     field_type_ = field_metadata.type()
-                    value_ = args[1]
-                    upper_ = args[2]
 
                 elif field_metadata.isPrimaryKey():
                     field_name_ = mtd.primaryKey(True)
                     field_type_ = field_metadata.type()
-                    value_ = args[1]
-                    upper_ = args[2]
-                else:
 
+                else:
                     field_name_ = field_metadata.name()
                     if mtd.isQuery() and "." not in field_name_:
                         prefix_table_ = mtd.name()
@@ -746,7 +728,6 @@ class FLManager(QtCore.QObject, IManager):
                         if qry:
 
                             for field in qry.fieldList():
-                                # print("fieldName = " + f)
 
                                 field_section_ = field
                                 pos = field.find(".")
@@ -756,17 +737,15 @@ class FLManager(QtCore.QObject, IManager):
                                 else:
                                     field_section_ = field
 
-                                # prefixTable = f.section('.', 0, 0)
-                                # if f.section('.', 1, 1) == fieldName:
                                 if field_section_ == field_name_:
                                     break
 
-                        # fieldName.prepend(prefixTable + ".")
                         field_name_ = "%s.%s" % (prefix_table_, field_name_)
 
                     field_type_ = args[0].type()
-                    value_ = args[1]
-                    upper_ = args[2]
+
+                value_ = args[1]
+                upper_ = args[2]
 
             elif len(args) == 2:
 
