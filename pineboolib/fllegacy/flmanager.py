@@ -165,10 +165,9 @@ class FLManager(QtCore.QObject, IManager):
                     else metadata_name_or_xml
                 )
                 model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % model_name)
-                if model_:
-
+                if model_ is not None:
                     ret = self.metadata(model_.legacy_metadata)
-                else:
+                else:  # extraer datos del mtd (modo clásico)
                     # LOGGER.warning("metadata %s from xml is deprecated", metadata_name_or_xml)
                     stream = self.db_.connManager().managerModules().contentCached(table_name)
 
@@ -197,6 +196,7 @@ class FLManager(QtCore.QObject, IManager):
                         return None
 
                     ret = self.metadata(tree, quick)
+
                 if ret is None:
                     return None
 
@@ -389,66 +389,49 @@ class FLManager(QtCore.QObject, IManager):
         qry = pnsqlquery.PNSqlQuery()
         qry.setName(name)
         root_ = ElementTree.fromstring(qry_)
-        elem_select = root_.find("select")
-        elem_from = root_.find("from")
-        elem_tables = root_.find("tables")
-        elem_order = root_.find("order")
-        group_xml = root_.findall("group") or []
 
-        if elem_select is not None and elem_select.text:
-            qry.setSelect(
-                elem_select.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
-            )
-
-        if elem_from is not None and elem_from.text:
-            qry.setFrom(
-                elem_from.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
-            )
-
-        for where in root_.iter("where"):
-            if where is not None and where.text:
-                qry.setWhere(
-                    where.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
-                )
-
-        if elem_tables is not None and elem_tables.text:
-            qry.setTablesList(
-                elem_tables.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
-            )
-
-        if elem_order is not None and elem_order.text:
-            qry.setOrderBy(
-                elem_order.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
-            )
-
-        for level, item in enumerate(group_xml):
-            elem_level = item.find("level")
-            elem_field = item.find("field")
-            if (
-                elem_field is not None
-                and elem_field.text
-                and elem_level is not None
-                and elem_level.text
-            ):
-                if (
-                    float(
-                        elem_level.text.replace("\t", "")
+        for child in root_:
+            value = None
+            if child.tag in ["select", "from", "tables", "order"]:
+                value = child.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+            if child.tag == "select":
+                qry.setSelect(value)
+            elif child.tag == "from":
+                qry.setFrom(value)
+            elif child.tag == "tables":
+                qry.setTablesList(value)
+            elif child.tag == "order":
+                qry.setOrderBy(value)
+            elif child.tag == "where":
+                for child_where in root_.iter("where"):
+                    value = (
+                        child_where.text.replace("\t", "")
                         .replace("\n", "")
                         .replace("\r", "")
                         .strip()
                     )
-                    == level
-                ):
-                    # print("LEVEL %s -> %s" % (i,gr.xpath("field/text()")[0].strip(' \t\n\r')))
-                    qry.addGroup(
-                        pngroupbyquery.PNGroupByQuery(
-                            level,
-                            elem_field.text.replace("\t", "")
+                    qry.setWhere(value)
+            elif child.tag == "group":
+                for level, child_group in enumerate(root_.findall("group")):
+                    child_level = child_group.find("level")
+                    child_field = child_group.find("field")
+                    if getattr(child_field, "text", None) and getattr(child_level, "text", None):
+                        value_level = int(
+                            child_level.text.replace("\t", "")
                             .replace("\n", "")
                             .replace("\r", "")
-                            .strip(),
+                            .strip()
                         )
-                    )
+                        if level == value_level:
+                            qry.addGroup(
+                                pngroupbyquery.PNGroupByQuery(
+                                    level,
+                                    child_field.text.replace("\t", "")
+                                    .replace("\n", "")
+                                    .replace("\r", "")
+                                    .strip(),
+                                )
+                            )
 
         return qry
 
