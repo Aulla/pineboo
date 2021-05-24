@@ -13,7 +13,7 @@ class FakeSignal(object):
     _remote_funcs: List[Callable]
     _parent_model: "basemodel.BaseModel"
 
-    def __init__(self, parent_model: basemodel.BaseModel):
+    def __init__(self, parent_model: "basemodel.BaseModel"):
         """Initialice."""
         self._parent_model = parent_model
         self._remote_funcs = []
