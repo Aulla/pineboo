@@ -6,8 +6,9 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.qsa import qsa
 
-VALUE_1 = 0
-VALUE_2 = ""
+VALUE_1: int = 0
+VALUE_2: str = ""
+VALUE_3: bool = False
 
 
 def update_value(field_name: str) -> None:
@@ -25,6 +26,14 @@ def update_value_2() -> None:
     global VALUE_1
 
     VALUE_1 += 1
+
+
+def update_value_3(field_name: str = "", cursor=None) -> bool:
+    """Update test value"""
+
+    global VALUE_3
+
+    VALUE_3 = field_name != "" and cursor is not None
 
 
 class TestSignals(unittest.TestCase):
@@ -108,6 +117,18 @@ class TestSignals(unittest.TestCase):
         qsa.thread_session_free()
         self.assertEqual(VALUE_1, 2)
         self.assertEqual(VALUE_2, "idarea")
+
+    def test_basic_6(self) -> None:
+
+        global VALUE_3
+
+        qsa.thread_session_new()
+        obj_ = qsa.orm.fltest4()
+        self.assertTrue(obj_)
+        obj_.cursor.bufferChanged.connect(update_value_3)
+        obj_.idarea = "juas"
+        qsa.thread_session_free()
+        self.assertEqual(VALUE_3, True)
 
     @classmethod
     def tearDownClass(cls) -> None:
