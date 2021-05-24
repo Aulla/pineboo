@@ -623,19 +623,41 @@ class BaseModel(object):
                             foreign_class_, relation_m1.foreignField(), None
                         )
 
-                        qry_data = (
-                            self._session.query(  # type: ignore [union-attr] # noqa: F821
-                                foreign_class_
+                        value = getattr(self, field_name)
+
+                        if isinstance(value, bool):
+                            self._error_manager(
+                                "_check_integrity",
+                                "INTEGRITY::Field relation %s.%s -> %s A boolean has been assigned (%s).%s"
+                                % (
+                                    table_meta.name(),
+                                    field_name,
+                                    foreign_field_obj,
+                                    value,
+                                    " Use None instead of False" if not value else "",
+                                ),
                             )
-                            .filter(foreign_field_obj == getattr(self, field_name))
-                            .first()
-                        )
+
+                        qry_data = None
+                        try:
+                            qry_data = (
+                                self._session.query(  # type: ignore [union-attr] # noqa: F821
+                                    foreign_class_
+                                )
+                                .filter(foreign_field_obj == value)
+                                .first()
+                            )
+                        except Exception as error:
+                            self._error_manager(
+                                "_check_integrity",
+                                "INTEGRITY::Field relation %s.%s -> %s"
+                                % (table_meta.name(), field_name, error),
+                            )
                         # qry_data = (
                         #    foreign_class_.query(self._session)
                         #    .filter(foreign_field_obj == getattr(self, field_name))
                         #    .first()
                         # )
-                        value = getattr(self, field_name)
 
                         if isinstance(value, str) and value == "None":
                             LOGGER.warning(
