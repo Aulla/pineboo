@@ -28,7 +28,7 @@ def update_value_2() -> None:
     VALUE_1 += 1
 
 
-def update_value_3(field_name: str = "", cursor=None) -> bool:
+def update_value_3(field_name: str = "", cursor=None) -> None:
     """Update test value"""
 
     global VALUE_3
