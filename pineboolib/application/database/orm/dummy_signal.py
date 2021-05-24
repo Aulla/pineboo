@@ -33,11 +33,4 @@ class FakeSignal(object):
     def emit(self, text: str) -> None:
         """Call all conected functions."""
         for func_ in self._remote_funcs:
-            args_num = connections.get_expected_args_num(func_)
-
-            if args_num > 1:
-                func_(text, self._parent_model.cursor)
-            elif args_num > 0:
-                func_(text)
-            else:
-                func_()
+            func_(*[text, self._parent_model.cursor][: connections.get_expected_args_num(func_)])
