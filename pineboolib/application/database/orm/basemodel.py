@@ -114,7 +114,7 @@ class BaseModel(object):
 
     def _common_init(self) -> None:
         """Initialize."""
-        self.bufferChanged = dummy_signal.FakeSignal()
+        self.bufferChanged = dummy_signal.FakeSignal(self)
 
         if self.__tablename__ in application.PROJECT.actions.keys():
             self._action = application.PROJECT.actions[self.__tablename__]
