@@ -32,7 +32,11 @@ class DummyCursor(object):
     def valueBuffer(self, field_name: str) -> Any:
         """Return field value."""
 
-        return getattr(self._parent, field_name)
+        return (
+            self._parent._cached_bufferchanged[field_name]
+            if field_name in self._parent._cached_bufferchanged.keys()
+            else getattr(self._parent, field_name)
+        )
 
     def modeAccess(self) -> int:
         """Return mode_access."""

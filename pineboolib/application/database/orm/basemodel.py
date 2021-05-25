@@ -50,6 +50,7 @@ class BaseModel(object):
     bufferChanged: "dummy_signal.FakeSignal"
     _action: Optional["xmlaction.XMLAction"]
     legacy_metadata: Dict[str, Any]
+    _cached_bufferchanged: Dict[str, Any]
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -115,6 +116,7 @@ class BaseModel(object):
     def _common_init(self) -> None:
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal(self)
+        self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():
             self._action = application.PROJECT.actions[self.__tablename__]
@@ -833,6 +835,7 @@ class BaseModel(object):
 
         if field_name not in self._deny_buffer_changed:
             # print("EMITE! ", field_name)
+
             self.bufferChanged.emit(field_name)
 
     @classmethod
@@ -846,7 +849,25 @@ class BaseModel(object):
         """Change slot."""
 
         if hasattr(target, "_deny_buffer_changed"):
+
+            # Si no hay funciones conectadas , me voy.
+            if not hasattr(target, "bufferChanged") or not target.bufferChanged._remote_funcs:
+                return
+
+            # if not hasattr(target, "_cached_bufferchanged"):
+            #    target._cached_bufferchanged = {}
+
+            # Si estoy metiendo el mismo valor que tengo cacheado en este campo, no lanzo de nuevo bufferChanged
+            if (
+                event.key in target._cached_bufferchanged.keys()
+                and target._cached_bufferchanged[event.key] == new_value
+            ):
+                return
+
+            target._cached_bufferchanged[event.key] = new_value
             target.emit_buffer_changed(event.key)
+            if event.key in target._cached_bufferchanged.keys():
+                del target._cached_bufferchanged[event.key]
 
     @classmethod
     def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
