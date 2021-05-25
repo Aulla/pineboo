@@ -127,44 +127,58 @@ class KParserTools(object):
         precision = 0
         type_ = None
         date_format_num = None
+
         if xml is not None:
             precision = int(xml.get("Precision") or 0)
             type_ = xml.get("Type")
             date_format_num = xml.get("DateFormat")
 
-        ret_ = value
-        if data_type == 2:  # Double
+        if data_type == 0:  # str
+            value = data.get(value)
+
+        elif data_type == 1:  # int
+            value = data.get(value)
+
+        elif data_type == 2:  # float
 
             if type_ is None:
-                if value in (None, "None"):
-                    return
+                if value not in (None, "None"):
+                    value = QtCore.QLocale.system().toString(float(value), "f", precision)
 
-                ret_ = QtCore.QLocale.system().toString(float(value), "f", precision)
-        elif data_type == 3:
+        elif data_type == 3:  # time
             if value.find("T") > -1:
-                value = value[: value.find("T")]
-                ret_ = date_conversion.date_amd_to_dma(value)
-            else:
-                ret_ = value
+                value = date_conversion.date_amd_to_dma(value[: value.find("T")])
 
             sep = "-"
             if date_format_num is not None:
                 if date_format_num == "11":
-                    ret_ = ret_.replace(sep, ".")
+                    value = value.replace(sep, ".")
                 elif date_format_num == "18":
-                    ret_ = ret_.replace(sep, "/")
+                    value = value.replace(sep, "/")
                 elif date_format_num == "19":
-                    ret_ = ret_.replace(sep, "-")
+                    value = value.replace(sep, "-")
                 else:
-                    LOGGER.warning("UNKNOWN DateFormat %s (%s) -> %s", date_format_num, value, ret_)
+                    LOGGER.warning("UNKNOWN DateFormat %s --> %s", date_format_num, value)
+        elif data_type == 4:  # currency
 
-        elif data_type in [0, 5, 6]:  # 5 Imagen, 6 Barcode
+            if value not in (None, "None"):
+                float_value = float(value)
+                if float_value < -0.01 or float_value > 0.01:
+                    value = QtCore.QLocale.system().toString(float_value, "f", 2)
+
+        elif data_type == 5:  # 5 pixmap
             pass
 
-        elif data is not None:
-            ret_ = data.get(value)
+        elif data_type == 6:  # 6 barcode
+            pass
 
-        return ret_
+        elif data_type == 7:  # bool
+            value = "No" if str(value).upper() in ["FALSE", "F", "0"] else "Sí"
+
+        elif data is not None:
+            value = data.get(value)
+
+        return value
 
     def parseKey(self, ref_key: Optional[str] = None) -> Optional[str]:
         """
