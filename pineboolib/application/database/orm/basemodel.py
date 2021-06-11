@@ -902,7 +902,11 @@ class BaseModel(object):
 
     def init_serial(self) -> None:
 
-        if self.type(self.pk_name) == "serial" and getattr(self, self.pk_name, None) is None:
+        if (
+            self.type(self.pk_name) == "serial"
+            and getattr(self, self.pk_name, None) is None
+            and self._session is not None
+        ):
             setattr(
                 self,
                 self.pk_name,
