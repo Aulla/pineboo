@@ -154,10 +154,12 @@ class TestSignals(unittest.TestCase):
         obj_.cursor.bufferChanged.connect(update_value_4)
         obj_.idarea = "juas"
         self.assertEqual(VALUE_4, "juas")
-        VALUE_5.setValueBuffer("idarea", "JUAS_2")
-        self.assertEqual(obj_.idarea, "JUAS_2")
-        VALUE_5.setValueBuffer("idarea", "JUAS_4")
-        VALUE_5.setValueBuffer("idarea", "JUAS_3")
+        self.assertTrue(VALUE_5)
+        if VALUE_5 is not None:
+            VALUE_5.setValueBuffer("idarea", "JUAS_2")
+            self.assertEqual(obj_.idarea, "JUAS_2")
+            VALUE_5.setValueBuffer("idarea", "JUAS_4")
+            VALUE_5.setValueBuffer("idarea", "JUAS_3")
         self.assertEqual(obj_.idarea, "JUAS_3")
         self.assertEqual(obj_.changes(), {"id": 7, "idarea": "JUAS_3"})
         qsa.thread_session_free()
