@@ -348,7 +348,7 @@ class PNStaticLoader(QtCore.QObject):
         """Configure user interface from given widget."""
 
         diag_setup = PNStaticLoader(info, dialog)
-        if QtWidgets.QDialog.DialogCode.Accepted == diag_setup._dialog.exec_():
+        if QtWidgets.QDialog.DialogCode.Accepted == diag_setup._dialog.exec():
             info.writeSettings()
 
     @staticmethod
