@@ -51,6 +51,7 @@ class BaseModel(object):
     _action: Optional["xmlaction.XMLAction"]
     legacy_metadata: Dict[str, Any]
     _cached_bufferchanged: Dict[str, Any]
+    serial: bool = True
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -104,6 +105,9 @@ class BaseModel(object):
 
         target._new_object = True
 
+        if "serial" in kwargs:
+            target.serial = kwargs["serial"]
+
         target._common_init()
 
     @classmethod
@@ -143,17 +147,6 @@ class BaseModel(object):
             if self._new_object:
                 self._populate_default()
 
-                pk_name = self.pk_name
-                if self.type(pk_name) == "serial":
-                    setattr(
-                        self,
-                        pk_name,
-                        application.PROJECT.conn_manager.useConn(
-                            self._session._conn_name  # type: ignore [attr-defined] # noqa: F821
-                        )
-                        .driver()
-                        .nextSerialVal(self.__tablename__, pk_name),
-                    )
             self._cursor = dummy_cursor.DummyCursor(self)
 
             self._before_commit_function = "beforeCommit_%s" % self.__tablename__
@@ -161,6 +154,8 @@ class BaseModel(object):
 
             try:
                 if self._new_object:
+                    if self.serial:
+                        self.init_serial()
 
                     if self._action and self._action._record_widget is not None:
                         iface = getattr(
@@ -904,6 +899,19 @@ class BaseModel(object):
                     return getattr(module_script, "iface", module_script)
 
         return None
+
+    def init_serial(self) -> None:
+
+        if self.type(self.pk_name) == "serial" and getattr(self, self.pk_name, None) is None:
+            setattr(
+                self,
+                self.pk_name,
+                application.PROJECT.conn_manager.useConn(
+                    self._session._conn_name  # type: ignore [attr-defined] # noqa: F821
+                )
+                .driver()
+                .nextSerialVal(self.__tablename__, self.pk_name),
+            )
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
