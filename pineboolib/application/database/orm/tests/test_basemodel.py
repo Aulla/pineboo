@@ -71,6 +71,13 @@ class TestBaseModel(unittest.TestCase):
         obj_ = class_fltest()
         self.assertEqual(obj_.id, 2)
 
+        obj2_ = class_fltest(serial=False)
+        self.assertEqual(obj2_.id, None)
+
+        class_fltest2 = qsa.orm_("fltest")
+        obj3_ = class_fltest2()
+        self.assertEqual(obj3_.id, 3)
+
     def test_3_get(self) -> None:
         """Test get classmethod."""
 
