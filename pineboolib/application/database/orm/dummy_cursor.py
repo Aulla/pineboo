@@ -103,6 +103,11 @@ class DummyCursor(object):
 
         return self._parent.bufferChanged
 
+    def isModifiedBuffer(self):
+        """Return if buffer is modified."""
+
+        return len(self._parent.changes()) > 0
+
     def getattr(self, name: str) -> None:
         """Search unknown functions."""
 
