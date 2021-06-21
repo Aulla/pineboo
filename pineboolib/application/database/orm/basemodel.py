@@ -900,7 +900,7 @@ class BaseModel(object):
         return None
 
     def init_serial(self) -> None:
-        """Initialice serial field"""
+        """Initialice serial field."""
         if (
             self.type(self.pk_name) == "serial"
             and getattr(self, self.pk_name, None) is None
