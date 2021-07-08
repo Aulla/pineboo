@@ -379,8 +379,16 @@ class Project(object):
                     LOGGER.warning("No existe la acción %s", msg)
                 return None
             else:
+                try:
+                    object_context = self.actions[
+                        module_name
+                    ].load_master_widget()  # siempre devuelve
+                except Exception as error:
+                    LOGGER.exception(
+                        "JSCALL: Error loading master_widget %s : %s" % (module_name, error)
+                    )
+                    return None
 
-                object_context = self.actions[module_name].load_master_widget()  # siempre devuelve
                 if hasattr(object_context, "iface") and hasattr(
                     object_context.iface, function_name
                 ):
