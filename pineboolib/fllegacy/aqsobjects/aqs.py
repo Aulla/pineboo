@@ -35,7 +35,7 @@ class SMTP(object):
 class Docker(object):
     """Docker enumerate class."""
 
-    LeftDockWidgetArea = QtCore.Qt.DockWidgetAreas.LeftDockWidgetArea
+    LeftDockWidgetArea = QtCore.Qt.DockWidgetArea.LeftDockWidgetArea
     InDock: str = "InDock"
     OutSideDock: str = "OutSideDock"
 

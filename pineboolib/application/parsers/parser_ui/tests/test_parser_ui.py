@@ -38,7 +38,7 @@ class TestQT3UIParser(unittest.TestCase):
         self.assertTrue(widget)
         if widget:
             bt_01 = widget.findChild(
-                QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildOptions.FindChildrenRecursively
+                QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildOption.FindChildrenRecursively
             )
         self.assertTrue(bt_01)
 

@@ -149,9 +149,9 @@ class QTable(Q3TableWidget):
         """Set read only."""
 
         self.setEditTriggers(
-            QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers
+            QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers
             if b
-            else QtWidgets.QAbstractItemView.EditTriggers.AllEditTriggers
+            else QtWidgets.QAbstractItemView.EditTrigger.AllEditTriggers
         )
 
     def selectionMode(self) -> "QtWidgets.QAbstractItemView.SelectionMode":
@@ -237,7 +237,9 @@ class QTable(Q3TableWidget):
         item = QtWidgets.QTableWidgetItem(str(value))
 
         if right:
-            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignRight)
+            item.setTextAlignment(
+                QtCore.Qt.AlignmentFlag.AlignVCenter + QtCore.Qt.AlignmentFlag.AlignRight
+            )
 
         self.setItem(row, col, item)
 
@@ -250,17 +252,17 @@ class QTable(Q3TableWidget):
             if row in self.read_only_rows or col in self.read_only_cols:
                 new_item.setFlags(
                     cast(
-                        QtCore.Qt.ItemFlags,
-                        QtCore.Qt.ItemFlags.ItemIsSelectable | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                        QtCore.Qt.ItemFlag,
+                        QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled,
                     )
                 )
             else:
                 new_item.setFlags(
                     cast(
-                        QtCore.Qt.ItemFlags,
-                        QtCore.Qt.ItemFlags.ItemIsSelectable
-                        | QtCore.Qt.ItemFlags.ItemIsEnabled
-                        | QtCore.Qt.ItemFlags.ItemIsEditable,
+                        QtCore.Qt.ItemFlag,
+                        QtCore.Qt.ItemFlag.ItemIsSelectable
+                        | QtCore.Qt.ItemFlag.ItemIsEnabled
+                        | QtCore.Qt.ItemFlag.ItemIsEditable,
                     )
                 )
 
@@ -301,18 +303,17 @@ class QTable(Q3TableWidget):
                 if b:
                     item.setFlags(
                         cast(
-                            QtCore.Qt.ItemFlags,
-                            QtCore.Qt.ItemFlags.ItemIsSelectable
-                            | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                            QtCore.Qt.ItemFlag,
+                            QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled,
                         )
                     )
                 else:
                     item.setFlags(
                         cast(
-                            QtCore.Qt.ItemFlags,
-                            QtCore.Qt.ItemFlags.ItemIsSelectable
-                            | QtCore.Qt.ItemFlags.ItemIsEnabled
-                            | QtCore.Qt.ItemFlags.ItemIsEditable,
+                            QtCore.Qt.ItemFlag,
+                            QtCore.Qt.ItemFlag.ItemIsSelectable
+                            | QtCore.Qt.ItemFlag.ItemIsEnabled
+                            | QtCore.Qt.ItemFlag.ItemIsEditable,
                         )
                     )
 
@@ -336,18 +337,17 @@ class QTable(Q3TableWidget):
                 if b:
                     item.setFlags(
                         cast(
-                            QtCore.Qt.ItemFlags,
-                            QtCore.Qt.ItemFlags.ItemIsSelectable
-                            | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                            QtCore.Qt.ItemFlag,
+                            QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled,
                         )
                     )
                 else:
                     item.setFlags(
                         cast(
-                            QtCore.Qt.ItemFlags,
-                            QtCore.Qt.ItemFlags.ItemIsSelectable
-                            | QtCore.Qt.ItemFlags.ItemIsEnabled
-                            | QtCore.Qt.ItemFlags.ItemIsEditable,
+                            QtCore.Qt.ItemFlag,
+                            QtCore.Qt.ItemFlag.ItemIsSelectable
+                            | QtCore.Qt.ItemFlag.ItemIsEnabled
+                            | QtCore.Qt.ItemFlag.ItemIsEditable,
                         )
                     )
 

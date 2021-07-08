@@ -206,7 +206,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
                     receiver = widget.findChild(
                         QtCore.QObject,
                         receiv_name,
-                        QtCore.Qt.FindChildOptions.FindChildrenRecursively,
+                        QtCore.Qt.FindChildOption.FindChildrenRecursively,
                     )
 
                 if receiver is None:
@@ -1187,13 +1187,13 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             if value is not None:
                 final = final + int(value)
 
-        return QtCore.Qt.Alignment(final)
+        return QtCore.Qt.AlignmentFlag(final)
 
     elif variant.tag == "enum":
         libs_2: List[Any] = [
             QtCore.Qt,
-            QtCore.Qt.Orientations,
-            QtCore.Qt.Alignment,
+            QtCore.Qt.Orientation,
+            QtCore.Qt.AlignmentFlag,
             QtWidgets.QSizePolicy.Policy,
             QtWidgets.QFrame,
             QtWidgets.QSizePolicy,

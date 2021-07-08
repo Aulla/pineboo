@@ -170,12 +170,12 @@ class ISqlDriver(object):
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
                     cast(
-                        QtWidgets.QMessageBox.StandardButtons,
-                        QtWidgets.QMessageBox.StandardButtons.Ok
-                        | QtWidgets.QMessageBox.StandardButtons.No,
+                        QtWidgets.QMessageBox.StandardButton,
+                        QtWidgets.QMessageBox.StandardButton.Ok
+                        | QtWidgets.QMessageBox.StandardButton.No,
                     ),
                 )
-                if ret == QtWidgets.QMessageBox.StandardButtons.No:
+                if ret == QtWidgets.QMessageBox.StandardButton.No:
                     return False
                 else:
                     try:
@@ -208,7 +208,7 @@ class ISqlDriver(object):
                             QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QtWidgets.QMessageBox.StandardButtons.Ok,
+                            QtWidgets.QMessageBox.StandardButton.Ok,
                         )
                         LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
                         return False

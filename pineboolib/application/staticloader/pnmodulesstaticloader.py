@@ -231,7 +231,7 @@ class PNStaticLoader(QtCore.QObject):
             for row, info_dir in enumerate(info.dirs_):
                 item = QtWidgets.QTableWidgetItem(info_dir.path_)
                 item.setTextAlignment(
-                    QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft
+                    QtCore.Qt.AlignmentFlag.AlignVCenter + QtCore.Qt.AlignmentFlag.AlignLeft
                 )
                 tbl_dir.setItem(row, 0, item)
                 chk = QtWidgets.QCheckBox(tbl_dir)
@@ -261,7 +261,9 @@ class PNStaticLoader(QtCore.QObject):
             tbl_dir.setRowCount(n_rows + 1)
 
             item = QtWidgets.QTableWidgetItem(str(dir))
-            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft)
+            item.setTextAlignment(
+                QtCore.Qt.AlignmentFlag.AlignVCenter + QtCore.Qt.AlignmentFlag.AlignLeft
+            )
             tbl_dir.setItem(n_rows, 0, item)
 
             chk = QtWidgets.QCheckBox(tbl_dir)
@@ -294,7 +296,9 @@ class PNStaticLoader(QtCore.QObject):
                 info.path_ = new_dir
 
             item = QtWidgets.QTableWidgetItem(str(new_dir))
-            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignLeft)
+            item.setTextAlignment(
+                QtCore.Qt.AlignmentFlag.AlignVCenter + QtCore.Qt.AlignmentFlag.AlignLeft
+            )
             tbl_dir.setItem(cur_row, 0, item)
 
     @decorators.pyqt_slot()
@@ -306,12 +310,12 @@ class PNStaticLoader(QtCore.QObject):
         if cur_row == -1:
             return
 
-        if QtWidgets.QMessageBox.StandardButtons.No == QtWidgets.QMessageBox.warning(
+        if QtWidgets.QMessageBox.StandardButton.No == QtWidgets.QMessageBox.warning(
             QtWidgets.QWidget(),
             self.tr("Borrar registro"),
             self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-            QtWidgets.QMessageBox.StandardButtons.Ok,
-            QtWidgets.QMessageBox.StandardButtons.No,
+            QtWidgets.QMessageBox.StandardButton.Ok,
+            QtWidgets.QMessageBox.StandardButton.No,
         ):
             return
 

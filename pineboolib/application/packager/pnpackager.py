@@ -233,7 +233,7 @@ class PNPackager(object):
         files_def = self.filesDef(module_folder_list)
 
         file_ = QtCore.QFile(QtCore.QDir.cleanPath(outputfile))
-        if not file_.open(QtCore.QIODevice.OpenMode.WriteOnly):
+        if not file_.open(QtCore.QIODevice.OpenModeFlag.WriteOnly):
             error = "Error opening file %r" % outputfile
             self._addError("pack", error)
             raise Exception(error)

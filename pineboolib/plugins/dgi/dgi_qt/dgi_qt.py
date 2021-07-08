@@ -60,10 +60,10 @@ class DgiQt(dgi_schema.DgiSchema):
         text: str,
         parent: Optional["QtWidgets.QWidget"] = None,
         title: str = "Pineboo",
-        buttons: List["QtWidgets.QMessageBox.StandardButtons"] = [
-            QtWidgets.QMessageBox.StandardButtons.Ok
+        buttons: List["QtWidgets.QMessageBox.StandardButton"] = [
+            QtWidgets.QMessageBox.StandardButton.Ok
         ],
-    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Show a message box warning."""
 
         LOGGER.warning("%s", text)
@@ -78,7 +78,7 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def msgBoxQuestion(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Show a message box warning."""
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
@@ -89,9 +89,9 @@ class DgiQt(dgi_schema.DgiSchema):
                 title,
                 text,
                 cast(
-                    QtWidgets.QMessageBox.StandardButtons,
-                    QtWidgets.QMessageBox.StandardButtons.Yes
-                    | QtWidgets.QMessageBox.StandardButtons.No,
+                    QtWidgets.QMessageBox.StandardButton,
+                    QtWidgets.QMessageBox.StandardButton.Yes
+                    | QtWidgets.QMessageBox.StandardButton.No,
                 ),
             )
 
@@ -99,7 +99,7 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def msgBoxError(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Show a message box warning."""
 
         LOGGER.warning("%s", text)
@@ -109,14 +109,14 @@ class DgiQt(dgi_schema.DgiSchema):
                 parent = QtWidgets.QApplication.activeWindow()
 
             return QtWidgets.QMessageBox.critical(
-                parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
+                parent, title, text, QtWidgets.QMessageBox.StandardButton.Ok
             )
 
         return None
 
     def msgBoxInfo(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Show a message box warning."""
 
         LOGGER.warning("%s", text)

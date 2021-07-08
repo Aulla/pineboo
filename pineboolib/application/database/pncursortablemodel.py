@@ -335,13 +335,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return QtCore.Qt.CheckState.Unchecked
 
         elif role == QtCore.Qt.ItemDataRole.TextAlignmentRole:
-            result = QtCore.Qt.Alignment.AlignVCenter
+            result = QtCore.Qt.AlignmentFlag.AlignVCenter
             if _type in ("int", "double", "uint"):
-                result = result | QtCore.Qt.Alignment.AlignRight
+                result = result | QtCore.Qt.AlignmentFlag.AlignRight
             elif _type in ("bool", "date", "time"):
-                result = result | QtCore.Qt.Alignment.AlignCenter
+                result = result | QtCore.Qt.AlignmentFlag.AlignCenter
             elif _type in ("unlock", "pixmap"):
-                result = result | QtCore.Qt.Alignment.AlignHCenter
+                result = result | QtCore.Qt.AlignmentFlag.AlignHCenter
 
             return result
 
@@ -1020,7 +1020,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def headerData(
         self,
         section: int,
-        orientation: "QtCore.Qt.Orientations",
+        orientation: "QtCore.Qt.Orientation",
         role: int = QtCore.Qt.ItemDataRole.DisplayRole,
     ) -> Any:
         """
@@ -1032,11 +1032,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         @return info for section, orientation and role.
         """
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            if orientation == QtCore.Qt.Orientations.Horizontal:
+            if orientation == QtCore.Qt.Orientation.Horizontal:
                 if not self.col_aliases:
                     self.loadColAliases()
                 return self.col_aliases[section]
-            elif orientation == QtCore.Qt.Orientations.Vertical:
+            elif orientation == QtCore.Qt.Orientation.Vertical:
                 return section + 1
         return None
 

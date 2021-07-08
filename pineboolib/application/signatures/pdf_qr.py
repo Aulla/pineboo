@@ -207,7 +207,7 @@ class pdfQr:
                     )
                 )
                 label_painter.drawText(
-                    image_label_resized.rect(), QtCore.Qt.Alignment.AlignTop, " " + self._text
+                    image_label_resized.rect(), QtCore.Qt.AlignmentFlag.AlignTop, " " + self._text
                 )
                 label_painter.setCompositionMode(
                     QtGui.QPainter.CompositionMode.CompositionMode_SourceOver
@@ -248,7 +248,7 @@ class pdfQr:
         for img_data in self._signed_data:
 
             buffer = QtCore.QBuffer()
-            buffer.open(QtCore.QIODeviceBase.OpenMode.ReadWrite)
+            buffer.open(QtCore.QIODeviceBase.OpenModeFlag.ReadWrite)
             img_data.save(buffer, "PNG")
             page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type] # noqa: F821
             page.save(

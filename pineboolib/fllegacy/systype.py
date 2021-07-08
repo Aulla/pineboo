@@ -390,21 +390,21 @@ class SysType(sysbasetype.SysBaseType):
         # lay.setSpacing(6)
         lbl = qlabel.QLabel(diag)
         lbl.setText(txt)
-        lbl.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
+        lbl.setAlignment(cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignmentFlag.AlignTop))
         lay.addWidget(lbl)
         ted = qtextedit.QTextEdit(diag)
         ted.setTextFormat(qtextedit.QTextEdit.LogText)
         ted.setAlignment(
             cast(
-                QtCore.Qt.Alignment,
-                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignVCenter,
+                QtCore.Qt.AlignmentFlag,
+                QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter,
             )
         )
         ted.append(self.reportChanges(changes))
         lay.addWidget(ted)
         lbl2 = qlabel.QLabel(diag)
         lbl2.setText(self.translate("¿Que desea hacer?"))
-        lbl2.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
+        lbl2.setAlignment(cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignmentFlag.AlignTop))
         lay.addWidget(lbl2)
         lay2 = qhboxlayout.QHBoxLayout()
         # lay2.setMargin(6)
@@ -832,7 +832,7 @@ class SysType(sysbasetype.SysBaseType):
         lay2.addWidget(label_pix)
         lbl = qlabel.QLabel(diag)
         lbl.setText(msg)
-        lbl.setAlignment(cast(QtCore.Qt.Alignment, aqs.AQS.AlignTop | aqs.AQS.WordBreak))
+        lbl.setAlignment(cast(QtCore.Qt.AlignmentFlag, aqs.AQS.AlignTop | aqs.AQS.WordBreak))
         lay2.addWidget(lbl)
         lay3 = qhboxlayout.QHBoxLayout(diag)
         # lay3.setMargin(6)
@@ -1531,23 +1531,23 @@ class AbanQDbDumper(QtCore.QObject):
             SysType.translate(u"Driver: %s")
             % (str(self.db_.driverNameToDriverAlias(self.db_.driverName())))
         )
-        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Base de datos: %s") % (str(self.db_.database())))
-        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Host: %s") % (str(self.db_.host())))
-        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Puerto: %s") % (str(self.db_.port())))
-        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = qlabel.QLabel(frm)
         lbl.setText(SysType.translate(u"Usuario: %s") % (str(self.db_.user())))
-        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         lay_frame.addWidget(lbl)
         lay_aux = qhboxlayout.QHBoxLayout()
         lay_frame.addLayout(lay_aux)
@@ -1555,7 +1555,7 @@ class AbanQDbDumper(QtCore.QObject):
         self._label_dir_base.setText(
             SysType.translate(u"Directorio Destino: %s") % (str(self._dir_base))
         )
-        self._label_dir_base.setAlignment(QtCore.Qt.Alignment.AlignVCenter)
+        self._label_dir_base.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)
         lay_aux.addWidget(self._label_dir_base)
         self.pushbutton_change_dir = qpushbutton.QPushButton(SysType.translate(u"Cambiar"), frm)
         self.pushbutton_change_dir.setSizePolicy(
@@ -1578,8 +1578,8 @@ class AbanQDbDumper(QtCore.QObject):
         self._ted_log.setTextFormat(qtextedit.QTextEdit.LogText)
         self._ted_log.setAlignment(
             cast(
-                QtCore.Qt.Alignment,
-                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignVCenter,
+                QtCore.Qt.AlignmentFlag,
+                QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter,
             )
         )
         lay.addWidget(self._ted_log)

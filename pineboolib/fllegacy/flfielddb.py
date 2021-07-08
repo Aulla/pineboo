@@ -195,8 +195,8 @@ class FLFieldDB(QtWidgets.QWidget):
             self._text_label_db.setMinimumHeight(16)  # No inicia originalmente aqui
             self._text_label_db.setAlignment(
                 cast(
-                    QtCore.Qt.Alignment,
-                    QtCore.Qt.Alignment.AlignVCenter | QtCore.Qt.Alignment.AlignLeft,
+                    QtCore.Qt.AlignmentFlag,
+                    QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignLeft,
                 )
             )
             # self._text_label_db.setFrameShape(QtGui.QFrame.WinPanel)
@@ -577,7 +577,7 @@ class FLFieldDB(QtWidgets.QWidget):
         elif (
             event.type() == QtCore.QEvent.Type.MouseButtonRelease
             and isinstance(obj, type(self._text_label_db))
-            and cast(QtGui.QMouseEvent, event).button() == QtCore.Qt.MouseButtons.LeftButton
+            and cast(QtGui.QMouseEvent, event).button() == QtCore.Qt.MouseButton.LeftButton
         ):
             self.emitLabelClicked()
             return True
@@ -2053,7 +2053,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
             self.editor_.setDisabled(True)
-            self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
+            self.editor_.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
             if self._push_button_db:
                 self._push_button_db.hide()
 
@@ -2521,7 +2521,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self.editor_,
                     )
                 )
-                self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
+                self.editor_.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
             else:
                 if type_ == "uint":
 
@@ -2538,7 +2538,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             self.editor_,
                         )
                     )
-                    self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
+                    self.editor_.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
                 else:
                     self.editor_.setMaxValue(len_)
                     if regexp_:
@@ -2548,7 +2548,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             )
                         )
 
-                    self.editor_.setAlignment(QtCore.Qt.Alignment.AlignLeft)
+                    self.editor_.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
 
                     self.keyF4Pressed.connect(self.toggleAutoCompletion)
                     if self._auto_com_mode == "OnDemandF4":
@@ -2664,7 +2664,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         if not self._auto_com_frame and self.cursor_ is not None:
-            self._auto_com_frame = QtWidgets.QWidget(self, QtCore.Qt.WindowFlags.Popup)
+            self._auto_com_frame = QtWidgets.QWidget(self, QtCore.Qt.WindowType.Popup)
             lay = QtWidgets.QVBoxLayout()
             self._auto_com_frame.setLayout(lay)
             self._auto_com_frame.setWindowTitle("autoComFrame")
@@ -2910,7 +2910,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 QtWidgets.QApplication.focusWidget(),
                 "Aviso",
                 "Debe indicar un valor para %s" % field.alias(),
-                QtWidgets.QMessageBox.StandardButtons.Ok,
+                QtWidgets.QMessageBox.StandardButton.Ok,
             )
             return
 
@@ -3149,7 +3149,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenModeFlag.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -3204,7 +3204,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenModeFlag.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -3259,7 +3259,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenModeFlag.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()

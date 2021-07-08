@@ -33,6 +33,6 @@ def aq_object_query_list(
     args_.append(object_name)
 
     if recursirve_search:
-        args_.append(QtCore.Qt.FindChildOptions.FindChildrenRecursively)
+        args_.append(QtCore.Qt.FindChildOption.FindChildrenRecursively)
 
     return types.Array(obj_.findChildren(*args_))

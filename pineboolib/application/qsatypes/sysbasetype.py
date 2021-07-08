@@ -441,7 +441,7 @@ class SysBaseType(object):
             QtWidgets.QApplication.focusWidget(),
             "Pineboo",
             cls.translate(u"Funcionalidad no soportada aún en Pineboo."),
-            QtWidgets.QMessageBox.StandardButtons.Ok,
+            QtWidgets.QMessageBox.StandardButton.Ok,
         )
         return
 

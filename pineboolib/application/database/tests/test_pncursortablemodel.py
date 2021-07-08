@@ -91,11 +91,11 @@ class TestPNCursorTableModel(unittest.TestCase):
         model.sort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.assertEqual(
             model.data(model.index(0, 5), QtCore.Qt.ItemDataRole.TextAlignmentRole),
-            QtCore.Qt.Alignment.AlignVCenter | QtCore.Qt.Alignment.AlignCenter,
+            QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignCenter,
         )
         self.assertEqual(
             model.data(model.index(1, 1), QtCore.Qt.ItemDataRole.TextAlignmentRole),
-            QtCore.Qt.Alignment.AlignVCenter,
+            QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         system_date = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")

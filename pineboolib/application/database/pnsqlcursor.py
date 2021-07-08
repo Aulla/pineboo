@@ -839,12 +839,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     QtWidgets.QApplication.focusWidget(),
                     self.tr("Aviso"),
                     [
-                        QtWidgets.QMessageBox.StandardButtons.Ok,
-                        QtWidgets.QMessageBox.StandardButtons.No,
+                        QtWidgets.QMessageBox.StandardButton.Ok,
+                        QtWidgets.QMessageBox.StandardButton.No,
                     ],
                 ],
             )
-            if res != QtWidgets.QMessageBox.StandardButtons.No:
+            if res != QtWidgets.QMessageBox.StandardButton.No:
 
                 if self.transaction():
                     if not self.refreshBuffer():
@@ -2116,7 +2116,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self._selection is None:
             raise Exception("Call setAction first.")
         self._selection.select(
-            new_selection, QtCore.QItemSelectionModel.SelectionFlags.ClearAndSelect
+            new_selection, QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect
         )
         # self.private_cursor._current_changed.emit(self.at())
         if model._current_row_index > -1 and model._current_row_index < self.size():
@@ -3465,6 +3465,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         # self.acl_table_ = None
         self.timer_ = None
         self.ctxt_ = None
+        self._model = None
         # self.rawValues_ = False
         self._persistent_filter = None
         self.db_ = db_

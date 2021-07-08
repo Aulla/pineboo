@@ -29,8 +29,8 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self._lay.addWidget(self._pixmapview)
         self._pixmapview.setAlignment(
             cast(
-                QtCore.Qt.Alignment,
-                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignCenter,
+                QtCore.Qt.AlignmentFlag,
+                QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignCenter,
             )
         )
         self._pixmapview.installEventFilter(self)

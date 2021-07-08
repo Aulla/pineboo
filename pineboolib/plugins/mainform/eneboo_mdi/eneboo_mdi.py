@@ -349,7 +349,7 @@ class MainForm(imainwindow.IMainWindow):
             new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
             new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
-            new_area_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
+            new_area_bar.setOrientation(QtCore.Qt.Orientation.Vertical)
             new_area_bar.layout().setSpacing(3)
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
             action_group = QtGui.QActionGroup(new_area_bar)
@@ -453,7 +453,7 @@ class MainForm(imainwindow.IMainWindow):
             for child in new_area_bar.children():
                 if isinstance(child, QtWidgets.QToolButton):
                     self.mdi_toolbuttons.append(child)
-                    lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
+                    lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)
 
             a_menu = self.modules_menu.addMenu(descript_area)
             for action in action_group.actions():
@@ -463,7 +463,7 @@ class MainForm(imainwindow.IMainWindow):
         config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
         config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         # config_tool_bar.setFrameStyle(QFrame.NoFrame)
-        config_tool_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
+        config_tool_bar.setOrientation(QtCore.Qt.Orientation.Vertical)
         # config_tool_bar.layout().setSpacing(3)
         self.tool_box_.addItem(config_tool_bar, self.tr(descript_area))
 
@@ -537,7 +537,7 @@ class MainForm(imainwindow.IMainWindow):
         for child in config_tool_bar.children():
             if isinstance(child, QtWidgets.QToolButton):
                 self.mdi_toolbuttons.append(child)
-                lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
+                lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)
 
         if application.PROJECT.aq_app.acl_:
             application.PROJECT.aq_app.acl_.process(self.container_)
@@ -588,22 +588,22 @@ class MainForm(imainwindow.IMainWindow):
                 if (
                     key_.key() == cast(int, QtCore.Qt.Key.Key_Shift.value)
                     and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
-                    == QtCore.Qt.KeyboardModifiers.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                    == QtCore.Qt.KeyboardModifier.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.activateModule(None)
                     return True
                 elif (
                     key_.key() == cast(int, QtCore.Qt.Key.Key_Q.value)
                     and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
-                    == QtCore.Qt.KeyboardModifiers.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                    == QtCore.Qt.KeyboardModifier.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.generalExit()
                     return True
                 elif key_.key() == cast(
                     int, QtCore.Qt.Key.Key_W.value
                 ) and key_.modifiers() in [  # type: ignore [comparison-overlap] # noqa: F821
-                    QtCore.Qt.KeyboardModifiers.AltModifier,
-                    QtCore.Qt.KeyboardModifiers.ControlModifier,
+                    QtCore.Qt.KeyboardModifier.AltModifier,
+                    QtCore.Qt.KeyboardModifier.ControlModifier,
                 ]:
                     LOGGER.warning("unknown key presset!.")
                     return True

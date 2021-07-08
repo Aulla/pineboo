@@ -265,13 +265,13 @@ class DlgConnect(QtWidgets.QWidget):
                 "Pineboo",
                 "¿Desea borrar el perfil %s?" % self._user_interface.cbProfiles.currentText(),
                 cast(
-                    QtWidgets.QMessageBox.StandardButtons,
-                    QtWidgets.QMessageBox.StandardButtons.Ok
-                    | QtWidgets.QMessageBox.StandardButtons.No,
+                    QtWidgets.QMessageBox.StandardButton,
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                    | QtWidgets.QMessageBox.StandardButton.No,
                 ),
-                QtWidgets.QMessageBox.StandardButtons.No,
+                QtWidgets.QMessageBox.StandardButton.No,
             )
-            if res == QtWidgets.QMessageBox.StandardButtons.No:
+            if res == QtWidgets.QMessageBox.StandardButton.No:
                 return
 
             pconf: "projectconfig.ProjectConfig" = self.profiles[
@@ -391,7 +391,7 @@ class DlgConnect(QtWidgets.QWidget):
             self._user_interface,
             self.tr("Carpeta profiles"),
             self.profile_dir,
-            QtWidgets.QFileDialog.Options.ShowDirsOnly,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly,
         )
 
         if new_dir and new_dir is not self.profile_dir:

@@ -310,13 +310,13 @@ class Dir(object):
     path: Optional[str]
 
     # Filters :
-    Files = QtCore.QDir.Filters.Files
-    Dirs = QtCore.QDir.Filters.Dirs
-    NoFilter = QtCore.QDir.Filters.NoFilter
+    Files = QtCore.QDir.Filter.Files
+    Dirs = QtCore.QDir.Filter.Dirs
+    NoFilter = QtCore.QDir.Filter.NoFilter
 
     # Sort Flags:
-    Name = QtCore.QDir.SortFlags.Name
-    NoSort = QtCore.QDir.SortFlags.NoSort
+    Name = QtCore.QDir.SortFlag.Name
+    NoSort = QtCore.QDir.SortFlag.NoSort
 
     # other:
     home = os.path.expanduser("~")
@@ -328,8 +328,8 @@ class Dir(object):
     def entryList(
         self,
         patron: str,
-        type_: "QtCore.QDir.Filters" = QtCore.QDir.Filters.NoFilter,
-        sort: "QtCore.QDir.SortFlags" = QtCore.QDir.SortFlags.NoSort,
+        type_: "QtCore.QDir.Filter" = QtCore.QDir.Filter.NoFilter,
+        sort: "QtCore.QDir.SortFlag" = QtCore.QDir.SortFlag.NoSort,
     ) -> list:
         """
         Create listing for files inside given folder.
@@ -452,10 +452,10 @@ class FileBaseClass(object):
     Constants for File and FileStatic.
     """
 
-    ReadOnly = QtCore.QIODevice.OpenMode.ReadOnly
-    WriteOnly = QtCore.QIODevice.OpenMode.WriteOnly
-    ReadWrite = QtCore.QIODevice.OpenMode.ReadWrite
-    Append = QtCore.QIODevice.OpenMode.Append
+    ReadOnly = QtCore.QIODevice.OpenModeFlag.ReadOnly
+    WriteOnly = QtCore.QIODevice.OpenModeFlag.WriteOnly
+    ReadWrite = QtCore.QIODevice.OpenModeFlag.ReadWrite
+    Append = QtCore.QIODevice.OpenModeFlag.Append
     ioDevice = QtCore.QIODevice
 
     @staticmethod
@@ -495,7 +495,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     """
 
     _file_name: str
-    _mode: "QtCore.QIODevice.OpenMode"
+    _mode: "QtCore.QIODevice.OpenModeFlag"
 
     _encode: str
     _last_seek: int
@@ -520,7 +520,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._mode = self.ReadWrite
 
-    def open(self, mode: "QtCore.QIODevice.OpenMode") -> bool:
+    def open(self, mode: "QtCore.QIODevice.OpenModeFlag") -> bool:
         """Open file."""
 
         self._mode = mode

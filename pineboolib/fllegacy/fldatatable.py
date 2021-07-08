@@ -157,7 +157,7 @@ class FLDataTable(QtWidgets.QTableView):
         self._h_header = self.horizontalHeader()
         self._h_header.setDefaultSectionSize(120)
         self._h_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         self.setAlternatingRowColors(True)
@@ -563,7 +563,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         popup = QMenu(self)
 
-        menu_frame = QWidget(self, QtCore.Qt.WindowFlags.Popup)
+        menu_frame = QWidget(self, QtCore.Qt.WindowType.Popup)
 
         lay = QVBoxLayout()
         menu_frame.setLayout(lay)
@@ -583,7 +583,7 @@ class FLDataTable(QtWidgets.QTableView):
 
                 sub_popup = QMenu(self)
                 sub_popup.setTitle(mtd.alias())
-                sub_popup_frame = QWidget(sub_popup, QtCore.Qt.WindowFlags.Popup)
+                sub_popup_frame = QWidget(sub_popup, QtCore.Qt.WindowType.Popup)
                 lay_popup = QVBoxLayout(sub_popup)
                 sub_popup_frame.setLayout(lay_popup)
 
@@ -856,7 +856,7 @@ class FLDataTable(QtWidgets.QTableView):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         """Double click event."""
-        if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.MouseButtons.LeftButton:
+        if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.MouseButton.LeftButton:
             return
 
         self.recordChoosed.emit()

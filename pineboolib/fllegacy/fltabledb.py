@@ -859,7 +859,7 @@ class FLTableDB(QtWidgets.QWidget):
             for column in range(model.columnCount()):
                 alias_ = self._table_records.model().headerData(
                     self._table_records.visual_index_to_metadata_index(column),
-                    QtCore.Qt.Orientations.Horizontal,
+                    QtCore.Qt.Orientation.Horizontal,
                     QtCore.Qt.ItemDataRole.DisplayRole,
                 )
                 list_.append(table_metadata.fieldAliasToName(alias_) or "")
@@ -915,7 +915,7 @@ class FLTableDB(QtWidgets.QWidget):
         return self._table_records.model().headerData(
             # self._table_records.selectionModel().selectedColumns(),
             self._table_records.currentColumn(),
-            QtCore.Qt.Orientations.Horizontal,
+            QtCore.Qt.Orientation.Horizontal,
             QtCore.Qt.ItemDataRole.DisplayRole,
         )
 
@@ -1528,7 +1528,7 @@ class FLTableDB(QtWidgets.QWidget):
                     .model()
                     .headerData(
                         idx_i + self._sort_column_1,
-                        QtCore.Qt.Orientations.Horizontal,
+                        QtCore.Qt.Orientation.Horizontal,
                         QtCore.Qt.ItemDataRole.DisplayRole,
                     )
                 )
@@ -1615,7 +1615,7 @@ class FLTableDB(QtWidgets.QWidget):
                                         0, pow(10, part_integer) - 1, part_decimal, editor_le
                                     )
                                 )
-                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
                             elif type_ in ("uint", "int"):
                                 if type_ == "uint":
 
@@ -1634,7 +1634,7 @@ class FLTableDB(QtWidgets.QWidget):
                                         )
                                     )
 
-                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
                             else:  # string, stringlist, timestamp
                                 if len_ > 0:
                                     editor_le.setMaxLength(len_)
@@ -1645,7 +1645,7 @@ class FLTableDB(QtWidgets.QWidget):
                                             )
                                         )
 
-                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignLeft)
+                                editor_le.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
 
                             self._tdb_filter.setCellWidget(_linea, idx_j, editor_le)
 
@@ -2173,14 +2173,14 @@ class FLTableDB(QtWidgets.QWidget):
                         self._combo_box_field_to_search_1.addItem(
                             model.headerData(
                                 visual_column,
-                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.Orientation.Horizontal,
                                 QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
                         self._combo_box_field_to_search_2.addItem(
                             model.headerData(
                                 visual_column,
-                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.Orientation.Horizontal,
                                 QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
@@ -2670,7 +2670,7 @@ class FLTableDB(QtWidgets.QWidget):
                 QtWidgets.QApplication.activeModalWidget(),
                 self.tr("Opción deshabilitada"),
                 self.tr("Esta opción ha sido deshabilitada."),
-                QtWidgets.QMessageBox.StandardButtons.Ok,
+                QtWidgets.QMessageBox.StandardButton.Ok,
             )
             return
 

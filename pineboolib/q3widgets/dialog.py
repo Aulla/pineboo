@@ -21,7 +21,7 @@ class Dialog(qdialog.QDialog):
     def __init__(
         self,
         title: Optional[str] = None,
-        f: Union[Optional[QtCore.Qt.WindowFlags], int] = None,
+        f: Union[Optional[QtCore.Qt.WindowType], int] = None,
         desc: Optional[str] = None,
     ) -> None:
         """Inicialize."""

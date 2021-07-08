@@ -507,7 +507,7 @@ class PNApplication(QtCore.QObject):
 
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer_ = QtCore.QBuffer()
-        buffer_.open(QtCore.QIODevice.OpenMode.WriteOnly)
+        buffer_.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
         pix_.save(buffer_, "xpm")
 
         application.PROJECT.app.restoreOverrideCursor()
@@ -640,7 +640,7 @@ class PNApplication(QtCore.QObject):
                 dock_widget.setWidget(self._ted_output)
                 dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
                 application.PROJECT.main_window.addDockWidget(
-                    QtCore.Qt.DockWidgetAreas.BottomDockWidgetArea, dock_widget
+                    QtCore.Qt.DockWidgetArea.BottomDockWidgetArea, dock_widget
                 )
 
     def consoleShown(self) -> bool:
@@ -777,10 +777,10 @@ class PNApplication(QtCore.QObject):
                 main_widget,
                 self.tr("Salir ..."),
                 self.tr("¿ Quiere salir de la aplicación ?"),
-                QtWidgets.QMessageBox.StandardButtons.Yes,
-                QtWidgets.QMessageBox.StandardButtons.No,
+                QtWidgets.QMessageBox.StandardButton.Yes,
+                QtWidgets.QMessageBox.StandardButton.No,
             )
-            return ret == QtWidgets.QMessageBox.StandardButtons.Yes
+            return ret == QtWidgets.QMessageBox.StandardButton.Yes
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""

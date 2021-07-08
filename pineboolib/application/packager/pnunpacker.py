@@ -30,7 +30,7 @@ class PNUnpacker(QtCore.QObject):
         """
 
         self.file_ = QtCore.QFile(QtCore.QDir.cleanPath(in_))
-        if not self.file_.open(QtCore.QIODevice.OpenMode.ReadOnly):
+        if not self.file_.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
             raise Exception("Error opening file %r" % in_)
         self.stream_ = QtCore.QDataStream(self.file_)
         self.package_version_ = self.stream_.readBytes().decode("utf-8")

@@ -18,7 +18,7 @@ class SplashScreen(object):
 
         splash_pix = QtGui.QPixmap(splash_path)
         self._splash = QtWidgets.QSplashScreen(
-            splash_pix, QtCore.Qt.WindowFlags.WindowStaysOnTopHint
+            splash_pix, QtCore.Qt.WindowType.WindowStaysOnTopHint
         )
         self._splash.setMask(splash_pix.mask())
 
@@ -29,7 +29,9 @@ class SplashScreen(object):
 
     def showMessage(self, text: str) -> None:
         """Show a message into spalsh screen."""
-        self._splash.showMessage(text, QtCore.Qt.Alignment.AlignLeft, QtCore.Qt.GlobalColor.white)
+        self._splash.showMessage(
+            text, QtCore.Qt.AlignmentFlag.AlignLeft, QtCore.Qt.GlobalColor.white
+        )
 
     def hide(self) -> None:
         """Hide splash screen."""

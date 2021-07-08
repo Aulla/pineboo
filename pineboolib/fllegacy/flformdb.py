@@ -414,7 +414,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if path_file:
             file_ = QtCore.QFile(path_file)
-            if not file_.OpenMode(QtCore.QIODevice.OpenMode.WriteOnly):
+            if file_.openMode() != QtCore.QIODevice.OpenModeFlag.WriteOnly:
                 self.tr("Error I/O al intentar escribir el fichero %s" % path_file)
                 return
 

@@ -482,7 +482,7 @@ class QHttp(HttpState, HttpError):
         method_ = getattr(self._manager, _tipo, None)
         self._data = buffer_
         if self._data is not None:
-            self._data.open(QtCore.QIODevice.OpenMode.ReadWrite)
+            self._data.open(QtCore.QIODevice.OpenModeFlag.ReadWrite)
 
         self._state = self.Connecting
 

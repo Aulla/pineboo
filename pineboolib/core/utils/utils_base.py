@@ -177,7 +177,7 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
     if not os.path.exists(to_dir):
         os.makedirs(to_dir)
 
-    for file_ in dir.entryList(QtCore.QDir.Filters.Files):
+    for file_ in dir.entryList(QtCore.QDir.Filter.Files):
         from_ = from_dir + file_
         to_ = to_dir + file_
         if str(to_).endswith(".src"):
@@ -194,7 +194,7 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
             return False
 
     for dir_ in dir.entryList(
-        cast(QtCore.QDir.Filters, QtCore.QDir.Filters.Dirs | QtCore.QDir.Filters.NoDotAndDotDot)
+        cast(QtCore.QDir.Filter, QtCore.QDir.Filter.Dirs | QtCore.QDir.Filter.NoDotAndDotDot)
     ):
         from_ = from_dir + dir_
         to_ = to_dir + dir_
