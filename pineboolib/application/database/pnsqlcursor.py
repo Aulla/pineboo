@@ -3465,7 +3465,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         # self.acl_table_ = None
         self.timer_ = None
         self.ctxt_ = None
-        self._model = None
         # self.rawValues_ = False
         self._persistent_filter = None
         self.db_ = db_
