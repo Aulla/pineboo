@@ -72,7 +72,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._last_error = ""
         self._is_open = False
 
-    def connManager(self) -> Optional["pnconnectionmanager.PNConnectionManager"]:
+    def connManager(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return connection manager."""
         return self._conn_manager
 
