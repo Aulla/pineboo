@@ -31,6 +31,16 @@ class FLQPSQL(isqldriver.ISqlDriver):
         self._like_false = "'f'"
         self._database_not_found_keywords = ["does not exist", "no existe"]
         self._sqlalchemy_name = "postgresql"
+        self._type_array = {
+            16: "bool",
+            23: "uint",
+            25: "stringlist",
+            701: "double",
+            1082: "date",
+            1043: "string",
+            1184: "timestamp",
+            114: "json",
+        }
 
     def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return connection."""
@@ -221,28 +231,8 @@ class FLQPSQL(isqldriver.ISqlDriver):
 
     def decodeSqlType(self, type_: Union[int, str]) -> str:
         """Return the specific field type."""
-        ret = str(type_)
 
-        if type_ == 16:
-            ret = "bool"
-        elif type_ == 23:
-            ret = "uint"
-        elif type_ == 25:
-            ret = "stringlist"
-        elif type_ == 701:
-            ret = "double"
-        elif type_ == 1082:
-            ret = "date"
-        elif type_ == 1083:
-            ret = "time"
-        elif type_ == 1043:
-            ret = "string"
-        elif type_ == 1184:
-            ret = "timestamp"
-        elif type_ == 114:
-            ret = "json"
-
-        return ret
+        return self._type_array[type_] if type_ in self._type_array.keys() else str(type_)
 
     def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
@@ -264,9 +254,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
                 where.append("(( relkind = 'r' ) AND ( relname like 'pg_%%' ))")
 
             if where:
-                and_name = ""
-                if table_name:
-                    and_name = " AND relname ='%s'" % table_name
+                and_name = " AND relname ='%s'" % (table_name) if table_name else ""
 
                 cursor = self.execute_query(
                     "select relname from pg_class where %s%s ORDER BY relname ASC"
@@ -274,8 +262,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-            for item in result_list:
-                table_list.append(item[0])
+            table_list = [item[0] for item in result_list]
 
         return table_list
 

@@ -289,9 +289,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
                 table_list.append("sqlite_master")
 
             if where:
-                and_name = ""
-                if table_name:
-                    and_name = " AND name ='%s'" % table_name
+                and_name = " AND name ='%s'" % (table_name) if table_name else ""
 
                 cursor = self.execute_query(
                     "SELECT name FROM sqlite_master WHERE %s%s ORDER BY name ASC"
@@ -299,8 +297,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-            for item in result_list:
-                table_list.append(item[0])
+            table_list += [item[0] for item in result_list]
 
         return table_list
 

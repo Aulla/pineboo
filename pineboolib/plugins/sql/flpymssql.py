@@ -255,9 +255,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
                 where.append("xtype ='S'")
 
             if where:
-                and_name = ""
-                if table_name:
-                    and_name = " AND name='%s'" % table_name
+                and_name = " AND name ='%s'" % (table_name) if table_name else ""
 
                 cursor = self.execute_query(
                     "SELECT name FROM SYSOBJECTS where %s%s ORDER BY name ASC"
@@ -265,10 +263,8 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-        for item in result_list:
-            table_list.append(item[0])
+        table_list = [item[0] for item in result_list]
 
-        print("***", table_list, type_name, table_name)
         return table_list
 
     def declareCursor(

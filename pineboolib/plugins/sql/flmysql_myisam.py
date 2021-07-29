@@ -60,9 +60,7 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):
                 where.append("TABLE_TYPE LIKE 'SYSTEM VIEW'")
 
             if where:
-                and_name = ""
-                if table_name:
-                    and_name = " AND TABLE_NAME ='%s'" % table_name
+                and_name = " AND TABLE_NAME ='%s'" % (table_name) if table_name else ""
 
                 cursor = self.execute_query(
                     "SELECT TABLE_NAME FROM information_schema.tables where %s%s ORDER BY TABLE_NAME ASC"
@@ -70,8 +68,7 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-            for item in result_list:
-                table_list.append(item[0])
+            table_list = [item[0] for item in result_list]
 
         return table_list
 
