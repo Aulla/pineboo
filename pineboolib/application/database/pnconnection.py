@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
     from sqlalchemy.engine import base  # pragma: no cover
     from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821 # pragma: no cover
+    from . import pnconnectionmanager
 
 LOGGER = utils.logging.get_logger(__name__)
 
@@ -71,7 +72,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._last_error = ""
         self._is_open = False
 
-    def connManager(self):
+    def connManager(self) -> Optional["pnconnectionmanager.PNConnectionManager"]:
         """Return connection manager."""
         return self._conn_manager
 

@@ -83,7 +83,7 @@ class IConnection:
 
         return None  # pragma: no cover
 
-    def connManager(self) -> Any:
+    def connManager(self) -> Optional["pnconnectionmanager.PNConnectionManager"]:
         """Return connection manager."""
 
         return  # pragma: no cover
