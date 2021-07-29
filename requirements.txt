@@ -2,7 +2,7 @@ black==19.3b0
 clipboard==0.0.4
 coloredlogs==14.0
 fernet==1.0.1
-fpdf2==2.3.2
+fpdf2==2.4.2
 flake8==3.9.0
 flup==1.0.3
 keyrings.alt>=3.4.0
@@ -18,14 +18,14 @@ pyfiglet
 pympler
 python-barcode
 python-daemon
-pyOpenSSL
+pyOpenSSL==20.0.1
 qrcode[pil]
 sqlalchemy==1.4.0b1
 sqlparse==0.3.1
 twine==3.1.1
 watchdog>=0.10.2
-xades
-xmlsig
+xades==0.2.1
+xmlsig==0.1.5
 Pillow==8.2.0
 PyYAML==5.3.1
 PyQt6==6.1.1
