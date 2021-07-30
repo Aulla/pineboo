@@ -235,7 +235,7 @@ class PNConnectionManager(QtCore.QObject):
             if thread_session_identifier.startswith(conn_name):
                 self.delete_session(thread_session_identifier)
 
-    def delete_session(self, session_id: str = "") -> None:
+    def delete_session(self, session_id: Optional[str] = "") -> None:
         """Delete a session."""
 
         if session_id in self._thread_sessions:
@@ -432,7 +432,9 @@ class PNConnectionManager(QtCore.QObject):
         return result
 
     def is_valid_session(
-        self, session_or_id: Union[str, "isession.PinebooSession"], raise_error: bool = True
+        self,
+        session_or_id: Optional[Union[str, "isession.PinebooSession"]],
+        raise_error: bool = True,
     ) -> bool:
         """Return if a session id is valid."""
         is_valid = False

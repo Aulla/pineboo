@@ -426,9 +426,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if value and field.type() == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
-            meta = self.private_cursor.metadata_
-            if meta is not None:
-                value = manager.storeLargeValue(meta, value) or value
+            table_metadata = self.private_cursor.metadata_
+            if table_metadata is not None:
+                value = manager.storeLargeValue(table_metadata, value) or value
 
         if (
             field.outTransaction()

@@ -19,10 +19,7 @@ if TYPE_CHECKING:
     )  # pragma: no cover
     from . import isqldriver, isqlcursor  # pragma: no cover
 
-    from sqlalchemy.engine import (
-        base,
-        result,
-    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+    from sqlalchemy.engine import base, result
 
     from pineboolib.interfaces import isession  # pragma: no cover
 
@@ -291,7 +288,7 @@ class IConnection:
 
     #    return ""  # pragma: no cover
 
-    def execute_query(self, query: str) -> Optional[result.ResultProxy]:
+    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
         """Execute a query in a database cursor."""
 
         return None  # pragma: no cover
