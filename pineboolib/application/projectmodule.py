@@ -662,13 +662,17 @@ class Project(object):
                     os.makedirs(fileobjdir)
 
                 if not static_flfiles:
-                    result = conn.execute_query(
+                    qry = conn.execute_query(
                         """SELECT contenido FROM flfiles WHERE sha = %s AND nombre = %s """
                         % (
                             conn.driver().formatValue("string", sha, False),
                             conn.driver().formatValue("string", nombre, False),
                         )
-                    ).first()
+                    )
+
+                    result = None
+                    if qry is not None:
+                        result = qry.first()
 
                     contenido = None
                     if result is not None:

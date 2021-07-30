@@ -18,7 +18,7 @@ from typing import Dict, Union, List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
-    from sqlalchemy import orm as orm_session  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import isession  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -35,7 +35,7 @@ class PNConnectionManager(QtCore.QObject):
 
     current_atomic_sessions: Dict[str, str]
     current_thread_sessions: Dict[str, str]
-    _thread_sessions: Dict[str, "orm_session.Session"]
+    _thread_sessions: Dict[str, "isession.PinebooSession"]
     REMOVE_CONNECTIONS_AFTER_ATOMIC: bool = False
     SAFE_TIME_SLEEP: float
     safe_mode_level: int
@@ -96,7 +96,7 @@ class PNConnectionManager(QtCore.QObject):
         else:
             raise Exception("main_conn is empty!")
 
-    def remove_session(self, session: "orm_session.Session") -> bool:
+    def remove_session(self, session: "isession.PinebooSession") -> bool:
         """Remove session."""
 
         try:
@@ -416,11 +416,11 @@ class PNConnectionManager(QtCore.QObject):
 
         return use_key
 
-    def get_current_thread_sessions(self) -> List["orm_session.session.Session"]:
+    def get_current_thread_sessions(self) -> List["isession.PinebooSession"]:
         """Return thread sessions openend."""
 
         id_thread = threading.current_thread().ident
-        result: List["orm_session.session.Session"] = []
+        result: List["isession.PinebooSession"] = []
         # conn_sessions = []
         # for id_session in self.current_conn_sessions.keys():
         #    conn_sessions.append(id_session)
@@ -432,7 +432,7 @@ class PNConnectionManager(QtCore.QObject):
         return result
 
     def is_valid_session(
-        self, session_or_id: Union[str, "orm_session.Session"], raise_error: bool = True
+        self, session_or_id: Union[str, "isession.PinebooSession"], raise_error: bool = True
     ) -> bool:
         """Return if a session id is valid."""
         is_valid = False

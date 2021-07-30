@@ -19,7 +19,8 @@ if TYPE_CHECKING:
         base,  # noqa: F401
         result,  # noqa: F401
     )  # noqa: F401 # pragma: no cover
-    from sqlalchemy.orm import session as orm_session  # noqa: F401 # pragma: no cover
+
+    from pineboolib.interfaces import isession
 
 
 LOGGER = logging.get_logger(__name__)
@@ -55,7 +56,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         # conn_.execute("set transaction isolation level read uncommitted;")
         return conn_
 
-    def session(self) -> Tuple[str, "orm_session.Session"]:
+    def session(self) -> Tuple[str, "isession.PinebooSession"]:
         """Create a sqlAlchemy session."""
         while True:
             session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)

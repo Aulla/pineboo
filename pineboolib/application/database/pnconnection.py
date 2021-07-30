@@ -2,6 +2,7 @@
 """
 Defines the PNConnection class.
 """
+from pineboolib.interfaces.isqlcursor import ISqlCursor
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.core import settings, utils, decorators
@@ -16,11 +17,11 @@ from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor, isqldriver  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor, isqldriver, isession  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
-    from sqlalchemy.engine import base  # pragma: no cover
-    from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821 # pragma: no cover
-    from . import pnconnectionmanager
+    from sqlalchemy.engine import base, result  # pragma: no cover
+
+    from . import pnconnectionmanager  # pragma: no cover
 
 LOGGER = utils.logging.get_logger(__name__)
 
@@ -125,7 +126,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
-    def session(self, raise_error: bool = True) -> "orm.Session":
+    def session(self, raise_error: bool = True) -> "isession.PinebooSession":
         """
         Sqlalchemy session.
 
@@ -137,21 +138,22 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         session_id = mng._get_session_id(self._name)
         session_key = utils_base.session_id(self._name)
         returned_session = None
-        if not mng.is_valid_session(session_id, raise_error):
-            mng.delete_session(session_id)
-            session_id, returned_session = self.driver().session()
-            if not mng.is_valid_session(returned_session):
-                LOGGER.error("the new session is invalid!!")
-            mng.current_thread_sessions[session_key] = session_id
-        else:
-            returned_session = mng._thread_sessions[session_id]
+        if session_id:
+            if not mng.is_valid_session(session_id, raise_error):
+                mng.delete_session(session_id)
+                session_id, returned_session = self.driver().session()
+                if not mng.is_valid_session(returned_session):
+                    LOGGER.error("the new session is invalid!!")
+                mng.current_thread_sessions[session_key] = session_id
+            else:
+                returned_session = mng._thread_sessions[session_id]
 
         if not returned_session:
             raise ValueError("Invalid session!")
 
         return returned_session
 
-    def engine(self) -> Any:
+    def engine(self) -> "base.Engine":
         """Sqlalchemy connection."""
 
         return self.driver().engine()
@@ -235,16 +237,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._db_password
 
-    # ===============================================================================
-    #     def seek(self, offs, whence=0) -> bool:
-    #         """Position the cursor at a position in the database."""
-    #
-    #         if self.conn is None:
-    #             raise Exception("seek. Empty conn!!")
-    #
-    #         return self.conn.seek(offs, whence)
-    # ===============================================================================
-
     def setInteractiveGUI(self, b):
         """Set if it is an interactive GUI."""
 
@@ -260,7 +252,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().formatValueLike(table, value, upper)
 
-    def lastActiveCursor(self):
+    def lastActiveCursor(self) -> Optional["ISqlCursor"]:
         """Return the last active cursor in the sql driver."""
 
         return self._last_active_cursor
@@ -484,7 +476,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return False
 
-    def nextSerialVal(self, table: str, field: str) -> Any:
+    def nextSerialVal(self, table: str, field: str) -> int:
         """Indicate next available value of a serial type field."""
 
         return self.driver().nextSerialVal(table, field)
@@ -535,7 +527,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     #    return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry) -> Any:
+    def execute_query(self, qry) -> Optional["result.ResultProxy"]:
         """Execute a query in a database cursor."""
 
         return self.driver().execute_query(qry)

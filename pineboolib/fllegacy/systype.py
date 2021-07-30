@@ -1359,8 +1359,14 @@ class SysType(sysbasetype.SysBaseType):
     def serverTime(self) -> str:
         """Return time from database."""
         conn = application.PROJECT.conn_manager.useConn("default")
-        result = conn.execute_query("SELECT current_time")
-        return result.fetchone() if result is not None else ""
+        qry_result = conn.execute_query("SELECT current_time")
+        result = ""
+        if qry_result is not None:
+            line = qry_result.fetchone()
+            if line is not None:
+                result = str(line[0])
+
+        return result
 
     def localChanges(self) -> Dict[str, Any]:
         """Return xml with local changes."""

@@ -13,7 +13,7 @@ import time
 from sqlalchemy import exc
 
 if TYPE_CHECKING:
-    from sqlalchemy import orm  # noqa: F401
+    from pineboolib.interfaces import isession
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
@@ -142,7 +142,7 @@ def _wait(key: str) -> None:
         time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
 
 
-def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) -> None:
+def _delete_data(session: Optional["isession.PinebooSession"], key: str, wait: bool = True) -> None:
     """Delete data."""
 
     if session is not None:

@@ -226,10 +226,10 @@ class FLManagerModules(object):
                 "SELECT contenido FROM flfiles WHERE nombre='%s' AND NOT sha = ''" % file_name
             )
         )
-
-        ret = result_conn.first()
-        if ret is not None:
-            return ret[0]
+        if result_conn is not None:
+            ret = result_conn.first()
+            if ret is not None:
+                return ret[0]
 
         return ""
 

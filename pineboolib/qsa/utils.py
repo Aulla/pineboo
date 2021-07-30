@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
         base,
     )  # pragma: no cover
-    from sqlalchemy.orm import session as orm_session  # pragma: no cover
+    from pineboolib.interfaces import isession  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -572,7 +572,7 @@ def set_user_id(user_id: str) -> None:
     qsadictmodules.from_project("sys").iface.current_user = user_id
 
 
-def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Session"]:
+def driver_session(conn_name: str = "default") -> Tuple[str, "isession.PinebooSession"]:
     """Return driver session."""
 
     return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
@@ -584,7 +584,7 @@ def _session_key(conn_name: str) -> str:
     return utils_base.session_id(conn_name)
 
 
-def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Session":
+def session(conn_name: str = "default", legacy: bool = False) -> "isession.PinebooSession":
     """Return session connection."""
 
     return (
@@ -594,13 +594,13 @@ def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Se
     )
 
 
-def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
+def thread_session_new(conn_name: str = "default") -> "isession.PinebooSession":
     """Return thread session new."""
 
     return session(conn_name, True)
 
 
-def available_thread_sessions() -> Dict[str, "orm_session.Session"]:
+def available_thread_sessions() -> Dict[str, "isession.PinebooSession"]:
     """Return available thread sessions."""
 
     sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
@@ -611,7 +611,7 @@ def available_thread_sessions() -> Dict[str, "orm_session.Session"]:
     return sessions_dict
 
 
-def thread_session_current(conn_name: str = "default") -> Optional["orm_session.Session"]:
+def thread_session_current(conn_name: str = "default") -> Optional["isession.PinebooSession"]:
     """Return session current."""
 
     thread_key = _session_key(conn_name)
@@ -625,7 +625,7 @@ def thread_session_current(conn_name: str = "default") -> Optional["orm_session.
     return result
 
 
-def is_valid_session(session: "orm_session.Session", raise_error: bool = False) -> bool:
+def is_valid_session(session: "isession.PinebooSession", raise_error: bool = False) -> bool:
     """Return if a session is valid."""
 
     return application.PROJECT.conn_manager.is_valid_session(session, raise_error)
@@ -651,7 +651,7 @@ def thread() -> int:
     return threading.current_thread().ident or -1
 
 
-def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"]:
+def session_atomic(conn_name: str = "default") -> Optional["isession.PinebooSession"]:
     """Return atomic_session."""
 
     atomic_key = _session_key(conn_name)

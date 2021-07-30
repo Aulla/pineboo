@@ -36,9 +36,8 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
         result,  # noqa: F401
     )  # noqa: F401 # pragma: no cover
-    from sqlalchemy.orm import (
-        session as orm_session,
-    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+
+    from . import isession  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
@@ -79,7 +78,7 @@ class ISqlDriver(object):
     _sqlalchemy_name: str
     _connection: "base.Connection"
     _engine: "base.Engine"
-    _session: "orm_session.Session"
+    _session: "isession.PinebooSession"
     _extra_alternative: str
     _sp_level: int
     _use_altenative_isolation_level: bool
@@ -306,11 +305,11 @@ class ISqlDriver(object):
         """Return database name."""
         return self._dbname
 
-    def engine(self) -> Any:
+    def engine(self) -> "base.Engine":
         """Return sqlAlchemy ORM engine."""
         return self._engine
 
-    def session(self) -> Tuple[str, "orm_session.Session"]:
+    def session(self) -> Tuple[str, "isession.PinebooSession"]:
         """Create a sqlAlchemy session."""
         while True:
             session_class = sessionmaker(
@@ -994,9 +993,10 @@ class ISqlDriver(object):
         )
         cursor = conn_dbaux.execute_query(sql)
         try:
-            result_ = cursor.fetchone()
-            if result_:
-                multi_fllarge = utils_base.text2bool(str(result_[0]))
+            if cursor is not None:
+                result_ = cursor.fetchone()
+                if result_:
+                    multi_fllarge = utils_base.text2bool(str(result_[0]))
         except Exception as error:
             LOGGER.warning("Mr_Proper: %s" % str(error))
 
@@ -1026,11 +1026,11 @@ class ISqlDriver(object):
             util.setLabelText(util.translate("application", "Revisando tabla %s" % table_fllarge))
 
             sql = "SELECT refkey FROM %s WHERE 1 = 1" % table_fllarge
-            cursor = conn_dbaux.execute_query(sql)
+            cursor_qry1: Iterable = conn_dbaux.execute_query(sql) or []
             old_target = ""
             metadata_target = None
 
-            for line in list(cursor):
+            for line in list(cursor_qry1):
 
                 target = line[0].split("@")[1]
                 found = False
@@ -1051,7 +1051,7 @@ class ISqlDriver(object):
                                 target,
                             )  # 1 a 1 , si busco especifico me da problemas mssql
 
-                            cursor_finder = conn_dbaux.execute_query(sql)
+                            cursor_finder: Iterable = conn_dbaux.execute_query(sql) or []
                             for result_finder in list(cursor_finder):
                                 if result_finder[0] == line[0]:
                                     found = True
@@ -1086,13 +1086,16 @@ class ISqlDriver(object):
         conn_dbaux.transaction()
 
         # query = pnsqlquery.PNSqlQuery(None,conn_dbaux)
-        cursor = conn_dbaux.execute_query(
-            "SELECT nombre FROM flfiles WHERE nombre "
-            + self.formatValueLike("string", "%%.mtd", False)
+        cursor_qry: Iterable = (
+            conn_dbaux.execute_query(
+                "SELECT nombre FROM flfiles WHERE nombre "
+                + self.formatValueLike("string", "%%.mtd", False)
+            )
+            or []
         )
         list_mtds = []
         try:
-            for data in list(cursor):
+            for data in list(cursor_qry):
                 list_mtds.append(data[0])
         except Exception as error:
             LOGGER.error("Mr_Proper: %s", error)
@@ -1203,7 +1206,7 @@ class ISqlDriver(object):
                 sql = "SELECT nombre FROM flfiles WHERE nombre%s" % self.formatValueLike(
                     "string", "%%alteredtable", False
                 )
-                cursor = conn_dbaux.execute_query(sql)
+                cursor: Iterable = conn_dbaux.execute_query(sql) or []
                 for name in cursor:
                     sql = "DELETE FROM flfiles WHERE nombre ='%s'" % name
                     conn_dbaux.execute_query(sql)

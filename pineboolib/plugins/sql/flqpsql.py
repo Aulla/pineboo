@@ -9,7 +9,7 @@ from pineboolib.interfaces import isqldriver
 
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Dict, Any
 
 LOGGER = logging.get_logger(__name__)
 
@@ -31,7 +31,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
         self._like_false = "'f'"
         self._database_not_found_keywords = ["does not exist", "no existe"]
         self._sqlalchemy_name = "postgresql"
-        self._type_array = {
+        self._type_array: Dict[int, str] = {
             16: "bool",
             23: "uint",
             25: "stringlist",
@@ -232,7 +232,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
     def decodeSqlType(self, type_: Union[int, str]) -> str:
         """Return the specific field type."""
 
-        return self._type_array[type_] if type_ in self._type_array.keys() else str(type_)
+        return self._type_array[int(type_)] if int(type_) in self._type_array.keys() else str(type_)
 
     def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""

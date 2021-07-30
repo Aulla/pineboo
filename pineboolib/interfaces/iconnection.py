@@ -21,7 +21,10 @@ if TYPE_CHECKING:
 
     from sqlalchemy.engine import (
         base,
+        result,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+
+    from pineboolib.interfaces import isession  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -69,34 +72,29 @@ class IConnection:
 
         return None  # type: ignore [return-value] # pragma: no cover
 
-    def database(self) -> Any:
+    def database(self) -> "IConnection":
         """Return self."""
 
-        return None  # pragma: no cover
+        return self  # pragma: no cover
 
-    def session(self) -> Any:
+    def session(self) -> "isession.PinebooSession":
         """
         Sqlalchemy session.
 
         When using the ORM option this function returns the session for sqlAlchemy.
         """
 
-        return None  # pragma: no cover
+        return None  # type: ignore[return-value] # noqa: F821 # pragma: no cover
 
     def connManager(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return connection manager."""
 
-        return  # pragma: no cover
+        return None  # type: ignore[return-value] # noqa: F821 # pragma: no cover
 
-    def engine(self) -> Any:
+    def engine(self) -> "base.Engine":
         """Sqlalchemy connection."""
 
-        return None  # pragma: no cover
-
-    def declarative_base(self) -> Any:
-        """Contain the declared models for Sqlalchemy."""
-
-        return None  # pragma: no cover
+        return None  # type: ignore[return-value] # noqa: F821 # pragma: no cover
 
     def dictDatabases(self) -> Dict[str, "IConnection"]:
         """Return dict with own database connections."""
@@ -113,15 +111,17 @@ class IConnection:
 
         pass  # pragma: no cover
 
-    def lastActiveCursor(self) -> Optional[Any]:  # returns FLSqlCuror
+    def lastActiveCursor(self) -> Optional["isqlcursor.ISqlCursor"]:  # returns FLSqlCuror
         """Return the last active cursor in the sql driver."""
 
         return None  # pragma: no cover
 
-    def conectar(self, db_name, db_host, db_port, db_user_name, db_returnword) -> Any:
+    def conectar(
+        self, db_name, db_host, db_port, db_user_name, db_returnword
+    ) -> Union["base.Connection", bool]:
         """Request a connection to the database."""
 
-        return  # pragma: no cover
+        return False  # pragma: no cover
 
     def driverName(self) -> str:
         """Return sql driver name."""
@@ -161,11 +161,6 @@ class IConnection:
     def returnword(self) -> str:
         """Return ****word used by the database."""
         return ""  # pragma: no cover
-
-    def seek(self, offs, whence=0) -> None:
-        """Position the cursor at a position in the database."""
-
-        return  # pragma: no cover
 
     def md5TuplesStateTable(self, curname: str) -> bool:
         """
@@ -266,10 +261,10 @@ class IConnection:
 
         return True  # pragma: no cover
 
-    def nextSerialVal(self, table: str, field: str) -> Any:
+    def nextSerialVal(self, table: str, field: str) -> int:
         """Indicate next available value of a serial type field."""
 
-        return  # pragma: no cover
+        return 0  # pragma: no cover
 
     def existsTable(self, name: str) -> bool:
         """Indicate the existence of a table in the database."""
@@ -296,10 +291,10 @@ class IConnection:
 
     #    return ""  # pragma: no cover
 
-    def execute_query(self, query: str) -> Any:
+    def execute_query(self, query: str) -> Optional[result.ResultProxy]:
         """Execute a query in a database cursor."""
 
-        return ""  # pragma: no cover
+        return None  # pragma: no cover
 
     def alterTable(self, table_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two pntablemetadata.PNTableMetaData."""

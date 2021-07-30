@@ -1145,7 +1145,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    def fieldType(cls, field_name: str, table_name: str, conn_name: str = "default") -> str:
+    def fieldType(cls, field_name: str, table_name: str, conn_name: str = "default") -> int:
         """
         Return the numeric type of a field.
 
@@ -1160,7 +1160,7 @@ class FLUtil(object):
         if metadata is not None:
             return metadata.fieldType(field_name)
 
-        return ""
+        return 0
 
     @classmethod
     def fieldLength(cls, field_name: str, table_name: str, conn_name: str = "default") -> int:

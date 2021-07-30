@@ -352,8 +352,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         db_aux = self.db().connManager().dbAux()
-        if db_aux is None:
-            return
 
         type = field.type()
         primary_key = mtd.primaryKey()
@@ -388,7 +386,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if ret:
                 db_aux.commit()
             else:
-                db_aux.rollbackTransaction()
+                db_aux.rollback()
         else:
             LOGGER.warning(
                 "No se puede actualizar el campo de forma atómica, porque no existe clave primaria"
@@ -428,7 +426,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if value and field.type() == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
-            value = manager.storeLargeValue(self.private_cursor.metadata_, value) or value
+            meta = self.private_cursor.metadata_
+            if meta is not None:
+                value = manager.storeLargeValue(meta, value) or value
 
         if (
             field.outTransaction()
@@ -526,7 +526,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 v_large = (
                     xpm.cache_xpm(str(value))
                     if self.private_cursor._is_system_table
-                    else self.db().connManager().manager().fetchLargeValue(value)
+                    else self.db().connManager().manager().fetchLargeValue(str(value))
                 )
 
                 value = v_large if v_large else value
@@ -583,7 +583,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 v_large = (
                     xpm.cache_xpm(str(value))
                     if self.private_cursor._is_system_table
-                    else self.db().connManager().manager().fetchLargeValue(value)
+                    else self.db().connManager().manager().fetchLargeValue(str(value))
                 )
 
                 value = v_large if v_large else value
@@ -1262,11 +1262,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         continue
                     field_metadata = metadata.field(relation.foreignField())
                     if field_metadata is not None:
-                        if field_metadata.relationM1():
-                            if (
-                                field_metadata.relationM1().deleteCascade()
-                                or not field_metadata.relationM1().checkIn()
-                            ):
+                        relation_m1 = field_metadata.relationM1()
+                        if relation_m1 is not None:
+                            if relation_m1.deleteCascade() or not relation_m1.checkIn():
                                 continue
                         else:
                             continue
@@ -1928,13 +1926,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 if type_ == "serial":
                     val = self.db().nextSerialVal(self.table(), field_name)
-                    if val is None:
-                        val = 0
                     self.buffer().set_value(field_name, val)
                 elif type_ == "timestamp":
                     if not field.allowNull():
-                        val = self.db().getTimeStamp()
-                        self.buffer().set_value(field_name, val)
+                        val_str = self.db().getTimeStamp()
+                        self.buffer().set_value(field_name, val_str)
 
                 if field.isCounter():
 
