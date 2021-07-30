@@ -1,7 +1,9 @@
-from sqlalchemy import orm as orm_session
+"""isession module"""
+
+from sqlalchemy import orm
 
 
-class PinebooSession(orm_session.Session):
+class PinebooSession(orm.Session):
+    """PinebooSession class"""
 
     _conn_name: str
-
