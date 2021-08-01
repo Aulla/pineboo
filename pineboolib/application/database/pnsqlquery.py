@@ -3,23 +3,23 @@
 Module for PNSqlQuery class.
 """
 
+from sqlalchemy.engine import result
+
 from pineboolib.core.utils import logging
 
 from pineboolib.application.utils import sql_tools
 from pineboolib import application
 from pineboolib.application import types
 
-from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
+from typing import Union, List, Dict, Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces.iconnection import IConnection  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import isqldriver
     from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
-    from .pnparameterquery import PNParameterQuery  # noqa: F401 # pragma: no cover
-    from .pngroupbyquery import PNGroupByQuery  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
-        base,
-    )  # pragma: no cover
+    from . import pngroupbyquery  # noqa: F401 # pragma: no cover
+    from . import pnparameterquery  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -61,7 +61,7 @@ class PNSqlQueryPrivate(object):
     """
     Lista de grupos
     """
-    _group_dict: Dict[int, Any] = {}
+    _group_dict: Dict[int, str] = {}
 
     """
     Lista de nombres de los campos
@@ -109,8 +109,8 @@ class PNSqlQuery(object):
     _is_active: bool
     _field_name_to_pos_dict: Optional[Dict[str, int]]
     _sql_inspector: sql_tools.SqlInspector
-    _row: List[Any]
-    _datos: List[Any]
+    _row: Optional["result.RowProxy"]
+    _datos: List["result.RowProxy"]
     _posicion: int
     _last_query: str
     private_query: PNSqlQueryPrivate
@@ -133,7 +133,7 @@ class PNSqlQuery(object):
 
         self._last_query = ""
         self._count_ref_query = self._count_ref_query + 1
-        self._row = []
+        self._row = None
         self._datos = []
         self._invalid_tables_list = False
         self.private_query._field_list = []
@@ -227,24 +227,24 @@ class PNSqlQuery(object):
 
         return True
 
-    def addParameter(self, parameter: Optional["PNParameterQuery"]) -> None:
+    def addParameter(self, parameter: Optional["pnparameterquery.PNParameterQuery"]) -> None:
         """
         Add the parameter description to the parameter dictionary.
 
         @param p FLParameterQuery object with the description of the parameter to add.
         """
 
-        if parameter:
+        if parameter is not None:
             self.private_query._parameter_dict[parameter.name()] = parameter.value()
 
-    def addGroup(self, group: Optional["PNGroupByQuery"]) -> None:
+    def addGroup(self, group: Optional["pngroupbyquery.PNGroupByQuery"]) -> None:
         """
         Add a group description to the group dictionary.
 
         @param g PNGroupByQuery object with the description of the group to add.
         """
 
-        if group:
+        if group is not None:
             if not self.private_query._group_dict:
                 self.private_query._group_dict = {}
 
@@ -490,7 +490,7 @@ class PNSqlQuery(object):
 
         return res
 
-    def parameterDict(self) -> Dict[str, Any]:
+    def parameterDict(self) -> Dict[str, "pnparameterquery.PNParameterQuery"]:
         """
          To obtain the parameters of the query.
 
@@ -498,7 +498,7 @@ class PNSqlQuery(object):
         """
         return self.private_query._parameter_dict
 
-    def groupDict(self) -> Dict[int, Any]:
+    def groupDict(self) -> Dict[int, str]:
         """
         To obtain the grouping levels of the query.
 
@@ -519,7 +519,7 @@ class PNSqlQuery(object):
         else:
             return self.private_query._field_list or self.sql_inspector.field_names()
 
-    def setGroupDict(self, group_dict: Dict[int, Any]) -> None:
+    def setGroupDict(self, groups_dict: Dict[int, str]) -> None:
         """
         Assign a parameter dictionary to the query parameter dictionary.
 
@@ -532,10 +532,11 @@ class PNSqlQuery(object):
 
         @param gd Dictionary of parameters.
         """
+        self.private_query._group_dict = groups_dict
 
-        self.private_query._group_dict = group_dict
-
-    def setParameterDict(self, parameter_dict: Dict[str, Any]) -> None:
+    def setParameterDict(
+        self, parameter_dict: Dict[str, "pnparameterquery.PNParameterQuery"]
+    ) -> None:
         """
         Assign a group dictionary to the group dictionary of the query.
 
@@ -565,9 +566,9 @@ class PNSqlQuery(object):
         LOGGER.warning("DEBUG : Nombre de la consulta : %s", self.private_query._name)
         LOGGER.warning("DEBUG : Niveles de agrupamiento :")
         if self.private_query._group_dict:
-            for lev in self.private_query._group_dict.values():
-                LOGGER.warning("**Nivel : %s", lev.level())
-                LOGGER.warning("**Campo : %s", lev.field())
+            for lev, field_name in self.private_query._group_dict.items():
+                LOGGER.warning("**Nivel : %s", lev)
+                LOGGER.warning("**Campo : %s", field_name)
         else:
             LOGGER.warning("**No hay niveles de agrupamiento")
 
@@ -746,7 +747,7 @@ class PNSqlQuery(object):
 
         self.private_query._parameter_dict[param_name] = value
 
-    def valueParam(self, param_name: str) -> Any:
+    def valueParam(self, param_name: str) -> Optional[Any]:
         """
         Get the value of a parameter.
 
@@ -814,7 +815,7 @@ class PNSqlQuery(object):
         """
         return self._is_active
 
-    def at(self) -> Any:
+    def at(self) -> int:
         """
         Return the current position in the result list.
 
@@ -845,7 +846,7 @@ class PNSqlQuery(object):
 
         return self.db().lastError()
 
-    def driver(self) -> Any:
+    def driver(self) -> "isqldriver.ISqlDriver":
         """Return sql driver."""
 
         return self.db().driver()
