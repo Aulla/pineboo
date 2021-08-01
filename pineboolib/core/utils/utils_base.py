@@ -459,12 +459,12 @@ def get_base_dir() -> str:
     global BASE_DIR
     if not BASE_DIR:
         BASE_DIR = "%s/../.." % os.path.dirname(__file__)
-
-        if is_deployed():
-            if BASE_DIR.startswith(":"):
-                BASE_DIR = os.path.realpath(".%s" % BASE_DIR[1:])
-
-            LOGGER.info("BaseDir %s", BASE_DIR)
+        BASE_DIR = (
+            os.path.realpath(".%s" % BASE_DIR[1:])
+            if is_deployed() and BASE_DIR.startswith(":")
+            else BASE_DIR
+        )
+        LOGGER.info("BaseDir %s", BASE_DIR)
     return BASE_DIR
 
 

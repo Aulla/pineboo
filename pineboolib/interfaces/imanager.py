@@ -1,7 +1,7 @@
 """
 IManager Module.
 """
-from typing import Any, Callable, Dict, Optional, Union, TYPE_CHECKING
+from typing import Any, Dict, Optional, Union, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pnaction  # pragma: no cover
+    from . import iconnection  # pragma: no cover
     from xml.etree import ElementTree  # noqa: F401 # pragma: no cover
     from PyQt6 import QtXml  # type: ignore[import] # noqa: F401 # pragma: no cover
 #     import pineboolib.application.database.pnconnection
@@ -23,25 +25,28 @@ class IManager(object):
     Abstract class for FLManager.
     """
 
+    list_tables_: List[str]  # Lista de las tablas de la base de datos, para optimizar lecturas
+    dict_key_metadata_: Dict[
+        str, str
+    ]  # Diccionario de claves de metadatos, para optimizar lecturas
+    cache_metadata_: Dict[
+        str, "pntablemetadata.PNTableMetaData"
+    ]  # Caché de metadatos, para optimizar lecturas
+    _cache_action: Dict[
+        str, "pnaction.PNAction"
+    ]  # Caché de definiciones de acciones, para optimizar lecturas
+    # Caché de metadatos de talblas del sistema para optimizar lecturas
+
+    db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
+
     __doc__: str
     buffer_: None
-    cacheAction_: Optional[Dict[str, Any]]  # "pnaction.PNAction"
-    cacheMetaDataSys_: Optional[dict]
-    cacheMetaData_: Optional[dict]
-    db_: Optional[Any]  # "pineboolib.application.database.pnconnection.PNConnection"
-    dictKeyMetaData_: Optional[Dict[str, Any]]
-    initCount_: int
-    listTables_: Any
-    metadataCachedFails: list
-    metadataDev: Callable
-    queryGroup: Callable
-    queryParameter: Callable
 
     def __init__(self, *args) -> None:
         """Create manager."""
         return None  # pragma: no cover
 
-    def action(self, name: str) -> Any:  # "pnaction.PNAction"
+    def action(self, name: str) -> "pnaction.PNAction":  # "pnaction.PNAction"
         """Retrieve action object by name."""
         raise Exception("must be implemented")  # pragma: no cover
 
@@ -49,9 +54,9 @@ class IManager(object):
         """Issue an alter table to db."""
         return False  # pragma: no cover
 
-    def checkMetaData(self, mtd1, mtd2) -> Any:
+    def checkMetaData(self, mtd1, mtd2) -> bool:
         """Validate MTD against DB."""
-        return None  # pragma: no cover
+        return False  # pragma: no cover
 
     def cleanupMetaData(self) -> None:
         """Clean up MTD."""
@@ -61,7 +66,7 @@ class IManager(object):
         """Create named system table."""
         return False  # pragma: no cover
 
-    def createTable(self, name_or_metadata) -> Any:
+    def createTable(self, name_or_metadata) -> Optional["pntablemetadata.PNTableMetaData"]:
         """Create new table."""
         return None  # pragma: no cover
 

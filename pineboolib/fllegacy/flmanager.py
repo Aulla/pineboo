@@ -1,6 +1,7 @@
 """Flmanager module."""
 
 # -*- coding: utf-8 -*-
+
 from PyQt6 import QtCore, QtXml  # type: ignore[import]
 
 from pineboolib.core import decorators
@@ -26,11 +27,12 @@ import copy
 
 from xml.etree import ElementTree
 
-from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
+from typing import Optional, Union, Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection  # pragma: no cover
     from pineboolib.application.metadata import pnaction  # pragma: no cover
+    from pineboolib.application.acls import pnaccesscontrollists  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
@@ -51,19 +53,6 @@ class FLManager(QtCore.QObject, IManager):
     @author InfoSiAL S.L.
     """
 
-    list_tables_: List[str]  # Lista de las tablas de la base de datos, para optimizar lecturas
-    dict_key_metadata_: Dict[
-        str, str
-    ]  # Diccionario de claves de metadatos, para optimizar lecturas
-    cache_metadata_: Dict[
-        str, "pntablemetadata.PNTableMetaData"
-    ]  # Caché de metadatos, para optimizar lecturas
-    _cache_action: Dict[
-        str, "pnaction.PNAction"
-    ]  # Caché de definiciones de acciones, para optimizar lecturas
-    # Caché de metadatos de talblas del sistema para optimizar lecturas
-
-    db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int = 0  # Indica el número de veces que se ha llamado a FLManager::init()
 
     def __init__(self, db: "iconnection.IConnection") -> None:
@@ -147,8 +136,8 @@ class FLManager(QtCore.QObject, IManager):
 
         if isinstance(metadata_name_or_xml, str):
 
-            ret: Any = False
-            acl: Any = None
+            ret: Optional["pntablemetadata.PNTableMetaData"] = None
+            acl: Optional["pnaccesscontrollists.PNAccessControlLists"] = None
             key = metadata_name_or_xml.strip()
             stream = None
 

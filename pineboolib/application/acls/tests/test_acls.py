@@ -423,10 +423,6 @@ class TestACLS(unittest.TestCase):
         acl.init()
         application.PROJECT.aq_app.set_acl(acl)
 
-        # clear metadata cache
-        application.PROJECT.conn_manager.manager().cacheMetaDataSys_ = {}
-        application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
-
         mtd_flgroups = application.PROJECT.conn_manager.manager().metadata("flgroups")
 
         self.assertTrue(mtd_flgroups is not None)
@@ -459,10 +455,6 @@ class TestACLS(unittest.TestCase):
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
         application.PROJECT.aq_app.set_acl(acl)
-
-        # clear metadata cache
-        application.PROJECT.conn_manager.manager().cacheMetaDataSys_ = {}
-        application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
 
         mtd_flareas = application.PROJECT.conn_manager.manager().metadata("flareas")
         self.assertTrue(mtd_flareas is not None)

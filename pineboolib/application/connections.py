@@ -77,10 +77,10 @@ def proxy_fn(
         args_num = get_expected_args_num(function_method)
 
         if args_num:
-            while len(args) < args_num:
-                args_list = list(args)
+            args_list = list(args)
+            while len(args_list) < args_num:
                 args_list.append(None)
-                args = tuple(args_list)
+            args = tuple(args_list)
 
             return function_method(*args[0:args_num], **kwargs)
         else:
@@ -99,7 +99,6 @@ def slot_done(
 
     def new_fn(*args: Any, **kwargs: Any) -> Any:
 
-        res = False
         # PyQt6-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
         original_signal_name: str = getattr(signal, "signal")
 
@@ -109,39 +108,11 @@ def slot_done(
             args = tuple()
         # args_num = get_expected_args_num(fn)
         try:
-            if get_expected_kwargs(function):
-                # res = fn(*args[0:args_num], **kwargs)
-                res = function(*args, **kwargs)
-            else:
-                # res = fn(*args[0:args_num])
-                res = function(*args)
-
+            return function(*args, **kwargs) if get_expected_kwargs(function) else function(*args)
         except Exception:
             LOGGER.exception("Error trying to create a connection")
 
-        """ if caller is not None:
-            try:
-                # PyQt6-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
-                caller_signal_name: str = getattr(
-                    caller.signal_test, "signal"  # type: ignore [arg-type] # noqa: F821
-                )
-                if original_signal_name != caller_signal_name:
-                    signal_name = original_signal_name[
-                        1 : original_signal_name.find("(")
-                    ]  # Quitamos el caracter "2" inicial y parámetros
-                    LOGGER.debug(
-                        "Emitir evento test: %s, args:%s kwargs:%s",
-                        signal_name,
-                        args if args else "",
-                        kwargs if kwargs else "",
-                    )
-                    caller.signal_test.emit(  # type: ignore [arg-type] # noqa: F821
-                        signal_name, sender
-                    )
-            except Exception:
-                LOGGER.trace("Error emitting signal_test", exc_info=True) """
-
-        return res
+        return False
 
     return new_fn
 
@@ -175,8 +146,10 @@ def connect(
     #    QtCore.Qt.ConnectionType.QueuedConnection,
     #    QtCore.Qt.ConnectionType.UniqueConnection,
     # )
-    # FIXMEPYQT6
-    conntype = QtCore.Qt.ConnectionType.QueuedConnection  # type: ignore [operator] # noqa: F821
+    conntype = (
+        QtCore.Qt.ConnectionType.QueuedConnection,
+        QtCore.Qt.ConnectionType.UniqueConnection,
+    )  # type: ignore [operator] # noqa: F821
 
     new_signal, new_slot = signal_slot
 
