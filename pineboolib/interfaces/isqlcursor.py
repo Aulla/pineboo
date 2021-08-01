@@ -5,7 +5,7 @@ ISqlCursor module.
 from PyQt6 import QtCore  # type: ignore[import]
 
 
-from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
+from pineboolib.interfaces import cursoraccessmode
 
 
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
@@ -304,10 +304,10 @@ class ISqlCursor(QtCore.QObject):
     """
     commited = QtCore.pyqtSignal()
 
-    Insert = CursorAccessMode.Insert
-    Edit = CursorAccessMode.Edit
-    Del = CursorAccessMode.Del
-    Browse = CursorAccessMode.Browse
+    Insert = cursoraccessmode.CursorAccessMode.Insert
+    Edit = cursoraccessmode.CursorAccessMode.Edit
+    Del = cursoraccessmode.CursorAccessMode.Del
+    Browse = cursoraccessmode.CursorAccessMode.Browse
     Value = 0
     RegExp = 1
     Function = 2

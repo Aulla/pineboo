@@ -182,14 +182,16 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         self.private.removeFieldName(field_name)
 
-    def setCompoundKey(self, cK: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"]) -> None:
+    def setCompoundKey(
+        self, compound_key: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"]
+    ) -> None:
         """
         Set the composite key of this table.
 
         @param cK FLCompoundKey object with the description of the composite key
         """
 
-        self.private._compound_key = cK
+        self.private._compound_key = compound_key
 
     def primaryKey(self, prefix_table=False) -> str:
         """
@@ -391,21 +393,21 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name in self.private._field_names:
-            relation_ = self.private._fields_dict[field_name].relationM1()
-            if relation_:
+            relation_m1 = self.private._fields_dict[field_name].relationM1()
+            if relation_m1:
                 if (
-                    relation_.foreignField() == foreign_field
-                    and relation_.foreignTable() == foreign_table
+                    relation_m1.foreignField() == foreign_field
+                    and relation_m1.foreignTable() == foreign_table
                 ):
-                    return relation_
+                    return relation_m1
 
             else:
-                for item in list(self.private._fields_dict[field_name].relationList()):
+                for relation_1m in list(self.private._fields_dict[field_name].relationList()):
                     if (
-                        item.foreignField() == foreign_field
-                        and item.foreignTable() == foreign_table
+                        relation_1m.foreignField() == foreign_field
+                        and relation_1m.foreignTable() == foreign_table
                     ):
-                        return item
+                        return relation_1m
 
         return None
 

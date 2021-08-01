@@ -1,12 +1,10 @@
 """
 ITableMetadata module.
 """
-from typing import List, Optional, Any, Union, TYPE_CHECKING
+from typing import List, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pnfieldmetadata import (  # noqa F401
-        PNFieldMetaData,  # noqa: F401
-    )  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pnfieldmetadata
 
 
 class ITableMetaData:
@@ -25,21 +23,23 @@ class ITableMetaData:
         """Add new field to this object."""
         return  # pragma: no cover
 
-    def field(self, field_name: str) -> Any:
+    def field(self, field_name: str) -> Optional["pnfieldmetadata.PNFieldMetaData"]:
         """Retrieve field by name."""
-        return  # pragma: no cover
+        return None  # pragma: no cover
 
     def fieldIsIndex(self, field_name: str) -> int:
         """Get if a field is an index."""
         return -1  # pragma: no cover
 
-    def fieldList(self):
+    def fieldList(self) -> List["pnfieldmetadata.PNFieldMetaData"]:
         """Return list of fields."""
-        return  # pragma: no cover
-
-    def fieldListOfCompoundKey(self, field_name: str) -> Optional[List["PNFieldMetaData"]]:
-        """Return list of fields for CK."""
         return []  # pragma: no cover
+
+    def fieldListOfCompoundKey(
+        self, field_name: str
+    ) -> Optional[List["pnfieldmetadata.PNFieldMetaData"]]:
+        """Return list of fields for CK."""
+        return None  # pragma: no cover
 
     def fieldNameToAlias(self, field_name: str) -> str:
         """Get alias of field."""

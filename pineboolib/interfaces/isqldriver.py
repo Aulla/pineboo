@@ -548,8 +548,6 @@ class ISqlDriver(object):
     def mismatchedTable(self, table_name: str, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Return if a table is mismatched."""
 
-        ret = False
-
         dict_database: Dict[str, List[Any]] = dict(
             [
                 [rec_d[0], rec_d]  # type: ignore [misc] # noqa: F821
@@ -580,13 +578,13 @@ class ISqlDriver(object):
             )
 
             if len(dict_metadata.keys()) != len(dict_database.keys()):
-                ret = True
+                return True
             else:
                 for name, meta in dict_metadata.items():
                     if (
                         name in dict_database.keys()
                     ):  # si falla una key, los campos en el metadata y database no son los mismos.
-                        if self.notEqualsFields(dict_database[name], meta, metadata.isQuery()):
+                        if self.notEqualsFields(dict_database[name], meta, False):
                             LOGGER.warning(
                                 "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
                                 table_name,
@@ -594,22 +592,16 @@ class ISqlDriver(object):
                                 meta,
                                 dict_database[name],
                             )
-                            ret = True
-                            break
+                            return True
                         else:
                             del dict_database[
                                 name
                             ]  # dict_database mas peuqeño cada vez, para comparar mas rápido
                     else:
                         LOGGER.warning("Field %s not found in database", name)
-                        ret = True
-                        break
+                        return True
 
-                # if not ret and dict_database:
-                #    LOGGER.warning("Fields %s not found in metadata", dict_database)
-                #    ret = True
-
-        return ret
+        return False
 
     @decorators.not_implemented_warn
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
@@ -650,10 +642,7 @@ class ISqlDriver(object):
         ret = False
         try:
             if field_db[2] != field_meta[2] and not is_query:  # nulos
-                if field_meta[1] == "serial":
-                    pass
-
-                else:
+                if field_meta[1] != "serial":
                     if (
                         not field_meta[2] and field_meta[6]
                     ):  # Si en meta , nulo false y pk , dejamos pasar
@@ -669,7 +658,7 @@ class ISqlDriver(object):
                     if meta_type == "string":
                         if field_db[3] not in [field_meta[3], 0, 255]:
                             ret = True
-                    elif meta_type not in ("string", "time", "date"):
+                    elif meta_type not in ("time", "date"):
                         ret = True
 
                 elif db_type == "uint" and meta_type not in ("int", "uint", "serial"):
