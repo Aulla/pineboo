@@ -2,6 +2,7 @@
 Project Module.
 """
 
+
 from pineboolib import logging
 
 from pineboolib.core.utils import utils_base, struct
@@ -16,13 +17,14 @@ from .utils import path, xpm, flfiles_dir
 from . import module, file as file_module
 
 import os
-from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
+from typing import List, Optional, Any, Dict, Callable, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
     from .database import pnconnection  # pragma: no cover
     from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
     from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
+    from pineboolib.qsa import formdbwidget
 
 
 LOGGER = logging.get_logger(__name__)
@@ -151,9 +153,9 @@ class Project(object):
         #    del self._conn
         #    self._conn = None
 
-        result = self.conn_manager.setMainConn(connection)
+        result_init_conn = self.conn_manager.setMainConn(connection)
 
-        if result:
+        if result_init_conn:
             self.apppath = utils_base.filedir("..")
 
             self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
@@ -163,7 +165,7 @@ class Project(object):
                     "ebcomportamiento/noPythonCache", False
                 )
 
-        return result
+        return result_init_conn
 
     def init_dgi(self, dgi: "dgi_schema.dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""
@@ -341,7 +343,7 @@ class Project(object):
         self,
         function: str,
         args: List[Any],
-        object_context: Any = None,
+        object_context: Union["formdbwidget.FormDBWidget", "object", None] = None,
         show_exceptions: bool = True,
         default_value: Any = True,
     ) -> Optional[Any]:
@@ -585,34 +587,36 @@ class Project(object):
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
         is_library = utils_base.is_library()
-        result: Any = []
+        result_areas: Any = []
         static_flfiles = None
 
         if self.USE_FLFILES_FOLDER:
             LOGGER.warning("FLFILES_FOLDER: Using %s like flfiles", self.USE_FLFILES_FOLDER)
             static_flfiles = flfiles_dir.FlFiles(self.USE_FLFILES_FOLDER)
-            result = static_flfiles.areas()
+            result_areas = static_flfiles.areas()
         else:
-            result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+            result_areas = conn.execute_query(
+                """SELECT idarea, descripcion FROM flareas WHERE 1 = 1"""
+            )
 
-        for idarea, descripcion in list(result):
+        for idarea, descripcion in list(result_areas):
             if idarea == "sys":
                 continue
             self.areas[idarea] = struct.AreaStruct(idarea=idarea, descripcion=descripcion)
 
         self.areas["sys"] = struct.AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
-        result = []
+        result_modules: Any = []
         # Obtener módulos activos
         if static_flfiles:
-            result = static_flfiles.modules()
+            result_modules = static_flfiles.modules()
         else:
-            result = conn.execute_query(
+            result_modules = conn.execute_query(
                 """SELECT idarea, idmodulo, descripcion, icono, version FROM flmodules WHERE bloqueo = %s """
                 % conn.driver().formatValue("bool", "True", False)
             )
 
-        for idarea, idmodulo, descripcion, icono, version in list(result):
+        for idarea, idmodulo, descripcion, icono, version in list(result_modules):
 
             if idmodulo not in self.modules:
                 icon_cached = xpm.cache_xpm(icono)
@@ -620,11 +624,11 @@ class Project(object):
                     idarea, idmodulo, descripcion, icon_cached, version
                 )
 
-        result = []
+        result_files: Any = []
         if static_flfiles:
-            result = static_flfiles.files()
+            result_files = static_flfiles.files()
         else:
-            result = conn.execute_query(
+            result_files = conn.execute_query(
                 """SELECT idmodulo, nombre, sha, bloqueo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
             )
 
@@ -632,7 +636,7 @@ class Project(object):
 
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
-        for idmodulo, nombre, sha, contenido in list(result):
+        for idmodulo, nombre, sha, contenido in list(result_files):
 
             if idmodulo not in self.modules.keys():  # Si el módulo no existe.
                 continue
@@ -670,24 +674,24 @@ class Project(object):
                         )
                     )
 
-                    result = None
+                    result_content: Any = None
                     if qry is not None:
-                        result = qry.first()
+                        result_content = qry.first()
 
-                    contenido = None
-                    if result is not None:
-                        contenido = result[
+                    contenido_content: Optional[str] = None
+                    if result_content is not None:
+                        contenido_content = result_content[
                             0
-                        ]  # Recogemos verdadero contenido. cuando usamos flfiles. más rpapido conexiones lentas.
+                        ]  # Recogemos verdadero contenido_content. cuando usamos flfiles. más rpapido conexiones lentas.
 
-                if contenido is not None:
+                if contenido_content is not None:
                     encode_ = "UTF-8" if str(nombre).endswith((".ts", ".py")) else "ISO-8859-15"
                     self.message_manager().send(
                         "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                     )
 
                     new_cache_file = open(file_name, "wb")
-                    new_cache_file.write(contenido.encode(encode_, "replace"))
+                    new_cache_file.write(contenido_content.encode(encode_, "replace"))
                     new_cache_file.close()
             else:
                 if file_name.endswith(".py"):
