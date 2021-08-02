@@ -146,10 +146,7 @@ def connect(
     #    QtCore.Qt.ConnectionType.QueuedConnection,
     #    QtCore.Qt.ConnectionType.UniqueConnection,
     # )
-    conntype = (
-        QtCore.Qt.ConnectionType.QueuedConnection,
-        QtCore.Qt.ConnectionType.UniqueConnection,
-    )  # type: ignore [operator] # noqa: F821
+    conntype = QtCore.Qt.ConnectionType.QueuedConnection
 
     new_signal, new_slot = signal_slot
 
