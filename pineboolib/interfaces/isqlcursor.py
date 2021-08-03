@@ -5,7 +5,7 @@ ISqlCursor module.
 from PyQt6 import QtCore  # type: ignore[import]
 
 
-from pineboolib.interfaces import cursoraccessmode, iconnection
+from pineboolib.interfaces import cursoraccessmode
 
 
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
