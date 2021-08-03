@@ -748,6 +748,6 @@ class ISqlCursor(QtCore.QObject):
         pass  # pragma: no cover
 
     def bufferIsNull(self, field_name: str) -> bool:
-        """Return if buffer is null"""
+        """Return if buffer is null."""
 
         return False

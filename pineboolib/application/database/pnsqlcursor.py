@@ -1426,7 +1426,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return self.private_cursor.buffer_
 
     def bufferIsNull(self, field_name: str) -> bool:
-        """Return if buffer is null"""
+        """Return if buffer is null."""
 
         return self.private_cursor.buffer_ is None or self.private_cursor.buffer_.is_null(
             field_name
