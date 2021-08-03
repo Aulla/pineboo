@@ -10,10 +10,9 @@ import ast
 
 from typing import Any, Dict, Optional, List, Union
 
-from PyQt6 import QtWidgets, QtXml, QtCore  # type: ignore[import]
+from PyQt6 import QtWidgets, QtXml, QtCore
 
-from pineboolib.core import settings
-from pineboolib.core import decorators
+from pineboolib.core import settings, decorators
 from pineboolib.core.utils.utils_base import ustr, filedir
 from pineboolib.core.utils import logging
 
@@ -33,12 +32,12 @@ class SysBaseType(object):
     @classmethod
     def nameUser(cls) -> str:
         """Get current database user."""
-        ret_ = None
 
-        if application.PROJECT.DGI.use_alternative_credentials():
-            ret_ = application.PROJECT.DGI.get_nameuser()
-        else:
-            ret_ = application.PROJECT.conn_manager.mainConn().user()
+        ret_ = (
+            application.PROJECT.DGI.get_nameuser()
+            if application.PROJECT.DGI.use_alternative_credentials()
+            else application.PROJECT.conn_manager.mainConn().user()
+        )
 
         return ret_ or ""
 
@@ -177,46 +176,49 @@ class SysBaseType(object):
         """Add a new database."""
 
         mng_ = application.PROJECT.conn_manager
+        conn_db = None
+        new_conn = False
+
         if not db_name:
             conn_db = mng_.useConn(driver_or_conn)
-
-            if not conn_db.isOpen():
-                if mng_._drivers_sql_manager.loadDriver(conn_db._driver_name):
-                    main_conn = mng_.mainConn()
-                    conn_db._driver = mng_._drivers_sql_manager.driver()
-                    conn_db.conn = conn_db.conectar(
-                        main_conn._db_name,
-                        main_conn._db_host,
-                        main_conn._db_port,
-                        main_conn._db_user_name,
-                        main_conn._db_password,
-                    )
-                    if conn_db.conn is False:
-                        return False
-
-                    conn_db._is_open = True
-
         else:
-            if not conn_name or not db_name:
+            if not conn_name:
                 raise Exception(
                     "Invalid connection data. conn_name: %s, driver_name: %s, database_name: %s, user_name: %s, db_host: %s, port: %s"
                     % (conn_name, driver_or_conn, db_name, db_user, db_host, db_port)
                 )
+            new_conn = True
+            conn_db = mng_.useConn(conn_name, db_name)
 
-            conn_db = application.PROJECT.conn_manager.useConn(conn_name, db_name)
-            if not conn_db.isOpen():
-                if mng_._driver is None:
-                    raise Exception("driverSql not loaded!")
+        if not conn_db.isOpen():
+            conn_db_name = db_name
+            conn_db_host = db_host
+            conn_db_port = db_port
+            conn_db_user = db_user
+            conn_db_pass = db_pw
+
+            if new_conn:
                 conn_db._driver_name = driver_or_conn.lower()
-                if mng_._drivers_sql_manager.loadDriver(conn_db._driver_name):
-                    conn_db.conn = conn_db.conectar(db_name, db_host, db_port, db_user, db_pw)
-
-                    if isinstance(conn_db.conn, bool):
-                        return False
-
-                    conn_db._is_open = True
             else:
-                LOGGER.warning("addDatabase: '%s' connection is already open", conn_name)
+                main_conn = mng_.mainConn()
+                conn_db_name = main_conn._db_name
+                conn_db_host = main_conn._db_host
+                conn_db_port = main_conn._db_port
+                conn_db_user = main_conn._db_user_name
+                conn_db_pass = main_conn._db_password
+
+            if mng_._drivers_sql_manager.loadDriver(conn_db._driver_name):
+                conn_db.conn = conn_db.conectar(
+                    conn_db_name, conn_db_host, conn_db_port, conn_db_user, conn_db_pass
+                )
+
+                if isinstance(conn_db.conn, bool):
+                    return False
+
+                conn_db._is_open = True
+
+        else:
+            LOGGER.warning("addDatabase: '%s' connection is already open", conn_name)
 
         return True
 

@@ -6,8 +6,8 @@ from pineboolib.application.utils import path
 from .. import pntranslator
 
 
-class TestPNTranslations(unittest.TestCase):
-    """TestPNTranslations Class."""
+class TestPNTranslator(unittest.TestCase):
+    """TestPNTranslator Class."""
 
     @classmethod
     def setUpClass(cls) -> None:

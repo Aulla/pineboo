@@ -6,11 +6,12 @@ from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.utils import logging
 from pineboolib.core import settings
 from pineboolib import application
+from pineboolib.core.utils import utils_base
 
 from PyQt6 import QtCore  # type: ignore[import]
 
 
-from . import pntranslations
+# from . import pntranslations
 
 
 from typing import Dict, Optional, TYPE_CHECKING
@@ -93,10 +94,10 @@ class PNTranslator(QtCore.QTranslator):
                 if ts_file in (None, ""):
                     return False
 
-            else:
+            # else:
 
-                trans = pntranslations.PNTranslations()
-                trans.lrelease("%s.ts" % ts_file, qm_file, not self._multi_lang)
+            #    trans = pntranslations.PNTranslations()
+            #    trans.lrelease("%s.ts" % ts_file, qm_file, not self._multi_lang)
 
             ret_ = self.load(qm_file)
             if not ret_:
@@ -127,9 +128,7 @@ class PNTranslator(QtCore.QTranslator):
         """Load a translation file from a path."""
 
         try:
-            from pineboolib.core.utils.utils_base import load2xml
-
-            root_ = load2xml(file_name)
+            root_ = utils_base.load2xml(file_name)
             for context in root_.findall("context"):
                 name_elem = context.find("name")
                 if name_elem is None:
@@ -147,6 +146,7 @@ class PNTranslator(QtCore.QTranslator):
                     )
                     translation_text = translation_elem is not None and translation_elem.text
                     source_text = source_elem is not None and source_elem.text
+
                     if translation_text and source_text:
                         self._ts_translation_contexts[context_dict_key][
                             source_text

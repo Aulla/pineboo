@@ -7,6 +7,7 @@ from PyQt6 import QtCore  # type: ignore
 
 from pineboolib.application.qsatypes import date
 import datetime
+import re
 from typing import Optional, List, Union
 
 
@@ -25,32 +26,21 @@ def date_dma_to_amd(date_str: str) -> Optional[str]:
     if date_str.find("T") > -1:
         date_str = date_str[: date_str.find("T")]
 
-    array_: List[str] = []
     dia_ = None
     mes_ = None
     ano_ = None
 
-    if date_str.find("-") > -1:
-        array_ = date_str.split("-")
-    elif date_str.find("/") > -1:
-        array_ = date_str.split("/")
+    array_: List[str] = re.split("-|/", date_str)
 
-    if array_:
+    if len(array_) > 1:
         if len(array_) == 3:
-            if len(array_[0]) == 2:
-                dia_ = array_[0]
-                mes_ = array_[1]
-                ano_ = array_[2]
-            else:
-                dia_ = array_[2]
-                mes_ = array_[1]
-                ano_ = array_[0]
-        else:
-            dia_ = date_str[0:2]
-            mes_ = date_str[2:2]
-            ano_ = date_str[4:4]
+            dia_, mes_, ano_ = array_ if len(array_[0]) == 2 else reversed(array_)
+    elif len(date_str) > 7:
+        dia_ = date_str[0:2]
+        mes_ = date_str[2:2]
+        ano_ = date_str[4:4]
 
-    return "%s-%s-%s" % (ano_, mes_, dia_) if ano_ else ""
+    return "%s-%s-%s" % (ano_, mes_, dia_) if ano_ and dia_ and mes_ else ""
 
 
 def date_amd_to_dma(date_str: str) -> str:
@@ -68,31 +58,21 @@ def date_amd_to_dma(date_str: str) -> str:
     if date_str.find("T") > -1:
         date_str = date_str[: date_str.find("T")]
 
-    array_: List[str] = []
     dia_ = None
     mes_ = None
     ano_ = None
-    if date_str.find("-") > -1:
-        array_ = date_str.split("-")
-    elif date_str.find("/") > -1:
-        array_ = date_str.split("/")
 
-    if array_:
+    array_: List[str] = re.split("-|/", date_str)
+
+    if len(array_) > 1:
         if len(array_) == 3:
-            if len(array_[0]) == 4:
-                dia_ = array_[2]
-                mes_ = array_[1]
-                ano_ = array_[0]
-            else:
-                dia_ = array_[0]
-                mes_ = array_[1]
-                ano_ = array_[2]
-        else:
-            ano_ = date_str[0:4]
-            mes_ = date_str[4:2]
-            dia_ = date_str[6:2]
+            dia_, mes_, ano_ = reversed(array_) if len(array_[0]) == 4 else array_
+    elif len(date_str) > 7:
+        ano_ = date_str[0:4]
+        mes_ = date_str[4:2]
+        dia_ = date_str[6:2]
 
-    return "%s-%s-%s" % (dia_, mes_, ano_) if ano_ else ""
+    return "%s-%s-%s" % (dia_, mes_, ano_) if ano_ and dia_ and mes_ else ""
 
 
 def convert_to_qdate(

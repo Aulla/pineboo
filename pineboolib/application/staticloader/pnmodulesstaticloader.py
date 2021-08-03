@@ -6,7 +6,7 @@ Performs load of scripts from disk instead of database.
 """
 
 
-from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.core import settings, decorators
 from pineboolib.core.utils import logging, utils_base
@@ -14,7 +14,7 @@ from pineboolib.core.utils import logging, utils_base
 from pineboolib import application
 
 import os
-from typing import Any, List, Optional, cast, Union, TYPE_CHECKING
+from typing import List, Optional, cast, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection  # pragma: no cover
@@ -124,7 +124,7 @@ class FLStaticLoaderWarning(QtCore.QObject):
     """Create warning about static loading."""
 
     warns_: List[str]
-    paths_: List[Any]
+    paths_: List[str]
 
     def __init__(self) -> None:
         """Create a new FLStaticLoaderWarning."""

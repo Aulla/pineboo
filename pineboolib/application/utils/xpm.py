@@ -32,10 +32,11 @@ def cache_xpm(value: str) -> str:
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
 
-    if value.find("cacheXPM") > -1:
-        file_name = "%s/%s" % (cache_dir, value[value.find("cacheXPM") + 9 :])
-    else:
-        file_name = "%s/%s.xpm" % (cache_dir, xpm_name)
+    file_name = (
+        "%s/%s" % (cache_dir, value[value.find("cacheXPM") + 9 :])
+        if value.find("cacheXPM") > -1
+        else "%s/%s.xpm" % (cache_dir, xpm_name)
+    )
 
     if not os.path.exists(file_name) or settings.CONFIG.value(
         "ebcomportamiento/no_img_cached", False
