@@ -37,6 +37,7 @@ from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor  # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
@@ -458,7 +459,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.cursor().private_cursor.metadata_:
             return
 
-        table_metadata = self.cursor().metadata()
+        table_metadata: Optional["pntablemetadata.PNTableMetaData"] = self.cursor().metadata()
         if self._sort_field_1 is None:
             if table_metadata is not None:
                 self._sort_field_1 = table_metadata.field(table_metadata.primaryKey())
@@ -489,7 +490,11 @@ class FLTableDB(QtWidgets.QWidget):
 
             if not self._foreign_field or not self._field_relation:
                 if not self.cursor().metadata():
-                    if own_table_metadata and table_metadata and not table_metadata.inCache():
+                    if (
+                        own_table_metadata
+                        and table_metadata is not None
+                        and not table_metadata.inCache()
+                    ):
                         del table_metadata
                     return
 
@@ -1754,7 +1759,7 @@ class FLTableDB(QtWidgets.QWidget):
                     .db()
                     .connManager()
                     .manager()
-                    .query(self.cursor().metadata().query(), self.cursor())
+                    .query(self.cursor().metadata().query())
                 )
 
                 if qry is not None:

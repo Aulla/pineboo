@@ -218,7 +218,11 @@ class FLDataTable(QtWidgets.QTableView):
                 )
 
                 self.setModel(self.cursor_.model())
-                self.setSelectionModel(self.cursor_.selection())
+                selection_model = self.cursor_.selection()
+                if selection_model is not None:
+                    self.setSelectionModel(selection_model)
+                else:
+                    LOGGER.warning("Invalid selection model in %s" % self.cursor_.curName())
                 # self.model().sort(self.header().logicalIndex(0), 0)
                 self.installEventFilter(self)
                 self.model().set_parent_view(self)
@@ -411,7 +415,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.only_table_
 
-    def indexOf(self, idx: int) -> str:
+    def indexOf(self, idx: int) -> int:
         """
         Return the visual index of a position.
         """

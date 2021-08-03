@@ -134,7 +134,8 @@ class PNBuffer(object):
         """Set values to cache_buffer."""
 
         if field_name in self._cursor.metadata().fieldNames():
-            if self._cursor.metadata().field(field_name).type() == "bool":
+            meta_field = self._cursor.metadata().field(field_name)
+            if meta_field is not None and meta_field.type() == "bool":
                 if isinstance(value, str):
                     value = utils_base.text2bool(value)
             self._cache_buffer[field_name] = value
@@ -149,8 +150,11 @@ class PNBuffer(object):
 
         for field_name in self._cache_buffer.keys():
             value: Any = self._cache_buffer[field_name]
-            type_ = self._cursor.metadata().field(field_name).type()
-            if value is not None:
+            meta_field = self._cursor.metadata().field(field_name)
+
+            if value is not None and meta_field is not None:
+                type_ = meta_field.type()
+
                 if type_ == "double":
                     if isinstance(value, str) and value == "":
                         value = None
@@ -183,19 +187,20 @@ class PNBuffer(object):
 
         if value not in [None, "", "NULL"]:
             metadata = self._cursor.metadata().field(field_name)
-            type_ = metadata.type()
-            if type_ == "date":
-                value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
-            elif type_ == "timestamp":
-                value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
-            elif type_ == "time":
-                value = str(value)
-                if value.find("T") > -1:
-                    value = value[value.find("T") + 1 :]
+            if metadata is not None:
+                type_ = metadata.type()
+                if type_ == "date":
+                    value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+                elif type_ == "timestamp":
+                    value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
+                elif type_ == "time":
+                    value = str(value)
+                    if value.find("T") > -1:
+                        value = value[value.find("T") + 1 :]
 
-                value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
-            elif type_ in ["bool", "unlock"]:
-                value = True if value in [True, 1, "1", "true"] else False
+                    value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
+                elif type_ in ["bool", "unlock"]:
+                    value = True if value in [True, 1, "1", "true"] else False
         elif isinstance(value, str) and value == "NULL":
             value = None
 

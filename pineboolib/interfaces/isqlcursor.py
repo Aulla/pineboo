@@ -5,7 +5,7 @@ ISqlCursor module.
 from PyQt6 import QtCore  # type: ignore[import]
 
 
-from pineboolib.interfaces import cursoraccessmode
+from pineboolib.interfaces import cursoraccessmode, iconnection
 
 
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
@@ -344,27 +344,27 @@ class ISqlCursor(QtCore.QObject):
         """Initialize cursor."""
         pass  # pragma: no cover
 
-    def conn(self) -> Any:
+    def conn(self) -> "iconnection.IConnection":
         """Retrieve connection object."""
         pass  # pragma: no cover
 
-    def table(self) -> Any:
+    def table(self) -> str:
         """Retrieve table name."""
-        pass  # pragma: no cover
+        return ""  # pragma: no cover
 
-    def setName(self, name, autop) -> Any:
+    def setName(self, name, autop) -> None:
         """Set cursor name."""
         pass  # pragma: no cover
 
-    def metadata(self) -> Any:
+    def metadata(self) -> "pntablemetadata.PNTableMetaData":
         """Get table metadata for this cursor table."""
         pass  # pragma: no cover
 
-    def currentRegister(self) -> Any:
+    def currentRegister(self) -> int:
         """Get current row number."""
         pass  # pragma: no cover
 
-    def modeAccess(self) -> Any:
+    def modeAccess(self) -> int:
         """Get current access mode."""
         pass  # pragma: no cover
 
@@ -372,43 +372,43 @@ class ISqlCursor(QtCore.QObject):
         """Get SQL filter as a string."""
         return ""
 
-    def mainFilter(self) -> Any:
+    def mainFilter(self) -> str:
         """Get SQL Main filter as a string."""
         pass  # pragma: no cover
 
-    def action(self) -> Any:
+    def action(self) -> Optional["pnaction.PNAction"]:
         """Get action object."""
         pass  # pragma: no cover
 
-    def actionName(self) -> Any:
+    def actionName(self) -> str:
         """Get action name."""
         pass  # pragma: no cover
 
-    def setAction(self, action) -> Any:
+    def setAction(self, action) -> bool:
         """Set Action object."""
         pass  # pragma: no cover
 
-    def setMainFilter(self, filter: str, do_refresh: bool = True) -> Any:
+    def setMainFilter(self, filter: str, do_refresh: bool = True) -> None:
         """Set Main filter for this cursor."""
         pass  # pragma: no cover
 
-    def setModeAccess(self, mode_access) -> Any:
+    def setModeAccess(self, mode_access) -> None:
         """Set Access mode for the cursor."""
         pass  # pragma: no cover
 
-    def connectionName(self) -> Any:
+    def connectionName(self) -> str:
         """Get current connection name."""
         pass  # pragma: no cover
 
-    def setValueBuffer(self, field_name: str, value: Any) -> Any:
+    def setValueBuffer(self, field_name: str, value: Any) -> None:
         """Set Value on the cursor buffer."""
         pass  # pragma: no cover
 
     def valueBuffer(self, field_name: str) -> Any:
         """Get value from cursor buffer."""
-        pass  # pragma: no cover
+        return False  # pragma: no cover
 
-    def fetchLargeValue(self, value) -> Any:
+    def fetchLargeValue(self, value) -> Optional[str]:
         """Fetch from fllarge."""
         pass  # pragma: no cover
 
@@ -416,27 +416,27 @@ class ISqlCursor(QtCore.QObject):
         """Get original value on buffer."""
         pass  # pragma: no cover
 
-    def setEdition(self, value, flag=None) -> Any:
+    def setEdition(self, value, flag=None) -> None:
         """Set edit mode."""
         pass  # pragma: no cover
 
-    def restoreEditionFlag(self, flag) -> Any:
+    def restoreEditionFlag(self, flag) -> None:
         """Restore edit flag."""
         pass  # pragma: no cover
 
-    def setBrowse(self, value, flag=None) -> Any:
+    def setBrowse(self, value, flag=None) -> None:
         """Set browse mode."""
         pass  # pragma: no cover
 
-    def restoreBrowseFlag(self, flag) -> Any:
+    def restoreBrowseFlag(self, flag) -> None:
         """Restore browse flag."""
         pass  # pragma: no cover
 
-    def meta_model(self) -> Any:
-        """Get sqlAlchemy model."""
-        pass  # pragma: no cover
+    # def meta_model(self) -> Any:
+    #    """Get sqlAlchemy model."""
+    #    pass  # pragma: no cover
 
-    def setContext(self, context=None) -> Any:
+    def setContext(self, context=None) -> None:
         """Set script execution context."""
         pass  # pragma: no cover
 
@@ -444,19 +444,19 @@ class ISqlCursor(QtCore.QObject):
         """Get script execution context."""
         pass  # pragma: no cover
 
-    def fieldDisabled(self, field_name) -> Any:
+    def fieldDisabled(self, field_name) -> bool:
         """Get if field is disabled."""
         pass  # pragma: no cover
 
-    def inTransaction(self) -> Any:
+    def inTransaction(self) -> bool:
         """Return if transaction is in progress."""
         pass  # pragma: no cover
 
-    def transaction(self, lock=False) -> Any:
+    def transaction(self, lock=False) -> bool:
         """Open transaction."""
         pass  # pragma: no cover
 
-    def rollback(self) -> Any:
+    def rollback(self) -> bool:
         """Rollback transaction."""
         pass  # pragma: no cover
 
@@ -476,7 +476,7 @@ class ISqlCursor(QtCore.QObject):
         """Get if field is null."""
         pass  # pragma: no cover
 
-    def updateBufferCopy(self) -> Any:
+    def updateBufferCopy(self) -> None:
         """Refresh buffer copy."""
         pass  # pragma: no cover
 
@@ -484,51 +484,35 @@ class ISqlCursor(QtCore.QObject):
         """Get if buffer is modified."""
         pass  # pragma: no cover
 
-    def setAskForCancelChanges(self, value) -> Any:
+    def setAskForCancelChanges(self, value) -> None:
         """Activate dialog for asking before closing."""
         pass  # pragma: no cover
 
-    def setActivatedCheckIntegrity(self, value) -> Any:
+    def setActivatedCheckIntegrity(self, value) -> None:
         """Activate integrity checks."""
         pass  # pragma: no cover
 
-    def activatedCheckIntegrity(self) -> Any:
+    def activatedCheckIntegrity(self) -> bool:
         """Get integrity check state."""
         pass  # pragma: no cover
 
-    def setActivatedCommitActions(self, value) -> Any:
+    def setActivatedCommitActions(self, value) -> None:
         """Activate before/after commit."""
         pass  # pragma: no cover
 
-    def activatedCommitActions(self) -> Any:
+    def activatedCommitActions(self) -> bool:
         """Get before/after commit status."""
         pass  # pragma: no cover
 
-    def setActivatedBufferChanged(self, activated_bufferchanged) -> Any:
-        """Activate Buffer changed."""
-        pass  # pragma: no cover
-
-    def activatedBufferChanged(self) -> bool:
-        """Get buffer changed status."""
-        pass  # pragma: no cover
-
-    def setActivatedBufferCommited(self, activated_buffercommited) -> Any:
-        """Activate buffer committed."""
-        pass  # pragma: no cover
-
-    def activatedBufferCommited(self) -> bool:
-        """Get buffer committed status."""
-        pass  # pragma: no cover
-
-    def cursorRelation(self) -> Any:
+    def cursorRelation(self) -> Optional["ISqlCursor"]:
         """Get cursor relation."""
         pass  # pragma: no cover
 
-    def relation(self) -> Any:
+    def relation(self) -> Optional["pnrelationmetadata.PNRelationMetaData"]:
         """Get relation."""
         pass  # pragma: no cover
 
-    def setUnLock(self, field_name, value) -> Any:
+    def setUnLock(self, field_name, value) -> None:
         """Set unlock field."""
         pass  # pragma: no cover
 
@@ -536,35 +520,19 @@ class ISqlCursor(QtCore.QObject):
         """Get if record is locked."""
         pass  # pragma: no cover
 
-    def buffer(self) -> Any:
+    def buffer(self) -> "pnbuffer.PNBuffer":
         """Get buffer object."""
         pass  # pragma: no cover
 
-    def bufferCopy(self) -> Any:
+    def bufferCopy(self) -> "pnbuffer.PNBuffer":
         """Get buffer copy."""
         pass  # pragma: no cover
 
-    def bufferIsNull(self, pos_or_name) -> Any:
-        """Get if value is null in buffer."""
-        pass  # pragma: no cover
-
-    def bufferSetNull(self, pos_or_name) -> Any:
-        """Set null to value in buffer."""
-        pass  # pragma: no cover
-
-    def bufferCopyIsNull(self, pos_or_name) -> Any:
-        """Get if value is null in original buffer."""
-        pass  # pragma: no cover
-
-    def bufferCopySetNull(self, pos_or_name) -> Any:
-        """Set to null field in bufferCopy."""
-        pass  # pragma: no cover
-
-    def setNull(self, name) -> Any:
+    def setNull(self, name) -> None:
         """Set field to null."""
         pass  # pragma: no cover
 
-    def db(self) -> Any:
+    def db(self) -> "iconnection.IConnection":
         """Return database object."""
         pass  # pragma: no cover
 
@@ -572,19 +540,19 @@ class ISqlCursor(QtCore.QObject):
         """Get cursor name."""
         pass  # pragma: no cover
 
-    def filterAssoc(self, field_name, table_metadata=None) -> Any:
+    def filterAssoc(self, field_name, table_metadata=None) -> Optional[str]:
         """Retrieve filter for associated field."""
         pass  # pragma: no cover
 
-    def calculateField(self, field_name) -> Any:
+    def calculateField(self, field_name) -> bool:
         """Return the result of a field calculation."""
         pass  # pragma: no cover
 
-    def model(self) -> Any:
+    def model(self) -> "pncursortablemodel.PNCursorTableModel":
         """Get sqlAlchemy model."""
         pass  # pragma: no cover
 
-    def selection(self) -> Any:
+    def selection(self) -> Optional["QtCore.QItemSelectionModel"]:
         """Get selection."""
         pass  # pragma: no cover
 
@@ -604,7 +572,7 @@ class ISqlCursor(QtCore.QObject):
         """Refresh buffer."""
         pass  # pragma: no cover
 
-    def setEditMode(self) -> Any:
+    def setEditMode(self) -> bool:
         """Set cursor in edit mode."""
         pass  # pragma: no cover
 
@@ -636,11 +604,11 @@ class ISqlCursor(QtCore.QObject):
         """Move cursor to last row."""
         pass  # pragma: no cover
 
-    def select(self, _filter=None, sort=None) -> Any:
+    def select(self, _filter=None, sort=None) -> bool:
         """Perform SQL Select."""
         pass  # pragma: no cover
 
-    def setSort(self, filter) -> Any:
+    def setSort(self, filter) -> None:
         """Set sorting order."""
         pass  # pragma: no cover
 
@@ -660,11 +628,11 @@ class ISqlCursor(QtCore.QObject):
         """Delete record."""
         pass  # pragma: no cover
 
-    def copyRecord(self) -> Any:
+    def copyRecord(self) -> None:
         """Copy record."""
         pass  # pragma: no cover
 
-    def chooseRecord(self) -> Any:
+    def chooseRecord(self) -> None:
         """Emit chooseRecord."""
         pass  # pragma: no cover
 
@@ -688,11 +656,11 @@ class ISqlCursor(QtCore.QObject):
         """Return if any transaction is open."""
         pass  # pragma: no cover
 
-    def rollbackOpened(self, count=-1, msg=None) -> Any:
+    def rollbackOpened(self, count=-1, msg=None) -> None:
         """Return if in rollback."""
         pass  # pragma: no cover
 
-    def commitOpened(self, count=-1, msg=None) -> Any:
+    def commitOpened(self, count=-1, msg=None) -> None:
         """Return if in commit."""
         pass  # pragma: no cover
 
@@ -778,3 +746,8 @@ class ISqlCursor(QtCore.QObject):
         """Clear buffer."""
 
         pass  # pragma: no cover
+
+    def bufferIsNull(self, field_name: str) -> bool:
+        """Return if buffer is null"""
+
+        return False

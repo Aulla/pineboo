@@ -291,7 +291,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor.doAcl()
             self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
             self._selection = QtCore.QItemSelectionModel(self.private_cursor._model)
-            self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
+            self._selection.currentRowChanged.connect(  # type: ignore [attr-defined]
+                self.selection_currentRowChanged
+            )
             self.private_cursor._activated_check_integrity = True
             self.private_cursor._activated_commit_actions = True
             return True
@@ -545,7 +547,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return value
 
-    def fetchLargeValue(self, value: str) -> Any:
+    def fetchLargeValue(self, value: str) -> Optional[str]:
         """Retrieve large value from database."""
         return self.db().connManager().manager().fetchLargeValue(value)
 
@@ -1423,6 +1425,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.private_cursor.buffer_
 
+    def bufferIsNull(self, field_name: str) -> bool:
+        """Return if buffer is null"""
+
+        return self.private_cursor.buffer_ is None or self.private_cursor.buffer_.is_null(
+            field_name
+        )
+
     def bufferCopy(self) -> "pnbuffer.PNBuffer":
         """
         Return the contents of the bufferCopy.
@@ -1439,47 +1448,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if self.private_cursor.buffer_ and self.modeAccess() != self.Insert:
             self.buffer().clear()
-
-    # ===============================================================================
-    #     def bufferIsNull(self, field_name: str) -> bool:
-    #         """
-    #         Return if the content of a field in the buffer is null.
-    #
-    #         @param pos_or_name Name or pos of the field in the buffer.
-    #         @return True or False
-    #         """
-    #
-    #         # if self.private_cursor.buffer_ is not None:
-    #         #    return self.private_cursor.buffer_.isNull(pos_or_name)
-    #         buffer_ = self.private_cursor.buffer_
-    #         if buffer_:
-    #             return buffer_.is_null(field_name)
-    #
-    #         return True
-    # ===============================================================================
-
-    # ===============================================================================
-    #     def bufferCopyIsNull(self, field_name: str) -> bool:
-    #         """
-    #         Return if the content of a field in the bufferCopy is null.
-    #
-    #         @param pos_or_name Name or pos of the field in the bufferCopy
-    #         """
-    #
-    #         if self.private_cursor._buffer_copy is not None:
-    #             return self.bufferCopy().is_null(field_name)
-    #         return True
-    #
-    #     def bufferCopySetNull(self, field_name: str) -> None:
-    #         """
-    #         Set the content of a field in the bufferCopy to be null.
-    #
-    #         @param pos_or_name Name or pos of the field in the bufferCopy
-    #         """
-    #
-    #         if self.private_cursor._buffer_copy is not None:
-    #             self.bufferCopy().set_value(field_name, None)
-    # ===============================================================================
 
     def atFrom(self) -> int:
         """
@@ -1648,7 +1616,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return self.private_cursor._model
 
-    def selection(self) -> Any:
+    def selection(self) -> Optional["QtCore.QItemSelectionModel"]:
         """
         Return the item pointed to in the tablemodel.
 
