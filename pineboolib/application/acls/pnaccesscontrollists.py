@@ -51,14 +51,13 @@ class PNAccessControlLists(object):
         """Initialize the class."""
 
         self._name = ""
-        self._access_control_list: Dict[str, "pnaccesscontrolfactory.PNAccessControlFactory"] = {}
+        self._access_control_list = {}
 
     def __del__(self) -> None:
         """Process when destroying the class."""
 
-        if self._access_control_list:
-            self._access_control_list.clear()
-            del self._access_control_list
+        self._access_control_list.clear()
+        del self._access_control_list
 
     def name(self) -> Optional[str]:
         """
@@ -81,15 +80,12 @@ class PNAccessControlLists(object):
             _acl_xml = application.PROJECT.conn_manager.managerModules().content("acl.xml")
 
         doc = QtXml.QDomDocument("ACL")
-        if self._access_control_list:
-            self._access_control_list.clear()
+
+        self._access_control_list.clear()
 
         if _acl_xml and not doc.setContent(_acl_xml):
             LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso errónea"))
             return
-
-        self._access_control_list = {}
-        # self._access_control_list.setAutoDelete(True)
 
         doc_elem = doc.documentElement()
         node = doc_elem.firstChild()
@@ -99,20 +95,18 @@ class PNAccessControlLists(object):
 
         while not node.isNull():
             element = node.toElement()
-            if element:
-                if element.tagName() == "name":
+            if element is not None:
+                tag_name = element.tagName()
+                if tag_name == "name":
                     self._name = element.text()
                     node = node.nextSibling()
                     continue
 
-                rule = pnaccesscontrolfactory.PNAccessControlFactory().create(element.tagName())
-                if rule:
-                    rule.set(element)
-                    self._access_control_list[
-                        "%s::%s::%s" % (rule.type(), rule.name(), rule.user())
-                    ] = rule
-                    node = node.nextSibling()
-                    continue
+                rule = pnaccesscontrolfactory.PNAccessControlFactory().create(tag_name)
+                rule.set(element)
+                self._access_control_list[
+                    "%s::%s::%s" % (rule.type(), rule.name(), rule.user())
+                ] = rule
 
             node = node.nextSibling()
 
@@ -130,14 +124,11 @@ class PNAccessControlLists(object):
         if obj is None or not self._access_control_list:
             return None
 
-        if not self._access_control_list:
-            return None
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        if hasattr(obj, "name"):
-            name_ = obj.name()  # type: ignore[union-attr] # noqa: F821
-        else:
-            name_ = obj.objectName()  # type: ignore[union-attr] # noqa: F821
+        name_ = (
+            obj.name() if hasattr(obj, "name") else obj.objectName()  # type: ignore [union-attr]
+        )
 
         user_ = application.PROJECT.conn_manager.mainConn().user()
 
@@ -151,9 +142,7 @@ class PNAccessControlLists(object):
 
         for key in keys_:
             if key in self._access_control_list.keys():
-                self._access_control_list[  # type: ignore [attr-defined] # noqa: F821
-                    key
-                ].processObject(obj)
+                self._access_control_list[key].processObject(obj)
 
     def install_acl(self, idacl: str) -> None:
         """

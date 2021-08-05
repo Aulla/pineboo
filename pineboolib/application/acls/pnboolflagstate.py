@@ -24,15 +24,14 @@ class PNBoolFlagStateList(object):
 
         self.data_list_ = []
 
-    def append(self, data: "PNBoolFlagState" = None) -> None:
+    def append(self, data: "PNBoolFlagState") -> None:
         """
         Add a state to the list.
 
         @param data. Flag state.
         """
 
-        if data is not None:
-            self.data_list_.append(data)
+        self.data_list_.append(data)
 
     def pushOnTop(self, data: "PNBoolFlagState") -> None:
         """

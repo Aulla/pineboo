@@ -242,4 +242,3 @@ def pyqt_slot(*args: Any) -> Callable[["TYPEFN"], "TYPEFN"]:
         return cast(TYPEFN, QtCore.pyqtSlot(*args)(func_))
 
     return _pyqt_slot
-

@@ -56,8 +56,8 @@ as the module selector, or each of the main windows of the modules.
 @author InfoSiAL S.L.
 """
 
-from PyQt6 import QtXml  # type: ignore[import]
-from typing import List, Dict
+from PyQt6 import QtXml
+from typing import List, Dict, Any, Optional
 
 
 class PNAccessControl(object):
@@ -95,9 +95,8 @@ class PNAccessControl(object):
     def __del__(self) -> None:
         """Remove values ​​when closed."""
 
-        if self._acos_perms:
-            self._acos_perms.clear()
-            del self._acos_perms
+        self._acos_perms.clear()
+        del self._acos_perms
 
     def name(self) -> str:
         """
@@ -161,10 +160,8 @@ class PNAccessControl(object):
         self._name = ""
         self._user = ""
         self._perm = ""
-        if self._acos_perms:
-            self._acos_perms.clear()
-            del self._acos_perms
-            self._acos_perms = {}
+
+        self._acos_perms.clear()
 
     def type(self) -> str:
         """
@@ -178,39 +175,37 @@ class PNAccessControl(object):
 
         return ""
 
-    def set(self, element: "QtXml.QDomElement") -> None:
+    def set(self, element: Optional["QtXml.QDomElement"]) -> None:
         """
         Define the access control rule from the information of a DOM node of a given DOM / XML document.
 
         @param e Element corresponding to the DOM node that will be used to define the rule.
         """
 
-        if not element:
+        if element is None:
             return
 
-        if self._acos_perms:
-            self._acos_perms.clear()
-            del self._acos_perms
-
-        self._acos_perms = {}
+        self._acos_perms.clear()
 
         self._perm = element.attribute("perm")
         node = element.firstChild()
 
         while not node.isNull():
-            if not node.toElement().isNull():
-                if node.toElement().tagName() == "name":
-                    self._name = node.toElement().text()
+            node_elem = node.toElement()
+            if not node_elem.isNull():
+                tag_name = node_elem.tagName()
+                if tag_name == "name":
+                    self._name = node_elem.text()
 
-                elif node.toElement().tagName() == "user":
-                    self._user = node.toElement().text()
+                elif tag_name == "user":
+                    self._user = node_elem.text()
 
-                elif node.toElement().tagName() == "aco":
-                    self._acos_perms[node.toElement().text()] = node.toElement().attribute("perm")
+                elif tag_name == "aco":
+                    self._acos_perms[node_elem.text()] = node_elem.attribute("perm")
 
             node = node.nextSibling()
 
-    def get(self, dom_node: "QtXml.QDomDocument") -> None:
+    def get(self, document: Optional["QtXml.QDomDocument"]) -> None:
         """
         From the content of the access control rule create a DOM node.
 
@@ -219,34 +214,31 @@ class PNAccessControl(object):
         @param d DOM / XML document where the node built from the access control rule will be inserted.
         """
 
-        if dom_node is None:
+        if document is None:
             return  # type: ignore [unreachable] # noqa: F821
 
         type_ = self.type()
         if not type_:
             return
 
-        root = dom_node.firstChild().toElement()
-        element = dom_node.createElement(type_)
+        root = document.firstChild().toElement()
+        element = document.createElement(type_)
         element.setAttribute("perm", self._perm)
         root.appendChild(element)
 
-        name = dom_node.createElement("name")
-        element.appendChild(name)
-        node = dom_node.createTextNode(self._name)
-        name.appendChild(node)
+        name_element = document.createElement("name")
+        name_element.appendChild(document.createTextNode(self._name))
+        element.appendChild(name_element)
 
-        user = dom_node.createElement("user")
-        element.appendChild(user)
-        node = dom_node.createTextNode(self._user)
-        user.appendChild(node)
+        user_element = document.createElement("user")
+        user_element.appendChild(document.createTextNode(self._user))
+        element.appendChild(user_element)
 
         for key in self._acos_perms.keys():
-            aco = dom_node.createElement("aco")
-            aco.setAttribute("perm", self._acos_perms[key])
-            element.appendChild(aco)
-            node = dom_node.createTextNode(key)
-            aco.appendChild(node)
+            aco_element = document.createElement("aco")
+            aco_element.setAttribute("perm", self._acos_perms[key])
+            aco_element.appendChild(document.createTextNode(key))
+            element.appendChild(aco_element)
 
     def setAcos(self, acos: List[str]) -> None:
         """
@@ -276,8 +268,13 @@ class PNAccessControl(object):
 
         acos = []
 
-        for key in self._acos_perms.keys():
+        for key, value in self._acos_perms.items():
             acos.append(key)
-            acos.append(self._acos_perms[key])
+            acos.append(value)
 
         return acos
+
+    def processObject(self, obj: Any) -> None:
+        """Process object overload function."""
+
+        return None

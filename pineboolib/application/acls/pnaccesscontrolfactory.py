@@ -31,11 +31,12 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
         if self._perm:
             for action in main_window.findChildren(QtGui.QAction):
                 action_name = action.objectName()
-                if action_name in self._acos_perms.keys():
-                    if self._acos_perms[action_name] in ["-w", "--"]:
-                        action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
-
-                elif self._perm in ["-w", "--"]:
+                perms_value = (
+                    self._acos_perms[action_name]
+                    if action_name in self._acos_perms.keys()
+                    else self._perm
+                )
+                if perms_value in ("-w", "--"):
                     action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
 
 
@@ -80,39 +81,32 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         FLFormRecordDB and FLFormSearchDB) can be made not visible or not editable for convenience.
         """
 
-        if self._perm != "":
-            for children in widget.findChildren(QtWidgets.QWidget):
-                child = cast(QtWidgets.QWidget, children)
-                if child.objectName() in self._acos_perms.keys():
-                    continue
+        not_found_widgets = list(self._acos_perms.keys())
 
-                if self._perm in ("-w", "--"):
-                    child.setPalette(self.pal)
-                    child.setDisabled(True)
-                    child.hide()
-                    continue
+        for child_object in widget.findChildren(QtWidgets.QWidget):
+            child_widget = cast(QtWidgets.QWidget, child_object)
+            widget_name = child_widget.objectName()
+            perms = self._perm
+            if widget_name in self._acos_perms.keys():
+                perms = self._acos_perms[widget_name]
+                not_found_widgets.remove(widget_name)
 
-                elif self._perm == "r-":
-                    child.setDisabled(True)
+            if perms == "":
+                continue
 
-        for object_name in self._acos_perms.keys():
-            child = cast(QtWidgets.QWidget, widget.findChild(QtWidgets.QWidget, object_name))
-            if child:
-                perm = self._acos_perms[object_name]
-                if perm in ("-w", "--"):
-                    child.setPalette(self.pal)
-                    child.setDisabled(True)
-                    child.hide()
-                    continue
+            elif perms in ("-w", "--"):
+                child_widget.setPalette(self.pal)
+                child_widget.setDisabled(True)
+                child_widget.hide()
 
-                if perm == "r-":
-                    child.setDisabled(True)
+            elif perms == "r-":
+                child_widget.setDisabled(True)
 
-            else:
-                LOGGER.warning(
-                    "PNAccessControlFactory: No se encuentra el control %s para procesar ACLS.",
-                    object_name,
-                )
+        for not_found_widget_name in not_found_widgets:
+            LOGGER.warning(
+                "PNAccessControlFactory: No se encuentra el control %s para procesar ACLS.",
+                not_found_widget_name,
+            )
 
 
 class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
@@ -144,14 +138,13 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
         else:
             return
 
-        field_perm = ""
-        mask_field_perm = 0
+        for field in table_metadata.fieldList():
 
-        fields_list = table_metadata.fieldList()
+            mask_field_perm = mask_perm  # por defecto valores de self._perm
 
-        for field in fields_list:
-            mask_field_perm = mask_perm
-            if has_acos and (field.name() in self._acos_perms.keys()):
+            if has_acos and (
+                field.name() in self._acos_perms.keys()
+            ):  # si hay acos_perm especifico sobrecargo
                 field_perm = self._acos_perms[field.name()]
                 mask_field_perm = 0
                 if field_perm[0] == "r":
@@ -164,11 +157,11 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
                 field.setVisible(False)
                 field.setEditable(False)
             elif mask_field_perm == 1:
-                field.setEditable(False)
                 if not field.visible():
                     continue
                 else:
                     field.setVisible(True)
+                field.setEditable(False)
             elif mask_field_perm == 2:
                 field.setVisible(True)
                 field.setEditable(False)
@@ -179,18 +172,11 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
     def setFromObject(self, table_mtd: "pntablemetadata.PNTableMetaData") -> None:
         """Apply permissions from a pntablemetadata.PNTableMetaData."""
 
-        if self._acos_perms:
-            self._acos_perms.clear()
-
-        self._acos_perms = {}
+        self._acos_perms.clear()
 
         for field in table_mtd.fieldList():
-            perm_read = "-"
-            perm_write = "-"
-            if field.visible():
-                perm_read = "r"
-            if field.editable():
-                perm_write = "w"
+            perm_read = "r" if field.visible() else "-"
+            perm_write = "w" if field.editable() else "-"
             self._acos_perms[field.name()] = "%s%s" % (perm_read, perm_write)
 
 

@@ -244,8 +244,7 @@ def ustr(*full_text: Union[bytes, str, int, "Date", None, float]) -> str:
             return str(text_, "UTF-8")
 
         else:
-            return repr("" if text_ is None else text_ )
-
+            return repr("" if text_ is None else text_)
 
     return "".join([ustr1(text) for text in full_text])
 
