@@ -1,6 +1,6 @@
 """Translate module."""
 
-from PyQt6 import QtWidgets  # type: ignore[import]
+from PyQt6 import QtWidgets
 
 
 def translate(group: str, context: str) -> str:

@@ -76,12 +76,12 @@ def qt_translate_noop(string: str, path: str, mod: str) -> str:
     xml_translations = QtXml.QDomDocument()
     if xml_translations.setContent(file_data):
         node_mess = xml_translations.elementsByTagName(u"message")
-        for item in range(len(node_mess)):
-            if node_mess.item(item).namedItem(u"source").toElement().text() == string:
-                traduccion = node_mess.item(item).namedItem(u"translation").toElement().text()
+        for node_number in range(len(node_mess)):
+            node = node_mess.item(node_number)
+            if node.namedItem(u"source").toElement().text() == string:
+                traduccion = node.namedItem(u"translation").toElement().text()
                 if traduccion:
-                    string = traduccion
-                    break
+                    return traduccion
 
     return string
 
@@ -243,10 +243,9 @@ def ustr(*full_text: Union[bytes, str, int, "Date", None, float]) -> str:
         elif isinstance(text_, bytes):
             return str(text_, "UTF-8")
 
-        elif text_ is None:
-            return ""
         else:
-            return repr(text_)
+            return repr("" if text_ is None else text_ )
+
 
     return "".join([ustr1(text) for text in full_text])
 

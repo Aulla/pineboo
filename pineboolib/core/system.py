@@ -18,8 +18,5 @@ class System(object):
     @staticmethod
     def getenv(name: str) -> str:
         """Get environment variable."""
-        ret_ = ""
-        if name in os.environ.keys():
-            ret_ = os.environ[name]
 
-        return ret_
+        return os.environ[name] if name in os.environ.keys() else ""

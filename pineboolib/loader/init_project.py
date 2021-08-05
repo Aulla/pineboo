@@ -22,7 +22,7 @@ LOGGER = logging.get_logger(__name__)
 
 def init_project(
     dgi: "dgi_schema.dgi_schema",
-    options: Values,
+    options: "Values",
     project: "projectmodule.Project",
     main_window: Optional["imainwindow.IMainWindow"],
     app: "QtWidgets.QApplication",

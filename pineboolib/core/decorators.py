@@ -243,14 +243,3 @@ def pyqt_slot(*args: Any) -> Callable[["TYPEFN"], "TYPEFN"]:
 
     return _pyqt_slot
 
-
-# NOTE: Does not work with Python 3.6 or newer :-(
-# def typecheck(fn: T_FN) -> T_FN:
-#     """
-#     Check function call parameters by using typecheck-decorator.
-#
-#     This decorator uses casting to preserve original function signature on MyPy.
-#     """
-#     import typecheck as tc
-#
-#     return cast(T_FN, tc.typecheck(fn))

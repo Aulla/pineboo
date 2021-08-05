@@ -163,6 +163,6 @@ class DgiSchema(object):
         LOGGER.info("---> %s" % txt)
 
     def exec(self):
-        """ Default exec."""
+        """Return default exec."""
 
         return 0
