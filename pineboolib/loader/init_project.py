@@ -1,23 +1,32 @@
 """
 Finalize pineboo setup and load.
 """
+
+
 from pineboolib import logging
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 
 from pineboolib.core import settings
 from .preload import preload_actions
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import imainwindow  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # pragma: no cover
+    from pineboolib.application import projectmodule  # pragma: no cover
+    from pineboolib.interfaces import imainwindow, dgi_schema  # pragma: no cover
+    from optparse import Values  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
 
 
 def init_project(
-    dgi: Any, options: Any, project: Any, main_window: Optional["imainwindow.IMainWindow"], app: Any
-) -> Any:
+    dgi: "dgi_schema.dgi_schema",
+    options: Values,
+    project: "projectmodule.Project",
+    main_window: Optional["imainwindow.IMainWindow"],
+    app: "QtWidgets.QApplication",
+) -> int:
     """Initialize the project and start it."""
     # from PyQt6 import QtCore  # type: ignore
 
@@ -31,7 +40,7 @@ def init_project(
         preload_actions(project, options.forceload)
 
         LOGGER.info("Finished preloading")
-        return
+        return 0
 
     call_function = settings.SETTINGS.value("application/callFunction", None)
     if options.call_function:
@@ -66,10 +75,7 @@ def init_project(
     # if objaction:
     #     project.openDefaultForm(objaction.form())
 
-    if dgi.localDesktop():
-        ret = app.exec()
-    else:
-        ret = dgi.exec_()
+    ret = app.exec() if dgi.localDesktop() else dgi.exec()
 
     # if main_form is not None:
     #    main_form.mainWindow = None

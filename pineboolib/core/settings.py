@@ -41,12 +41,12 @@ class PinebooSettings(QtCore.QSettings):
         )  # QtCore.QSettings.NativeFormat - usar solo ficheros ini.
         scope_ = QtCore.QSettings.Scope.UserScope
         self.organization = "Eneboo"
-        self.application = "Pineboo" + name
+        self.application = "Pineboo%s" % name
         self.cache: Dict[str, Tuple[float, Any]] = {}
         super().__init__(format_, scope_, self.organization, self.application)
 
     @staticmethod
-    def dump_qsize(value: "QtCore.QSize") -> Dict[str, Any]:
+    def dump_qsize(value: "QtCore.QSize") -> Dict[str, Union[str, int]]:
         """Convert QtCore.QSize into a Dict suitable to be converted to JSON."""
         return {"__class__": "QtCore.QSize", "width": value.width(), "height": value.height()}
 
@@ -61,10 +61,13 @@ class PinebooSettings(QtCore.QSettings):
     def load_value(self, value_text: str) -> Any:
         """Parse INI text values into proper Python variables."""
         value: Any = json.loads(value_text)
-        if isinstance(value, dict) and "__class__" in value.keys():
-            classname = value["__class__"]
-            if classname == "QtCore.QSize":
-                return QtCore.QSize(value["width"], value["height"])
+        if (
+            isinstance(value, dict)
+            and "__class__" in value.keys()
+            and value["__class__"] == "QtCore.QSize"
+        ):
+            value = QtCore.QSize(value["width"], value["height"])
+
         return value
 
     def value(self, key: str, def_value: Any = None, type: Type = None) -> Any:
@@ -72,18 +75,18 @@ class PinebooSettings(QtCore.QSettings):
         curtime = time.time()
         cached_value = self.cache.get(key, None)
 
-        if cached_value:
-            if curtime - cached_value[0] > self.CACHE_TIME_SEC:
+        if cached_value is not None:  # Si tengo valor cacheado
+            if curtime - cached_value[0] > self.CACHE_TIME_SEC:  # y he caducado
                 del self.cache[key]
             else:
-                if cached_value[1] is not None:
+                if cached_value[1] is not None:  # Si es bueno el valor cacheado
                     return cached_value[1]
 
-        val = self._value(key)
+        val = self._value(key)  # repgunto por valor
 
-        if val is not None:
+        if val is not None:  # Si hay valor, lo cacheo
             self.cache[key] = (curtime, val)
-        else:
+        else:  # si no devuelvo default
             val = def_value
         return val
 

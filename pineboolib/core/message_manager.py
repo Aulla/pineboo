@@ -23,25 +23,19 @@ class Manager(object):
 
     def send(self, type_: str, function_: Optional[str] = None, data_: Iterable[Any] = None) -> Any:
         """Send a progress event to the manager."""
-        if self._dgi is None:
-            return None
 
-        obj_ = getattr(self._dgi, type_, None)
         ret_ = None
-        if obj_:
-            if function_ is not None:
-                attr_ = getattr(obj_, function_, None)
-            else:
-                attr_ = obj_
 
-            if attr_ is None:
-                return
-            else:
-                if not data_:
-                    ret_ = attr_()
-                else:
-                    ret_ = attr_(*data_)
-                # QtWidgets.QApplication.processEvents()
+        if self._dgi is not None:
+            obj_ = getattr(self._dgi, type_, None)
 
-        if ret_ is not None:
-            return ret_
+            if obj_ is not None:
+                attr_ = getattr(obj_, function_, None) if function_ is not None else obj_
+
+                if attr_ is not None:
+                    if not data_:
+                        ret_ = attr_()
+                    else:
+                        ret_ = attr_(*data_)
+
+        return ret_

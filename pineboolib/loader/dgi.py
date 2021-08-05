@@ -9,9 +9,6 @@ if TYPE_CHECKING:
     from pineboolib.plugins.dgi.dgi_qt import dgi_qt  # pragma: no cover
     from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi  # pragma: no cover
 
-    # from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
-    # from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
-
 
 LOGGER = logging.get_logger(__name__)
 

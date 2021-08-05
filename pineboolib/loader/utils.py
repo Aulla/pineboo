@@ -10,7 +10,7 @@ LOGGER = logging.get_logger(__name__)
 
 def monkey_patch_connect() -> None:
     """
-    Patch Qt5 signal/event functions for tracing them.
+    Patch Qt6 signal/event functions for tracing them.
 
     This is not stable and should be used with care
     """

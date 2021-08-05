@@ -11,6 +11,8 @@ from pineboolib.core.utils import utils_base
 
 import gc
 import sys
+import shutil
+import os
 
 
 from typing import List, Type, Optional, TYPE_CHECKING
@@ -42,11 +44,13 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     init_cli(catch_ctrl_c=False)
 
     LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
+
+    debug_level = 200
     if application.DEVELOPER_MODE:
         LOGGER.warning("Developer mode activated")
-        application.PROJECT.setDebugLevel(1000)
-    else:
-        application.PROJECT.setDebugLevel(200)
+        debug_level = 1000
+
+    application.PROJECT.setDebugLevel(debug_level)
 
     application.PROJECT.set_app(qapp)
     dgi = dgi_module.load_dgi("qt", None)
@@ -56,9 +60,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
     conn_ = connection.connect_to_db(conn)
     LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
-    main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
-    if not main_conn_established:
+    if not application.PROJECT.init_conn(connection=conn_):
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     _initialize_data(True)
@@ -67,10 +70,10 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
 def startup(enable_gui: bool = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
-    from pineboolib.core.utils.check_dependencies import check_dependencies_cli
-    from .options import parse_options
+    from pineboolib.core.utils import check_dependencies
+    from . import options as options_module
 
-    if not check_dependencies_cli(
+    if not check_dependencies.check_dependencies_cli(
         {"ply": "python3-ply", "PyQt6.QtCore": "python3-PyQt6", "Python": "Python"}
     ):
         sys.exit(32)
@@ -79,7 +82,7 @@ def startup(enable_gui: bool = None) -> None:
     if sys.version_info < min_python:
         sys.exit("Python %s.%s or later is required.\n" % min_python)
 
-    options = parse_options()
+    options = options_module.parse_options()
 
     if options.pineboo_version:
         print("Pineboo %s." % application.PINEBOO_VER)
@@ -97,22 +100,11 @@ def startup(enable_gui: bool = None) -> None:
     if application.DEVELOPER_MODE:
         LOGGER.info("Developer mode activated")
 
-    if options.enable_profiler:
-        ret = exec_main_with_profiler(options)
-    else:
-        # try:
-        ret = exec_main(options)
+    ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 
-        # except Exception as error:
-        #     QtWidgets.QMessageBox.information(None, "Pineboo", "FAllo al arrancar : %s" % error)
-    # setup()
-    # exec_()
     gc.collect()
     LOGGER.info("Closing Pineboo...")
-    if ret:
-        sys.exit(ret)
-    else:
-        sys.exit(0)
+    sys.exit(ret if ret else 0)
 
 
 def init_logging(
@@ -283,9 +275,8 @@ def init_testing() -> None:
     setattr(application, "TESTING_MODE", True)
     application.PROJECT.aq_app._inicializing = False
     conn = connection.connect_to_db(connection.IN_MEMORY_SQLITE_CONN)
-    main_conn_established = application.PROJECT.init_conn(connection=conn)
 
-    if not main_conn_established:
+    if not application.PROJECT.init_conn(connection=conn):
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     # application.PROJECT.no_python_cache = False
@@ -294,27 +285,18 @@ def init_testing() -> None:
 
 def finish_testing() -> None:
     """Clear data from pineboo project."""
-    # import time
+
+    from pineboolib.application import qsadictmodules
+
     application.PROJECT.conn_manager.manager().cleanupMetaData()
     application.PROJECT.actions = {}
     application.PROJECT.areas = {}
     application.PROJECT.modules = {}
-    # application.PROJECT.tables = {}
     if application.PROJECT.main_window:
         application.PROJECT.main_window.initialized_mods_ = []
 
-    # application.PROJECT.conn.execute_query("DROP DATABASE %s" % connection.IN_MEMORY_SQLITE_CONN.database)
+    qsadictmodules.QSADictModules.clean_all()
     application.PROJECT.conn_manager.finish()
-    # application.PROJECT.conn_manager.mainConn().driver_ = None
-    # application.PROJECT.conn_manager.conn.close()
-    # application.PROJECT.conn.conn = None
-    # del application.PROJECT._conn_manager
-    # application.PROJECT._conn_manager = None
-    # time.sleep(0.5)  # Wait until database close ends
-
-    from pineboolib.application import qsadictmodules
-    import shutil
-    import os
 
     LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
     try:
@@ -327,14 +309,8 @@ def finish_testing() -> None:
             error,
         )
 
-    qsadictmodules.QSADictModules.clean_all()
     if not os.path.exists(application.PROJECT.tmpdir):
         os.mkdir(application.PROJECT.tmpdir)
-    # needed for delete older virtual database.
-
-    # conn = connection.connect_to_db(connection.IN_MEMORY_SQLITE_CONN)
-    # application.PROJECT.init_conn(connection=conn)
-    # application.PROJECT.run()
 
 
 def exec_main(options: "optparse.Values") -> int:
@@ -438,8 +414,8 @@ def exec_main(options: "optparse.Values") -> int:
         raise ValueError("No connection given. Nowhere to connect. Cannot start.")
 
     conn = connection.connect_to_db(configdb)
-    main_conn_established = application.PROJECT.init_conn(connection=conn)
-    if not main_conn_established:
+
+    if not application.PROJECT.init_conn(connection=conn):
         LOGGER.warning("No main connection was provided. Aborting Pineboo load.")
         return -99
 

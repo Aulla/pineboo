@@ -161,3 +161,8 @@ class DgiSchema(object):
     def debug(self, txt: str):
         """Show debug message."""
         LOGGER.info("---> %s" % txt)
+
+    def exec(self):
+        """ Default exec."""
+
+        return 0
