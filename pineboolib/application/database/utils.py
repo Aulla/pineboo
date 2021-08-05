@@ -64,6 +64,7 @@ def next_counter(
     @return Qvariant with the following number.
     @author Andrés Otón Urbano.
     """
+
     if cursor_ is None:
 
         if not isinstance(cursor_or_name, (pnsqlcursor.PNSqlCursor, dummy_cursor.DummyCursor)):
@@ -90,75 +91,13 @@ def _next_counter2(
 
     type_ = field.type()
 
-    if type_ not in ["string", "double"]:
+    if type_ not in ("string", "double"):
         return None
 
     _len = int(field.length())
-    _cadena = None
+    _where: str = cursor_.db().sqlLength(name_, _len)
 
     qry = pnsqlquery.PNSqlQuery(None, cursor_.db())
-    qry.setForwardOnly(True)
-    qry.setTablesList(tmd.name())
-    qry.setSelect(name_)
-    qry.setFrom(tmd.name())
-
-    qry.setWhere(cursor_.db().sqlLength(name_, _len))
-    qry.setOrderBy(name_ + " DESC")
-
-    if not qry.exec_():
-        return None
-
-    _max_range: int = 10 ** _len
-    _numero: int = _max_range
-
-    while _numero >= _max_range:
-        if not qry.next():
-            _numero = 1
-            break
-
-        try:
-            _numero = int(qry.value(0))
-            _numero = _numero + 1
-        except Exception:
-            pass
-
-    if type_ == "string":
-        _cadena = str(_numero)
-
-        if len(_cadena) < _len:
-            _cadena = _cadena.rjust(_len, "0")
-
-        return _cadena
-
-    elif type_ == "double":
-        return _numero
-
-    return None
-
-
-def _next_counter3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[str]:
-
-    if not cursor_:
-        return None
-
-    tmd = cursor_.metadata()
-
-    field = tmd.field(name_)
-    if field is None:
-        return None
-
-    _type = field.type()
-    if _type not in ["string", "double"]:
-        return None
-
-    _len: int = field.length() - len(serie_)
-    _where: str = "length(%s)=%d AND %s" % (
-        name_,
-        field.length(),
-        cursor_.db().connManager().manager().formatAssignValueLike(name_, "string", serie_, True),
-    )
-
-    qry = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
     qry.setForwardOnly(True)
     qry.setTablesList(tmd.name())
     qry.setSelect(name_)
@@ -169,23 +108,62 @@ def _next_counter3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") ->
     if not qry.exec_():
         return None
 
-    _max_range: int = 10 ** _len
-    _numero: int = _max_range
+    _numero: int = int(qry.value(0)) if qry.last() else 0
+    _numero += 1
 
-    while _numero >= _max_range:
-        if not qry.next():
-            _numero = 1
-            break
+    if type_ == "string":
+        _cadena = str(_numero)
 
-        _numero = int(qry.value(0)[len(serie_) :])
-        _numero = _numero + 1
+        return _cadena.rjust(_len, "0") if len(_cadena) < _len else _cadena
 
-    if _type in ["string", "double"]:
+    elif type_ == "double":
+        return _numero
+
+    return None
+
+
+def _next_counter3(
+    serie_: str, name_: str, cursor_: Union["isqlcursor.ISqlCursor", "dummy_cursor.DummyCursor"]
+) -> Optional[Union[str, int]]:
+
+    if not cursor_:
+        return None
+
+    tmd = cursor_.metadata()
+
+    field = tmd.field(name_)
+
+    if field is None:
+        return None
+
+    _type = field.type()
+
+    _len: int = field.length() - len(serie_)
+    _where: str = "length(%s)=%d AND %s" % (
+        name_,
+        field.length(),
+        cursor_.db().connManager().manager().formatAssignValueLike(name_, "string", serie_, True),
+    )
+
+    qry = pnsqlquery.PNSqlQuery(None, cursor_.db())
+    qry.setForwardOnly(True)
+    qry.setTablesList(tmd.name())
+    qry.setSelect(name_)
+    qry.setFrom(tmd.name())
+    qry.setWhere(_where)
+    qry.setOrderBy(name_ + " DESC")
+
+    if not qry.exec_():
+        return None
+
+    _numero: int = int(qry.value(0)[len(serie_) :]) if qry.last() else 0
+    _numero += 1
+
+    if _type == "string":
         _cadena: str = str(_numero)
-        if len(_cadena) < _len:
-            _cadena = _cadena.rjust(_len, "0")
-
-        return _cadena
+        return _cadena.rjust(_len, "0") if len(_cadena) < _len else _cadena
+    elif _type == "double":
+        return _numero
 
     return None
 
@@ -217,41 +195,30 @@ def sql_select(
 
     if table_list_:
         _qry.setTablesList(table_list_)
-    # else:
-    #    _qry.setTablesList(from_)
 
     _qry.setSelect(select_)
     _qry.setFrom(from_)
     _qry.setWhere(where_)
-    # q.setForwardOnly(True)
-    if not _qry.exec_():
-        return False
 
-    if _qry.first():
-
-        return _qry.value(0)
-
-    return False
+    return False if not _qry.exec_() or not _qry.first() else _qry.value(0)
 
 
 def quick_sql_select(
     from_: str,
     select_: str,
-    where_: Optional[str] = None,
+    where_: Optional[str] = "1 = 1",
     conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> Any:
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
     """
 
-    if where_ is None:
-        where_ = "1 = 1"
-
     _qry = pnsqlquery.PNSqlQuery(None, conn_)
-    if not _qry.exec_("SELECT %s FROM %s WHERE %s " % (select_, from_, where_)):
-        return False
-
-    return _qry.value(0) if _qry.first() else False
+    return (
+        _qry.value(0)
+        if _qry.exec_("SELECT %s FROM %s WHERE %s " % (select_, from_, where_)) and _qry.first()
+        else False
+    )
 
 
 def sql_insert(
@@ -294,7 +261,7 @@ def sql_insert(
     for _pos in range(len(_field_list)):
 
         if _value_list[_pos] is None:
-            _cursor.bufferSetNull(_field_list[_pos])
+            _cursor.setNull(_field_list[_pos])
         else:
             _cursor.setValueBuffer(_field_list[_pos], _value_list[_pos])
 
