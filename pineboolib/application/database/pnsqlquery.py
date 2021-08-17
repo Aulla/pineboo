@@ -3,7 +3,6 @@
 Module for PNSqlQuery class.
 """
 
-from sqlalchemy.engine import result
 
 from pineboolib.core.utils import logging
 
@@ -15,8 +14,9 @@ from typing import Union, List, Dict, Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401 # pragma: no cover
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection  # pragma: no cover
     from pineboolib.interfaces import isqldriver
+    from sqlalchemy.engine import result as result_engine
     from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
     from . import pngroupbyquery  # noqa: F401 # pragma: no cover
     from . import pnparameterquery  # noqa: F401 # pragma: no cover
@@ -51,7 +51,7 @@ class PNSqlQueryPrivate(object):
     """
     Base de datos sobre la que trabaja
     """
-    _db: "IConnection"
+    _db: "iconnection.IConnection"
 
     """
     Lista de parámetros
@@ -108,14 +108,16 @@ class PNSqlQuery(object):
     _invalid_tables_list = False
     _is_active: bool
     _field_name_to_pos_dict: Optional[Dict[str, int]]
-    _sql_inspector: sql_tools.SqlInspector
-    _row: Optional["result.RowProxy"]
-    _datos: List["result.RowProxy"]
+    _sql_inspector: "sql_tools.SqlInspector"
+    _row: Optional["result_engine.RowProxy"]
+    _datos: List["result_engine.RowProxy"]
     _posicion: int
     _last_query: str
-    private_query: PNSqlQueryPrivate
+    private_query: "PNSqlQueryPrivate"
 
-    def __init__(self, cx=None, connection_name: Union[str, "IConnection"] = "default") -> None:
+    def __init__(
+        self, cx=None, connection_name: Union[str, "iconnection.IConnection"] = "default"
+    ) -> None:
         """
         Initialize a new query.
         """
@@ -159,7 +161,7 @@ class PNSqlQuery(object):
             pass
 
     @property
-    def sql_inspector(self) -> sql_tools.SqlInspector:
+    def sql_inspector(self) -> "sql_tools.SqlInspector":
         """
         Return a sql inspector instance.
 
@@ -780,7 +782,7 @@ class PNSqlQuery(object):
 
         return list_
 
-    def db(self) -> "IConnection":
+    def db(self) -> "iconnection.IConnection":
         """
         Get the database you work on.
 

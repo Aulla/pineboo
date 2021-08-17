@@ -13,7 +13,7 @@ from pineboolib.core.utils.singleton import Singleton
 from typing import Dict, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqldriver  # pragma: no cover
+    from pineboolib.interfaces import isqldriver
 
 LOGGER = logging.get_logger(__name__)
 
