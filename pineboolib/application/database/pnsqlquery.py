@@ -126,10 +126,11 @@ class PNSqlQuery(object):
             raise Exception("Project is not connected yet")
         self._field_name_to_pos_dict = None
         self.private_query = PNSqlQueryPrivate(cx)
-        if isinstance(connection_name, str):
-            self.private_query._db = application.PROJECT.conn_manager.useConn(connection_name)
-        else:
-            self.private_query._db = connection_name
+        self.private_query._db = (
+            application.PROJECT.conn_manager.useConn(connection_name)
+            if isinstance(connection_name, str)
+            else connection_name
+        )
 
         self.db().session()  # precarga.
 
