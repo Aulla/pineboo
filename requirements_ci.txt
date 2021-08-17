@@ -13,9 +13,9 @@ pytest
 pytest-cov==2.11.1
 setuptools
 six
-sphinx==3.5.3
-sphinxcontrib-serializinghtml==1.1.4
-sphinx-autodoc-typehints==1.11.1
+sphinx==4.1.2
+sphinxcontrib-serializinghtml==1.1.5
+sphinx-autodoc-typehints==1.12.0
 sphinx-rtd-theme==0.5.2
 sqlalchemy-stubs
 testresources
