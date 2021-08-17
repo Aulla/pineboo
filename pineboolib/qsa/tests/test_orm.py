@@ -140,17 +140,19 @@ class TestOrm(unittest.TestCase):
 
         metadata = aq_app.db().manager().metadata("flareas")
         self.assertTrue(metadata)
+        if metadata is not None:
+            self.assertEqual(metadata.name(), class_.legacy_metadata["name"])
+            self.assertEqual(metadata.alias(), class_.legacy_metadata["alias"])
 
-        self.assertEqual(metadata.name(), class_.legacy_metadata["name"])
-        self.assertEqual(metadata.alias(), class_.legacy_metadata["alias"])
+            result = None
+            for field in class_.legacy_metadata["fields"]:
+                if field["name"] == "bloqueo":
+                    result = field["default"]
+                    break
 
-        result = None
-        for field in class_.legacy_metadata["fields"]:
-            if field["name"] == "bloqueo":
-                result = field["default"]
-                break
-
-        self.assertEqual(metadata.field("bloqueo").defaultValue(), result)
+            self.assertEqual(
+                metadata.field("bloqueo").defaultValue(), result  # type: ignore [union-attr]
+            )
 
     def test_save_points(self) -> None:
         """Save points."""

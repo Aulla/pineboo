@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """PNApplication Module."""
 
+
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 from pineboolib.core import decorators, settings
@@ -22,9 +23,10 @@ if TYPE_CHECKING:
 
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
     from PyQt6 import QtXml, QtGui  # noqa: F401 # pragma: no cover
-    from pineboolib.application import module  # pragma: no cover
+    from pineboolib.application import module as app_module  # pragma: no cover
     from pineboolib.interfaces import dgi_schema  # pragma: no cover
     from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
+    from pineboolib.fllegacy import flformdb  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -242,6 +244,7 @@ class PNApplication(QtCore.QObject):
         """Get tabs."""
 
         action_name = ""
+        widget_: Optional["flformdb.FLFormDB"]
         if widget_name.startswith("formRecord"):
             action_name = widget_name[10:]
             action_ = self.db().manager().action(action_name)
@@ -256,11 +259,11 @@ class PNApplication(QtCore.QObject):
             widget_ = self.db().managerModules().createForm(action_)
 
         if widget_ is None:
-            return ""
+            return ""  # type: ignore [unreachable]
 
         tab_widget = widget_.findChild(QtWidgets.QTabWidget, obj_name)
         if tab_widget is None:
-            return ""
+            return ""  # type: ignore [unreachable]
 
         tab_names: str = ""
         for number in enumerate(tab_widget.count()):
@@ -300,7 +303,7 @@ class PNApplication(QtCore.QObject):
 
         cast(QtWidgets.QMainWindow, main_widget).statusBar().showMessage(text, 2000)
 
-    def loadScriptsFromModule(self, id_module) -> None:
+    def loadScriptsFromModule(self, id_module: str) -> None:
         """Load scripts from named module."""
         if id_module in application.PROJECT.modules.keys():
             application.PROJECT.modules[id_module].load()
@@ -720,7 +723,7 @@ class PNApplication(QtCore.QObject):
         """Not implemented."""
         pass
 
-    def DGI(self) -> "dgi_schema":
+    def DGI(self) -> "dgi_schema.dgi_schema":
         """Return current DGI."""
         return application.PROJECT.DGI
 
@@ -914,7 +917,7 @@ class PNApplication(QtCore.QObject):
 
         return self.createModTranslator(id_module, "es") if load_default else None
 
-    def modules(self) -> Dict[str, "module.Module"]:
+    def modules(self) -> Dict[str, "app_module.Module"]:
         """Return loaded modules."""
         return application.PROJECT.modules
 

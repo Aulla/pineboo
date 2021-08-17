@@ -1503,7 +1503,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         self._fun_log = self.addLog if fun_log is None else fun_log  # type: ignore
 
-        self.db_ = application.PROJECT.aq_app.db() if db_ is None else db_
+        self.db_ = application.PROJECT.aq_app.db().mainConn() if db_ is None else db_
         self._show_gui = show_gui
         self._dir_base = types.Dir.home if dir_base is None else dir_base
 

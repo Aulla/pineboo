@@ -19,7 +19,9 @@ class FormInternalObj(qsa.FormDBWidget):
         """Entry function."""
 
         mng = qsa.aqApp.db().managerModules()
-        self.ui_ = mng.createUI(u"ebcomportamiento.ui")
+        self.ui_: "QtWidgets.QWidget" = mng.createUI(  # type: ignore [assignment]
+            u"ebcomportamiento.ui"
+        )
         btn_accept = self.ui_.findChild(QtWidgets.QWidget, u"pbnAceptar")
         btn_accept_tmp = self.ui_.findChild(QtWidgets.QWidget, u"pbn_temporales")
         btn_cancel = self.ui_.findChild(QtWidgets.QWidget, u"pbnCancelar")
@@ -115,7 +117,9 @@ class FormInternalObj(qsa.FormDBWidget):
         elif valor == "NeverAuto":
             auto_complete = "Nunca"
 
-        self.ui_.findChild(QtWidgets.QWidget, u"cbAutoComp").setCurrentText = auto_complete
+        self.ui_.findChild(
+            QtWidgets.QWidget, u"cbAutoComp"
+        ).setCurrentText = auto_complete  # type: ignore [attr-defined]
 
         self.ui_.findChild(QtWidgets.QWidget, u"leCO").hide()
         self.color_actual = self.read_local_value("colorObligatorio")
@@ -208,8 +212,10 @@ class FormInternalObj(qsa.FormDBWidget):
     def initEventFilter(self) -> None:
         """Inicialize event filter."""
 
-        self.ui_.eventFilterFunction = qsa.ustr(self.ui_.objectName(), u".eventFilter")
-        self.ui_.allowedEvents = qsa.Array([qsa.AQS.Close])
+        self.ui_.eventFilterFunction = qsa.ustr(  # type: ignore [attr-defined]
+            self.ui_.objectName(), u".eventFilter"
+        )
+        self.ui_.allowedEvents = qsa.Array([qsa.AQS.Close])  # type: ignore [attr-defined]
         self.ui_.installEventFilter(self.ui_)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
