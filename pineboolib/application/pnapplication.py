@@ -12,7 +12,7 @@ from .qsatypes import sysbasetype
 from . import qsadictmodules
 
 import sys
-from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
+from typing import Any, Optional, List, TextIO, cast, Union, Dict, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -22,6 +22,9 @@ if TYPE_CHECKING:
 
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
     from PyQt6 import QtXml, QtGui  # noqa: F401 # pragma: no cover
+    from pineboolib.application import module  # pragma: no cover
+    from pineboolib.interfaces import dgi_schema  # pragma: no cover
+    from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -48,13 +51,9 @@ class PNApplication(QtCore.QObject):
     _translator: List["pntranslator.PNTranslator"]
 
     container_: Optional["QtWidgets.QWidget"]  # Contenedor actual??
-
-    # project_ = None
-
     form_alone_: bool
     acl_: Optional["pnaccesscontrollists.PNAccessControlLists"]
-    popup_warn_: Any
-    fl_factory_: Any
+
     op_check_update_: bool
     style: bool
 
@@ -65,7 +64,7 @@ class PNApplication(QtCore.QObject):
     script_entry_function_: str
     _event_loop: Optional["QtCore.QEventLoop"]
     window_menu: Optional["QtWidgets.QMenu"] = None
-    modules_menu: Any
+    modules_menu: Optional["QtWidgets.QMenu"] = None
 
     transactionBegin: "QtCore.pyqtSignal" = QtCore.pyqtSignal()
     transactionEnd: "QtCore.pyqtSignal" = QtCore.pyqtSignal()
@@ -83,10 +82,10 @@ class PNApplication(QtCore.QObject):
         self.form_alone_ = False
         self._not_exit = False
         self.timer_idle_ = None
-        self.popup_warn_ = None
+        # self.popup_warn_ = None
         self._inicializing = False
         self._destroying = False
-        self.fl_factory_ = None
+        # self.fl_factory_ = None
         self.op_check_update_ = False
         self.window_menu = None
         DB_SIGNALS.notify_begin_transaction_ = False
@@ -160,7 +159,7 @@ class PNApplication(QtCore.QObject):
         """End fastcgi call signal."""
         pass
 
-    def localeSystem(self) -> Any:
+    def localeSystem(self) -> "QtCore.QLocale":
         """Return locale of the system."""
         return self.locale_system_
 
@@ -623,7 +622,7 @@ class PNApplication(QtCore.QObject):
 
     def mrProper(self) -> None:
         """Cleanup database."""
-        self.db().conn.Mr_Proper()
+        self.db().mainConn().Mr_Proper()
 
     def showConsole(self) -> None:
         """Show application console on GUI."""
@@ -721,7 +720,7 @@ class PNApplication(QtCore.QObject):
         """Not implemented."""
         pass
 
-    def DGI(self) -> Any:
+    def DGI(self) -> "dgi_schema":
         """Return current DGI."""
         return application.PROJECT.DGI
 
@@ -735,7 +734,7 @@ class PNApplication(QtCore.QObject):
         ret = utils.sql_select("flsettings", "valor", "flkey='FLLargeMode'")
         return False if ret in ["True", True] else True
 
-    def msgBoxWarning(self, text, _gui) -> None:
+    def msgBoxWarning(self, text: str, _gui: Any) -> None:
         """Display warning."""
         _gui.msgBoxWarning(text)
 
@@ -744,7 +743,7 @@ class PNApplication(QtCore.QObject):
         """Return if debug is shown."""
         return self.show_debug_
 
-    def db(self) -> Any:
+    def db(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return current connection."""
         return application.PROJECT.conn_manager
 
@@ -763,24 +762,26 @@ class PNApplication(QtCore.QObject):
         if main_window is not None:
             main_window.close()
 
-    def queryExit(self) -> Any:
+    def queryExit(self) -> bool:
         """Ask user if really wants to quit."""
 
         if self._not_exit:
             return False
 
-        if not application.PROJECT.conn_manager.mainConn().interactiveGUI():
-            return True
-        main_widget = application.PROJECT.main_window
-        if main_widget is not None:
-            ret = QtWidgets.QMessageBox.question(
-                main_widget,
-                self.tr("Salir ..."),
-                self.tr("¿ Quiere salir de la aplicación ?"),
-                QtWidgets.QMessageBox.StandardButton.Yes,
-                QtWidgets.QMessageBox.StandardButton.No,
-            )
-            return ret == QtWidgets.QMessageBox.StandardButton.Yes
+        if application.PROJECT.conn_manager.mainConn().interactiveGUI():
+
+            main_widget = application.PROJECT.main_window
+            if main_widget is not None:
+                ret = QtWidgets.QMessageBox.question(
+                    main_widget,
+                    self.tr("Salir ..."),
+                    self.tr("¿ Quiere salir de la aplicación ?"),
+                    QtWidgets.QMessageBox.StandardButton.Yes,
+                    QtWidgets.QMessageBox.StandardButton.No,
+                )
+                return ret == QtWidgets.QMessageBox.StandardButton.Yes
+
+        return True
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
@@ -800,34 +801,21 @@ class PNApplication(QtCore.QObject):
         """Open help."""
         sysbasetype.SysBaseType.openUrl(["http://manuales-eneboo-pineboo.org/"])
 
-    # def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
-    #    """Open translations."""
-
-    #    return application.PROJECT.app.translate("system", sourceText)
-
     def loadTranslations(self) -> None:
         """
         Install loaded translations.
         """
-        tl_list = []
-
-        for trans in self._translator:
-            tl_list.append(trans)
-            self.removeTranslator(trans)
 
         lang = QtCore.QLocale().name()[:2]
-
-        if lang == "C":
-            lang = "es"
+        lang = "es" if lang == "C" else lang
 
         for module in self.modules().keys():
             self.loadTranslationFromModule(module, lang)
 
-        for item in tl_list:
+        for item in self._translator:
+            self.removeTranslator(item)
             if item._sys_trans:
                 self.installTranslator(item)
-            else:
-                del item
 
     def trMulti(self, text: str, lang: str):
         """
@@ -837,12 +825,7 @@ class PNApplication(QtCore.QObject):
         @param lang, Idioma.
         @return Cadena de texto traducida.
         """
-
-        back_multi_enabled = self._multi_lang_enabled
-        ret = application.PROJECT.app.tr("%s_MULTILANG" % lang.upper(), text)
-        self._multi_lang_enabled = back_multi_enabled
-
-        return ret
+        return application.PROJECT.app.tr("%s_MULTILANG" % lang.upper(), text)
 
     def setMultiLang(self, enable_: bool, lang_id_: str) -> None:
         """
@@ -863,7 +846,6 @@ class PNApplication(QtCore.QObject):
         @param lang, Lenguaje a buscar
         """
         self.installTranslator(self.createModTranslator(id_module, lang, True))
-        # self.installTranslator(self.createModTranslator(idM, "mutliLang"))
 
     def installTranslator(self, tor) -> None:
         """
@@ -872,9 +854,7 @@ class PNApplication(QtCore.QObject):
         @param tor, Objeto con la traducción a cargar
         """
 
-        if tor is None:
-            return
-        else:
+        if tor is not None:
             application.PROJECT.app.installTranslator(tor)
             self._translator.append(tor)
 
@@ -888,11 +868,8 @@ class PNApplication(QtCore.QObject):
             return
         else:
             application.PROJECT.app.removeTranslator(tor)
-            for trans_ in self._translator:
-                if trans_ == tor:
-                    self._translator.remove(tor)
-                    del trans_
-                    break
+            if tor in self._translator:
+                self._translator.remove(tor)
 
     @decorators.not_implemented_warn
     def createSysTranslator(self, lang, load_default):
@@ -937,15 +914,15 @@ class PNApplication(QtCore.QObject):
 
         return self.createModTranslator(id_module, "es") if load_default else None
 
-    def modules(self) -> Any:
+    def modules(self) -> Dict[str, "module.Module"]:
         """Return loaded modules."""
         return application.PROJECT.modules
 
-    def commaSeparator(self) -> Any:
+    def commaSeparator(self) -> str:
         """Return comma separator for floating points on current language."""
         return self.comma_separator
 
-    def tmp_dir(self) -> Any:
+    def tmp_dir(self) -> str:
         """Return temporary folder."""
         return application.PROJECT.tmpdir
 
@@ -992,8 +969,8 @@ class PNApplication(QtCore.QObject):
 class TextEditOutput(QtWidgets.QPlainTextEdit):
     """FLTextEditOutput class."""
 
-    oldStdout: Any
-    oldStderr: Any
+    oldStdout: TextIO
+    oldStderr: TextIO
 
     def __init__(self, parent: "QtWidgets.QWidget") -> None:
         """Inicialize."""
