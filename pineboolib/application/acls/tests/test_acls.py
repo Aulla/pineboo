@@ -304,6 +304,8 @@ class TestACLS(unittest.TestCase):
         from pineboolib.qsa import qsa
         from pineboolib.plugins.mainform import eneboo
 
+        application.ENABLE_ACLS = True
+
         main_form_class = getattr(eneboo, "MainForm", None)
         self.assertTrue(main_form_class)
         application.PROJECT.main_window = main_form_class()
@@ -481,9 +483,45 @@ class TestACLS(unittest.TestCase):
         self.assertTrue(field.editable())  # type: ignore [union-attr] # noqa: F821
         self.assertTrue(field.visible())  # type: ignore [union-attr] # noqa: F821
 
+    def test_disable_acls(self) -> None:
+        """Check if acls.xml load is disables"""
+
+        application.ENABLE_ACLS = False
+        sys_type = systype.SysType()
+        sys_type.installACL("segunda")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        application.PROJECT.aq_app.set_acl(acl)
+
+        mtd_flareas = application.PROJECT.conn_manager.manager().metadata("flareas")
+        self.assertTrue(mtd_flareas is not None)
+        # '--'
+        field_descripcion = mtd_flareas.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
+        self.assertTrue(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
+
+        mtd_flusers = application.PROJECT.conn_manager.manager().metadata("flusers")
+        self.assertTrue(mtd_flusers)
+        # 'r-'
+        field_descripcion = mtd_flusers.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
+        self.assertTrue(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
+
+        mtd_fltest = application.PROJECT.conn_manager.manager().metadata("fltest")
+        self.assertTrue(mtd_fltest)
+        # 'rw'
+        field = mtd_fltest.field("date_field")  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field.visible())  # type: ignore [union-attr] # noqa: F821
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+
         finish_testing()
 
         """
