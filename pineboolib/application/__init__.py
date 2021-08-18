@@ -25,4 +25,5 @@ USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
 AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
 DEVELOPER_MODE: bool = True  # Skip some bugs, critical in production.
-USE_REPORT_VIEWER: bool = True  # Enable internal report viewer
+USE_REPORT_VIEWER: bool = True  # Enable internal report viewer.
+ENABLE_ACLS: bool = True  # Enable acls usage.

@@ -157,6 +157,14 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         default=False,
     )
 
+    parser.add_option(
+        "--no-acl",
+        action="store_false",
+        dest="enable_acls",
+        default=True,
+        help="Disable acls loads",
+    )
+
     if custom_argv is None:
         (options, args) = parser.parse_args()
     else:
