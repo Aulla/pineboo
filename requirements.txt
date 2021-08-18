@@ -60,3 +60,4 @@ cryptography==3.4.7
 xades
 qrcode[pil]
 pympler
+pyOpenSSL==20.0.1
