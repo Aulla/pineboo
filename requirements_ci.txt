@@ -1,5 +1,5 @@
 bandit
-coverage==5.5
+coverage==6.0b1
 defusedxml
 flup
 mccabe
@@ -10,7 +10,7 @@ pylint
 pylint-json2html==0.3.0
 pyroma
 pytest
-pytest-cov==2.11.1
+pytest-cov==2.12.1
 setuptools
 six
 sphinx==4.1.2
