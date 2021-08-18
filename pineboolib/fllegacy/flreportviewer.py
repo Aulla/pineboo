@@ -588,7 +588,7 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
     _internal: "FLReportViewer"
     _fr_mail: "QtWidgets.QFrame"
     _auto_close: bool
-    _auto_widget: "QtWidgets.QcheckBox"
+    _auto_widget: "QtWidgets.QCheckBox"
     _pages: List["QImage"]
     _file_name: str
     _image_label: "QtWidgets.QLabel"

@@ -1,6 +1,6 @@
 """Flreportengine module."""
 from typing import List
-from PyQt6 import QtXml, QtCore  # type: ignore
+from PyQt6 import QtXml, QtCore, QtPrintSupport  # type: ignore
 
 from PyQt6.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
@@ -13,7 +13,6 @@ from typing import Any, Optional, Dict, Union, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt6 import QtWidgets  # noqa: F401
-    from PyQt6 import QtPrintSupport  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -148,7 +147,7 @@ class FLReportEngine(QtCore.QObject):
         """Print report to a printer."""
 
         try:
-            from PyQt6 import QtPrintSupport, QtGui
+            from PyQt6 import QtGui
             from PIL.ImageQt import ImageQt  # type: ignore [import]
 
             page_filter = []
