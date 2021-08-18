@@ -333,6 +333,9 @@ def exec_main(options: "optparse.Values") -> int:
     if not options.enable_gui:
         app_args += ["-platform", "offscreen"]
 
+    if not options.enable_acls:
+        application.ENABLE_ACLS = False
+
     application.PROJECT.set_app(call_qapplication(app_args))
 
     if options.enable_gui:
@@ -477,15 +480,19 @@ def _initialize_data(is_framework: bool = False) -> None:
         if not application.DEVELOPER_MODE:
             raise Exception("Project initialization failed!")
 
-    from pineboolib.application.acls import pnaccesscontrollists
+    if application.ENABLE_ACLS:
 
-    acl = pnaccesscontrollists.PNAccessControlLists()
-    acl.init()
+        from pineboolib.application.acls import pnaccesscontrollists
 
-    if acl._access_control_list:
-        if is_framework:
-            LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
-        application.PROJECT.aq_app.set_acl(acl)
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+
+        if acl._access_control_list:
+            if is_framework:
+                LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
+            application.PROJECT.aq_app.set_acl(acl)
+    else:
+        LOGGER.warning("ACLS usage is disabled")
 
     # LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
     # application.PROJECT.conn_manager.managerModules().loadIdAreas()
