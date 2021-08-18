@@ -401,7 +401,11 @@ class PNApplication(QtCore.QObject):
 
     def set_acl(self, acl: "pnaccesscontrollists.PNAccessControlLists") -> None:
         """Set acl to pineboo."""
-        self.acl_ = acl
+
+        if application.ENABLE_ACLS:
+            self.acl_ = acl
+        else:
+            LOGGER.warning("ACLS usage is disabled")
 
     def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
