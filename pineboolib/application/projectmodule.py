@@ -46,7 +46,6 @@ class Project(object):
     # options: Values
 
     main_window: Optional["imainwindow.IMainWindow"] = None
-    acl_ = None
     dgi: Optional["dgi_schema.dgi_schema"] = None
     delete_cache: bool = False
     parse_project: bool
@@ -231,16 +230,6 @@ class Project(object):
         """
         self.debug_level = level
         # self.dgi.pnqt3ui.Options.DEBUG_LEVEL = q
-
-    # def acl(self) -> Optional[FLAccessControlLists]:
-    #     """
-    #     Retorna si hay o no acls cargados
-    #     @return Objeto acl_
-    #     """
-    #     return self.acl_
-    def acl(self):
-        """Return loaded ACL."""
-        raise exceptions.CodeDoesNotBelongHereException("ACL Does not belong to PROJECT. Go away.")
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""

@@ -76,6 +76,10 @@ class PNAccessControlLists(object):
 
         @param _acl_xml XML content with the definition of the access control list.
         """
+        if not application.ENABLE_ACLS:
+            LOGGER.warning("Init canceled.ACLS usage is disabled")
+            return
+
         if not _acl_xml:
             _acl_xml = application.PROJECT.conn_manager.managerModules().content("acl.xml")
 
