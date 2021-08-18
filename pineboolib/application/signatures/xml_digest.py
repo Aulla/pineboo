@@ -21,7 +21,7 @@ class XmlDigest:
     _pass: str
     _policy_list: List[str]
     _cert_path: str
-    _certificate: Tuple[Any]
+    _certificate: Any
     _policy: str
     _signature: str
     _is_signed: bool
@@ -51,7 +51,7 @@ class XmlDigest:
             "Politica de Firma FacturaE v3.1",
             "xmlsig.constants.TransformSha1",
         ]
-        self._certificate = ""
+        self._certificate = None
         self._policy = ""
         self._signature = ""
         self._is_signed = False
