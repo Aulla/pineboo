@@ -183,7 +183,7 @@ class Kut2FPDF(object):
         if os.path.exists(pdf_name):
             os.remove(pdf_name)
         if self._document is not None:
-            self._document.output(pdf_name, "F")
+            self._document.output(pdf_name)
             return pdf_name
         else:
             return None
