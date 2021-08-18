@@ -83,6 +83,7 @@ pages:
     # Reset modification time of the files to the original authored time.
     - ./git_reset_mtime.sh
     - cd docs
+    - rm -rf build
     - ./create_docs.sh | ts
     - ./update_linters.sh | ts
     - make html | ts
