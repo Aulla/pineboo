@@ -5,23 +5,23 @@ from pineboolib.core.utils import logging
 import os
 import xmlsig  # type: ignore[import] # noqa: F821
 from lxml import etree  # type: ignore[import] # noqa: F821
-from OpenSSL import crypto  # type: ignore[import] # noqa: F821
+from cryptography.hazmat.primitives.serialization import pkcs12  # type: ignore[import] # noqa: F821
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
 
-from typing import List, Optional, Any, Union
+from typing import List, Optional, Any, Union, Tuple
 
 LOGGER = logging.get_logger(__name__)
 
 
-class xmlDigest:
-    """xmlDigest class."""
+class XmlDigest:
+    """XmlDigest class."""
 
     _root: "etree"
     _pass: str
     _policy_list: List[str]
     _cert_path: str
-    _certificate: str
+    _certificate: Tuple[Any]
     _policy: str
     _signature: str
     _is_signed: bool
@@ -73,7 +73,9 @@ class xmlDigest:
         try:
 
             with open(self._cert_path, "rb") as cert_file:
-                self._certificate = crypto.load_pkcs12(cert_file.read(), self._pass.encode())
+                self._certificate = tuple(
+                    pkcs12.load_key_and_certificates(cert_file.read(), self._pass.encode())
+                )
         except Exception as error:
             LOGGER.warning("Error loading certificate: %s", str(error))
             return False
@@ -224,3 +226,4 @@ class xmlDigest:
                 LOGGER.warning("Error saving file %s: %s", file_path, str(error))
 
         return False
+

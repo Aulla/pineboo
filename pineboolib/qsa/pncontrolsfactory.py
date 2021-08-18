@@ -198,8 +198,8 @@ from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # no
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
-from pineboolib.application.signatures.xml_digest import xmlDigest  # noqa: F401
-from pineboolib.application.signatures.pdf_qr import pdfQr  # noqa: F401
+from pineboolib.application.signatures.xml_digest import XmlDigest  # noqa: F401
+from pineboolib.application.signatures.pdf_qr import PdfQr  # noqa: F401
 
 if not __is_deployed():
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401

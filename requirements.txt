@@ -1,6 +1,7 @@
 black==19.3b0
 clipboard==0.0.4
 coloredlogs==14.0
+cryptography==3.4.7
 fernet==1.0.1
 fpdf2==2.4.2
 flake8==3.9.0
@@ -18,7 +19,6 @@ pyfiglet
 pympler
 python-barcode
 python-daemon
-pyOpenSSL==20.0.1
 qrcode[pil]
 sqlalchemy==1.4.0b1
 sqlparse==0.3.1
