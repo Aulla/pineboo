@@ -789,7 +789,7 @@ class ISqlDriver(object):
             len(old_data_list),
         )
 
-        util.setLabelText(util.translate("application", "Tabla modificada"))
+        util.setLabelText(util.translate("application", "Recogiendo datos"))
 
         new_field_names: List[str] = new_metadata.fieldNames()
 
@@ -826,18 +826,21 @@ class ISqlDriver(object):
 
             util.setProgress(number_progress)
 
-        util.destroyProgressDialog()
+        util.setLabelText(util.translate("application", "Regenerando datos"))
+        result_insert_multi = True
         if not self.insertMulti(table_name, list_records):
             session_.rollback()
-            return False
+            result_insert_multi = False
         else:
 
             session_.commit()
 
-        if new_metadata.name() not in self.tables("Views"):
-            query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
+            if new_metadata.name() not in self.tables("Views"):
+                query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
 
-        return True
+        util.destroyProgressDialog()
+
+        return result_insert_multi
 
     def cascadeSupport(self) -> bool:
         """Return True if the driver support cascade."""
@@ -924,12 +927,13 @@ class ISqlDriver(object):
         self, table_name: str, list_records: Iterable = []
     ) -> bool:  # FIXME SQLITE NO PUEDE TODAS DE GOLPE
         """Insert several rows at once."""
-
+        util = flutil.FLUtil()
         model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % table_name)
         session_ = self.db_.connManager().dbAux().session()
         if not model_:
             return False
 
+        util.setTotalSteps(len(list_records))
         for number, line in enumerate(list_records):
             # model_obj = model_()
             field_names = []
@@ -965,6 +969,7 @@ class ISqlDriver(object):
                 except Exception as error:
                     LOGGER.error("insertMulti: %s", str(error))
                     return False
+            util.setProgress(number)
         session_.flush()
         return True
 
