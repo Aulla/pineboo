@@ -1,4 +1,4 @@
-pineboolib.core (9.98/10)
+pineboolib.core (9.99/10)
 ===================================
 
 .. raw:: html
