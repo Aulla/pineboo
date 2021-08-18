@@ -37,6 +37,8 @@ echo "Step 1 . . ."
 (cd .. && coverage html -d docs/source/_static/linters/pytest-coverage/)
 echo "Step 2 . . ."
 cp source/_static/linters/pytest-coverage-style-tpl.css source/_static/linters/pytest-coverage/style.css
+echo "Step 3 . . ."
+( cd .. && rm -f .coverage.*)
 # ----
 echo "Running Bandit . . ."
 (cd .. && bandit -r pineboolib/ -f html > docs/source/_static/linters/bandit/bandit_report.html) || /bin/true
