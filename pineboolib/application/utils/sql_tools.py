@@ -610,6 +610,14 @@ class SqlInspector(object):
                             field_name = field_name[field_name.find(".") + 1 :]
                     mtd_field = mtd_table.field(field_name)
                     if mtd_field is not None:
+                        for existed_field in self._mtd_fields.values():
+                            if existed_field.name() == mtd_field.name():
+                                if (
+                                    existed_field.metadata().name()  # type: ignore [union-attr]
+                                    == mtd_field.metadata().name()  # type: ignore [union-attr]
+                                ):
+                                    LOGGER.info("%s already exists. Skipping" % mtd_field.name())
+                                    continue
                         self._mtd_fields[number_] = mtd_field
                     # fields_list.remove(field_name_org)
                 else:

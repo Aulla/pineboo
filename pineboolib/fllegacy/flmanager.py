@@ -376,7 +376,7 @@ class FLManager(QtCore.QObject, IManager):
         for child in root_:
             text_ = child.text or ""
             value = (
-                text_.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                text_.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
                 if child.tag in ["select", "from", "tables", "order"]
                 else ""
             )
