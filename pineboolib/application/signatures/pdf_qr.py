@@ -17,7 +17,7 @@ from typing import List, Optional
 LOGGER = logging.get_logger(__name__)
 
 
-class pdfQr:
+class PdfQr:
     """PdfQr class."""
 
     _orig: str

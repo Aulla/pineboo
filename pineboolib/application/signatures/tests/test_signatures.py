@@ -25,7 +25,7 @@ class TestSignatures(unittest.TestCase):
         if os.path.exists(dest_file):
             os.remove(dest_file)
 
-        obj_ = qsa.pdfQr(test_file)
+        obj_ = qsa.PdfQr(test_file)
         obj_.set_size(5)
         obj_.set_extension("PNG")
         obj_.set_dpi()
@@ -46,7 +46,7 @@ class TestSignatures(unittest.TestCase):
 
         cert_file = fixture_path("cert.p12")
 
-        obj_ = qsa.xmlDigest(xml_unsigned_file, cert_file)
+        obj_ = qsa.XmlDigest(xml_unsigned_file, cert_file)
         obj_.set_password("123456")
         obj_.set_policy(
             [

@@ -56,7 +56,7 @@ poppler-utils
 Click>=7.0
 xmlsig
 lxml
-pyOpenSSL
+cryptography==3.4.7
 xades
 qrcode[pil]
 pympler
