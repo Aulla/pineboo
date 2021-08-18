@@ -933,7 +933,7 @@ class ISqlDriver(object):
         if not model_:
             return False
 
-        util.setTotalSteps(len(list_records))
+        util.setTotalSteps(len(list_records))  # type: ignore [arg-type]
         for number, line in enumerate(list_records):
             # model_obj = model_()
             field_names = []
