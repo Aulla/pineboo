@@ -480,19 +480,15 @@ def _initialize_data(is_framework: bool = False) -> None:
         if not application.DEVELOPER_MODE:
             raise Exception("Project initialization failed!")
 
-    if application.ENABLE_ACLS:
+    from pineboolib.application.acls import pnaccesscontrollists
 
-        from pineboolib.application.acls import pnaccesscontrollists
+    acl = pnaccesscontrollists.PNAccessControlLists()
+    acl.init()
 
-        acl = pnaccesscontrollists.PNAccessControlLists()
-        acl.init()
-
-        if acl._access_control_list:
-            if is_framework:
-                LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
-            application.PROJECT.aq_app.set_acl(acl)
-    else:
-        LOGGER.warning("ACLS usage is disabled")
+    if acl._access_control_list:
+        if is_framework:
+            LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
+        application.PROJECT.aq_app.set_acl(acl)
 
     # LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
     # application.PROJECT.conn_manager.managerModules().loadIdAreas()
