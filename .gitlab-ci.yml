@@ -72,11 +72,11 @@ pages:
     key: "pages-1-$CI_COMMIT_REF_SLUG"
     paths:
       - .mypy_cache/
-      - docs/source/_static/linters/
+      # - docs/source/_static/linters/
       - docs/source/linters/pylint/static
       - docs/index_template.rst
       - docs/source/code/pineboolib
-      - docs/build/
+      # - docs/build/
   stage: deploy
   script:
     # NOTE: to be able to use cache for sphinx:
