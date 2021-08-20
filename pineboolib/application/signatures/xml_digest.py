@@ -160,6 +160,9 @@ class XmlDigest:
         elif self._use_algorithm == "sha256":
             self._sha = xmlsig.constants.TransformSha256
             self._rsa = xmlsig.constants.TransformRsaSha256
+        elif self._use_algorithm == "sha512":
+            self._sha = xmlsig.constants.TransformSha512
+            self._rsa = xmlsig.constants.TransformRsaSha512
         else:
             LOGGER.warning("UNKNOWN algorithm %s", self._use_algorithm)
             return False

@@ -58,6 +58,28 @@ class TestSignatures(unittest.TestCase):
         self.assertTrue(obj_.sign())
         self.assertTrue(obj_.signature_value())
 
+    def test_xml_digest_512(self) -> None:
+        """Test xml_digest."""
+
+        xml_unsigned_file = fixture_path("xml_sin.xml")
+        xml_signed_file = fixture_path("xml_con.xml")
+        if os.path.exists(xml_signed_file):
+            os.remove(xml_signed_file)
+
+        cert_file = fixture_path("cert.p12")
+
+        obj_ = qsa.XmlDigest(xml_unsigned_file, cert_file)
+        obj_.set_password("123456")
+        obj_.set_policy(
+            [
+                "http://www.facturae.gob.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
+                "Politica de Firma FacturaE v3.1",
+            ]
+        )
+        obj_.set_algorithm("sha512")
+        self.assertTrue(obj_.sign())
+        self.assertTrue(obj_.signature_value())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
