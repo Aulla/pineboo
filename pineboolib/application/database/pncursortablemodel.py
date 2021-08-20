@@ -893,6 +893,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             return True
 
+        LOGGER.warning("%s.model.updateCacheData(%s) returns False" % (self._parent._name, mode))
         return False
 
     def get_obj_from_row(self, row: int) -> Optional[Callable]:
