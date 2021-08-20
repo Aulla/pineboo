@@ -416,8 +416,8 @@ class SysType(sysbasetype.SysBaseType):
         push_button_accept.setText(self.translate(u"continue"))
         lay2.addWidget(push_button_cancel)
         lay2.addWidget(push_button_accept)
-        application.connections.connect(push_button_accept, "clicked()", diag, "accept()")
-        application.connections.connect(push_button_cancel, "clicked()", diag, "reject()")
+        push_button_accept.clicked.connect(diag.accept)
+        push_button_cancel.clicked.connect(diag.reject)
         if not application.PROJECT.app.platformName() != "offscreen":
             return False if (diag.exec_() == 0) else True
         else:
@@ -843,8 +843,8 @@ class SysType(sysbasetype.SysBaseType):
         push_button_no.setText(txt_no if txt_no else self.translate(u"No"))
         lay3.addWidget(push_button_yes)
         lay3.addWidget(push_button_no)
-        application.connections.connect(push_button_yes, u"clicked()", diag, u"accept()")
-        application.connections.connect(push_button_no, u"clicked()", diag, u"reject()")
+        push_button_yes.clicked.connect(diag.accept)
+        push_button_no.clicked.connect(diag.reject)
         check_remember = None
         if key_remember and txt_remember:
             # from pineboolib.q3widgets.qcheckbox import QCheckBox
@@ -1515,7 +1515,7 @@ class AbanQDbDumper(QtCore.QObject):
         """Inicialize dump dialog."""
         if self._show_gui:
             self.buildGui()
-            self.widget_.exec_()
+            self.widget_.exec()
 
     def buildGui(self) -> None:
         """Build a Dialog for database dump."""
@@ -1567,15 +1567,14 @@ class AbanQDbDumper(QtCore.QObject):
         self.pushbutton_change_dir.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Preferred
         )
-        application.connections.connect(
-            self.pushbutton_change_dir, u"clicked()", self, u"changeDirBase()"
-        )
+
+        self.pushbutton_change_dir.clicked.connect(self.changeDirBase)
         lay_aux.addWidget(self.pushbutton_change_dir)
         lay.addWidget(frm)
         self.pb_init_dump = qpushbutton.QPushButton(
             SysType.translate(u"INICIAR COPIA"), self.widget_
         )
-        application.connections.connect(self.pb_init_dump, u"clicked()", self, u"initDump()")
+        self.pb_init_dump.clicked.connect(self.initDump)
         lay.addWidget(self.pb_init_dump)
         lbl = qlabel.QLabel(self.widget_)
         lbl.setText("Log:")
@@ -1678,22 +1677,14 @@ class AbanQDbDumper(QtCore.QObject):
     def readFromStdout(self) -> None:
         """Read data from stdOutput."""
 
-        text = (
-            self.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
-            .data()
-            .decode(self.encoding)
-        )
+        text = self.proc_.readLine().decode(self.encoding)
         if text not in (None, ""):
             self._fun_log(text)
 
     def readFromStderr(self) -> None:
         """Read data from stdError."""
 
-        text = (
-            self.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
-            .data()
-            .decode(self.encoding)
-        )
+        text = self.proc_.readLine().decode(self.encoding)
         if text not in (None, ""):
             self._fun_log(text)
 
@@ -1704,9 +1695,8 @@ class AbanQDbDumper(QtCore.QObject):
         type_db = 0
         if driver.find("PSQL") > -1:
             type_db = 1
-        else:
-            if driver.find("MYSQL") > -1:
-                type_db = 2
+        elif driver.find("MYSQL") > -1:
+            type_db = 2
 
         if type_db == 0:
             self.setState(
@@ -1757,39 +1747,26 @@ class AbanQDbDumper(QtCore.QObject):
         from pineboolib.core import system as system_mod
 
         pg_dump: str = u"pg_dump"
-        command: List[str]
+        command: List[str] = []
         file_name = "%s.sql" % self._file_name
+
+        system_mod.System.setenv(u"PGPASSWORD", self.db_.returnword())
 
         if SysType.osName() == u"WIN32":
             pg_dump += u".exe"
-            system_mod.System.setenv(u"PGPASSWORD", self.db_.returnword())
-            command = [
-                pg_dump,
-                u"-f",
-                file_name,
-                u"-h",
-                self.db_.host() or "",
-                u"-p",
-                str(self.db_.port() or 0),
-                u"-U",
-                self.db_.user() or "",
-                str(self.db_.database()),
-            ]
-        else:
-            system_mod.System.setenv(u"PGPASSWORD", self.db_.returnword())
-            command = [
-                pg_dump,
-                u"-v",
-                u"-f",
-                file_name,
-                u"-h",
-                self.db_.host() or "",
-                u"-p",
-                str(self.db_.port() or 0),
-                u"-U",
-                self.db_.user() or "",
-                str(self.db_.database()),
-            ]
+
+        command = [
+            pg_dump,
+            u"-f",
+            file_name,
+            u"-h",
+            self.db_.host(),
+            u"-p",
+            str(self.db_.port()),
+            u"-U",
+            self.db_.user(),
+            self.db_.database().DBName(),
+        ]
 
         if not self.launchProc(command):
             self.setState(
@@ -1812,27 +1789,16 @@ class AbanQDbDumper(QtCore.QObject):
 
         if SysType.osName() == u"WIN32":
             my_dump += u".exe"
-            command = [
-                my_dump,
-                u"-v",
-                utils_base.ustr(u"--result-file=", file_name),
-                utils_base.ustr(u"--host=", self.db_.host()),
-                utils_base.ustr(u"--port=", self.db_.port()),
-                utils_base.ustr(u"--password=", self.db_.returnword()),
-                utils_base.ustr(u"--user=", self.db_.user()),
-                str(self.db_.database()),
-            ]
-        else:
-            command = [
-                my_dump,
-                u"-v",
-                utils_base.ustr(u"--result-file=", file_name),
-                utils_base.ustr(u"--host=", self.db_.host()),
-                utils_base.ustr(u"--port=", self.db_.port()),
-                utils_base.ustr(u"--password=", self.db_.returnword()),
-                utils_base.ustr(u"--user=", self.db_.user()),
-                str(self.db_.database()),
-            ]
+        command = [
+            my_dump,
+            u"-v",
+            utils_base.ustr(u"--result-file=", file_name),
+            utils_base.ustr(u"--host=", self.db_.host()),
+            utils_base.ustr(u"--port=", self.db_.port()),
+            utils_base.ustr(u"--password=", self.db_.returnword()),
+            utils_base.ustr(u"--user=", self.db_.user()),
+            str(self.db_.database()),
+        ]
 
         if not self.launchProc(command):
             self.setState(
