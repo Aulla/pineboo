@@ -903,7 +903,7 @@ class MainForm(imainwindow.IMainWindow):
         application.PROJECT.aq_app.stopTimerIdle()
 
         if self._dict_main_widgets:
-            for key in self._dict_main_widgets.keys():
+            for key in list(self._dict_main_widgets.keys()):
                 del self._dict_main_widgets[key]
 
             self._dict_main_widgets = {}
