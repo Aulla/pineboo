@@ -342,26 +342,21 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @param r FlRelationMetaData object with the definition of the relationship to add.
         """
 
-        is_relation_m1 = (
-            True
-            if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1
-            else False
-        )
         if not self.private._field_name:
             LOGGER.warning("addRelationMD: no fieldName")
             return
 
-        relation.setField(self.private._field_name)
-        if self.private._relation_m1:
-            LOGGER.debug(
-                "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
-            )
-            return
-
-        if is_relation_m1:
+        if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
+            if self.private._relation_m1:
+                LOGGER.warning(
+                    "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
+                )
+                return
             self.private._relation_m1 = relation
         else:
             self.private._relation_list.append(relation)
+
+        relation.setField(self.private._field_name)
 
     def relationList(self) -> List["pnrelationmetadata.PNRelationMetaData"]:
         """
