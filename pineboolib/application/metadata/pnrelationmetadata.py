@@ -216,12 +216,12 @@ class PNRelationMetaDataPrivate:
     def __init__(self, *args, **kwargs) -> None:
         """Initialize the class."""
 
+        self.field_ = ""
+
         if len(args) == 0:
             self.inicializeFLRelationMetaDataPrivate()
         else:
-            self.inicializeNewFLRelationMetaDataPrivate(
-                args[0], args[1], args[2], args[3], args[4], args[5]
-            )
+            self.inicializeNewFLRelationMetaDataPrivate(*args)
 
     def inicializeNewFLRelationMetaDataPrivate(
         self,
