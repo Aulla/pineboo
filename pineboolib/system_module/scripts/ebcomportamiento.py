@@ -130,29 +130,9 @@ class FormInternalObj(qsa.FormDBWidget):
             "background-color:" + self.color_actual
         )
 
-        if os.path.exists(filedir("../.git")):
-            self.ui_.findChild(QtWidgets.QWidget, "cb_git_activar").setChecked(
-                self.read_local_value("git_updates_enabled")
-            )
-            ruta = self.read_local_value("git_updates_repo")
-            if ruta is False:
-                ruta = "https://github.com/Aulla/pineboo.git"
-            self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").setText(ruta)
-            self.module_connect(
-                self.ui_.findChild(QtWidgets.QWidget, "pb_git_test"),
-                u"clicked()",
-                self,
-                "search_git_updates",
-            )
-        else:
-            self.ui_.findChild(QtWidgets.QWidget, "tbwLocales").setTabEnabled(5, False)
+        self.ui_.findChild(QtWidgets.QWidget, "tbwLocales").setTabEnabled(5, False)
 
         self.ui_.findChild(QtWidgets.QWidget, u"leCO").show()
-
-    def search_git_updates(self) -> None:
-        """Searh for pineboo updates."""
-        url = self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").text
-        qsa.sys.search_git_updates(url)
 
     def read_db_value(self, valor_name: str = None) -> Any:
         """Return global value."""
@@ -185,7 +165,6 @@ class FormInternalObj(qsa.FormDBWidget):
                 "kugarParser",
                 "colorObligatorio",
                 "temp_dir",
-                "git_updates_repo",
             ):
                 valor = settings.CONFIG.value("ebcomportamiento/%s" % valor_name, "")
                 if valor_name == "temp_dir" and valor == "":
@@ -299,13 +278,6 @@ class FormInternalObj(qsa.FormDBWidget):
         self.write_local_value(
             "keep_general_cache",
             self.ui_.findChild(QtWidgets.QWidget, "cb_no_borrar_cache").isChecked(),
-        )
-        self.write_local_value(
-            "git_updates_enabled",
-            self.ui_.findChild(QtWidgets.QWidget, "cb_git_activar").isChecked(),
-        )
-        self.write_local_value(
-            "git_updates_repo", self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").text()
         )
         self.write_local_value(
             "show_snaptshop_button",
