@@ -267,7 +267,7 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
-                    msg = "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
+                    msg = "Ya hay abierto un formulario de edición de registro para esta tabla.\n"
                     "No se abrirán mas para evitar ciclos repetitivos de edición de registros."
                     application.PROJECT.message_manager().send(
                         "msgBoxInfo", None, [msg, None, "Aviso"]

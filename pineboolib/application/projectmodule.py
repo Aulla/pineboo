@@ -211,12 +211,8 @@ class Project(object):
     def load_classes(self) -> None:
         """Load class files into qsa tree."""
 
-        # print("* loading_classes")
         for key in list(self.files.keys()):
-            if not key.endswith(".py"):
-                continue
-
-            if len(key) > 5 and key[0:5] == "test_":
+            if not key.endswith(".py") or key.startswith("test_"):
                 continue
 
             db_utils.process_file_class(self.files[key])
@@ -229,7 +225,6 @@ class Project(object):
         ***DEPRECATED***
         """
         self.debug_level = level
-        # self.dgi.pnqt3ui.Options.DEBUG_LEVEL = q
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
@@ -249,7 +244,7 @@ class Project(object):
         cache_ver = parser_qsa.PARSER_QSA_VERSION
 
         cache_folder = path._dir("cache")
-        db_cache_folder = os.path.join(path._dir("cache"), self.conn_manager.mainConn().DBName())
+        db_cache_folder = os.path.join(cache_folder, self.conn_manager.mainConn().DBName())
         cache_version_file_path = os.path.join(db_cache_folder, "cache_version.txt")
 
         if not os.path.exists(cache_folder):
@@ -258,8 +253,9 @@ class Project(object):
                 LOGGER.info("RUN: Checking if cache folder exists (%s)", cache_folder)
                 for folder in os.path.split(cache_folder):
                     path_build.append(folder)
-                    if not os.path.exists(os.path.join(*path_build)):
-                        os.mkdir(os.path.join(*path_build))
+                    path_med = os.path.join(*path_build)
+                    if not os.path.exists(path_med):
+                        os.mkdir(path_med)
             except Exception as error:
                 raise Exception("Error building cache folder (%s) : %s" % (path_build, error))
 
@@ -269,9 +265,12 @@ class Project(object):
                 delete_cache = True
             else:
                 cache_ver = ""
-                file_ver = open(cache_version_file_path, "r")
-                cache_ver = file_ver.read()
-                file_ver.close()
+                try:
+                    file_ver = open(cache_version_file_path, "r", encoding="UTF8")
+                    cache_ver = file_ver.read()
+                    file_ver.close()
+                except Exception:
+                    pass
                 if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     delete_cache = True
 
@@ -321,7 +320,7 @@ class Project(object):
             LOGGER.info("RUN: Creating %s folder.", db_cache_folder)
             os.makedirs(db_cache_folder)
 
-        file_ver = open(cache_version_file_path, "w")
+        file_ver = open(cache_version_file_path, "w", encoding="UTF8")
         file_ver.write(parser_qsa.PARSER_QSA_VERSION)
         file_ver.close()
         del file_ver
@@ -494,7 +493,7 @@ class Project(object):
         @return ruta a la carpeta temporal
         """
         # FIXME: anti-pattern in Python. Getters for plain variables are wrong.
-        raise exceptions.CodeDoesNotBelongHereException("Use proje:q!ct.tmpdir instead, please.")
+        raise exceptions.CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")
         # return self.tmpdir
 
     def load_version(self) -> str:

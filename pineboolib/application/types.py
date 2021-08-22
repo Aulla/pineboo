@@ -159,8 +159,7 @@ class Array(object):
                     self._dict[key] = value
 
             elif isinstance(args[0], dict):
-                dict_ = args[0]
-                for key, value in dict_.items():
+                for key, value in args[0].items():
                     self._dict[key] = value
 
             elif isinstance(args[0], int):
@@ -196,18 +195,22 @@ class Array(object):
         @param key. Valor que idenfica el registro a recoger
         @return Valor del registro especificado
         """
+        result = None
         if isinstance(key, int):
-            keys_list = list(self._dict.keys())
-            if key < len(keys_list):
-                return self._dict[keys_list[key]]
+            try:
+                result = list(self._dict.values())[key]
+            except Exception:
+                pass
 
         elif isinstance(key, slice):
             LOGGER.warning("FIXME: Array __getitem__%s con slice" % key)
         else:
-            if key in self._dict.keys():
-                return self._dict[key]
+            try:
+                result = self._dict[key]
+            except Exception:
+                pass
 
-        return None
+        return result
 
     def length(self) -> int:
         """Return array size."""
@@ -434,12 +437,12 @@ class Dir(object):
         if self.path is None:
             raise ValueError("self.path is not defined!")
 
-        name_ = self.path + "/" + name
+        path_ = os.path.join(self.path, name)
 
-        if os.path.exists(name_):
+        if os.path.exists(path_):
             import shutil
 
-            shutil.rmtree(name_)
+            shutil.rmtree(path_)
 
     current = property(getCurrent, set_current)
 
