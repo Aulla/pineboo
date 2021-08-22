@@ -351,13 +351,13 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
             LOGGER.warning("addRelationMD: no fieldName")
             return
 
+        relation.setField(self.private._field_name)
         if self.private._relation_m1:
             LOGGER.debug(
                 "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
             )
             return
 
-        relation.setField(self.private._field_name)
         if is_relation_m1:
             self.private._relation_m1 = relation
         else:
