@@ -75,9 +75,6 @@ class FormInternalObj(qsa.FormDBWidget):
                         except Exception:
                             qsa.debug(traceback.format_exc())
 
-        if settings.readBoolEntry("ebcomportamiento/git_updates_enabled", False):
-            qsa.sys.AQTimer.singleShot(2000, qsa.SysType.search_git_updates)
-
     def afterCommit_flfiles(self, cur_files_: "isqlcursor.ISqlCursor") -> bool:
         """After commit flfiles."""
 
@@ -90,15 +87,9 @@ class FormInternalObj(qsa.FormDBWidget):
             if _qry.exec_("SELECT sha FROM flfiles"):
                 if _qry.size():
                     util = qsa.FLUtil()
-                    value_tmp = None
+                    value = ""
                     while _qry.next():
-                        value_tmp = (
-                            util.sha1(_qry.value(0))
-                            if value_tmp is None
-                            else util.sha1(value_tmp + _qry.value(0))
-                        )
-
-                    value = value_tmp
+                        value = util.sha1("%s%s" % (value, _qry.value(0)))
 
             _cur_serial = qsa.FLSqlCursor(u"flserial", "dbaux")
             _cur_serial.select()
@@ -116,10 +107,9 @@ class FormInternalObj(qsa.FormDBWidget):
         util = qsa.FLUtil()
 
         if cursor.modeAccess() == cursor.Insert:
-            return cursor.valueBuffer(cursor.primaryKey()) == util.sqlSelect(
-                "fltest",
-                cursor.primaryKey(),
-                "%s = %s " % (cursor.primaryKey(), cursor.valueBuffer(cursor.primaryKey())),
+            cursor_pk = cursor.primaryKey()
+            return cursor.valueBuffer(cursor_pk) == util.sqlSelect(
+                "fltest", cursor_pk, "%s = %s " % (cursor_pk, cursor.valueBuffer(cursor_pk))
             )
 
         return True
