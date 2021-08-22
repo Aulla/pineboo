@@ -416,8 +416,8 @@ class SysType(sysbasetype.SysBaseType):
         push_button_accept.setText(self.translate(u"continue"))
         lay2.addWidget(push_button_cancel)
         lay2.addWidget(push_button_accept)
-        push_button_accept.clicked.connect(diag.accept)
-        push_button_cancel.clicked.connect(diag.reject)
+        push_button_accept.clicked.connect(diag.accept)  # type: ignore [attr-defined]
+        push_button_cancel.clicked.connect(diag.reject)  # type: ignore [attr-defined]
         if not application.PROJECT.app.platformName() != "offscreen":
             return False if (diag.exec_() == 0) else True
         else:
@@ -522,7 +522,6 @@ class SysType(sysbasetype.SysBaseType):
 
     def loadModules(self, input_: Optional[Any] = None, warning_bakup: bool = True) -> bool:
         """Load modules from a package."""
-        ret_ = False
 
         if input_ is None:
             util = flutil.FLUtil()
@@ -544,70 +543,67 @@ class SysType(sysbasetype.SysBaseType):
             if input_:
                 util.writeSettingEntry(setting, os.path.dirname(input_))
 
-        if input_:
-
-            ret_ = self.loadAbanQPackage(input_, warning_bakup)
-
-        return ret_
+        return self.loadAbanQPackage(input_, warning_bakup)
 
     def loadAbanQPackage(self, input_: str, warning_bakup: bool = True) -> bool:
         """Load and process a Abanq/Eneboo package."""
-        ok_ = False
-
-        txt = u""
-        txt += self.translate(u"Asegúrese de tener una copia de seguridad de todos los datos\n")
-        txt += self.translate(u"y de que  no hay ningun otro  usuario conectado a la base de\n")
-        txt += self.translate(u"datos mientras se realiza la carga.\n\n")
-        txt += u"\n\n"
-        txt += self.translate(u"¿Desea continuar?")
-
-        if warning_bakup and self.interactiveGUI():
-            if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
-                txt, messagebox.MessageBox.No, messagebox.MessageBox.Yes
-            ):
-                return False
 
         if input_:
-            ok_ = True
+
+            if warning_bakup and self.interactiveGUI():
+                txt = u""
+                txt += self.translate(
+                    u"Asegúrese de tener una copia de seguridad de todos los datos\n"
+                )
+                txt += self.translate(
+                    u"y de que  no hay ningun otro  usuario conectado a la base de\n"
+                )
+                txt += self.translate(u"datos mientras se realiza la carga.\n\n")
+                txt += u"\n\n"
+                txt += self.translate(u"¿Desea continuar?")
+
+                if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
+                    txt, messagebox.MessageBox.No, messagebox.MessageBox.Yes
+                ):
+                    return False
+
             changes = self.localChanges()
-            if changes["size"] != 0:
+            if changes["size"]:
                 if not self.warnLocalChanges(changes):
                     return False
-            if ok_:
-                unpacker = pnunpacker.PNUnpacker(input_)
-                errors = unpacker.errorMessages()
-                if len(errors) != 0:
-                    msg = self.translate(
-                        u"Hubo los siguientes errores al intentar cargar los módulos:"
+
+            unpacker = pnunpacker.PNUnpacker(input_)
+            errors = unpacker.errorMessages()
+            if len(errors):
+                msg = self.translate(u"Hubo los siguientes errores al intentar cargar los módulos:")
+                msg += u"\n"
+
+                for number in range(len(errors)):
+                    msg += utils_base.ustr(errors[number], u"\n")
+                self.errorMsgBox(msg)
+                return False
+
+            unpacker.jump()
+            unpacker.jump()
+            unpacker.jump()
+
+            if self.loadModulesDef(unpacker):
+                if self.loadFilesDef(unpacker):
+                    self.registerUpdate(input_)
+                    self.infoMsgBox(
+                        self.translate(u"La carga de módulos se ha realizado con éxito.")
                     )
-                    msg += u"\n"
+                    self.reinit()
 
-                    for number in range(len(errors)):
-                        msg += utils_base.ustr(errors[number], u"\n")
-                    self.errorMsgBox(msg)
-                    ok_ = False
+                    tmp_var = flvar.FLVar()
+                    tmp_var.set(u"mrproper", u"dirty")
+                    return True
+                else:
+                    self.errorMsgBox(
+                        self.translate(u"No se ha podido realizar la carga de los módulos.")
+                    )
 
-                unpacker.jump()
-                unpacker.jump()
-                unpacker.jump()
-                if ok_:
-                    ok_ = self.loadModulesDef(unpacker)
-                if ok_:
-                    ok_ = self.loadFilesDef(unpacker)
-
-            if not ok_:
-                self.errorMsgBox(
-                    self.translate(u"No se ha podido realizar la carga de los módulos.")
-                )
-            else:
-                self.registerUpdate(input_)
-                self.infoMsgBox(self.translate(u"La carga de módulos se ha realizado con éxito."))
-                self.reinit()
-
-                tmp_var = flvar.FLVar()
-                tmp_var.set(u"mrproper", u"dirty")
-
-        return ok_
+        return False
 
     def loadFilesDef(self, document: "pnunpacker.PNUnpacker") -> bool:
         """Load files definition from a package to a QDomDocument."""
@@ -656,35 +652,39 @@ class SysType(sysbasetype.SysBaseType):
 
     def registerFile(self, fil: Dict[str, Any], document: Any) -> bool:
         """Register a file in the database."""
-
-        if fil["id"].endswith(u".xpm"):
+        id_value: str = fil["id"]
+        if id_value.endswith(u".xpm"):
             cur = pnsqlcursor.PNSqlCursor(u"flmodules")
-            if not cur.select(utils_base.ustr(u"idmodulo='", fil["module"], u"'")):
+            if (
+                not cur.select(utils_base.ustr(u"idmodulo='", fil["module"], u"'"))
+                or not cur.first()
+            ):
                 return False
-            if not cur.first():
-                return False
+
             cur.setModeAccess(aqsql.AQSql.Edit)
             cur.refreshBuffer()
             cur.setValueBuffer(u"icono", document.getText())
             return cur.commitBuffer()
 
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
-        if not cur.select(utils_base.ustr(u"nombre='", fil["id"], u"'")):
+        if not cur.select("nombre='%s'" % id_value):
             return False
         cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
-        cur.setValueBuffer(u"nombre", fil["id"])
+        cur.setValueBuffer(u"nombre", id_value)
         cur.setValueBuffer(u"idmodulo", fil["module"])
         cur.setValueBuffer(u"sha", fil["shatext"])
-        if len(fil["text"]) > 0:
-            encode = "iso-8859-15" if not fil["id"].endswith((".py")) else "UTF-8"
+        if len(fil["text"]):
+            encode = "iso-8859-15" if not id_value.endswith((".py")) else "UTF-8"
             try:
-                if not fil["id"].endswith((".py")):
-                    cur.setValueBuffer(u"contenido", self.toUnicode(document.getText(), encode))
-                else:
-                    cur.setValueBuffer(u"contenido", document.getText())
+                cur.setValueBuffer(
+                    u"contenido",
+                    self.toUnicode(document.getText(), encode)
+                    if not id_value.endswith(".py")
+                    else document.getText(),
+                )
             except UnicodeEncodeError as error:
-                LOGGER.error("The %s file does not have the correct encode (%s)", fil["id"], encode)
+                LOGGER.error("The %s file does not have the correct encode (%s)", id_value, encode)
                 raise error
 
         if len(fil["binary"]) > 0:
@@ -843,11 +843,10 @@ class SysType(sysbasetype.SysBaseType):
         push_button_no.setText(txt_no if txt_no else self.translate(u"No"))
         lay3.addWidget(push_button_yes)
         lay3.addWidget(push_button_no)
-        push_button_yes.clicked.connect(diag.accept)
-        push_button_no.clicked.connect(diag.reject)
+        push_button_yes.clicked.connect(diag.accept)  # type: ignore [attr-defined]
+        push_button_no.clicked.connect(diag.reject)  # type: ignore [attr-defined]
         check_remember = None
         if key_remember and txt_remember:
-            # from pineboolib.q3widgets.qcheckbox import QCheckBox
 
             check_remember = QtWidgets.QCheckBox(txt_remember, diag)
             check_remember.setChecked(value_remember)
@@ -1192,14 +1191,14 @@ class SysType(sysbasetype.SysBaseType):
             return False
 
         ok_ = True
-        name = file_.name
+        name: str = file_.name
         if (
             not flutil.FLUtil.isFLDefFile(content)
             and not name.endswith((".qs", ".py", ".ar", ".svg"))
         ) or name.endswith(u"untranslated.ts"):
             return ok_
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
-        cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
+        cur.select(utils_base.ustr(u"nombre = '%s'" % name))
         ba_ = qbytearray.QByteArray()
         ba_.string = content
         sha_count = ba_.sha1()
@@ -1312,44 +1311,6 @@ class SysType(sysbasetype.SysBaseType):
             aqs.AQS.Application_restoreOverrideCursor()
 
         return valor_
-
-    def search_git_updates(self, url: str) -> None:
-        """Search updates of pineboo."""
-
-        if not os.path.exists(utils_base.filedir("../.git")):
-            return
-
-        if not url:
-            url = settings.SETTINGS.value(
-                "ebcomportamiento/git_updates_repo", "https://github.com/Aulla/pineboo.git"
-            )
-
-        command = "git status %s" % url
-
-        pro = process.Process()
-        pro.execute(command)
-        if pro.stdout is None:
-            return
-        # print("***", pro.stdout)
-
-        if pro.stdout.find("git pull") > -1:
-            if messagebox.MessageBox.Yes != messagebox.MessageBox.warning(
-                "Hay nuevas actualizaciones disponibles para Pineboo. ¿Desea actualizar?",
-                messagebox.MessageBox.No,
-                messagebox.MessageBox.Yes,
-            ):
-                return
-
-            pro.execute("git pull %s" % url)
-
-            messagebox.MessageBox.information(
-                "Pineboo se va a reiniciar ahora",
-                messagebox.MessageBox.Ok,
-                messagebox.MessageBox.NoButton,
-                messagebox.MessageBox.NoButton,
-                u"Eneboo",
-            )
-            # os.execl(executable, os.path.abspath(__file__)) #FIXME
 
     def qsaExceptions(self):
         """Return QSA exceptions found."""
@@ -1568,13 +1529,15 @@ class AbanQDbDumper(QtCore.QObject):
             QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Preferred
         )
 
-        self.pushbutton_change_dir.clicked.connect(self.changeDirBase)
+        self.pushbutton_change_dir.clicked.connect(  # type: ignore [attr-defined]
+            self.changeDirBase
+        )
         lay_aux.addWidget(self.pushbutton_change_dir)
         lay.addWidget(frm)
         self.pb_init_dump = qpushbutton.QPushButton(
             SysType.translate(u"INICIAR COPIA"), self.widget_
         )
-        self.pb_init_dump.clicked.connect(self.initDump)
+        self.pb_init_dump.clicked.connect(self.initDump)  # type: ignore [attr-defined]
         lay.addWidget(self.pb_init_dump)
         lbl = qlabel.QLabel(self.widget_)
         lbl.setText("Log:")
