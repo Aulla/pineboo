@@ -3,8 +3,6 @@
 from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core import settings
-from pineboolib.core.utils.utils_base import filedir
-
 from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 
 import os
