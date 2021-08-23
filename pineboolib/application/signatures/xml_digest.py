@@ -55,7 +55,7 @@ class XmlDigest:
         self._policy = ""
         self._signature = ""
         self._is_signed = False
-        self._use_algorithm = "sha1"
+        self._use_algorithm = "sha256"
         self._sha = None
         self._rsa = None
 
@@ -91,7 +91,7 @@ class XmlDigest:
 
         custom_policy: List[Any] = list(self._policy_list)
         if len(custom_policy) == 1:
-            custom_policy += custom_policy
+            custom_policy += [""]
         custom_policy.append(self._sha)
 
         try:
@@ -106,31 +106,64 @@ class XmlDigest:
         """Load signature."""
 
         try:
+            unique_id = utils.get_unique_id()
+            signature_id = "Signature-%s" % unique_id
+            qualifing_id = "QualifyingProperties-%s" % unique_id
+            reference_id = "Reference-%s" % unique_id
+
             self._signature = xmlsig.template.create(
-                xmlsig.constants.TransformInclC14N, self._rsa, "Signature"
+                xmlsig.constants.TransformInclC14N, self._rsa, signature_id
             )
-            signature_id = utils.get_unique_id()
+
             reference = xmlsig.template.add_reference(
-                self._signature, self._sha, uri="", name="REF"
+                self._signature, self._sha, uri="", name="Reference-%s" % reference_id
             )
             xmlsig.template.add_transform(reference, xmlsig.constants.TransformEnveloped)
-            xmlsig.template.add_reference(self._signature, self._sha, uri="#KI")
-            xmlsig.template.add_reference(self._signature, self._sha, uri="#" + signature_id)
-            key_info = xmlsig.template.ensure_key_info(self._signature, name="KI")
+
+            xmlsig.template.add_reference(
+                self._signature,
+                self._sha,
+                uri="#KeyInfoId-%s" % signature_id,
+                name="ReferenceKeyInfo",
+            )
+            xmlsig.template.add_reference(
+                self._signature,
+                self._sha,
+                uri="#SignedProperties-%s" % signature_id,
+                uri_type="http://uri.etsi.org/01903#SignedProperties",
+            )
+            key_info = xmlsig.template.ensure_key_info(
+                self._signature, name="KeyInfoId-%s" % signature_id
+            )
 
             data = xmlsig.template.add_x509_data(key_info)
+
             xmlsig.template.x509_data_add_certificate(data)
 
-            serial = xmlsig.template.x509_data_add_issuer_serial(data)
-            xmlsig.template.x509_issuer_serial_add_issuer_name(serial)
-            xmlsig.template.x509_issuer_serial_add_serial_number(serial)
+            # serial = xmlsig.template.x509_data_add_issuer_serial(data)
+            # xmlsig.template.x509_issuer_serial_add_issuer_name(serial)
+            # xmlsig.template.x509_issuer_serial_add_serial_number(serial)
+
             xmlsig.template.add_key_value(key_info)
 
             qualifying = template.create_qualifying_properties(
-                self._signature, name=utils.get_unique_id()
+                self._signature, name=qualifing_id, etsi="xades"
+            )
+            utils.ensure_id(qualifying)
+
+            props = template.create_signed_properties(
+                qualifying, name="SignedProperties-%s" % signature_id
             )
 
-            template.create_signed_properties(qualifying, name=signature_id)
+            signed_do = template.ensure_signed_data_object_properties(props)
+
+            template.add_data_object_format(
+                signed_do,
+                "#%s" % reference_id,
+                description="",
+                mime_type="application/xml",
+                encoding="UTF-8",
+            )
 
         except Exception as error:
             LOGGER.warning("Error loading signature: %s", str(error))
