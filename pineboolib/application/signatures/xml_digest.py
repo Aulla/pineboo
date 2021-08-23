@@ -233,7 +233,7 @@ class XmlDigest:
             return ""
 
         for child in self._root:
-            if child.get("Id") == "Signature":
+            if str(child.get("Id")).startswith("Signature"):
                 for child_elem in child:
                     if "SignatureValue" in child_elem.tag:
                         return child_elem.text
