@@ -37,35 +37,36 @@ class TestPNRelationMetaData(unittest.TestCase):
     def test_assigment(self) -> None:
         """Test multiples relaitos asigment to a field."""
 
-        from pineboolib.application.metadata import pnrelationmetadata, pnfieldmetadata
+        from pineboolib.application.metadata import pnrelationmetadata
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         self.assertTrue(mtd)
         if mtd is not None:
             field = mtd.field("version")
-
-            relation0 = pnrelationmetadata.PNRelationMetaData("tabla0", "campo0", "M1")
-            relation1 = pnrelationmetadata.PNRelationMetaData("tabla1", "campo1", "1M")
-            relation2 = pnrelationmetadata.PNRelationMetaData("tabla2", "campo2", "1M")
-            relation3 = pnrelationmetadata.PNRelationMetaData("tabla3", "campo3", "M1")
-            relation4 = pnrelationmetadata.PNRelationMetaData("tabla4", "campo4", "M1")
-            self.assertFalse(field.relationM1())
-            self.assertFalse(field.relationList())
-            field.addRelationMD(relation0)
-            self.assertFalse(relation0 in field.relationList())
-            self.assertEqual(relation0, field.relationM1())
-            field.addRelationMD(relation1)
-            self.assertTrue(relation1 in field.relationList())
-            self.assertNotEqual(relation1, field.relationM1())
-            field.addRelationMD(relation2)
-            self.assertTrue(relation2 in field.relationList())
-            field.addRelationMD(relation3)
-            self.assertNotEqual(relation3, field.relationM1())
-            self.assertFalse(relation3 in field.relationList())
-            field.addRelationMD(relation4)
-            self.assertNotEqual(relation4, field.relationM1())
-            self.assertFalse(relation4 in field.relationList())
-            self.assertEqual([relation1, relation2], field.relationList())
+            self.assertTrue(field)
+            if field is not None:
+                relation0 = pnrelationmetadata.PNRelationMetaData("tabla0", "campo0", "M1")
+                relation1 = pnrelationmetadata.PNRelationMetaData("tabla1", "campo1", "1M")
+                relation2 = pnrelationmetadata.PNRelationMetaData("tabla2", "campo2", "1M")
+                relation3 = pnrelationmetadata.PNRelationMetaData("tabla3", "campo3", "M1")
+                relation4 = pnrelationmetadata.PNRelationMetaData("tabla4", "campo4", "M1")
+                self.assertFalse(field.relationM1())
+                self.assertFalse(field.relationList())
+                field.addRelationMD(relation0)
+                self.assertFalse(relation0 in field.relationList())
+                self.assertEqual(relation0, field.relationM1())
+                field.addRelationMD(relation1)
+                self.assertTrue(relation1 in field.relationList())
+                self.assertNotEqual(relation1, field.relationM1())
+                field.addRelationMD(relation2)
+                self.assertTrue(relation2 in field.relationList())
+                field.addRelationMD(relation3)
+                self.assertNotEqual(relation3, field.relationM1())
+                self.assertFalse(relation3 in field.relationList())
+                field.addRelationMD(relation4)
+                self.assertNotEqual(relation4, field.relationM1())
+                self.assertFalse(relation4 in field.relationList())
+                self.assertEqual([relation1, relation2], field.relationList())
 
 
 class TestCreatePNRelationMetaData(unittest.TestCase):
