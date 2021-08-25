@@ -13,7 +13,7 @@ SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 ID_SESSION: str = ""
 
-PINEBOO_VER = "0.99.11.3"
+PINEBOO_VER = "0.99.12"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CONNECTION_EVENTS: bool = False  # Enable show debug when connection is closed.
@@ -30,4 +30,3 @@ ENABLE_ACLS: bool = True  # Enable acls usage.
 USE_INTERACTIVE_GUI: bool = True  # Enable interactiveGUI value.
 ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
 PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
-
