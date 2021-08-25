@@ -18,6 +18,8 @@ from . import module, file as file_module
 import os
 from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
+from pineboolib import application
+
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
     from .database import pnconnection  # pragma: no cover
@@ -366,6 +368,9 @@ class Project(object):
             "JS.CALL: fn:%s args:%s ctx:%s", function, args, object_context, stack_info=True
         )
 
+        if not application.ENABLE_CALL_EXCEPTIONS:
+            show_exceptions = False
+
         # Tipicamente flfactalma.iface.beforeCommit_articulos()
         if function[-2:] == "()":
             function = function[:-2]
@@ -386,8 +391,17 @@ class Project(object):
                     LOGGER.warning("No existe la acción %s", msg)
                 return None
             else:
+                try:
+                    object_context = self.actions[
+                        module_name
+                    ].load_master_widget()  # siempre devuelve
+                except Exception as error:
+                    if show_exceptions:
+                        LOGGER.exception(
+                            "JSCALL: Error loading master_widget %s : %s" % (module_name, error)
+                        )
+                    return None
 
-                object_context = self.actions[module_name].load_master_widget()  # siempre devuelve
                 if hasattr(object_context, "iface") and hasattr(
                     object_context.iface, function_name
                 ):
@@ -397,10 +411,12 @@ class Project(object):
         if function_object is not None:
             try:
                 return function_object(*args)
-            except Exception:
-                LOGGER.exception(
-                    "JSCALL: Error executing function %s", function_name, stack_info=True
-                )
+            except Exception as error:
+                if show_exceptions:
+                    LOGGER.exception(
+                        "JSCALL: Error executing function %s ERROR: %s" % (function_name, error),
+                        stack_info=True,
+                    )
         else:
             if show_exceptions:
                 LOGGER.error("No existe la función %s en %s", function_name, module_name)

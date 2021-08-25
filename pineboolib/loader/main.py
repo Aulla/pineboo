@@ -364,8 +364,9 @@ def exec_main(options: "optparse.Values") -> int:
     if not options.enable_gui:
         app_args += ["-platform", "offscreen"]
 
-    if not options.enable_acls:
-        application.ENABLE_ACLS = False
+    application.ENABLE_ACLS = options.enable_acls
+    application.USE_INTERACTIVE_GUI = options.enable_interactive_gui
+    application.ENABLE_CALL_EXCEPTIONS = options.enable_call_exceptions
 
     application.PROJECT.set_app(call_qapplication(app_args))
 

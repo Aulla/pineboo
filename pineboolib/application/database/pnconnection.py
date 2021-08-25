@@ -96,7 +96,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if driver_alias:
             self._driver_name = self._driver_sql.aliasToName(driver_alias)
 
-        self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
+        if application.USE_INTERACTIVE_GUI:
+            self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
+        else:
+            self._interactive_gui = ""
+
         self._last_active_cursor = None
         self._last_error = ""
         self._is_open = False
@@ -265,20 +269,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._db_password
 
-    # ===============================================================================
-    #     def seek(self, offs, whence=0) -> bool:
-    #         """Position the cursor at a position in the database."""
-    #
-    #         if self.conn is None:
-    #             raise Exception("seek. Empty conn!!")
-    #
-    #         return self.conn.seek(offs, whence)
-    # ===============================================================================
-
-    def setInteractiveGUI(self, b):
+    def setInteractiveGUI(self, gui_name: str) -> None:
         """Set if it is an interactive GUI."""
-
-        self._interactive_gui = b
+        if application.USE_INTERACTIVE_GUI:
+            self._interactive_gui = gui_name
 
     def formatValue(self, table: str, value: Any, upper: bool) -> Any:
         """Return a correctly formatted value to be assigned as a where filter."""

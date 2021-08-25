@@ -27,3 +27,6 @@ AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
 DEVELOPER_MODE: bool = True  # Skip some bugs, critical in production.
 USE_REPORT_VIEWER: bool = True  # Enable internal report viewer.
 ENABLE_ACLS: bool = True  # Enable acls usage.
+USE_INTERACTIVE_GUI: bool = True  # Enable interactiveGUI value.
+ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
+

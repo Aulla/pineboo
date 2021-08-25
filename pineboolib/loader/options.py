@@ -165,6 +165,22 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         help="Disable acls loads",
     )
 
+    parser.add_option(
+        "--no-interactive-gui",
+        action="store_false",
+        dest="enable_interactive_gui",
+        default=True,
+        help="interactiveGUI return empty value",
+    )
+
+    parser.add_option(
+        "--no-qsa-exceptions",
+        action="store_false",
+        dest="enable_call_exceptions",
+        default=True,
+        help="disable qsa call exceptions",
+    )
+
     if custom_argv is None:
         (options, args) = parser.parse_args()
     else:
