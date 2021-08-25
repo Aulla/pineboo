@@ -39,6 +39,7 @@ Ejemplo de uso:
 from pineboolib.application.utils import path
 from pineboolib.application import load_script, qsadictmodules
 from pineboolib import logging, application
+from pineboolib.core import settings
 from . import pnmtdparser
 import sqlalchemy
 
@@ -100,6 +101,7 @@ def save_model(path_, name: str) -> bool:
 def load_models() -> None:
     """Load all sqlAlchemy models."""
     # print("LOADING MODELS!!!")
+    db_admin = bool(settings.CONFIG.value("application/dbadmin_enabled", False))
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
@@ -150,7 +152,8 @@ def load_models() -> None:
     # views las últimas...
     for key, data in views_.items():
         save_model(data, key)
-        application.PROJECT.conn_manager.manager().createTable(key)
+        if db_admin:
+            application.PROJECT.conn_manager.manager().createTable(key)
 
     del models_
     del views_
