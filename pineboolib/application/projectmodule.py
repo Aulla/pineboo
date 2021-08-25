@@ -14,6 +14,7 @@ from .parsers import parser_qsa
 from .utils import path, xpm, flfiles_dir
 
 from . import module, file as file_module
+from . import connections
 
 import os
 from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
@@ -380,6 +381,13 @@ class Project(object):
         function_name = array_fun[-1]
 
         if object_context is None:
+            use_record = False
+            if module_name.startswith("formRecord"):
+                use_record = True
+                module_name = module_name[10:]
+
+            if module_name.startswith("form"):
+                module_name = module_name[4:]
 
             if module_name not in self.actions.keys():
                 if show_exceptions:
@@ -392,9 +400,10 @@ class Project(object):
                 return None
             else:
                 try:
-                    object_context = self.actions[
-                        module_name
-                    ].load_master_widget()  # siempre devuelve
+                    if use_record:
+                        object_context = self.actions[module_name].load_record_widget()
+                    else:
+                        object_context = self.actions[module_name].load_master_widget()
                 except Exception as error:
                     if show_exceptions:
                         LOGGER.exception(
@@ -410,6 +419,15 @@ class Project(object):
         function_object = getattr(object_context, function_name, None)
         if function_object is not None:
             try:
+
+                # Controlar numero de argumentos
+                args_num = connections.get_expected_args_num(function_object)
+                while args_num > len(args):
+                    args.append(None)
+
+                if args and args_num:
+                    args = args[0:args_num]
+
                 return function_object(*args)
             except Exception as error:
                 if show_exceptions:
