@@ -181,6 +181,14 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         help="disable qsa call exceptions",
     )
 
+    parser.add_option(
+        "--no-parse-project",
+        action="store_false",
+        dest="parse_project_on_init",
+        default=True,
+        help="parse all project on init is disabled",
+    )
+
     if custom_argv is None:
         (options, args) = parser.parse_args()
     else:

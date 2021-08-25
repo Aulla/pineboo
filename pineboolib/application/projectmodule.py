@@ -159,9 +159,14 @@ class Project(object):
 
         if result_init_conn:
             self.apppath = utils_base.filedir("..")
-
             self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
-            self.parse_project = settings.CONFIG.value("ebcomportamiento/parseProject", True)
+
+            self.parse_project = (
+                settings.CONFIG.value("ebcomportamiento/parseProject", True)
+                if application.PARSE_PROJECT_ON_INIT
+                else False
+            )
+
             if not self.no_python_cache:
                 self.no_python_cache = settings.CONFIG.value(
                     "ebcomportamiento/noPythonCache", False
