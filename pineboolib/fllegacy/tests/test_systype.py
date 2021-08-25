@@ -223,7 +223,7 @@ class TestSysType(unittest.TestCase):
 
     def test_basic_1(self) -> None:
         """Test basic."""
-        application.PROJECT.conn_manager.mainConn().setInteractiveGUI(False)
+        application.PROJECT.conn_manager.mainConn().setInteractiveGUI("")
         systype.SysType().selectModsDialog(["flfactppal", "flfactinfo", "flfactalma"])
 
     def test_exec_qsa(self) -> None:
