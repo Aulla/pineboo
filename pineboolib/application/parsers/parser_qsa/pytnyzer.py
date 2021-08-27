@@ -558,11 +558,10 @@ class Source(ASTPython):
                     elems += 1
                 yield dtype, data
                 if dtype == "line":
-                    if after_lines:
-                        for line in after_lines:
-                            elems += 1
-                            yield dtype, line
-                        after_lines = []
+                    for line in after_lines:
+                        elems += 1
+                        yield dtype, line
+                    after_lines = []
                 elif dtype == "break":
                     for line in after_lines:
                         elems += 1

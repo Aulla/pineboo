@@ -677,7 +677,7 @@ def calctree(
         #    continue
         # print " " * depth , "%s:" % ".".join(num+[str(num_)]), ctype,
 
-        if type(value) is dict:
+        if isinstance(value, dict):
             # print "*"
             # FIXME: Esto o no parsea todos los elementos o hace stackoverflow. problematico para programas largos
             if depth < 300:

@@ -32,20 +32,22 @@ def mtd_parse(
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    dest_file = "%s_model.py" % path_mtd  # str
-
-    if not isinstance(meta_or_name, str):
-        dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, meta_or_name.name())
+    dest_file = "%s_model.py" % (
+        path_mtd
+        if isinstance(meta_or_name, str)
+        else "%s/cache/%s" % (application.PROJECT.tmpdir, meta_or_name.name())
+    )
 
     if os.path.exists(dest_file):
         return dest_file
 
     if isinstance(meta_or_name, str):
         metadata = application.PROJECT.conn_manager.manager().metadata(meta_or_name, True)
-        if metadata is None:
-            return ""
     else:
         metadata = meta_or_name
+
+    if metadata is None:
+        return ""
 
     lines = _generate_model(metadata)
     if not lines:
@@ -227,11 +229,11 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # DEFAULT_VALUE
     if field.defaultValue() is not None:
-        if field.type() in ["bool", "unlock", "int", "uint", "double", "serial", "json"]:
-            value = field.defaultValue()
-        else:
-            value = "'%s'" % field.defaultValue()
-
+        value = (
+            field.defaultValue()
+            if field.type() in ["bool", "unlock", "int", "uint", "double", "serial", "json"]
+            else "'%s'" % field.defaultValue()
+        )
         field_data.append("'default' : %s" % value)
 
     # OUT_TRANSACTION
