@@ -13,6 +13,7 @@ from .database import utils as db_utils
 from .parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from .parsers import parser_qsa
 from .utils import path, xpm, flfiles_dir
+from . import qsadictmodules
 
 from . import module, file as file_module
 from . import connections
@@ -369,40 +370,14 @@ class Project(object):
         function_name = array_fun[-1]
 
         if object_context is None:
-            use_record = False
-            if module_name.startswith("formRecord"):
-                use_record = True
-                module_name = module_name[10:]
+            object_context = qsadictmodules.QSADictModules.from_project(module_name)
 
-            if module_name.startswith("form"):
-                module_name = module_name[4:]
-
-            if module_name not in self.actions.keys():
-                if show_exceptions:
-                    msg = (
-                        "%s en el módulo %s" % (array_fun[1], module_name)
-                        if len(array_fun) > 1
-                        else module_name
-                    )
-                    LOGGER.warning("No existe la acción %s", msg)
-                return None
-            else:
-                try:
-                    if use_record:
-                        object_context = self.actions[module_name].load_record_widget()
-                    else:
-                        object_context = self.actions[module_name].load_master_widget()
-                except Exception as error:
-                    if show_exceptions:
-                        LOGGER.exception(
-                            "JSCALL: Error loading master_widget %s : %s" % (module_name, error)
-                        )
-                    return None
-
-                if hasattr(object_context, "iface") and hasattr(
-                    object_context.iface, function_name
-                ):
-                    object_context = object_context.iface
+            if hasattr(
+                object_context, "iface"
+            ) and hasattr(  # comprueba si la función es realmente de iface.
+                object_context.iface, function_name
+            ):
+                object_context = object_context.iface
 
         function_object = getattr(object_context, function_name, None)
         if function_object is not None:
