@@ -375,9 +375,9 @@ class Project(object):
             if hasattr(
                 object_context, "iface"
             ) and hasattr(  # comprueba si la función es realmente de iface.
-                object_context.iface, function_name
+                object_context.iface, function_name  # type: ignore [union-attr]
             ):
-                object_context = object_context.iface
+                object_context = object_context.iface  # type: ignore [union-attr]
 
         function_object = getattr(object_context, function_name, None)
         if function_object is not None:
