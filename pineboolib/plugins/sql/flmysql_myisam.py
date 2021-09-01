@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLMYSQL_MYISAM(isqldriver.ISqlDriver):
+class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
     """MYISAM Driver class."""
 
     _default_charset: str

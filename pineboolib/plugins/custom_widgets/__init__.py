@@ -9,7 +9,7 @@ except Exception:
     pass
 
 
-def moduleInformation() -> Tuple[str, str]:
+def moduleInformation() -> Tuple[str, str]:  # pylint: disable=invalid-name
     """Return module inormation."""
 
     return "", ""

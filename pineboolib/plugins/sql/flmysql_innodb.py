@@ -2,7 +2,7 @@
 from .flmysql_myisam import FLMYSQL_MYISAM
 
 
-class FLMYSQL_INNODB(FLMYSQL_MYISAM):
+class FLMYSQL_INNODB(FLMYSQL_MYISAM):  # pylint: disable=invalid-name
     """FLMYSQL_INNODB class."""
 
     def __init__(self):
