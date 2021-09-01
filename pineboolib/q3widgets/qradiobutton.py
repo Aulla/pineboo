@@ -27,10 +27,10 @@ class QRadioButton(QtWidgets.QRadioButton):
             self.send_clicked
         )
 
-    def setButtonGroupId(self, id: int) -> None:
+    def setButtonGroupId(self, id_: int) -> None:
         """Set button group id."""
 
-        self.dg_id = id
+        self.dg_id = id_
         if self.parent() and hasattr(self.parent(), "selectedId"):
             if self.dg_id == cast(qbuttongroup.QButtonGroup, self.parent()).selectedId:
                 self.setChecked(True)
@@ -51,20 +51,20 @@ class QRadioButton(QtWidgets.QRadioButton):
 
         return super().isChecked()
 
-    def set_checked(self, b: bool) -> None:
+    def set_checked(self, checked: bool) -> None:
         """Set checked."""
 
-        super().setChecked(b)
+        super().setChecked(checked)
 
     def get_text(self) -> str:
         """Return text."""
 
         return super().text()
 
-    def set_text(self, t: str) -> None:
+    def set_text(self, text: str) -> None:
         """Set text."""
 
-        super().setText(t)
+        super().setText(text)
 
     checked = property(get_checked, set_checked)
     text: str = property(get_text, set_text)  # type: ignore[assignment] # noqa : F821

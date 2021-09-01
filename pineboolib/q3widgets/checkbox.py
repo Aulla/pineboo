@@ -57,10 +57,10 @@ class CheckBox(QWidget):
 
         return self._cb.isChecked()
 
-    def setChecked(self, b: bool) -> None:
+    def setChecked(self, value: bool) -> None:
         """Set checked."""
 
-        self._cb.setChecked(b)
+        self._cb.setChecked(value)
 
     text: str = property(getText, setText)  # type: ignore [assignment] # noqa: F821
     checked: bool = property(getChecked, setChecked)  # type: ignore [assignment] # noqa: F821

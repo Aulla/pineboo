@@ -63,37 +63,37 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
         # layout.setSpacing(0)
         super().setLayout(layout)
 
-    def setLineWidth(self, s: int) -> None:
+    def setLineWidth(self, width: int) -> None:
         """Set line width."""
 
         style_ = (
             "QGroupBox#%s {  border: %spx solid gray; margin-top: 20px; border-radius: 3px;}"
-            % (self.objectName(), s)
+            % (self.objectName(), width)
         )
-        self.line_width = s
+        self.line_width = width
         self.setStyleSheet(style_)
 
-    def setTitle(self, t: str) -> None:
+    def setTitle(self, title: str) -> None:
         """Set title."""
         if self.line_width == 0:
-            t = ""
-        if t == "":
+            title = ""
+        if title == "":
             self.setLineWidth(0)
-        super().setTitle(t)
+        super().setTitle(title)
 
     def get_enabled(self) -> bool:
         """Return if enabled."""
         return self.isEnabled()
 
-    def set_enabled(self, b: bool) -> None:
+    def set_enabled(self, value: bool) -> None:
         """Set enabled."""
 
-        self.setDisabled(not b)
+        self.setDisabled(not value)
 
     @decorators.pyqt_slot(bool)
-    def setShown(self, b: bool) -> None:
+    def setShown(self, value: bool) -> None:
         """Set shown."""
-        self.setVisible(b)
+        self.setVisible(value)
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set an attribute especified by name."""
@@ -104,13 +104,13 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
             super().__setattr__(name, value)
 
     @decorators.not_implemented_warn
-    def setFrameShadow(self, fs: None) -> None:
+    def setFrameShadow(self, frame_shadow: None) -> None:
         """Set frame shadow."""
 
         pass
 
     @decorators.not_implemented_warn
-    def setFrameShape(self, fs: None) -> None:
+    def setFrameShape(self, frame_shape: None) -> None:
         """Set frame shape."""
 
         pass

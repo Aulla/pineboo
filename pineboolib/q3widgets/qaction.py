@@ -9,16 +9,16 @@ class QAction(QtGui.QAction):
     """QAction class."""
 
     activated = QtCore.pyqtSignal()
-    _menuText: str
+    _menu_text: str
 
     def __init__(self, *args) -> None:
         """Inicialize."""
 
         super().__init__(*args)
         self.triggered.connect(self.send_activated)  # type: ignore [attr-defined] # noqa: F821
-        self._menuText = ""
+        self._menu_text = ""
 
-    def send_activated(self, b: Optional[bool] = None) -> None:
+    def send_activated(self, value: Optional[bool] = None) -> None:
         """Send activated signal."""
 
         self.activated.emit()
@@ -28,20 +28,20 @@ class QAction(QtGui.QAction):
 
         return self.objectName()
 
-    def setName(self, n: str) -> None:
+    def setName(self, name: str) -> None:
         """Set widget name."""
 
-        self.setObjectName(n)
+        self.setObjectName(name)
 
     def getMenuText(self) -> str:
         """Return menu text."""
 
-        return self._menuText
+        return self._menu_text
 
-    def setMenuText(self, t: str) -> None:
+    def setMenuText(self, text: str) -> None:
         """Set menu text."""
 
-        self._menuText = t
+        self._menu_text = text
 
     name = property(getName, setName)
     menuText = property(getMenuText, setMenuText)

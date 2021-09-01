@@ -24,12 +24,12 @@ class QCheckBox(QtWidgets.QCheckBox):
 
         return self.isChecked()
 
-    def set_checked(self, b: bool) -> None:
+    def set_checked(self, value: bool) -> None:
         """Set checked."""
 
-        if isinstance(b, str):
-            b = b == "true"
+        if isinstance(value, str):
+            value = value == "true"
 
-        super().setChecked(b)
+        super().setChecked(value)
 
     checked = property(get_checked, set_checked)

@@ -16,9 +16,9 @@ class QByteArray(QtCore.QByteArray):
         else:
             super().__init__(*args)
 
-    def set(self, pos: int, ch: Union[str, int]) -> None:
+    def set(self, pos: int, _ch: Union[str, int]) -> None:
         """Set a char into a position."""
-        _ch = ch if isinstance(ch, str) else chr(ch)
+        _ch = _ch if isinstance(_ch, str) else chr(_ch)
         super().insert(pos, _ch.encode())
 
     def get(self, pos: int):

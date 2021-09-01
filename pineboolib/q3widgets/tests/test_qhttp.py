@@ -33,8 +33,8 @@ class TestQHttp(unittest.TestCase):
         http_.requestFinished.connect(finishRequest)
         http_.done.connect(allDone)
 
-        ba = qbytearray.QByteArray()
-        self._buffer = QtCore.QBuffer(ba)
+        ba_ = qbytearray.QByteArray()
+        self._buffer = QtCore.QBuffer(ba_)
 
         header_ = qhttp.QHttpRequestHeader("GET", page_)
         header_.setValue("Host", host_)
@@ -60,21 +60,21 @@ class TestQHttp(unittest.TestCase):
 
 
 @decorators.pyqt_slot(int, int)
-def progressRead(done_: int, total_: int) -> None:
+def progressRead(done_: int, total_: int) -> None:  # pylint: disable=invalid-name
     """Send progress slot."""
 
     print("Recibiendo", done_, total_)
 
 
 @decorators.pyqt_slot(int)
-def startRequest(id_: int) -> None:
+def startRequest(id_: int) -> None:  # pylint: disable=invalid-name
     """Send progress slot."""
 
     print("Iniciando petición", id_)
 
 
 @decorators.pyqt_slot(int, bool)
-def finishRequest(id_: int, error_: bool) -> None:
+def finishRequest(id_: int, error_: bool) -> None:  # pylint: disable=invalid-name
     """Send progress slot."""
     resultado = "OK" if not error_ else "ERROR"
 
@@ -82,7 +82,7 @@ def finishRequest(id_: int, error_: bool) -> None:
 
 
 @decorators.pyqt_slot(bool)
-def allDone(error_: bool) -> None:
+def allDone(error_: bool) -> None:  # pylint: disable=invalid-name
     """Send progress slot."""
     resultado = "OK" if not error_ else "ERROR"
 

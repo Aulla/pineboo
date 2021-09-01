@@ -15,8 +15,8 @@ class QTextEdit(QtWidgets.QTextEdit):
     def __init__(self, parent: Optional["QtWidgets.QWidget"] = None) -> None:
         """Inicialize."""
         super().__init__(parent)
-        self.LogText = 0
-        self.RichText = 1
+        self.LogText = 0  # pylint: disable=invalid-name
+        self.RichText = 1  # pylint: disable=invalid-name
 
     def setText(self, text: str) -> None:
         """Set text."""

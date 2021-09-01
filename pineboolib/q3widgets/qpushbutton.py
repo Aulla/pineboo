@@ -26,13 +26,13 @@ class QPushButton(QtWidgets.QPushButton):
         pass
 
     @decorators.not_implemented_warn
-    def setUsesBigPixmap(self, b: bool) -> None:
+    def setUsesBigPixmap(self, uses_big: bool) -> None:
         """Set use big pixmap."""
 
         pass
 
     @decorators.not_implemented_warn
-    def setUsesTextLabel(self, b: bool) -> None:
+    def setUsesTextLabel(self, uses_text: bool) -> None:
         """Set use text label."""
         pass
 
@@ -56,10 +56,10 @@ class QPushButton(QtWidgets.QPushButton):
 
         return self.isCheckable()
 
-    def setToggleButton(self, v: bool) -> None:
+    def setToggleButton(self, toggle: bool) -> None:
         """Set if is checkable."""
 
-        self.setCheckable(v)
+        self.setCheckable(toggle)
 
     def getOn(self) -> bool:
         """Return if is checked."""
@@ -82,16 +82,18 @@ class QPushButton(QtWidgets.QPushButton):
             val = ""
         super().setText(val)
 
-    def setMaximumSize(self, w: Union[int, QtCore.QSize] = 30, h: Optional[int] = None) -> None:
+    def setMaximumSize(
+        self, width: Union[int, QtCore.QSize] = 30, height: Optional[int] = None
+    ) -> None:
         """Set Maximun size."""
 
-        if isinstance(w, int):
-            if h is None:
-                h = w
+        if isinstance(width, int):
+            if height is None:
+                height = width
 
-            super().setMaximumSize(w, h)
+            super().setMaximumSize(width, height)
         else:
-            super().setMaximumSize(w)
+            super().setMaximumSize(width)
 
     def isEnabled(self) -> bool:
         """Return if the button is enabled. Overloaded by property assign."""

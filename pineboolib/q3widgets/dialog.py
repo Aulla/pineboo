@@ -35,10 +35,10 @@ class Dialog(qdialog.QDialog):
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
         self._button_box = QtWidgets.QDialogButtonBox()
-        self.okButton = qpushbutton.QPushButton("&Aceptar")
-        self.cancelButton = qpushbutton.QPushButton("&Cancelar")
-        self.okButtonText = "Aceptar"
-        self.cancelButtonText = "Cancelar"
+        self.okButton = qpushbutton.QPushButton("&Aceptar")  # pylint: disable=invalid-name
+        self.cancelButton = qpushbutton.QPushButton("&Cancelar")  # pylint: disable=invalid-name
+        self.okButtonText = "Aceptar"  # pylint: disable=invalid-name
+        self.cancelButtonText = "Cancelar"  # pylint: disable=invalid-name
 
         self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.ButtonRole.AcceptRole)
         self._button_box.addButton(

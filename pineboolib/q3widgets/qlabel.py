@@ -47,10 +47,10 @@ class QLabel(QtWidgets.QLabel):
         super(QLabel, self).setPixmap(pix)
 
     @decorators.pyqt_slot(bool)
-    def setShown(self, b: bool):
+    def setShown(self, visible: bool):
         """Set visible."""
 
-        self.setVisible(b)
+        self.setVisible(visible)
 
     def getAlign(self) -> Any:
         """Return Alignment."""

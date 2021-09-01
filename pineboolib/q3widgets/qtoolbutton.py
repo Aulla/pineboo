@@ -26,7 +26,7 @@ class QToolButton(QtWidgets.QToolButton):
         if name is not None:
             self.setObjectName(name)
 
-        self.groupId = None
+        self.groupId = None  # pylint: disable=invalid-name
 
     def setToggleButton(self, value: bool) -> None:
         """Set toggled button."""
@@ -60,9 +60,9 @@ class QToolButton(QtWidgets.QToolButton):
         """Return button group id."""
         return self.groupId
 
-    def setButtonGroupId(self, id: int) -> None:
+    def setButtonGroupId(self, id_: int) -> None:
         """Set button group id."""
-        self.groupId = id
+        self.groupId = id_
 
     def getEnabled(self) -> bool:
         """Return if is enabled."""

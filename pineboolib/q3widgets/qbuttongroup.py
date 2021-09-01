@@ -20,17 +20,17 @@ class QButtonGroup(qgroupbox.QGroupBox):
 
         super().__init__(*args)
         self.bg_ = QtWidgets.QButtonGroup(self)
-        self.selectedId = -1
+        self.selectedId = -1  # pylint: disable=invalid-name
 
     @decorators.not_implemented_warn
     def setLineWidth(self, w: int):
         """Set line width."""
         pass
 
-    def setSelectedId(self, id: int) -> None:
+    def setSelectedId(self, id_: int) -> None:
         """Set selected id."""
 
-        self.selectedId = id
+        self.selectedId = id_
 
     def __getattr__(self, name: str) -> Callable:
         """Return an attribute."""

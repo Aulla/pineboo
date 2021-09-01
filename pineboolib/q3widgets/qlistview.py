@@ -78,7 +78,7 @@ class QListView(QtWidgets.QWidget):
         item = index.model().itemFromIndex(index)
         self.doubleClicked.emit(item)
 
-    def addItem(self, t: str) -> None:
+    def addItem(self, item_text: str) -> None:
         """Add a new item."""
 
         from pineboolib.fllegacy.fllistviewitem import FLListViewItem
@@ -86,7 +86,7 @@ class QListView(QtWidgets.QWidget):
         self._current_row = self._current_row + 1
         item = FLListViewItem()
         item.setEditable(False)
-        item.setText(t)
+        item.setText(item_text)
         if self._tree is not None:
             cast(QtGui.QStandardItemModel, self._tree.model()).setItem(self._current_row, 0, item)
 
@@ -117,27 +117,30 @@ class QListView(QtWidgets.QWidget):
 
         self.setHeaderLabel(self._cols_labels)
 
-    def setClickable(self, c: bool) -> None:
+    def setClickable(self, clickable: bool) -> None:
         """Set clickable."""
-        self._clickable = True if c else False
+        self._clickable = clickable
 
-    def setResizable(self, r: bool) -> None:
+    def setResizable(self, resizeable: bool) -> None:
         """Set resizeable."""
-        self._resizeable = True if r else False
+        self._resizeable = resizeable
 
-    def eventFilter(self, obj: QtCore.QObject, ev: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """Event filter."""
 
-        if isinstance(ev, QtGui.QResizeEvent):
+        if isinstance(event, QtGui.QResizeEvent):
             if not self._resizeable:
                 return False
 
-        return super().eventFilter(obj, ev)
+        return super().eventFilter(obj, event)
 
-    def setItemMargin(self, s: int) -> None:
+    def setItemMargin(self, item_margin: int) -> None:
         """Set items margin."""
 
-        style_ = "QTreeView::item#%s { border: 0px; padding: %spx; }" % (self.objectName(), s)
+        style_ = "QTreeView::item#%s { border: 0px; padding: %spx; }" % (
+            self.objectName(),
+            item_margin,
+        )
         self._tree.setStyleSheet(style_)
 
     # @decorators.not_implemented_warn
@@ -157,9 +160,9 @@ class QListView(QtWidgets.QWidget):
         return self._default_rename_action
 
     @decorators.not_implemented_warn
-    def setDefaultRenameAction(self, b: bool) -> None:
+    def setDefaultRenameAction(self, default: bool) -> None:
         """Set default_rename_action enabled."""
-        self._default_rename_action = b
+        self._default_rename_action = default
 
     def model(self) -> QtGui.QStandardItemModel:
         """Return model index."""

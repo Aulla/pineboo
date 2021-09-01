@@ -37,13 +37,10 @@ class QLineEdit(QtWidgets.QLineEdit):
 
         return super().text()
 
-    def setText(self, v: Any) -> None:
+    def setText(self, text: Any) -> None:
         """Set the text of the field."""
 
-        if not isinstance(v, str):
-            v = str(v)
-
-        super().setText(v)
+        super().setText(str(text))
 
     text: str = property(getText, setText)  # type: ignore [assignment] # noqa F821
 
@@ -53,16 +50,16 @@ class QLineEdit(QtWidgets.QLineEdit):
         pass
 
     @decorators.not_implemented_warn
-    def setLineWidth(self, w: int):
+    def setLineWidth(self, width: int):
         """Not implemented."""
         pass
 
     @decorators.not_implemented_warn
-    def setFrameShape(self, f: int):
+    def setFrameShape(self, frame_shape: int):
         """Not implemented."""
         pass
 
     @decorators.not_implemented_warn
-    def setFrameShadow(self, f: int):
+    def setFrameShadow(self, frame_shadow: int):
         """Not implemented."""
         pass

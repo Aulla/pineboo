@@ -26,31 +26,31 @@ class QComboBox(QtWidgets.QComboBox):
 
         self.insertItems(len(strl), strl)
 
-    def setReadOnly(self, b: bool) -> None:
+    def setReadOnly(self, data: bool) -> None:
         """Set read only."""
 
-        super().setEditable(not b)
+        super().setEditable(not data)
 
     def getCurrentItem(self) -> Any:
         """Return current item selected."""
 
         return super().currentIndex
 
-    def setCurrentItem(self, i: Union[str, int]) -> None:
+    def setCurrentItem(self, new_item: Union[str, int]) -> None:
         """Set current item."""
 
         pos = -1
-        if isinstance(i, str):
+        if isinstance(new_item, str):
             pos = 0
             size_ = self.model().rowCount()
-            for n in range(size_):
-                item = self.model().index(n, 0)
-                if item.data() == i:
-                    pos = n
+            for pos_item in range(size_):
+                item = self.model().index(pos_item, 0)
+                if item.data() == new_item:
+                    pos = pos_item
                     break
 
         else:
-            pos = i
+            pos = new_item
 
         super().setCurrentIndex(pos)
 

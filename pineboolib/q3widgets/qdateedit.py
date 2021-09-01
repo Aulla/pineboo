@@ -51,14 +51,14 @@ class QDateEdit(QtWidgets.QDateEdit):
     date: str = property(getDate, setDate)  # type: ignore[assignment] # noqa : F821
 
     @decorators.not_implemented_warn
-    def setAutoAdvance(self, b: bool) -> None:
+    def setAutoAdvance(self, value: bool) -> None:
         """Set auto advance."""
         pass
 
-    def setSeparator(self, c: str) -> None:
+    def setSeparator(self, value: str) -> None:
         """Set separator."""
 
-        self.separator_ = c
+        self.separator_ = value
         self.setDisplayFormat("dd%sMM%syyyy" % (self.separator(), self.separator()))
 
     def separator(self) -> str:

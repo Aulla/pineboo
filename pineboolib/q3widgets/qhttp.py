@@ -20,7 +20,7 @@ class QHttpRequest(object):
 
         self._id = self.ID
         print("* ID", self._id)
-        self.ID += 1
+        self.ID += 1  # pylint: disable=invalid-name
         self._values = {}
         self._major_ver = 1
         self._minor_ver = 1
@@ -50,13 +50,13 @@ class QHttpRequest(object):
             return True
 
         lines_: List[str] = []
-        for it in list_:
-            if it[0].isspace():
+        for item in list_:
+            if item[0].isspace():
                 if lines_:
                     lines_[len(lines_) - 1] += " "
-                    lines_[len(lines_) - 1] += it.strip()
+                    lines_[len(lines_) - 1] += item.strip()
             else:
-                lines_.append(it)
+                lines_.append(item)
 
         for i in range(len(lines_)):
             if not self.parseLine(lines_[i], i):
@@ -203,27 +203,27 @@ class QHttpResponseHeader(QHttpRequest):
         if number_ != 0:
             return super().parseLine(line_)
 
-        l_ = line_.strip()
-        if len(l_) < 10:
+        line_striped = line_.strip()
+        if len(line_striped) < 10:
             return False
 
         if (
-            l_[0:5] == "HTTP/"
-            and l_[5].isdigit()
-            and l_[6] == "."
-            and l_[7].isdigit()
-            and l_[8] == "."
-            and l_[9].isdigit()
+            line_striped[0:5] == "HTTP/"
+            and line_striped[5].isdigit()
+            and line_striped[6] == "."
+            and line_striped[7].isdigit()
+            and line_striped[8] == "."
+            and line_striped[9].isdigit()
         ):
-            self._major_ver = int(l_[5]) - 0
-            self._minor_ver = int(l_[7]) - 0
+            self._major_ver = int(line_striped[5]) - 0
+            self._minor_ver = int(line_striped[7]) - 0
 
-            pos = l_[9:].find(" ")
+            pos = line_striped[9:].find(" ")
             if pos > -1:
-                self._reason_phr = l_[9 + pos :]
-                self._status_code = int(l_[9 : 9 + pos])
+                self._reason_phr = line_striped[9 + pos :]
+                self._status_code = int(line_striped[9 : 9 + pos])
             else:
-                self._status_code = int(l_[9:])
+                self._status_code = int(line_striped[9:])
                 self._reason_phr = ""
         else:
             return False

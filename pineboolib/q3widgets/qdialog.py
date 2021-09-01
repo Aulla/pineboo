@@ -11,7 +11,10 @@ class QDialog(QtWidgets.QDialog):
     """QDialog class."""
 
     def __init__(
-        self, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None, b: Any = None
+        self,
+        parent: Optional[QtWidgets.QWidget] = None,
+        name: Optional[str] = None,
+        other: Any = None,
     ) -> None:
         """Inicialize."""
 
