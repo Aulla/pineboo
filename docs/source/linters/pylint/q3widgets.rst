@@ -1,4 +1,4 @@
-pineboolib.q3widgets (9.59/10)
+pineboolib.q3widgets (10/10)
 ===================================
 
 .. raw:: html

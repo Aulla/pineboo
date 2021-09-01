@@ -1,4 +1,4 @@
-pineboolib.interfaces (9.99/10)
+pineboolib.interfaces (10/10)
 ===================================
 
 .. raw:: html
