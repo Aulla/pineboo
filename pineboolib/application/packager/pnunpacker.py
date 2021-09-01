@@ -7,16 +7,9 @@ Extract the files from the .abanq and .eneboopkg packages and save them in the f
 
 from PyQt6 import QtCore  # type: ignore
 from typing import Any, List
+from pineboolib.core import decorators
 
 err_msgs_: List[str] = []
-
-
-def AQ_STRERROR(val: str) -> None:
-    """
-    Store the errors that occur in the extraction and insertion process in the table.
-    """
-
-    err_msgs_.append(val)
 
 
 class PNUnpacker(QtCore.QObject):
@@ -35,6 +28,7 @@ class PNUnpacker(QtCore.QObject):
         self.stream_ = QtCore.QDataStream(self.file_)
         self.package_version_ = self.stream_.readBytes().decode("utf-8")
 
+    @decorators.not_implemented_warn
     def errorMessages(self) -> list:
         """
         Return a list of messages with errors that have occurred.

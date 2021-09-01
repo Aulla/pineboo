@@ -173,7 +173,7 @@ def sql_select(
     select_: str,
     where_: Optional[str] = None,
     table_list_: Optional[Union[str, List, types.Array]] = None,
-    size_: int = 0,
+    size_: int = 0,  # pylint: disable=unused-argument
     conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> Any:
     """

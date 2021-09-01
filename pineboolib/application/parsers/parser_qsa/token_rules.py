@@ -107,58 +107,58 @@ tokens = (
 )
 
 # Completely ignored characters
-t_ignore = " \r\t\x0c"
+t_ignore = " \r\t\x0c"  # pylint: disable=invalid-name
 
 # Newlines
 
 
 @TOKEN(r"\n+")
-def t_NEWLINE(t):
+def t_NEWLINE(t):  # pylint: disable=invalid-name
     """Keep track of line numbers."""
     t.lexer.lineno += t.value.count("\n")
 
 
 # Operators
-t_BACKSLASH = "\\\\"
-t_DOLLAR = r"\$"
-t_SQOUTE = "'"
-t_DQOUTE = '"'
-t_PLUS = r"\+"
-t_MINUS = r"-"
-t_TIMES = r"\*"
-t_DIVIDE = r"/"
-t_MOD = r"%"
-t_OR = r"\|"
-t_AND = r"&"
+t_BACKSLASH = "\\\\"  # pylint: disable=invalid-name
+t_DOLLAR = r"\$"  # pylint: disable=invalid-name
+t_SQOUTE = "'"  # pylint: disable=invalid-name
+t_DQOUTE = '"'  # pylint: disable=invalid-name
+t_PLUS = r"\+"  # pylint: disable=invalid-name
+t_MINUS = r"-"  # pylint: disable=invalid-name
+t_TIMES = r"\*"  # pylint: disable=invalid-name
+t_DIVIDE = r"/"  # pylint: disable=invalid-name
+t_MOD = r"%"  # pylint: disable=invalid-name
+t_OR = r"\|"  # pylint: disable=invalid-name
+t_AND = r"&"  # pylint: disable=invalid-name
 # t_NOT              = r'~'
-t_XOR = r"\^"
-t_LSHIFT = r"<<"
-t_RSHIFT = r">>"
-t_LOR = r"\|\|"
-t_LAND = r"&&"
-t_LNOT = r"!"
-t_LT = r"<"
-t_GT = r">"
-t_LE = r"<="
-t_GE = r">="
-t_EQ = r"=="
-t_NE = r"!="
-t_EQQ = r"==="
-t_NEQ = r"!=="
-t_CONDITIONAL1 = r"\?"
+t_XOR = r"\^"  # pylint: disable=invalid-name
+t_LSHIFT = r"<<"  # pylint: disable=invalid-name
+t_RSHIFT = r">>"  # pylint: disable=invalid-name
+t_LOR = r"\|\|"  # pylint: disable=invalid-name
+t_LAND = r"&&"  # pylint: disable=invalid-name
+t_LNOT = r"!"  # pylint: disable=invalid-name
+t_LT = r"<"  # pylint: disable=invalid-name
+t_GT = r">"  # pylint: disable=invalid-name
+t_LE = r"<="  # pylint: disable=invalid-name
+t_GE = r">="  # pylint: disable=invalid-name
+t_EQ = r"=="  # pylint: disable=invalid-name
+t_NE = r"!="  # pylint: disable=invalid-name
+t_EQQ = r"==="  # pylint: disable=invalid-name
+t_NEQ = r"!=="  # pylint: disable=invalid-name
+t_CONDITIONAL1 = r"\?"  # pylint: disable=invalid-name
 
 # Assignment operators
 
-t_EQUALS = r"="
-t_TIMESEQUAL = r"\*="
-t_DIVEQUAL = r"/="
-t_MODEQUAL = r"%="
-t_PLUSEQUAL = r"\+="
-t_MINUSEQUAL = r"-="
+t_EQUALS = r"="  # pylint: disable=invalid-name
+t_TIMESEQUAL = r"\*="  # pylint: disable=invalid-name
+t_DIVEQUAL = r"/="  # pylint: disable=invalid-name
+t_MODEQUAL = r"%="  # pylint: disable=invalid-name
+t_PLUSEQUAL = r"\+="  # pylint: disable=invalid-name
+t_MINUSEQUAL = r"-="  # pylint: disable=invalid-name
 
 # Increment/decrement
-t_PLUSPLUS = r"\+\+"
-t_MINUSMINUS = r"--"
+t_PLUSPLUS = r"\+\+"  # pylint: disable=invalid-name
+t_MINUSMINUS = r"--"  # pylint: disable=invalid-name
 
 # ->
 # t_ARROW            = r'->'
@@ -168,18 +168,18 @@ t_MINUSMINUS = r"--"
 
 
 # Delimeters
-t_LPAREN = r"\("
-t_RPAREN = r"\)"
-t_LBRACKET = r"\["
-t_RBRACKET = r"\]"
-t_LBRACE = r"\{"
-t_RBRACE = r"\}"
-t_COMMA = r","
-t_PERIOD = r"\."
-t_SEMI = r";"
-t_COLON = r":"
+t_LPAREN = r"\("  # pylint: disable=invalid-name
+t_RPAREN = r"\)"  # pylint: disable=invalid-name
+t_LBRACKET = r"\["  # pylint: disable=invalid-name
+t_RBRACKET = r"\]"  # pylint: disable=invalid-name
+t_LBRACE = r"\{"  # pylint: disable=invalid-name
+t_RBRACE = r"\}"  # pylint: disable=invalid-name
+t_COMMA = r","  # pylint: disable=invalid-name
+t_PERIOD = r"\."  # pylint: disable=invalid-name
+t_SEMI = r";"  # pylint: disable=invalid-name
+t_COLON = r":"  # pylint: disable=invalid-name
 # t_ELLIPSIS         = r'\.\.\.'
-t_AT = r"@"
+t_AT = r"@"  # pylint: disable=invalid-name
 # Identifiers and reserved words
 
 reserved_map = {}
@@ -188,23 +188,25 @@ for r in reserved:
 
 
 @TOKEN(r"[A-Za-z_]+[\w_]*")
-def t_ID(t):
+def t_ID(t):  # pylint: disable=invalid-name
     """Get ID tokens."""
     t.type = reserved_map.get(t.value, "ID")
     return t
 
 
 # Integer literal
-t_ICONST = r"\d+([uU]|[lL]|[uU][lL]|[lL][uU])?"
+t_ICONST = r"\d+([uU]|[lL]|[uU][lL]|[lL][uU])?"  # pylint: disable=invalid-name
 
 # Floating literal
-t_FCONST = r"((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))([lL]|[fF])?"
+t_FCONST = (  # pylint: disable=invalid-name
+    r"((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))([lL]|[fF])?"
+)
 
 # String literal
-t_SCONST = r"\"([^\"\\\n]|(\\.)|\\\n)*?\""
+t_SCONST = r"\"([^\"\\\n]|(\\.)|\\\n)*?\""  # pylint: disable=invalid-name
 
 # Character constant 'c' or L'c'
-t_CCONST = r"\'([^\'\\\n]|(\\.)|\\\n)*?\'"
+t_CCONST = r"\'([^\'\\\n]|(\\.)|\\\n)*?\'"  # pylint: disable=invalid-name
 
 # REGEX constant
 # t_RXCONST = r'/[^/ ]+/g?'
@@ -213,29 +215,29 @@ t_CCONST = r"\'([^\'\\\n]|(\\.)|\\\n)*?\'"
 
 
 @TOKEN(r"(/\*( |\*\*)(.|\n)*?\*/)|(//.*)")
-def t_comment(t):
+def t_comment(t):  # pylint: disable=invalid-name
     """Keep track of line count in comments."""
     t.lexer.lineno += t.value.count("\n")
 
 
 @TOKEN(r"/\*\*[ ]+")
-def t_DOCSTRINGOPEN(t):
+def t_DOCSTRINGOPEN(t):  # pylint: disable=invalid-name
     """Return docstring for later analysis."""
     return t
 
 
 # t_COMMENTOPEN      = r'/\*'
-t_COMMENTCLOSE = r"\*/"
+t_COMMENTCLOSE = r"\*/"  # pylint: disable=invalid-name
 
 
 # Preprocessor directive (ignored)
 @TOKEN(r"\#(.)*?\n")
-def t_preprocessor(t):
+def t_preprocessor(t):  # pylint: disable=invalid-name
     """Ignored Preprocessor directive. Not used."""
     t.lexer.lineno += 1
 
 
-def t_error(t) -> None:
+def t_error(t) -> None:  # pylint: disable=invalid-name
     """Skip invalid characters and report."""
     print("Illegal character %s" % repr(t.value[0]))
     t.lexer.skip(1)

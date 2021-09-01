@@ -36,7 +36,7 @@ class ProxySlot:
         self.key = "%r.%r->%r" % (remote_fn, receiver, slot)
         if self.key not in self.PROXY_FUNCTIONS:
             self.PROXY_FUNCTIONS[self.key] = proxy_fn(
-                weakref.WeakMethod(remote_fn), weakref.ref(receiver), slot
+                weakref.WeakMethod(remote_fn), weakref.ref(receiver)
             )
         self.proxy_function = self.PROXY_FUNCTIONS[self.key]
 
@@ -61,9 +61,7 @@ def get_expected_kwargs(inspected_function: "Callable") -> bool:
     return True if inspect.getfullargspec(inspected_function)[2] else False
 
 
-def proxy_fn(
-    weak_ref_method: "weakref.WeakMethod", weak_ref: "weakref.ref", slot: str
-) -> "Callable":
+def proxy_fn(weak_ref_method: "weakref.WeakMethod", weak_ref: "weakref.ref") -> "Callable":
     """Create a proxied function, so it does not hold the garbage collector."""
 
     def function(*args: Any, **kwargs: Any) -> Optional[Any]:
@@ -89,12 +87,7 @@ def proxy_fn(
     return function
 
 
-def slot_done(
-    function: Callable,
-    signal: "QtCore.pyqtSignal",
-    sender: "QtWidgets.QWidget",
-    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.ObjectClass"]] = None,
-) -> Callable:
+def slot_done(function: Callable, signal: "QtCore.pyqtSignal") -> Callable:
     """Create a fake slot for QS connects."""
 
     def new_fn(*args: Any, **kwargs: Any) -> Any:
@@ -151,7 +144,7 @@ def connect(
     new_signal, new_slot = signal_slot
 
     try:
-        slot_done_fn: Callable = slot_done(new_slot, new_signal, sender, caller)
+        slot_done_fn: Callable = slot_done(new_slot, new_signal)
         # MyPy/PyQt6-Stubs misses connect(type=param)
 
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore [attr-defined] # noqa: F821
@@ -172,11 +165,7 @@ def connect(
 
 
 def disconnect(
-    sender: "QtWidgets.QWidget",
-    signal: str,
-    receiver: "QtCore.QObject",
-    slot: str,
-    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.ObjectClass"]] = None,
+    sender: "QtWidgets.QWidget", signal: str, receiver: "QtCore.QObject", slot: str
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Disconnect signal from slot for QSA."""
     signal_slot = solve_connection(sender, signal, receiver, slot)

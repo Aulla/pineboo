@@ -78,6 +78,8 @@ def massive(value: int):
 
 @qsa.atomic()  # type: ignore [misc] # noqa: F821
 def prueba(value: int):
+    """Prueba function."""
+
     mng_ = application.PROJECT.conn_manager
 
     key = utils_base.session_id("default")
@@ -93,6 +95,7 @@ def prueba(value: int):
 
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba2():
+    """Prueba2 function."""
     mng_ = application.PROJECT.conn_manager
 
     key = utils_base.session_id("dbaux")
@@ -106,5 +109,6 @@ def prueba2():
 
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba3():
+    """Prueba3 function."""
     obj_ = qsa.orm.fltest4()
     return obj_.session == qsa.session_atomic("dbaux")

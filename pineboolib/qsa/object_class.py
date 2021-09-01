@@ -29,7 +29,7 @@ class ObjectClass(object):
 
         # print(" > > > disconnect:", self)
 
-        signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
+        signal_slot = connections.disconnect(sender, signal, receiver, slot)
         if not signal_slot:
             return
 

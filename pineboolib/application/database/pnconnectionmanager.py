@@ -50,8 +50,8 @@ class PNConnectionManager(QtCore.QObject):
         self._thread_sessions = {}
         self._manager = None
         self._manager_modules = None
-        self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
-        self.SAFE_TIME_SLEEP = 0.01
+        self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False  # pylint: disable=invalid-name
+        self.SAFE_TIME_SLEEP = 0.01  # pylint: disable=invalid-name
         self.safe_mode_level = 0
         self._drivers_sql_manager = pnsqldriversmanager.PNSqlDriversManager()
 

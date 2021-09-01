@@ -7,6 +7,8 @@ from pineboolib.qsa import qsa
 
 
 class TestPNAction(unittest.TestCase):
+    """TestPNAction class."""
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""

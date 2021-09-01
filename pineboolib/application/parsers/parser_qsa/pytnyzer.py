@@ -2297,7 +2297,7 @@ class Identifier(ASTPython):
         yield "expr", name
 
 
-class regex(ASTPython):
+class regex(ASTPython):  # pylint: disable=invalid-name
     """Process regex XML tags."""
 
     DEBUGFILE_LEVEL = 10
@@ -2315,7 +2315,7 @@ class regex(ASTPython):
                 yield "expr", data
 
 
-class regexbody(ASTPython):
+class regexbody(ASTPython):  # pylint: disable=invalid-name
     """Process regexbody XML tags."""
 
     DEBUGFILE_LEVEL = 10
@@ -2328,7 +2328,7 @@ class regexbody(ASTPython):
                 yield "expr", data
 
 
-class regexchar(ASTPython):
+class regexchar(ASTPython):  # pylint: disable=invalid-name
     """Process regexchar XML tags."""
 
     DEBUGFILE_LEVEL = 10
@@ -2635,7 +2635,7 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
 
 
 def expression_template(
-    ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}
+    ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}  # pylint: disable=unused-argument
 ) -> ASTGenerator:
     """Create a new file template."""
 

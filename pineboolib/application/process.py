@@ -125,8 +125,8 @@ class Process(ProcessBaseClass):
         # cast(pyqtSignal, self.readyReadStandardOutput).connect(self.stdoutReady)
         # cast(pyqtSignal, self.readyReadStandardError).connect(self.stderrReady)
         self._encoding = sys.getfilesystemencoding()
-        self.normalExit = self.ExitStatus.NormalExit
-        self.crashExit = self.ExitStatus.CrashExit
+        self.normalExit = self.ExitStatus.NormalExit  # pylint: disable=invalid-name
+        self.crashExit = self.ExitStatus.CrashExit  # pylint: disable=invalid-name
 
         if args:
             self.setProgram(args[0])

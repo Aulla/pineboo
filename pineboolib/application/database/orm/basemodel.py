@@ -119,7 +119,7 @@ class BaseModel(object):
 
     def _common_init(self) -> None:
         """Initialize."""
-        self.bufferChanged = dummy_signal.FakeSignal(self)
+        self.bufferChanged = dummy_signal.FakeSignal(self)  # pylint: disable=invalid-name
         self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():

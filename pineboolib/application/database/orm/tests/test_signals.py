@@ -14,7 +14,7 @@ VALUE_5 = None
 
 
 def update_value(field_name: str) -> None:
-    """Update test value."""
+    """Update test value 1."""
 
     global VALUE_1, VALUE_2
 
@@ -23,7 +23,7 @@ def update_value(field_name: str) -> None:
 
 
 def update_value_2() -> None:
-    """Update test value"""
+    """Update test value 2."""
 
     global VALUE_1
 
@@ -31,7 +31,7 @@ def update_value_2() -> None:
 
 
 def update_value_3(field_name: str = "", cursor=None) -> None:
-    """Update test value"""
+    """Update test value 3."""
 
     global VALUE_3
 
@@ -39,6 +39,7 @@ def update_value_3(field_name: str = "", cursor=None) -> None:
 
 
 def update_value_4(field_name: str = "", cursor=None) -> None:
+    """Update test value 4."""
 
     global VALUE_4, VALUE_5
 

@@ -983,8 +983,8 @@ class TextEditOutput(QtWidgets.QPlainTextEdit):
         """Inicialize."""
         super().__init__(parent)
 
-        self.oldStdout = sys.stdout
-        self.oldStderr = sys.stderr
+        self.oldStdout = sys.stdout  # pylint: disable=invalid-name
+        self.oldStderr = sys.stderr  # pylint: disable=invalid-name
         sys.stdout = self  # type: ignore [assignment] # noqa F821
         sys.stderr = self  # type: ignore [assignment] # noqa F821
 

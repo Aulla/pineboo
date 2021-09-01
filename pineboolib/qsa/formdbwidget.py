@@ -62,7 +62,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         # print(" > > > disconnect:", self)
 
-        signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
+        signal_slot = connections.disconnect(sender, signal, receiver, slot)
         if signal_slot:
             for conn_ in self._formconnections:
                 # PyQt6-Stubs misses signal.signal

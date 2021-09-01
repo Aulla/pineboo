@@ -21,12 +21,12 @@ TEMP_DIR = tempfile.gettempdir()
 
 # Get the token map
 tokens = token_rules.tokens
-start = "source"
+start = "source"  # pylint: disable=invalid-name
 
 reserv = ["nonassoc"]
 reserv += list(token_rules.reserved)
 
-endoffile = None
+endoffile = None  # pylint: disable=invalid-name
 
 hashes: List[Tuple[str, str]] = []
 ranges: List[List[Any]] = []
@@ -55,12 +55,12 @@ LAST_ERROR_LINE = -1
 OK_COUNT = 0
 
 
-def cleanNoPython(data: str) -> str:
+def clean_no_python(data: str) -> str:
     """Remove NOPYTHON blocks."""
     return re.sub(r"\/\/___NOPYTHON\[\[.*?\/\/\]\]___NOPYTHON\s*", "", data, flags=re.DOTALL)
 
 
-def cleanNoPythonNever(data: str) -> str:
+def clean_no_python_never(data: str) -> str:
     """Remove NOPYTHON_NEVER blocks."""
     return re.sub(
         r"\/\/___NOPYTHON_NEVER\[\[.*?\/\/\]\]___NOPYTHON_NEVER\s*", "", data, flags=re.DOTALL
@@ -91,7 +91,7 @@ def p_parse(token: Any) -> None:
     # ]
     if len(lexspan) == 2:
         fromline = token.lineno(0)
-        global endoffile
+        global endoffile  # pylint: disable=invalid-name
         endoffile = fromline, lexspan, token.slice[0]
     # print(repr(token.slice), context, lexspan)
 
@@ -185,7 +185,7 @@ def p_error(text: Any) -> Any:
     if text is None:
         if LAST_ERROR_TOKEN != "EOF":
             print("ERROR: End of the file reached.")
-            global endoffile
+            global endoffile  # pylint: disable=invalid-name
             print("Last data:", endoffile)
 
             if LAST_LEXSPAN:
@@ -720,7 +720,7 @@ def printtree(
     output: TextIO = sys.stdout,
 ) -> Tuple[Any, Any, Any]:
     """Export AST into different formats, mainly used for XML export."""
-    global hashes, ranges
+    global hashes, ranges  # pylint: disable=invalid-name
     if depth == 0:
         hashes = []
         ranges = []
@@ -736,7 +736,7 @@ def printtree(
     nuevalinea = False
     name = ""
     lines: List[str] = []
-    L = 0
+    L = 0  # pylint: disable=invalid-name
 
     for ctype, value in tree["content"]:
         if nuevalinea:
@@ -756,9 +756,9 @@ def printtree(
 
                 lines += tlines
             else:
-                L = 0
+                L = 0  # pylint: disable=invalid-name
                 if ctype in marginblocks:
-                    L = marginblocks[ctype]
+                    L = marginblocks[ctype]  # pylint: disable=invalid-name
 
                 for i in range(int(math.floor(L / 2.0))):
                     lines.append(sep * depth)
@@ -837,9 +837,9 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     global SEEN_TOKENS
 
     if clean:
-        data = cleanNoPythonNever(data)
+        data = clean_no_python_never(data)
         if utils_base.is_library():
-            data = cleanNoPython(data)
+            data = clean_no_python(data)
     SEEN_TOKENS[:] = []
     parser.error = 0
     INPUT_DATA = data
@@ -864,7 +864,7 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
 
 def main() -> None:
     """Manage direct script calls for flscriptparse. Deprecated."""
-    global start
+    global start  # pylint: disable=invalid-name
     parser = optparse.OptionParser()
     parser.add_option(
         "-O",
@@ -932,7 +932,7 @@ def main() -> None:
     prog: Dict[str, Any]
     if len(args) > 0:
         for filename in args:
-            fs = filename.split("/")
+            fs = filename.split("/")  # pylint: disable=invalid-name
             sys.stderr.write("Loading %s ..." % fs[-1])
             sys.stderr.flush()
             data = open(filename).read()

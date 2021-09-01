@@ -124,6 +124,7 @@ class TestConsistency(unittest.TestCase):
 
 
 def atomica():
+    """Atomica function test."""
     obj_area = qsa.orm.flareas()
     obj_area.idarea = "A"
     obj_area.descripcion = "Area A"
