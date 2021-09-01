@@ -1,4 +1,4 @@
-pineboolib.plugins (9.98/10)
+pineboolib.plugins (10/10)
 ===================================
 
 .. raw:: html

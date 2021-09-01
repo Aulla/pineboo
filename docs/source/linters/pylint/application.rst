@@ -1,4 +1,4 @@
-pineboolib.application (9.95/10)
+pineboolib.application (10/10)
 ===========================================
 
 .. raw:: html

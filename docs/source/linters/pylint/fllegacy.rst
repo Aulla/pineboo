@@ -1,4 +1,4 @@
-pineboolib.fllegacy (9.97/10)
+pineboolib.fllegacy (10/10)
 =========================================
 
 .. raw:: html
