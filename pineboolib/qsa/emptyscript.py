@@ -4,7 +4,7 @@
 from . import formdbwidget
 
 
-class interna(object):
+class interna(object):  # pylint: disable=invalid-name
     """Interna class."""
 
     ctx: "FormInternalObj"
@@ -20,7 +20,7 @@ class interna(object):
         self.ctx.interna_init()
 
 
-class oficial(interna):
+class oficial(interna):  # pylint: disable=invalid-name
     """Oficial class."""
 
     def __init__(self, context: "FormInternalObj") -> None:
@@ -29,7 +29,7 @@ class oficial(interna):
         super().__init__(context)
 
 
-class head(oficial):
+class head(oficial):  # pylint: disable=invalid-name
     """Head class."""
 
     def __init__(self, context: "FormInternalObj") -> None:
@@ -38,7 +38,7 @@ class head(oficial):
         super().__init__(context)
 
 
-class ifaceCtx(head):
+class ifaceCtx(head):  # pylint: disable=invalid-name
     """IfaceCtx class."""
 
     def __init__(self, context: "FormInternalObj") -> None:

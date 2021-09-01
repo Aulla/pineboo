@@ -111,10 +111,10 @@ Number = NUMBER_ATT
 
 
 QFile = File
-util = FLUtil
+util = FLUtil  # pylint: disable=invalid-name
 print_ = print
 
 
-undefined = None
-LogText = 0
-RichText = 1
+undefined = None  # pylint: disable=invalid-name
+LogText = 0  # pylint: disable=invalid-name
+RichText = 1  # pylint: disable=invalid-name
