@@ -630,7 +630,7 @@ class Project(object):
 
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
-        for idmodulo, nombre, sha, contenido in list(result_files):
+        for idmodulo, nombre, sha, contenido_or_bloqueo in list(result_files):
 
             if idmodulo not in self.modules.keys():  # Si el módulo no existe.
                 continue
@@ -659,6 +659,8 @@ class Project(object):
                 else:
                     os.makedirs(fileobjdir)
 
+                contenido_content: Optional[str] = None
+
                 if not static_flfiles:
                     qry = conn.execute_query(
                         """SELECT contenido FROM flfiles WHERE sha = %s AND nombre = %s """
@@ -672,11 +674,12 @@ class Project(object):
                     if qry is not None:
                         result_content = qry.first()
 
-                    contenido_content: Optional[str] = None
                     if result_content is not None:
                         contenido_content = result_content[
                             0
                         ]  # Recogemos verdadero contenido_content. cuando usamos flfiles. más rpapido conexiones lentas.
+                else:
+                    contenido_content = contenido_or_bloqueo
 
                 if contenido_content is not None:
                     encode_ = "UTF-8" if str(nombre).endswith((".ts", ".py")) else "ISO-8859-15"
