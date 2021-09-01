@@ -186,6 +186,18 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     return self.replace(cadena, searchValue, newValue)\n""",
         )
 
+    def test_optional(self) -> None:
+        """Test optional."""
+
+        self.assertEqual(
+            qs2py(
+                "function pub_replace(cadena:String, searchValue:Number, newValue:optional)"
+                + " {\nreturn this.replace(cadena, searchValue, newValue);\n}"
+            ),
+            """def pub_replace(self, cadena: "str", searchValue, newValue: "Any" = None):
+    return self.replace(cadena, searchValue, newValue)\n""",
+        )
+
     def test_sort_1(self) -> None:
         """Test replace."""
 
