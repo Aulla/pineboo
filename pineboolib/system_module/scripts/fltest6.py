@@ -7,4 +7,4 @@ class Prueba(object):
     pass
 
 
-public_class = "Prueba"
+public_class = "Prueba"  # pylint: disable=invalid-name

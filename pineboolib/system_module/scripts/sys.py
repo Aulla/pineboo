@@ -29,31 +29,33 @@ class FormInternalObj(qsa.FormDBWidget):
             return
 
         if qsa.SysType().isLoadedModule("flfactppal"):
-            codEjercicio = None
+            cod_ejercicio = None
             try:
-                codEjercicio = qsa.from_project("flfactppal").iface.pub_ejercicioActual()
-            except Exception as e:
+                cod_ejercicio = qsa.from_project("flfactppal").iface.pub_ejercicioActual()
+            except Exception as error:
                 LOGGER.error(
                     "Module flfactppal was loaded but not able to execute <flfactppal.iface.pub_ejercicioActual()>"
                 )
                 LOGGER.error(
                     "... this usually means that flfactppal has failed translation to python"
                 )
-                LOGGER.exception(e)
+                LOGGER.exception(error)
 
-            if codEjercicio:
+            if cod_ejercicio:
                 util = qsa.FLUtil()
-                nombreEjercicio = util.sqlSelect(
-                    u"ejercicios", u"nombre", qsa.ustr(u"codejercicio='", codEjercicio, u"'")
+                nombre_ejercicio = util.sqlSelect(
+                    u"ejercicios", u"nombre", qsa.ustr(u"codejercicio='", cod_ejercicio, u"'")
                 )
                 if qsa.AQUtil.sqlSelect(u"flsettings", u"valor", u"flkey='PosInfo'") == "True":
                     texto = ""
-                    if nombreEjercicio:
-                        texto = qsa.ustr(u"[ ", nombreEjercicio, u" ]")
+                    if nombre_ejercicio:
+                        texto = qsa.ustr(u"[ ", nombre_ejercicio, u" ]")
                     texto = qsa.ustr(
                         texto,
                         u" [ ",
-                        app_.db().driverNameToDriverAlias(app_.db().driverName()),
+                        app_.db()
+                        .mainConn()
+                        .driverNameToDriverAlias(app_.db().mainConn().driverName()),
                         u" ] * [ ",
                         qsa.SysType().nameBD(),
                         u" ] * [ ",
@@ -63,8 +65,8 @@ class FormInternalObj(qsa.FormDBWidget):
                     app_.setCaptionMainWidget(texto)
 
                 else:
-                    if nombreEjercicio:
-                        app_.setCaptionMainWidget(nombreEjercicio)
+                    if nombre_ejercicio:
+                        app_.setCaptionMainWidget(nombre_ejercicio)
 
                 if not settings.readBoolEntry(u"application/oldApi", False):
                     valor = util.readSettingEntry(u"ebcomportamiento/ebCallFunction")

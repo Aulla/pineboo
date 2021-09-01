@@ -270,18 +270,18 @@ class FormInternalObj(qsa.FormDBWidget):
             if tdb_lineas is None:
                 raise Exception("lineas control not found")
 
-            curFiles = tdb_lineas.cursor()
+            cur_files = tdb_lineas.cursor()
             cur_modules = qsa.FLSqlCursor(u"flmodules")
-            cursorAreas = qsa.FLSqlCursor(u"flareas")
-            if curFiles.size() != 0:
+            cur_areas = qsa.FLSqlCursor(u"flareas")
+            if cur_files.size() != 0:
                 dir = qsa.Dir()
-                idModulo = self.cursor().valueBuffer(u"idmodulo")
+                id_modulo = self.cursor().valueBuffer(u"idmodulo")
                 log = self.child(u"log")
                 if log is None:
                     raise Exception("Log control not found!.")
 
                 log.text = u""
-                directorio = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", idModulo))
+                directorio = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", id_modulo))
                 if not dir.fileExists(directorio):
                     dir.mkdir(directorio)
                 if not dir.fileExists(qsa.ustr(directorio, u"/forms")):
@@ -296,17 +296,17 @@ class FormInternalObj(qsa.FormDBWidget):
                     dir.mkdir(qsa.ustr(directorio, u"/reports"))
                 if not dir.fileExists(qsa.ustr(directorio, u"/translations")):
                     dir.mkdir(qsa.ustr(directorio, u"/translations"))
-                curFiles.first()
+                cur_files.first()
                 # file = None
                 # tipo = None
                 # contenido = ""
                 self.setDisabled(True)
                 s01_dowhile_1stloop = True
-                while s01_dowhile_1stloop or curFiles.next():
+                while s01_dowhile_1stloop or cur_files.next():
                     s01_dowhile_1stloop = False
-                    file_name = curFiles.valueBuffer(u"nombre")
+                    file_name = cur_files.valueBuffer(u"nombre")
                     tipo = self.file_type(file_name)
-                    contenido = curFiles.valueBuffer(u"contenido")
+                    contenido = cur_files.valueBuffer(u"contenido")
                     if contenido:
                         codec: str = ""
                         if tipo in [
@@ -358,13 +358,13 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     # qsa.sys.processEvents()
 
-                cur_modules.select(qsa.ustr(u"idmodulo = '", idModulo, u"'"))
+                cur_modules.select(qsa.ustr(u"idmodulo = '", id_modulo, u"'"))
                 if cur_modules.first():
-                    cursorAreas.select(
+                    cur_areas.select(
                         qsa.ustr(u"idarea = '", cur_modules.valueBuffer(u"idarea"), u"'")
                     )
-                    cursorAreas.first()
-                    name_area = cursorAreas.valueBuffer(u"descripcion")
+                    cur_areas.first()
+                    name_area = cur_areas.valueBuffer(u"descripcion")
                     if not qsa.FileStatic.exists(
                         qsa.ustr(directorio, u"/", cur_modules.valueBuffer(u"idmodulo"), u".xpm")
                     ):
