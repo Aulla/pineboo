@@ -22,10 +22,10 @@ LOGGER = logging.get_logger(__name__)
 class TableType(Enum):
     """TableType class."""
 
-    Tables: int = 1
-    SystemTables: int = 2
-    Views: int = 3
-    AllTables: int = 0
+    Tables: int = 1  # pylint: disable=invalid-name
+    SystemTables: int = 2  # pylint: disable=invalid-name
+    Views: int = 3  # pylint: disable=invalid-name
+    AllTables: int = 0  # pylint: disable=invalid-name
 
 
 class AQSql(object):
@@ -40,10 +40,10 @@ class AQSql(object):
     class TableType(IntEnum):
         """TableType class."""
 
-        Tables = 0x01
-        SystemTables = 0x02
-        Views = 0x04
-        AllTables = 0xFF
+        Tables = 0x01  # pylint: disable=invalid-name
+        SystemTables = 0x02  # pylint: disable=invalid-name
+        Views = 0x04  # pylint: disable=invalid-name
+        AllTables = 0xFF  # pylint: disable=invalid-name
 
     @classmethod
     def database(self, connection_name: str = "default") -> "iconnection.IConnection":

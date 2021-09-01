@@ -21,7 +21,7 @@ class FLDateEdit(qdateedit.QDateEdit):
         """Inicialize."""
 
         super().__init__(parent, name)
-        self.DMY = "dd-MM-yyyy"
+        self.DMY = "dd-MM-yyyy"  # pylint: disable=invalid-name
         self.setMinimumWidth(90)
         # self.setMaximumWidth(90)
         self._parent = parent

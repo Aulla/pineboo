@@ -123,12 +123,12 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.setCursor(cursor)
         LOGGER.trace("__init__: load formRecord")
         self._ui_name = action.formRecord()
-        self.pushButtonAccept = None
-        self.pushButtonAcceptContinue = None
-        self.pushButtonFirst = None
-        self.pushButtonPrevious = None
-        self.pushButtonNext = None
-        self.pushButtonLast = None
+        self.pushButtonAccept = None  # pylint: disable=invalid-name
+        self.pushButtonAcceptContinue = None  # pylint: disable=invalid-name
+        self.pushButtonFirst = None  # pylint: disable=invalid-name
+        self.pushButtonPrevious = None  # pylint: disable=invalid-name
+        self.pushButtonNext = None  # pylint: disable=invalid-name
+        self.pushButtonLast = None  # pylint: disable=invalid-name
 
         self.accepting = False
         self._show_accept_continue = True
@@ -231,7 +231,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
-            pushButtonExport = QtWidgets.QToolButton()
+            pushButtonExport = QtWidgets.QToolButton()  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)

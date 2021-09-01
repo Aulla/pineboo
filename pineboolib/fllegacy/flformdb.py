@@ -230,9 +230,9 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         self.setLayout(self.layout_)
 
-        self.pushButtonCancel = None
-        self.toolButtonClose = None
-        self.bottomToolbar = QtWidgets.QFrame()
+        self.pushButtonCancel = None  # pylint: disable=invalid-name
+        self.toolButtonClose = None  # pylint: disable=invalid-name
+        self.bottomToolbar = QtWidgets.QFrame()  # pylint: disable=invalid-name
         # self.cursor_ = None
         self._init_focus_widget = None
         self._showed = False
@@ -634,7 +634,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
-            pushButtonExport = QtWidgets.QToolButton()
+            pushButtonExport = QtWidgets.QToolButton()  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)

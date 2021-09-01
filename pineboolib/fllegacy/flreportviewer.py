@@ -81,9 +81,9 @@ class FLReportViewer(QtWidgets.QWidget):
         self.embed_in_parent = True if parent and embed_in_parent else False
         self.ui_: Dict[str, QtCore.QObject] = {}
 
-        self.Display = 1
-        self.Append = 1
-        self.PageBreak = 1
+        self.Display = 1  # pylint: disable=invalid-name
+        self.Append = 1  # pylint: disable=invalid-name
+        self.PageBreak = 1  # pylint: disable=invalid-name
         self._report_engine = report_engine or FLReportEngine(self)
         self._w = None
 

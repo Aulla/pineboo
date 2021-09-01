@@ -2849,7 +2849,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not self._auto_com_popup.hasFocus():
                     cval = str(cur.valueBuffer(self._auto_com_field_name))
                     val = editor.text
-                    editor.autoSelect = False
+                    editor.autoSelect = False  # pylint: disable=invalid-name
                     editor.setText(cval)
                     editor.setFocus()
                     editor.setCursorPosition(len(cval))

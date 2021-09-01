@@ -100,7 +100,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self._in_exec = False
         self.loop = False
         self._accepting_rejecting = False
-        self.pushButtonAccept = None
+        self.pushButtonAccept = None  # pylint: disable=invalid-name
 
         self.load()
         self.initForm()
@@ -139,7 +139,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         push_button_size = self._icon_size
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
-            pushButtonExport = QtWidgets.QToolButton(self)
+            pushButtonExport = QtWidgets.QToolButton(self)  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)
