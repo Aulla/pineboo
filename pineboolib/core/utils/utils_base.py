@@ -102,7 +102,7 @@ def one(list_: List[T1], default: Any = None) -> Optional[T1]:
 
 
 def traceit(
-    frame: types.FrameType, event: str, arg: Any
+    frame: types.FrameType, event: str, arg: Any  # pylint: disable=unused-argument
 ) -> Callable[[types.FrameType, str, Any], Any]:
     """
     Print a trace line for each Python line executed or call.
