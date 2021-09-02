@@ -14,7 +14,7 @@ import re
 from typing import Callable, Any, Dict, Tuple, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import types
+    import types  # pragma: no cover
     from pineboolib.qsa import formdbwidget  # noqa F401 # pragma: no cover
     from pineboolib.qsa import object_class  # noqa F401 # pragma: no cover
 
@@ -67,10 +67,10 @@ def proxy_fn(weak_ref_method: "weakref.WeakMethod", weak_ref: "weakref.ref") -> 
     def function(*args: Any, **kwargs: Any) -> Optional[Any]:
         function_method = weak_ref_method()
         if not function_method:
-            return None
+            return None  # pragma: no cover
         ref = weak_ref()
         if not ref:
-            return None
+            return None  # pragma: no cover
 
         args_num = get_expected_args_num(function_method)
 
@@ -98,14 +98,14 @@ def slot_done(function: Callable, signal: "QtCore.pyqtSignal") -> Callable:
         # Este parche es para evitar que las conexiones de un clicked de error de cantidad de argumentos.
         # En Eneboo se esperaba que signal no contenga argumentos
         if original_signal_name == "2clicked(bool)":
-            args = tuple()
+            args = tuple()  # pragma: no cover
         # args_num = get_expected_args_num(fn)
         try:
             return function(*args, **kwargs) if get_expected_kwargs(function) else function(*args)
-        except Exception:
-            LOGGER.exception("Error trying to create a connection")
+        except Exception:  # pragma: no cover
+            LOGGER.exception("Error trying to create a connection")  # pragma: no cover
 
-        return False
+        return False  # pragma: no cover
 
     return new_fn
 
@@ -129,7 +129,9 @@ def connect(
     if caller is not None:
         LOGGER.trace("* * * Connect:: %s %s %s %s %s", caller, sender, signal, receiver, slot)
     else:
-        LOGGER.trace("? ? ? Connect:: %s %s %s %s", sender, signal, receiver, slot)
+        LOGGER.trace(
+            "? ? ? Connect:: %s %s %s %s", sender, signal, receiver, slot
+        )  # pragma: no cover
     signal_slot = solve_connection(sender, signal, receiver, slot)
 
     if not signal_slot:
@@ -148,8 +150,8 @@ def connect(
         # MyPy/PyQt6-Stubs misses connect(type=param)
 
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore [attr-defined] # noqa: F821
-    except Exception as error:
-        LOGGER.warning(
+    except Exception as error:  # pragma: no cover
+        LOGGER.warning(  # pragma: no cover
             "ERROR Connecting: %s %s %s %s - %s error:%s",
             sender,
             signal,
@@ -158,7 +160,7 @@ def connect(
             error,
             conntype,
         )
-        return None
+        return None  # pragma: no cover
 
     signal_slot = new_signal, slot_done_fn
     return signal_slot
@@ -169,13 +171,14 @@ def disconnect(
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Disconnect signal from slot for QSA."""
     signal_slot = solve_connection(sender, signal, receiver, slot)
-    if not signal_slot:
-        return None
-    signal_, real_slot = signal_slot
-    try:
-        signal_.disconnect(real_slot)  # type: ignore [attr-defined] # noqa: F821
-    except Exception:
-        LOGGER.trace("Error disconnecting %r", (sender, signal, receiver, slot), exc_info=True)
+    if signal_slot:
+        signal_, real_slot = signal_slot
+        try:
+            signal_.disconnect(real_slot)  # type: ignore [attr-defined] # noqa: F821
+        except Exception:  # pragma: no cover
+            LOGGER.trace(
+                "Error disconnecting %r", (sender, signal, receiver, slot), exc_info=True
+            )  # pragma: no cover
 
     return signal_slot
 
@@ -218,10 +221,10 @@ def solve_connection(
         )
 
     if not original_signal:
-        LOGGER.error(
+        LOGGER.error(  # pragma: no cover
             "ERROR: No existe la señal %s para la clase %s", signal, sender.__class__.__name__
         )
-        return None
+        return None  # pragma: no cover
 
     if remote_fn is not None:
 
@@ -245,7 +248,7 @@ def solve_connection(
                 if iface:
                     original_slot = getattr(iface, slot, None)
             if not original_slot:
-                LOGGER.error(
+                LOGGER.error(  # pragma: no cover
                     "Al realizar connect %s:%s -> %s:%s ; "
                     "el es QtCore.QObject pero no tiene slot",
                     sender,
@@ -253,5 +256,5 @@ def solve_connection(
                     receiver,
                     slot,
                 )
-                return None
+                return None  # pragma: no cover
             return original_signal, original_slot

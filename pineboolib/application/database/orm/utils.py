@@ -208,19 +208,19 @@ class DynamicFilter(object):
                 elif len(raw) == 5:
                     extra_filter, func_, key, option, value = raw
                 else:
-                    raise Exception("arguments length error", raw)
+                    raise Exception("arguments length error", raw)  # pragma: no cover
 
-            except ValueError:
-                raise Exception("Invalid filter: %s" % raw)
+            except ValueError:  # pragma: no cover
+                raise Exception("Invalid filter: %s" % raw)  # pragma: no cover
             column = getattr(model_class, key, None)
             try:
                 if func_:
                     func_class = getattr(sqlalchemy.func, func_)
-            except Exception:
-                raise Exception("Error parsing func_")
+            except Exception:  # pragma: no cover
+                raise Exception("Error parsing func_")  # pragma: no cover
 
-            if not column:
-                raise Exception("Invalid filter column: %s" % key, raw)
+            if not column:  # pragma: no cover
+                raise Exception("Invalid filter column: %s" % key, raw)  # pragma: no cover
             if option == "in":
                 if isinstance(value, list):  # type: ignore [unreachable] # noqa: F821
                     filt = column.in_(value)  # type: ignore [unreachable] # noqa: F821
@@ -234,8 +234,8 @@ class DynamicFilter(object):
                         )[0]
                         % option
                     )
-                except IndexError:
-                    raise Exception("Invalid filter operator: %s" % option)
+                except IndexError:  # pragma: no cover
+                    raise Exception("Invalid filter operator: %s" % option)  # pragma: no cover
                 if value == "null":
                     value = ""
 
@@ -245,7 +245,7 @@ class DynamicFilter(object):
                 if extra_filter == "or":
                     filt = sqlalchemy.or_(filt)
                 else:
-                    raise Exception("Unknown extra filter", extra_filter)
+                    raise Exception("Unknown extra filter", extra_filter)  # pragma: no cover
 
             query_ = query_.filter(filt)
 
