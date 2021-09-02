@@ -56,8 +56,12 @@ as the module selector, or each of the main windows of the modules.
 @author InfoSiAL S.L.
 """
 
-from PyQt6 import QtXml
-from typing import List, Dict, Any, Optional
+
+from typing import List, Dict, Optional, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt6 import QtXml, QtWidgets  # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
 
 
 class PNAccessControl(object):
@@ -274,7 +278,10 @@ class PNAccessControl(object):
 
         return acos
 
-    def processObject(self, obj: Any) -> None:
+    def processObject(
+        self,
+        obj: Union["QtWidgets.QMainWindow", "QtWidgets.QWidget", "pntablemetadata.PNTableMetaData"],
+    ) -> None:
         """Process object overload function."""
 
         return None

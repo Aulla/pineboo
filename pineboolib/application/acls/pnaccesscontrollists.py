@@ -9,7 +9,7 @@ from PyQt6 import QtCore, QtXml  # type: ignore[import]
 from pineboolib import application
 
 from pineboolib.application.database import pnsqlquery
-
+from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrolfactory
 
 from pineboolib import logging
@@ -18,10 +18,9 @@ from typing import Dict, Optional, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from . import pnaccesscontrol  # pragma: no cover
     from PyQt6 import QtWidgets  # pragma: no cover
-    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
 
 
-LOGGER = logging.get_logger(__name__)
+LOGGER: "logging.Logger" = logging.get_logger(__name__)
 
 
 class PNAccessControlLists(object):
@@ -130,11 +129,11 @@ class PNAccessControlLists(object):
 
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        name_ = (
-            obj.name() if hasattr(obj, "name") else obj.objectName()  # type: ignore [union-attr]
-        )
+        name_: str = obj.name() if isinstance(
+            obj, pntablemetadata.PNTableMetaData
+        ) else obj.objectName()
 
-        user_ = application.PROJECT.conn_manager.mainConn().user()
+        user_: str = application.PROJECT.conn_manager.mainConn().user()
 
         if "" in (type_, name_, user_):
             return None
@@ -207,10 +206,9 @@ class PNAccessControlLists(object):
         if not dom_document:
             return None
 
-        if qry.value(5):
-            self.make_rule_group(qry, dom_document, str(qry.value(4)))
-        else:
-            self.make_rule_user(qry, dom_document, str(qry.value(3)))
+        self.make_rule_group(qry, dom_document, str(qry.value(4))) if qry.value(
+            5
+        ) else self.make_rule_user(qry, dom_document, str(qry.value(3)))
 
     def make_rule_user(
         self,
@@ -233,28 +231,30 @@ class PNAccessControlLists(object):
         if not dom_document:
             return None
 
-        rule = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
-        if rule:
-            rule.setName(str(qry.value(2)))
-            rule.setUser(iduser)
-            rule.setPerm(str(qry.value(6)))
+        rule: "pnaccesscontrol.PNAccessControl" = pnaccesscontrolfactory.PNAccessControlFactory().create(
+            str(qry.value(1))
+        )
 
-            qry_acos = pnsqlquery.PNSqlQuery()
-            qry_acos.setTablesList("flacos")
-            qry_acos.setSelect("nombre,permiso")
-            qry_acos.setFrom("flacos")
-            qry_acos.setWhere("idac ='%s'" % qry.value(0))
-            qry_acos.setForwardOnly(True)
+        rule.setName(str(qry.value(2)))
+        rule.setUser(iduser)
+        rule.setPerm(str(qry.value(6)))
 
-            acos = []
+        qry_acos = pnsqlquery.PNSqlQuery()
+        qry_acos.setTablesList("flacos")
+        qry_acos.setSelect("nombre,permiso")
+        qry_acos.setFrom("flacos")
+        qry_acos.setWhere("idac ='%s'" % qry.value(0))
+        qry_acos.setForwardOnly(True)
 
-            if qry_acos.exec_():
-                while qry_acos.next():
-                    acos.append(str(qry_acos.value(0)))
-                    acos.append((qry_acos.value(1)))
+        acos = []
 
-            rule.setAcos(acos)
-            rule.get(dom_document)
+        if qry_acos.exec_():
+            while qry_acos.next():
+                acos.append(str(qry_acos.value(0)))
+                acos.append((qry_acos.value(1)))
+
+        rule.setAcos(acos)
+        rule.get(dom_document)
 
     def make_rule_group(
         self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument, idgroup: str = ""
@@ -269,7 +269,7 @@ class PNAccessControlLists(object):
         @param d DOM / XML document in which the nodes that describe the access control rules will be inserted.
         @param idgroup Identifier of the user group.
         """
-        if idgroup == "" or not qry or not dom_document:
+        if not idgroup or not qry or not dom_document:
             return
 
         qry_users = pnsqlquery.PNSqlQuery()

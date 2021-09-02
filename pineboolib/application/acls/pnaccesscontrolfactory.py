@@ -4,17 +4,18 @@ PNAccessControlFactory Module.
 
 Manage ACLs between different application objects.
 """
+
 from PyQt6 import QtWidgets, QtGui  # type: ignore[import]
 
 from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
 
 
-from typing import Dict, Union, cast
+from typing import Dict, Union, cast, List
 
-import logging
+from pineboolib import logging
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: "logging.Logger" = logging.get_logger(__name__)
 
 
 class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
@@ -25,7 +26,9 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
 
         return "mainwindow"
 
-    def processObject(self, main_window: "QtWidgets.QMainWindow") -> None:
+    def processObject(  # type: ignore [override]
+        self, main_window: "QtWidgets.QMainWindow"
+    ) -> None:
         """Process the object."""
 
         if self._perm:
@@ -37,7 +40,7 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
                     else self._perm
                 )
                 if perms_value in ("-w", "--"):
-                    action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
+                    cast(QtWidgets.QWidget, action).setVisible(False)
 
 
 class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
@@ -64,7 +67,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Return target type."""
         return "form"
 
-    def processObject(self, widget: "QtWidgets.QWidget") -> None:
+    def processObject(self, widget: "QtWidgets.QWidget") -> None:  # type: ignore [override]
         """
         Process objects that are of the FLFormDB class.
 
@@ -81,7 +84,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         FLFormRecordDB and FLFormSearchDB) can be made not visible or not editable for convenience.
         """
 
-        not_found_widgets = list(self._acos_perms.keys())
+        not_found_widgets: List[str] = list(self._acos_perms.keys())
 
         for child_object in widget.findChildren(QtWidgets.QWidget):
             child_widget = cast(QtWidgets.QWidget, child_object)
@@ -123,7 +126,9 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
 
         return "table"
 
-    def processObject(self, table_metadata: "pntablemetadata.PNTableMetaData") -> None:
+    def processObject(  # type: ignore [override]
+        self, table_metadata: "pntablemetadata.PNTableMetaData"
+    ) -> None:
         """Process pntablemetadata.PNTableMetaData belonging to a table."""
         mask_perm = 0
         has_acos = True if self._acos_perms else False
@@ -204,7 +209,7 @@ class PNAccessControlFactory(object):
     ) -> str:
         """Return the type of instance target."""
 
-        ret_ = ""
+        ret_: str = ""
 
         if isinstance(obj, QtWidgets.QMainWindow):
             ret_ = "mainwindow"
