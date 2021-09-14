@@ -145,7 +145,7 @@ def _wait(key: str) -> None:
 def _delete_data(session: Optional["isession.PinebooSession"], key: str, wait: bool = True) -> None:
     """Delete data."""
     mng_ = application.PROJECT.conn_manager
-    mng_.delete_from_sessions_dict(key)
+    mng_.delete_from_sessions_dict(key)  # eliminamos refrencias en listados.
 
     if session is not None:
         if application.SHOW_CONNECTION_EVENTS:
@@ -153,7 +153,7 @@ def _delete_data(session: Optional["isession.PinebooSession"], key: str, wait: b
 
         application.PROJECT.conn_manager.remove_session(
             session
-        )  # luego eliminamos la sesión de verdad.
+        )  # ahora eliminamos la sesión de verdad.
 
     if mng_.safe_mode_level in [2, 3, 5]:
         time.sleep(mng_.SAFE_TIME_SLEEP)
