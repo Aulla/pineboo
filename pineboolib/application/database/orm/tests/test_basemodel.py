@@ -261,7 +261,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertFalse(qsa.thread_session_current())
 
         session = qsa.thread_session_new()
-        obj_class = qsa.orm_("flareas")
+        obj_class = qsa.orm.flareas
 
         obj_ = obj_class.get("F")
         self.assertEqual(session, obj_.session)

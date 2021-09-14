@@ -43,10 +43,10 @@ class IConnection:
     _last_error: str
     _transaction_level: int
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
-    _last_activity_time: float
     _driver: Optional["isqldriver.ISqlDriver"]
     _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
-    connections_dict: Dict[str, "IConnection"] = {}
+    _session_legacy: Optional["isession.PinebooSession"]
+    _session_atomic: Optional["isession.PinebooSession"]
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""
