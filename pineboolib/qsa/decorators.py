@@ -144,30 +144,16 @@ def _wait(key: str) -> None:
 
 def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) -> None:
     """Delete data."""
+    mng_ = application.PROJECT.conn_manager
+    mng_.delete_from_sessions_dict(key)
 
     if session is not None:
         if application.SHOW_CONNECTION_EVENTS:
             LOGGER.debug("Removing session %s", session)
 
-        application.PROJECT.conn_manager.remove_session(session)
-    _delete_session(key, wait)
-
-
-def _delete_session(key: str, wait: bool = True) -> None:
-    """Delete atomic_session."""
-    mng_ = application.PROJECT.conn_manager
-    if key in mng_.current_atomic_sessions.keys():
-        session_key = mng_.current_atomic_sessions[key]
-        if session_key in mng_._thread_sessions.keys():
-            del mng_._thread_sessions[session_key]
-
-        del mng_.current_atomic_sessions[key]
-
-    id_thread = threading.current_thread().ident
-
-    if wait and id_thread in application.SERIALIZE_LIST.keys():
-        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+        application.PROJECT.conn_manager.remove_session(
+            session
+        )  # luego eliminamos la sesión de verdad.
 
     if mng_.safe_mode_level in [2, 3, 5]:
         time.sleep(mng_.SAFE_TIME_SLEEP)
@@ -178,3 +164,9 @@ def _delete_session(key: str, wait: bool = True) -> None:
             if application.SHOW_CONNECTION_EVENTS:
                 LOGGER.debug("Removing connection %s after decorator", conn_name)
             mng_.removeConn(conn_name)
+
+    id_thread = threading.current_thread().ident
+
+    if wait and id_thread in application.SERIALIZE_LIST.keys():
+        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
