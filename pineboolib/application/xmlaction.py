@@ -299,7 +299,7 @@ class XMLAction(struct.ActionStruct):
         Execute function for main action.
         """
 
-        application.PROJECT.call("%s.main" % action_name, [], None, False)
+        application.PROJECT.call("form%s.main" % action_name, [], None, False)
 
     def execDefaultScript(self):
         """
