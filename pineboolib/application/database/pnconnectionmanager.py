@@ -239,12 +239,12 @@ class PNConnectionManager(QtCore.QObject):
         """Delete a session."""
 
         if session_id in self._thread_sessions:
+            session = self._thread_sessions[session_id]
+            del self._thread_sessions[session_id]
             try:
-                self.remove_session(self._thread_sessions[session_id])
+                self.remove_session(session)
             except Exception:
                 pass
-
-            del self._thread_sessions[session_id]
 
     def manager(self) -> "flmanager.FLManager":
         """
