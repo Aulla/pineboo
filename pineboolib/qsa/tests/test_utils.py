@@ -1,5 +1,6 @@
 """Test utils module."""
 
+from pineboolib import application
 import unittest
 import threading
 
@@ -183,11 +184,7 @@ class TestUtils(unittest.TestCase):
         """Test session utils."""
 
         session_ = qsa.thread_session_new()
-        self.assertTrue(
-            session_ in qsa.available_thread_sessions().values(),
-            "LA session es %s y las avalibles son %s"
-            % (session_, qsa.available_thread_sessions().values()),
-        )
+        self.assertEqual(session_, application.PROJECT.conn_manager.useConn("default").session())
         self.assertTrue(qsa.is_valid_session(session_))
 
     def test_type(self) -> None:

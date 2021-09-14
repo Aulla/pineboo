@@ -309,7 +309,7 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self._engine
 
-    def session(self) -> Tuple[str, "orm_session.Session"]:
+    def session(self) -> "orm_session.Session":
         """Create a sqlAlchemy session."""
         while True:
             session_class = sessionmaker(
@@ -325,9 +325,7 @@ class PNSqlSchema(object):
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        session_key = utils_base.session_id(self.db_._name, True)
-        self.db_._conn_manager._thread_sessions[session_key] = new_session
-        return (session_key, new_session)
+        return new_session
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""

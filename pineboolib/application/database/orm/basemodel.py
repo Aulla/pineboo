@@ -79,28 +79,14 @@ class BaseModel(object):
             conn_manager = application.PROJECT.conn_manager
             if "conn_name" in kwargs.keys():
                 conn_name = kwargs["conn_name"]
-            # key = "%s_%s" % (id_thread, conn_name)
-            key = utils_base.session_id(conn_name)
-            session_key = None
-            if key in conn_manager.current_atomic_sessions.keys():
-                session_key = conn_manager.current_atomic_sessions[key]
-            elif key in conn_manager.current_thread_sessions.keys():
-                session_key = conn_manager.current_thread_sessions[key]
-            if session_key and session_key in conn_manager._thread_sessions.keys():
-                target._session = conn_manager._thread_sessions[session_key]
+
+            target._session = conn_manager.useConn(conn_name).session()
 
         if target._session is None:
-            sessions = conn_manager.get_current_thread_sessions()
-            session_list = []
-            for item in sessions:
-                session_list.append(
-                    item._conn_name.lower()  # type: ignore [attr-defined] # noqa: F821
-                )
-
             target._error_manager(
                 "_qsa_init",
-                "An active thread session or atomic session was not found on the '%s' connection (Available sessions: %s)"
-                % (conn_name, ", ".join(session_list)),
+                "An active thread session or atomic session was not found on the '%s' connection."
+                % (conn_name),
             )
 
         target._new_object = True
@@ -472,19 +458,7 @@ class BaseModel(object):
         mng_ = application.PROJECT.conn_manager
         if session_or_name is not None:
             if isinstance(session_or_name, str):
-                key = utils_base.session_id(session_or_name)
-                session_key = None
-                if key in mng_.current_atomic_sessions.keys():
-                    session_key = mng_.current_atomic_sessions[key]
-                elif key in mng_.current_thread_sessions.keys():
-                    session_key = mng_.current_thread_sessions[key]
-
-                if session_key and session_key in mng_._thread_sessions.keys():
-                    session_ = mng_._thread_sessions[session_key]
-
-                elif session_or_name in mng_.dictDatabases().keys():
-                    session_ = cls.get_session_from_connection(session_or_name)
-
+                session_ = mng_.useConn(session_or_name).session()
             else:
                 session_ = session_or_name
 

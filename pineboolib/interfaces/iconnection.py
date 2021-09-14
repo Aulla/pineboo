@@ -9,6 +9,9 @@ from pineboolib.core.utils import logging
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from . import isqlcursor
+    from pineboolib.application.database import pnconnectionmanager
+    from pineboolib.plugins.sql import pnsqlschema
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # pragma: no cover
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
@@ -16,6 +19,8 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import (
         base,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+
+    from sqlalchemy.orm import session as orm_session
 
 LOGGER = logging.get_logger(__name__)
 
@@ -41,6 +46,11 @@ class IConnection:
     _driver = None
     _last_error: str
     _transaction_level: int
+    _conn_manager: "pnconnectionmanager.PNConnectionManager"
+    _driver: Optional["pnsqlschema.PNSqlSchema"]
+    _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
+    _session_legacy: orm_session.Session
+    _session_atomic: orm_session.Session
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""

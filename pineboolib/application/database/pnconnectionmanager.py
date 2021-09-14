@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
-from pineboolib.core import garbage_collector
+from pineboolib.core import garbage_collector, decorators
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
@@ -31,10 +31,6 @@ class PNConnectionManager(QtCore.QObject):
     limit_connections: int = 0  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
-    current_atomic_sessions: Dict[str, str]
-    current_thread_sessions: Dict[str, str]
-    # current_conn_sessions: Dict[str, str]
-    _thread_sessions: Dict[str, "orm_session.Session"]
     REMOVE_CONNECTIONS_AFTER_ATOMIC: bool = False
     SAFE_TIME_SLEEP: float
     safe_mode_level: int
@@ -44,10 +40,6 @@ class PNConnectionManager(QtCore.QObject):
 
         super().__init__()
         self.connections_dict = {}
-        self.current_atomic_sessions = {}
-        self.current_thread_sessions = {}
-        # self.current_conn_sessions = {}
-        self._thread_sessions = {}
         self._manager = None
         self._manager_modules = None
         self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
@@ -105,10 +97,11 @@ class PNConnectionManager(QtCore.QObject):
         """Remove session."""
 
         try:
-            session.close()
-            obj_ = session
-            del session
-            garbage_collector.check_delete(obj_, str(obj_))
+            if session is not None:
+                session.close()
+                obj_ = session
+                del session
+                garbage_collector.check_delete(obj_, str(obj_))
         except Exception as error:
             LOGGER.warning("Error removing session:%s", error)
             return False
@@ -235,37 +228,10 @@ class PNConnectionManager(QtCore.QObject):
                     LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
                     result = False
 
-            if not result:
-                self.delete_from_sessions_dict(name_conn_)
-
             self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
 
         return result
-
-    def delete_from_sessions_dict(self, conn_name: str) -> None:
-        """Search and delete sessions_identifiers from sessions dicts."""
-
-        if conn_name in self.current_atomic_sessions.keys():
-            del self.current_atomic_sessions[conn_name]
-
-        if conn_name in self.current_thread_sessions.keys():
-            del self.current_thread_sessions[conn_name]
-
-        for thread_session_identifier in list(self._thread_sessions.keys()):
-            if thread_session_identifier.startswith(conn_name):
-                self.delete_session(thread_session_identifier)
-
-    def delete_session(self, session_id: str) -> None:
-        """Delete a session."""
-
-        if session_id in self._thread_sessions:
-            session = self._thread_sessions[session_id]
-            del self._thread_sessions[session_id]
-            try:
-                self.remove_session(session)
-            except Exception:
-                pass
 
     def manager(self) -> "flmanager.FLManager":
         """
@@ -422,37 +388,6 @@ class PNConnectionManager(QtCore.QObject):
 
         return application.PROJECT.session_id()
 
-    def _get_session_id(self, conn_name: str) -> Optional[str]:
-        """Return correct session."""
-
-        session_key = utils_base.session_id(conn_name)
-        use_key = None
-        if session_key in self.current_atomic_sessions.keys():
-            atomic_key = self.current_atomic_sessions[session_key]
-            if atomic_key in self._thread_sessions.keys():
-                use_key = atomic_key
-
-        if not use_key:
-            if session_key in self.current_thread_sessions.keys():
-                use_key = self.current_thread_sessions[session_key]
-
-        return use_key
-
-    def get_current_thread_sessions(self) -> List["orm_session.session.Session"]:
-        """Return thread sessions openend."""
-
-        id_thread = threading.current_thread().ident
-        result: List["orm_session.session.Session"] = []
-        # conn_sessions = []
-        # for id_session in self.current_conn_sessions.keys():
-        #    conn_sessions.append(id_session)
-
-        for key in self._thread_sessions.keys():
-            if str(id_thread) in key and key:  # todas menos las _conn_sessions
-                result.append(self._thread_sessions[key])
-
-        return result
-
     def is_valid_session(
         self, session_or_id: Union[str, "orm_session.Session"], raise_error: bool = True
     ) -> bool:
@@ -466,8 +401,8 @@ class PNConnectionManager(QtCore.QObject):
         if session_or_id is not None:
             if not isinstance(session_or_id, str):
                 session = session_or_id
-            elif session_or_id in self._thread_sessions:
-                session = self._thread_sessions[session_or_id]
+            else:
+                session = self.useConn(session_or_id)
 
         if session is not None:
             try:
@@ -513,6 +448,7 @@ class PNConnectionManager(QtCore.QObject):
 
         return self.useConn(conn_name).driver()._engine.pool.status()
 
+    @decorators.deprecated
     def set_safe_mode(self, level: int) -> None:
         """
         Set safe mode level.
@@ -525,7 +461,7 @@ class PNConnectionManager(QtCore.QObject):
         5) 1 + 2 + 4.
         """
 
-        self.safe_mode_level = level
+        """         self.safe_mode_level = level
         LOGGER.info("CONNECTION MANAGER: Safe mode level set to %s", level)
 
         if level > 0:
@@ -548,7 +484,7 @@ class PNConnectionManager(QtCore.QObject):
                 self.SAFE_TIME_SLEEP,
             )
         if level in [4, 5]:
-            LOGGER.info("CONNECTION MANAGER (%s): Pre ping activated.", level)
+            LOGGER.info("CONNECTION MANAGER (%s): Pre ping activated.", level) """
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""

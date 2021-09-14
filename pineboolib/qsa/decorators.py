@@ -33,10 +33,11 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":
 
             mng_ = application.PROJECT.conn_manager
             while True:
-                mng_.current_atomic_sessions[key], new_session = utils.driver_session(conn_name)
+                new_session = utils.driver_session(conn_name)
                 if mng_.check_connections():
                     break
 
+            mng_.useConn(conn_name)._session_atomic = new_session
             result_ = None
             try:
                 try:
@@ -67,10 +68,10 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                _delete_data(new_session, key, wait)
+                _delete_data(conn_name, wait)
 
             except Exception as error:
-                _delete_data(new_session, key, wait)
+                _delete_data(conn_name, wait)
                 raise error
 
             return result_
@@ -111,11 +112,11 @@ def serialize(conn_name: str = "default") -> "TYPEFN":
                     )
                     raise error
 
-                _delete_data(None, key)
+                _delete_data(conn_name)
 
             except Exception as error:
 
-                _delete_data(None, key)
+                _delete_data(conn_name)
                 raise error
 
             return result_
@@ -138,35 +139,33 @@ def _wait(key: str) -> None:
     ):  # type: ignore [index] # noqa: F821
         time.sleep(0.01)
 
-    if application.PROJECT.conn_manager.safe_mode_level in [1, 3, 5]:
-        time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
 
-
-def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) -> None:
+def _delete_data(conn_name: str = "", wait: bool = True) -> None:
     """Delete data."""
     mng_ = application.PROJECT.conn_manager
-    mng_.delete_from_sessions_dict(key)
+    conn = mng_.useConn(conn_name)
 
-    if session is not None:
+    if conn is not None:
         if application.SHOW_CONNECTION_EVENTS:
-            LOGGER.debug("Removing session %s", session)
+            LOGGER.debug("Removing sessions from connection %s", conn_name)
+        if conn._session_atomic is not None:
+            conn._session_atomic.close()
+        if conn._session_legacy is not None:
+            conn._session_legacy.close()
 
-        application.PROJECT.conn_manager.remove_session(
-            session
-        )  # luego eliminamos la sesión de verdad.
-
-    if mng_.safe_mode_level in [2, 3, 5]:
-        time.sleep(mng_.SAFE_TIME_SLEEP)
-    # Delete all thread connections.
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
         time.sleep(0.05)
-        for conn_name in mng_.enumerate():
+        for item in mng_.enumerate():
             if application.SHOW_CONNECTION_EVENTS:
-                LOGGER.debug("Removing connection %s after decorator", conn_name)
-            mng_.removeConn(conn_name)
+                LOGGER.debug("Removing connection %s after decorator", item)
+            mng_.removeConn(item)
 
-    id_thread = threading.current_thread().ident
+    if wait:
 
-    if wait and id_thread in application.SERIALIZE_LIST.keys():
-        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+        id_thread = threading.current_thread().ident
+        key = utils_base.session_id(conn_name)
+        if id_thread in application.SERIALIZE_LIST.keys():
+            if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+                application.SERIALIZE_LIST[id_thread].remove(
+                    key
+                )  # type: ignore [index] # noqa: F821

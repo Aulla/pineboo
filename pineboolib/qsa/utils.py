@@ -9,6 +9,7 @@ import threading
 import os
 
 from PyQt5 import QtCore
+from sqlalchemy.orm.session import sessionmaker  # type: ignore[import]
 from pineboolib.application import types
 from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
@@ -580,19 +581,13 @@ def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Sessio
     return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
 
 
-def _session_key(conn_name: str) -> str:
-    """Return session_key."""
-
-    return utils_base.session_id(conn_name)
-
-
 def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Session":
     """Return session connection."""
 
     return (
         application.PROJECT.conn_manager.useConn(conn_name).session()
         if legacy
-        else driver_session(conn_name)[1]
+        else driver_session(conn_name)
     )
 
 
@@ -602,29 +597,10 @@ def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     return session(conn_name, True)
 
 
-def available_thread_sessions() -> Dict[str, "orm_session.Session"]:
-    """Return available thread sessions."""
-
-    sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
-    sessions_dict = {}
-    for item in sessions:
-        sessions_dict[item._conn_name.lower()] = item  # type: ignore [attr-defined] # noqa: F821
-
-    return sessions_dict
-
-
 def thread_session_current(conn_name: str = "default") -> Optional["orm_session.Session"]:
     """Return session current."""
 
-    thread_key = _session_key(conn_name)
-    conn_manager = application.PROJECT.conn_manager
-    result = None
-    if thread_key in conn_manager.current_thread_sessions.keys():
-        session_key = conn_manager.current_thread_sessions[thread_key]
-        if session_key in conn_manager._thread_sessions.keys():
-            result = conn_manager._thread_sessions[session_key]
-
-    return result
+    return application.PROJECT.conn_manager.useConn(conn_name)._session_legacy
 
 
 def is_valid_session(session: "orm_session.Session", raise_error: bool = False) -> bool:
@@ -636,15 +612,10 @@ def is_valid_session(session: "orm_session.Session", raise_error: bool = False) 
 def thread_session_free(conn_name: str = "default") -> None:
     """Close and delete current thread session."""
 
-    thread_key = _session_key(conn_name)
-
-    if thread_key in application.PROJECT.conn_manager.current_thread_sessions.keys():
-        session_key = application.PROJECT.conn_manager.current_thread_sessions[thread_key]
-        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
-            application.PROJECT.conn_manager._thread_sessions[session_key].close()
-            del application.PROJECT.conn_manager._thread_sessions[session_key]
-
-        del application.PROJECT.conn_manager.current_thread_sessions[thread_key]
+    session = application.PROJECT.conn_manager.useConn(conn_name)._session_legacy
+    application.PROJECT.conn_manager.useConn(conn_name)._session_legacy = None
+    if session is not None:
+        session.close()
 
 
 def thread() -> int:
@@ -656,14 +627,7 @@ def thread() -> int:
 def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"]:
     """Return atomic_session."""
 
-    atomic_key = _session_key(conn_name)
-    result = None
-    if atomic_key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
-        session_key = application.PROJECT.conn_manager.current_atomic_sessions[atomic_key]
-        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
-            result = application.PROJECT.conn_manager._thread_sessions[session_key]
-
-    return result
+    return application.PROJECT.conn_manager.useConn(conn_name)._session_atomic
 
 
 def ws_channel_send(msg: Any = "", group_name: str = "") -> None:

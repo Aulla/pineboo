@@ -28,14 +28,8 @@ class TestConsistency(unittest.TestCase):
 
         self.assertTrue(single_session is not legacy_session)
         self.assertTrue(thread_session is not single_session)
-        self.assertTrue(
-            single_session in application.PROJECT.conn_manager._thread_sessions.values()
-        )
-        self.assertTrue(
-            legacy_session in application.PROJECT.conn_manager._thread_sessions.values()
-        )
-        self.assertTrue(
-            thread_session in application.PROJECT.conn_manager._thread_sessions.values()
+        self.assertEqual(
+            legacy_session, application.PROJECT.conn_manager.useConn("default").session()
         )
 
     @qsa.serialize()  # type: ignore [misc] # noqa: F821
@@ -89,15 +83,6 @@ class TestConsistency(unittest.TestCase):
             cursor_fltest.valueBuffer("empty_relation") == "",
             'El valor devuelto (%s) no es ""' % result,
         )
-
-        for ses in cursor_fltest.db().connManager()._thread_sessions.keys():
-            sesion = cursor_fltest.db().connManager()._thread_sessions[ses]
-            if sesion is session:
-                continue
-            self.assertTrue(
-                sesion.transaction is None,
-                "la session %s continua en transacción (conn %s)" % (sesion, sesion._conn_name),
-            )
 
     def test_save_point_launch(self) -> None:
         """Test save points."""

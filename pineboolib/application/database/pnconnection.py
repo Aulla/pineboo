@@ -67,12 +67,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Database connection through a sql driver."""
 
         super().__init__()
-        self.update_activity_time()
         self.conn = None
         self._transaction_level = 0
         self._driver = None
         self._db_name = db_name
         self._driver_sql = pnsqldrivers.PNSqlDrivers()
+        self._session_legacy = None
+        self._session_atomic = None
 
         conn_manager = application.PROJECT.conn_manager
         self._conn_manager = conn_manager
@@ -155,7 +156,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if self._driver is None:
             self._driver = self._driver_sql.driver()
 
-        self.update_activity_time()
         return self._driver
 
     def session(self, raise_error: bool = True) -> "orm.Session":
@@ -167,17 +167,23 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
         mng = self.connManager()
-        session_id = mng._get_session_id(self._name)
-        session_key = utils_base.session_id(self._name)
-        returned_session = None
-        if not mng.is_valid_session(session_id, raise_error):
-            mng.delete_session(session_id)
-            session_id, returned_session = self.driver().session()
-            if not mng.is_valid_session(returned_session):
-                LOGGER.error("the new session is invalid!!")
-            mng.current_thread_sessions[session_key] = session_id
-        else:
-            returned_session = mng._thread_sessions[session_id]
+
+        returned_session = (
+            self._session_legacy if self._session_atomic is None else self._session_atomic
+        )
+
+        atomic = returned_session is self._session_atomic and self._session_atomic is not None
+
+        if not mng.is_valid_session(returned_session, raise_error):
+            if returned_session is None:
+                mng.remove_session(returned_session)
+
+            returned_session = self.driver().session()
+
+            if atomic:
+                self._session_atomic = returned_session
+            else:
+                self._session_legacy = returned_session
 
         if not returned_session:
             raise ValueError("Invalid session!")
@@ -588,15 +594,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().regenTable(table_name, mtd)
 
-    def idle_time(self) -> float:
-        """Return idle time in Seconds."""
-        actual_time = time.time()
-        return actual_time - self._last_activity_time
-
-    def update_activity_time(self):
-        """Update activity time."""
-        self._last_activity_time = time.time()
-
     def getTimeStamp(self) -> str:
         """Return timestamp."""
 
@@ -614,9 +611,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def close(self):
         """Close connection."""
-        conn_identifier = utils_base.session_id(self._name)
-        mng = self.connManager()
-        mng.delete_from_sessions_dict(conn_identifier)
+        if self._session_legacy is not None:
+            self._session_legacy.close()
         self._is_open = False
         self.driver().close()
 

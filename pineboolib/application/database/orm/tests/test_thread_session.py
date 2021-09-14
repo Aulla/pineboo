@@ -25,17 +25,12 @@ class TestThreadSession(unittest.TestCase):
     def test_basic_1(self) -> None:
         """Test basic 1."""
 
-        key = utils_base.session_id()
-        self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
         self.assertTrue(prueba(1))
-        self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
-        key = utils_base.session_id("dbaux")
-        application.PROJECT.conn_manager.set_safe_mode(5)
+
         self.assertTrue(prueba2())
-        self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
 
     def test_basic_3(self) -> None:
         """Test basic 3."""
@@ -80,28 +75,14 @@ def massive(value: int):
 def prueba(value: int):
     mng_ = application.PROJECT.conn_manager
 
-    key = utils_base.session_id("default")
-    result = key in mng_.current_atomic_sessions.keys()
-    if result and mng_.current_atomic_sessions[key] in mng_._thread_sessions.keys():
-        if mng_._thread_sessions[mng_.current_atomic_sessions[key]] != qsa.session_atomic():
-            result = False
-
-    if value != 1:
-        result = False
-    return result
+    return mng_.useConn("default").session() is qsa.session_atomic()
 
 
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba2():
     mng_ = application.PROJECT.conn_manager
 
-    key = utils_base.session_id("dbaux")
-    result = key in mng_.current_atomic_sessions.keys()
-    if result and mng_.current_atomic_sessions[key] in mng_._thread_sessions.keys():
-        if mng_._thread_sessions[mng_.current_atomic_sessions[key]] != qsa.session_atomic("dbaux"):
-            result = False
-
-    return result
+    return mng_.useConn("dbaux").session() is qsa.session_atomic("dbaux")
 
 
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
