@@ -261,13 +261,13 @@ class PNConnectionManager(QtCore.QObject):
         return self.useConn("default")
 
     def test_session(
-        self, conn_or_session: Union["iconnection.IConnection", "orm_session.Session"]
+        self, conn_or_session: Union["iconnection.IConnection", "isession.PinebooSession"]
     ) -> bool:
         """Test a specific connection."""
 
         result = True
-        session = (
-            conn_or_session.session(False)
+        session: "isession.PinebooSession" = (
+            conn_or_session.session(False)  # type: ignore [assignment]
             if isinstance(conn_or_session, pnconnection.PNConnection)
             else conn_or_session
         )
