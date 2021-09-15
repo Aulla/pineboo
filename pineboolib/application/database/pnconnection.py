@@ -141,17 +141,17 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self._session_legacy if self._session_atomic is None else self._session_atomic
         )
 
-        atomic = returned_session is self._session_atomic and self._session_atomic is not None
-
         if not mng.is_valid_session(returned_session, raise_error):
             if returned_session is not None:
                 mng.remove_session(returned_session)
 
             returned_session = self.driver().session()
 
-            if atomic:
-                self._session_atomic = returned_session
+            if self._session_atomic is not None:
+                # self._session_atomic = returned_session
+                raise Exception("la transacción atómica no es válida")
             else:
+                LOGGER.debug("Nueva sesión %s --> %s" % (self._name, returned_session))
                 self._session_legacy = returned_session
 
         if not returned_session:
