@@ -280,7 +280,9 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("default")
 
-    def test_session(self, conn_or_session) -> bool:
+    def test_session(
+        self, conn_or_session: Union["iconnection.IConnection", "orm_session.Session"]
+    ) -> bool:
         """Test a specific connection."""
 
         result = True
@@ -334,26 +336,15 @@ class PNConnectionManager(QtCore.QObject):
     def check_alive_connections(self):
         """Check alive connections."""
 
-        alived_threads: List[str] = []
-
-        for thread in threading.enumerate():
-            alived_threads.append(str(thread.ident))
+        alived_threads: List[str] = [str(thread.ident) for thread in threading.enumerate()]
 
         for conn_ident in list(self.connections_dict.keys()):
             if conn_ident.find("|") > -1:
                 thread_id = conn_ident.split("|")[0]
-                if thread_id not in alived_threads:
-                    self.removeConn(conn_ident)
-
-        for conn_ident in list(self.enumerate().keys()):
-            if conn_ident.find("|") > -1:
                 if (
-                    not self.connections_dict[conn_ident]._is_open  # Closed connections
-                    and self.connections_dict[conn_ident].conn
-                    is not None  # Only initialized connections.
-                ) or (
-                    self.connections_time_out
-                    and self.connections_dict[conn_ident].idle_time() > self.connections_time_out
+                    thread_id not in alived_threads  # si no es un hilo existente
+                    or not self.connections_dict[conn_ident]._is_open  # si esta cerrada
+                    and self.connections_dict[conn_ident].conn is not None  # si no esta incializada
                 ):
                     self.removeConn(conn_ident)
 
