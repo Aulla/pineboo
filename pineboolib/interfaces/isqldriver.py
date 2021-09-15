@@ -1241,7 +1241,7 @@ class ISqlDriver(object):
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
             # if mng_.safe_mode_level in [4, 5]:
-            self._queqe_params["pool_pre_ping"] = True
+            # self._queqe_params["pool_pre_ping"] = True
             if mng_.connections_time_out:
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 
