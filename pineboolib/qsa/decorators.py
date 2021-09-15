@@ -4,16 +4,13 @@ from pineboolib import application
 from . import utils
 
 
-from typing import Callable, Any, TypeVar, cast, Optional, TYPE_CHECKING
+from typing import Callable, Any, TypeVar, cast
 
 import threading
 import functools
 import traceback
 import time
 from sqlalchemy import exc
-
-if TYPE_CHECKING:
-    from pineboolib.interfaces import isession
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 

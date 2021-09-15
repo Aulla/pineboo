@@ -9,7 +9,7 @@ import threading
 import os
 
 from PyQt6 import QtCore
-from sqlalchemy.orm.session import sessionmaker  # type: ignore[import]
+
 from pineboolib.application import types, qsadictmodules
 from pineboolib.core.utils import utils_base, logging
 
@@ -25,7 +25,6 @@ from typing import (
     Callable,
     Iterable,
     Dict,
-    Tuple,
     TYPE_CHECKING,
 )
 

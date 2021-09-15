@@ -10,9 +10,6 @@ from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
 from pineboolib import application
 
-import time
-
-
 from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 

@@ -12,7 +12,7 @@ from pineboolib.interfaces import isqldriver
 
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
-from typing import Optional, Union, List, Any, Tuple, TYPE_CHECKING
+from typing import Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
