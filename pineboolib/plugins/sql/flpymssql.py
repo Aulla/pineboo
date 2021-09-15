@@ -56,7 +56,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         # conn_.execute("set transaction isolation level read uncommitted;")
         return conn_
 
-    def session(self) -> Tuple[str, "isession.PinebooSession"]:
+    def session(self) -> "isession.PinebooSession":
         """Create a sqlAlchemy session."""
         while True:
             session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
@@ -70,7 +70,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         setattr(new_session, "_conn_name", self.db_._name)
         session_key = utils_base.session_id(self.db_._name, True)
         self.db_._conn_manager._thread_sessions[session_key] = new_session
-        return (session_key, new_session)
+        return new_session
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""

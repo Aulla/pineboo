@@ -147,7 +147,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         atomic = returned_session is self._session_atomic and self._session_atomic is not None
 
         if not mng.is_valid_session(returned_session, raise_error):
-            if returned_session is None:
+            if returned_session is not None:
                 mng.remove_session(returned_session)
 
             returned_session = self.driver().session()

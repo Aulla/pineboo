@@ -573,7 +573,7 @@ def set_user_id(user_id: str) -> None:
     qsadictmodules.from_project("sys").iface.current_user = user_id
 
 
-def driver_session(conn_name: str = "default") -> Tuple[str, "isession.PinebooSession"]:
+def driver_session(conn_name: str = "default") -> "isession.PinebooSession":
     """Return driver session."""
 
     return application.PROJECT.conn_manager.useConn(conn_name).driver().session()

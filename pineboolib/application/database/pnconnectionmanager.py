@@ -94,11 +94,10 @@ class PNConnectionManager(QtCore.QObject):
         """Remove session."""
 
         try:
-            if session is not None:
-                session.close()
-                obj_ = session
-                del session
-                garbage_collector.check_delete(obj_, str(obj_))
+            session.close()
+            obj_ = session
+            del session
+            garbage_collector.check_delete(obj_, str(obj_))
         except Exception as error:
             LOGGER.warning("Error removing session:%s", error)
             return False
@@ -381,10 +380,11 @@ class PNConnectionManager(QtCore.QObject):
         session = None
 
         if session_or_id is not None:
-            if not isinstance(session_or_id, str):
-                session = session_or_id
-            else:
-                session = self.useConn(session_or_id)
+            session = (
+                self.useConn(session_or_id).session()
+                if isinstance(session_or_id, str)
+                else session_or_id
+            )
 
         if session is not None:
             try:

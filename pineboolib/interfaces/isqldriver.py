@@ -462,7 +462,7 @@ class ISqlDriver(object):
                 self.execute_query(str_qry)
             except Exception as error:
                 LOGGER.error("nextSerialVal: %s", str(error))
-                self.session()[1].rollback()
+                self.session().rollback()
 
         return res_
 

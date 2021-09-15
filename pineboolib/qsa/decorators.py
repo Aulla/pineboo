@@ -162,7 +162,7 @@ def _delete_data(conn_name: str = "", wait: bool = True) -> None:
 
     if wait:
 
-        id_thread = threading.current_thread().ident
+        id_thread: int = threading.current_thread().ident or -1
         key = utils_base.session_id(conn_name)
         if id_thread in application.SERIALIZE_LIST.keys():
             if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
