@@ -150,8 +150,10 @@ def _delete_data(conn_name: str = "", wait: bool = True) -> None:
             LOGGER.debug("Removing sessions from connection %s", conn_name)
         if conn._session_atomic is not None:
             conn._session_atomic.close()
+            conn._session_atomic = None
         if conn._session_legacy is not None:
             conn._session_legacy.close()
+            conn._session_legacy = None
 
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
         time.sleep(0.05)
