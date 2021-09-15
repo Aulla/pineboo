@@ -572,6 +572,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Close connection."""
         if self._session_legacy is not None:
             self._session_legacy.close()
+            self._session_legacy = None
         self._is_open = False
         self.driver().close()
 
