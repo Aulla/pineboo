@@ -523,7 +523,7 @@ class SqlInspector(object):
         elif type_ == "double":
             try:
                 ret_ = float(ret_)
-            except ValueError as error:
+            except Exception as error:
                 LOGGER.warning(str(error))
 
         elif type_ in ("int", "uint", "serial"):
@@ -570,8 +570,10 @@ class SqlInspector(object):
         elif type_ == "bytearray":
             ret_ = bytearray(ret_)
         else:
-            ret_ = float(ret_)
-            print("TIPO DESCONOCIDO", type_, ret_)
+            try:
+                ret_ = float(ret_)
+            except Exception as error:
+                LOGGER.warning("Unknown type %s, value %s" % (type_, ret_))
 
         return ret_
 
