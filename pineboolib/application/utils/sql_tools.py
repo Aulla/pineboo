@@ -599,18 +599,20 @@ class SqlInspector(object):
             field_name = field_name_org
             for table_name in list(tables_list):
                 mtd_table = application.PROJECT.conn_manager.manager().metadata(table_name)
+                mtd_field = None
                 if mtd_table is not None:
                     for fil in _filter:
                         if field_name.startswith(fil):
                             field_name = field_name.replace(fil, "")
                             field_name = field_name[:-1]
 
+                    field_name_fixed = field_name
                     if field_name.find(".") > -1:
                         if table_name != field_name[0 : field_name.find(".")]:
                             continue
                         else:
-                            field_name = field_name[field_name.find(".") + 1 :]
-                    mtd_field = mtd_table.field(field_name)
+                            field_name_fixed = field_name[field_name.find(".") + 1 :]
+                    mtd_field = mtd_table.field(field_name_fixed)
                     if mtd_field is not None:
                         for existed_field in self._mtd_fields.values():
                             if existed_field.name() == mtd_field.name():
@@ -621,6 +623,7 @@ class SqlInspector(object):
                                     LOGGER.info("%s already exists. Skipping" % mtd_field.name())
                                     continue
                         self._mtd_fields[number_] = mtd_field
+
                     # fields_list.remove(field_name_org)
                 else:
                     if table_name not in self._invalid_tables:
