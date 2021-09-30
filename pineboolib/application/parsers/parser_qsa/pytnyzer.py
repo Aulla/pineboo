@@ -1671,13 +1671,13 @@ class Member(ASTPython):
             parent = cast(ET.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
-            while parent:
+            while parent is not None:
                 if parent.tag == "Function":
                     # funs = p_
                     break
                 parent = cast(ET.Element, parent.get("parent_"))
 
-            if parent:
+            if parent is not None:
                 # fun = funs[-1]
                 fun = parent
                 full_fun_name = fun.get("name", "unnamed_function")
@@ -1700,13 +1700,13 @@ class Member(ASTPython):
             parent = cast(ET.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
-            while parent:
+            while parent is not None:
                 if parent.tag == "Function":
                     # funs = parent
                     break
                 parent = cast(ET.Element, parent.get("parent_"))
 
-            if parent:
+            if parent is not None:
                 # fun = funs[-1]
                 fun = parent
                 # name_parts = fun.get("name").split("_")
