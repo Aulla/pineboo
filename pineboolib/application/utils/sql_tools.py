@@ -572,7 +572,7 @@ class SqlInspector(object):
         else:
             try:
                 ret_ = float(ret_)
-            except Exception as error:
+            except Exception:
                 LOGGER.warning("Unknown type %s, value %s" % (type_, ret_))
 
         return ret_
