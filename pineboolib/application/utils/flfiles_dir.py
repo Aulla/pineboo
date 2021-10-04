@@ -118,23 +118,25 @@ class FlFiles(object):
                     continue
 
                 if file_name not in [nombre for idmodule, nombre, sha, contenido in self._files]:
-                    file_path = os.path.join(root, file_name)
-                    fichero = open(
-                        file_path,
-                        "r",
-                        encoding="UTF-8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
-                    )
-                    # print("Guardando ...", file_path)
                     try:
+                        fichero = open(
+                            os.path.join(root, file_name),
+                            "r",
+                            encoding="UTF-8"
+                            if file_name.endswith((".ts", ".py"))
+                            else "ISO-8859-15",
+                        )
+                        # print("Guardando ...", os.path.join(root, file_name))
                         data = fichero.read()
+                        byte_data = data.encode()
+                        sha_ = hashlib.new("sha1", byte_data)
+                        string_sha = str(sha_.hexdigest()).upper()
+                        self._files.append([id_module, file_name, string_sha, data])
                     except Exception as error:
-                        LOGGER.warning("Error reading file %s. Error: %s" % (file_path, str(error)))
-                        continue
-                    byte_data = data.encode()
-                    sha_ = hashlib.new("sha1", byte_data)
-                    string_sha = str(sha_.hexdigest()).upper()
-
-                    self._files.append([id_module, file_name, string_sha, data])
+                        LOGGER.error("Error processing %s:%s", file_name, str(error))
+                        return
+                else:
+                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
