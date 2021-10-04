@@ -118,13 +118,18 @@ class FlFiles(object):
                     continue
 
                 if file_name not in [nombre for idmodule, nombre, sha, contenido in self._files]:
+                    file_path = os.path.join(root, file_name)
                     fichero = open(
-                        os.path.join(root, file_name),
+                        file_path,
                         "r",
                         encoding="UTF-8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
                     )
-                    # print("Guardando ...", os.path.join(root, file_name))
-                    data = fichero.read()
+                    # print("Guardando ...", file_path)
+                    try:
+                        data = fichero.read()
+                    except Exception as error:
+                        LOGGER.warning("Error reading file %s. Error: %s" % (file_path, str(error)))
+                        continue
                     byte_data = data.encode()
                     sha_ = hashlib.new("sha1", byte_data)
                     string_sha = str(sha_.hexdigest()).upper()
