@@ -135,8 +135,8 @@ class FlFiles(object):
                     except Exception as error:
                         LOGGER.error("Error processing %s:%s", file_name, str(error))
                         return
-                else:
-                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
+                # else:
+                #    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
