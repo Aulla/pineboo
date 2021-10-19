@@ -83,6 +83,16 @@ class ModuleActions(object):
             QSADictModules.save_action_for_formrecord(action_xml)
             QSADictModules.save_action_for_class(action_xml)
 
+        if [
+            file_.name
+            for file_ in self.project.files.values()
+            if file_.name.startswith("plus_sys") and file_.module == self.module_name
+        ]:
+            action_xml_plus = xmlaction.XMLAction(self, "plus_sys")
+            if QSADictModules.save_action_for_mainform(action_xml_plus):
+                LOGGER.warning("plus_sys loaded!")
+                self.project.actions["plus_sys"] = action_xml_plus
+
     def __contains__(self, name: str) -> bool:
         """Determine if it is the owner of an action."""
         return (
