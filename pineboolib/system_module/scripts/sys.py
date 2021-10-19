@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import traceback
-from pineboolib import logging
+from pineboolib import application, logging
 
 from typing import TYPE_CHECKING
 
@@ -27,6 +27,9 @@ class FormInternalObj(qsa.FormDBWidget):
         app_ = qsa.aqApp
         if not app_:
             return
+
+        if "plus_sys" in application.PROJECT.actions.keys():
+            application.PROJECT.call("formplus_sys.main", [])
 
         if qsa.SysType().isLoadedModule("flfactppal"):
             codEjercicio = None
