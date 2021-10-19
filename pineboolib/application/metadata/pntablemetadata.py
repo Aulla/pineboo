@@ -545,7 +545,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return field name list.
         """
 
-        return self.private._field_names
+        return list(self.private._field_names)
 
     def fieldNamesUnlock(self) -> List[str]:
         """
