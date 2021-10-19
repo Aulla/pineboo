@@ -152,7 +152,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # ALIAS
     if field.alias():
-        field_data.append("'alias' : '%s'" % field.alias())
+        field_data.append("'alias' : '%s'" % field.alias().replace("'", '"'))
 
     # PK
     if field.isPrimaryKey():
