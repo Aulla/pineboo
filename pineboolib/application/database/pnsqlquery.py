@@ -375,7 +375,10 @@ class PNSqlQuery(object):
                 if field == "*" and table:
                     mtd = self.db().connManager().manager().metadata(table, True)
                     if mtd is not None:
-                        self.private_query._field_list = mtd.fieldNames()
+                        self.private_query._field_list = [
+                            "%s.%s as %s" % (table, field_name, field_name)
+                            for field_name in mtd.fieldNames()
+                        ]
                         if not mtd.inCache():
                             del mtd
 
