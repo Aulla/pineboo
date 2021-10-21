@@ -52,6 +52,7 @@ class BaseModel(object):
     legacy_metadata: Dict[str, Any]
     _cached_bufferchanged: Dict[str, Any]
     serial: bool = True
+    no_init: bool = False
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -94,6 +95,9 @@ class BaseModel(object):
         if "serial" in kwargs:
             target.serial = kwargs["serial"]
 
+        if "no_init" in kwargs:
+            target.no_init = kwargs["no_init"]
+
         target._common_init()
 
     @classmethod
@@ -105,6 +109,7 @@ class BaseModel(object):
 
     def _common_init(self) -> None:
         """Initialize."""
+
         self.bufferChanged = dummy_signal.FakeSignal(self)
         self._cached_bufferchanged = {}
 
@@ -147,7 +152,7 @@ class BaseModel(object):
                         iface = getattr(
                             self._action._record_widget, "iface", self._action._record_widget
                         )
-                        if iface is not None:
+                        if iface is not None and not self.no_init:
                             func_ = getattr(iface, "iniciaValoresCursor", None)
                             if func_ is not None:
                                 try:
