@@ -192,7 +192,7 @@ class PNBuffer(object):
                 if type_ == "date":
                     value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
                 elif type_ == "timestamp":
-                    value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
+                    value = datetime.datetime.strptime(str(value)[0:19], "%Y-%m-%d %H:%M:%S")
                 elif type_ == "time":
                     value = str(value)
                     if value.find("T") > -1:
