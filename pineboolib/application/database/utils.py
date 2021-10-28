@@ -103,12 +103,13 @@ def _next_counter2(
     qry.setSelect(name_)
     qry.setFrom(tmd.name())
     qry.setWhere(_where)
-    qry.setOrderBy(name_ + " DESC")
+    qry.setOrderBy(name_ + " ASC")
 
     if not qry.exec_():
         return None
 
     _numero: int = int(qry.value(0)) if qry.last() else 0
+
     _numero += 1
 
     if type_ == "string":
@@ -151,7 +152,7 @@ def _next_counter3(
     qry.setSelect(name_)
     qry.setFrom(tmd.name())
     qry.setWhere(_where)
-    qry.setOrderBy(name_ + " DESC")
+    qry.setOrderBy(name_ + " ASC")
 
     if not qry.exec_():
         return None
