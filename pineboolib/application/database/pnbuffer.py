@@ -203,19 +203,20 @@ class PNBuffer(object):
 
         if value not in [None, "", "NULL"]:
             metadata = self._cursor.metadata().field(field_name)
-            type_ = metadata.type()
-            if type_ == "date":
-                value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
-            elif type_ == "timestamp":
-                value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
-            elif type_ == "time":
-                value = str(value)
-                if value.find("T") > -1:
-                    value = value[value.find("T") + 1 :]
+            if metadata is not None:
+                type_ = metadata.type()
+                if type_ == "date":
+                    value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+                elif type_ == "timestamp":
+                    value = datetime.datetime.strptime(str(value)[0:19], "%Y-%m-%d %H:%M:%S")
+                elif type_ == "time":
+                    value = str(value)
+                    if value.find("T") > -1:
+                        value = value[value.find("T") + 1 :]
 
-                value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
-            elif type_ in ["bool", "unlock"]:
-                value = True if value in [True, 1, "1", "true"] else False
+                    value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
+                elif type_ in ["bool", "unlock"]:
+                    value = True if value in [True, 1, "1", "true"] else False
         elif isinstance(value, str) and value == "NULL":
             value = None
 
