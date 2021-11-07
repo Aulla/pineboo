@@ -193,6 +193,8 @@ class PNSqlQuery(object):
 
         self.sql_inspector.set_sql(sql)
         self.sql_inspector.resolve()
+        if self.sql_inspector.suspected_injection():
+            LOGGER.exception("Suspect sql injection : %s", self.sql_inspector._suspected_injection)
         if not self.isValid():
             LOGGER.error("exec_: invalid tables list found on query * %s *", sql)
             return False
