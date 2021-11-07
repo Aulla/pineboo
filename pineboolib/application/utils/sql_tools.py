@@ -7,7 +7,8 @@ from pineboolib import application, logging
 from pineboolib.application import types
 
 import datetime
-from typing import Dict, Any, List, TYPE_CHECKING
+import re
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import ifieldmetadata  # noqa: F401 # pragma: no cover
@@ -28,6 +29,37 @@ class SqlInspector(object):
     _posible_float: bool
     _list_sql: List[str]
 
+    _suspected_injection: Optional[str]
+    _suspicious_keywords: List[str] = [
+        "ASCII(",
+        "SUBSTRING(",
+        "SELECT",
+        "COALESCE",
+        "CAST",
+        "CHARACTER",
+        "/**/",
+        "current_database()",
+        "::text",
+        "sleep",
+        "waitfor",
+        "benchmark",
+        "selectchar",
+    ]
+    _suspicious_characters: List[str] = ["(", ")", "'", '"', " ", ",", "/*", "*/"]
+    _suspicious_bypass_union_time: List[str] = [
+        "adminor1=1",
+        "convertintunionall",
+        "unionallselect",
+        "unionselect@",  # unionselect@@version
+        "selectsleep",
+        "selectbecnhmark",
+        "orderby1sleep",
+        ";waitfordelay",
+        "orpg_sleep",
+        "fromselectsleep",
+        "selectsubsctring@",
+    ]
+
     def __init__(self) -> None:
         """
         Initialize the class.
@@ -38,6 +70,7 @@ class SqlInspector(object):
         self._table_names = []
         self._mtd_fields = {}
         self._invalid_tables = []
+        self._suspected_injection = None
         # self.set_sql(sql_text)
         # self.resolve()
 
@@ -334,6 +367,7 @@ class SqlInspector(object):
                 tables_list = list_sql[index_from + 1 : index_order_by]
             else:
                 tables_list = list_sql[index_from + 1 :]
+
             tablas: List[str] = []
             self._alias = {}
             jump = 0
@@ -434,6 +468,7 @@ class SqlInspector(object):
                 fl_finish.append(field_name)
 
             self._create_mtd_fields(fl_finish, tablas)
+            self._check_sql_injection(list_sql)  # Pasamos el where
 
     def resolve_empty_value(self, pos: int) -> Any:
         """
@@ -621,3 +656,40 @@ class SqlInspector(object):
                     if table_name not in self._invalid_tables:
                         self._invalid_tables.append(table_name)
                     # tables_list.remove(table_name)
+
+    def suspected_injection(self) -> bool:
+        """Returns if the query contains suspicion of sql injection-"""
+
+        return False if self._suspected_injection is None else True
+
+    def _check_sql_injection(self, where: List[str]) -> None:
+        """Examine the query for suspected sql injection."""
+        infected = ""
+
+        # 1 concatenado.
+        for word in where:
+            if len(word) > 30:
+                contador = [
+                    suspicious_word
+                    for suspicious_word in self._suspicious_keywords
+                    if suspicious_word.lower() in word.lower()
+                ]
+                if len(contador) > 1:
+                    infected = word
+                    break
+
+        # 2 bypass
+        if not infected:
+            rep = dict((re.escape(character), "") for character in self._suspicious_characters)
+            pattern = re.compile("|".join(rep.keys()))
+            split_where = str(
+                pattern.sub(lambda m: rep[re.escape(m.group(0))], " ".join(where))
+            ).lower()
+            for bypass in self._suspicious_bypass_union_time:
+                if bypass in split_where:
+                    infected = "%s -> %s" % (bypass, " ".join(where))
+                    break
+
+        if infected:
+            self._suspected_injection = infected
+

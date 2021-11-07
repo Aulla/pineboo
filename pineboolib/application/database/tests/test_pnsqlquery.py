@@ -568,6 +568,25 @@ class TestPNSqlQuery2(unittest.TestCase):
         # qry2.exec_("select 1")
         # self.assertTrue(qry2.isValid())
 
+    def test_sql_injection(self) -> None:
+
+        sql = (
+            "SELECT s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,"
+            + "t.telefono, s.talla FROM tpv_tiendas t inner join stocks s on t.codalmacen = s.codalmacen "
+            + "left outer join param_parametros p on 'RSTOCK_' || t.codalmacen = p.nombre WHERE "
+            + "t.sincroactiva and (p.nombre like 'RSTOCK_%' or p.nombre is null) AND s.disponible > 1 AND "
+            + "s.referencia = '4070W200050' AND t.idempresa not in (15,42,44) AND s.talla = '-1'"
+            + " OR ASCII(SUBSTRING((SELECT/**/COALESCE(CAST(current_database()/**/AS/**/CHARACTER(10000))"
+            + ",(CHR(32))))::text/**/FROM/**/43/**/FOR/**/1))>119 AND 000622=000622 or 'yFfSTINR'='' GROUP"
+            + " BY s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,t.telefono,"
+            + " s.talla ORDER BY s.codalmacen, s.talla"
+        )
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.sql_inspector.set_sql(sql)
+        qry.sql_inspector.resolve()
+        self.assertTrue(qry.sql_inspector.suspected_injection())
+
     def test_as_in_select(self) -> None:
         """Test as in select."""
         sql = (
