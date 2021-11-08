@@ -666,7 +666,7 @@ class SqlInspector(object):
                     # tables_list.remove(table_name)
 
     def suspected_injection(self) -> bool:
-        """Returns if the query contains suspicion of sql injection-"""
+        """Return if the query contains suspicion of sql injection."""
 
         return False if self._suspected_injection is None else True
 
@@ -700,4 +700,3 @@ class SqlInspector(object):
 
         if infected:
             self._suspected_injection = infected
-
