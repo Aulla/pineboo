@@ -219,7 +219,8 @@ class PNConnectionManager(QtCore.QObject):
                     self.connections_dict[name_conn_].close()
                     self.connections_dict[  # type: ignore [union-attr] # noqa: F821
                         name_conn_
-                    ]._driver.db_ = None
+                    ]._driver.db_ = None  # type: ignore [assignment]
+                    self.connections_dict[name_conn_]._driver = None
 
                     obj_ = self.connections_dict[name_conn_]
                     garbage_collector.check_delete(obj_, name_conn_)
