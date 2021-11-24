@@ -354,9 +354,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return
 
-        db_aux = self.db().connManager().dbAux()
-        if db_aux is None:
-            return
+        conn_manager = self.db().connManager()
+        db_aux = conn_manager.dbAux()
 
         type = field.type()
         primary_key = mtd.primaryKey()
@@ -375,17 +374,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.context(),
             )
 
+            manager = conn_manager.manager()
+
             qry = pnsqlquery.PNSqlQuery(None, db_aux)
             ret = qry.exec_(
                 "UPDATE  %s SET %s = %s WHERE %s"
                 % (
                     self.table(),
                     field_name,
-                    self.db().connManager().manager().formatValue(type, value),
-                    self.db()
-                    .connManager()
-                    .manager()
-                    .formatAssignValue(mtd.field(primary_key), primary_key_value),
+                    manager.formatValue(type, value),
+                    manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
                 )
             )
             if ret:
@@ -431,7 +429,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if manager is None:
             raise Exception("no manager")
 
-        if value and field.type() == "pixmap" and not self.private_cursor._is_system_table:
+        if field.type() == "pixmap" and value and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
             value = manager.storeLargeValue(self.private_cursor.metadata_, value) or value
 
@@ -748,9 +746,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata() is not None:
                     field = self.private_cursor.relation_.field()
-                    if field.lower() == field_name.lower():
-                        ret = True
-        return ret
+                    return field.lower() == field_name.lower()
+
+        return False
 
     def inTransaction(self) -> bool:
         """
@@ -997,32 +995,27 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         message = ""
 
         if self.private_cursor.buffer_ is None or self.private_cursor.metadata_ is None:
-            message = "\nBuffer vacío o no hay metadatos"
-            return message
+            return "\nBuffer vacío o no hay metadatos"
 
         if not self.buffer().is_valid():
             return "\nEl registro ha sido borrado de la BD"
 
         field_list = self.metadata().fieldList()
+        manager = self.db().connManager().manager()
 
         if self.private_cursor.mode_access_ in [self.Insert, self.Edit]:
             if self.private_cursor.mode_access_ == self.Edit:
                 if not self.isModifiedBuffer():
-                    return message
+                    return ""
 
             checked_compound_key = False
-
-            if not field_list:
-                return message
 
             for field in field_list:
                 field_name = field.name()
                 relation_m1 = field.relationM1()
                 value = self.buffer().value(field_name)
                 table_metadata = (
-                    self.db().connManager().manager().metadata(relation_m1.foreignTable())
-                    if relation_m1
-                    else None
+                    manager.metadata(relation_m1.foreignTable()) if relation_m1 else None
                 )
 
                 if not self.isNull(field_name):
@@ -1032,9 +1025,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             if not relation_m1.checkIn() or table_metadata is None:
                                 continue
                         else:
-                            message = (
-                                message
-                                + "\n"
+                            message += (
+                                "\n"
                                 + "FLSqlCursor : Error en metadatos, el campo %s tiene un campo asociado pero no existe "
                                 "relación muchos a uno:%s" % (self.table(), field_name)
                             )
@@ -1052,19 +1044,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         elif not self.isNull(field_metadata_name):
 
                             filter_ = "%s AND %s" % (
-                                self.db()
-                                .connManager()
-                                .manager()
-                                .formatAssignValue(
+                                manager.formatAssignValue(
                                     field.associatedFieldFilterTo(),
                                     assoc_field_metadata,
                                     assoc_value,
                                     True,
                                 ),
-                                self.db()
-                                .connManager()
-                                .manager()
-                                .formatAssignValue(relation_m1.foreignField(), field, value, True),
+                                manager.formatAssignValue(
+                                    relation_m1.foreignField(), field, value, True
+                                ),
                             )
 
                             qry = pnsqlquery.PNSqlQuery(None, self.db())
@@ -1118,17 +1106,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         qry.setWhere(
                             "%s AND %s <> %s"
                             % (
-                                self.db()
-                                .connManager()
-                                .manager()
-                                .formatAssignValue(field, value, True),
+                                manager.formatAssignValue(field, value, True),
                                 self.private_cursor.metadata_.primaryKey(
                                     self.private_cursor._is_query
                                 ),
-                                self.db()
-                                .connManager()
-                                .manager()
-                                .formatValue(field_mtd.type(), value_primary_key),
+                                manager.formatValue(field_mtd.type(), value_primary_key),
                             )
                         )
                         qry.setForwardOnly(True)
@@ -1148,9 +1130,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())
-                    qry.setWhere(
-                        self.db().connManager().manager().formatAssignValue(field, value, True)
-                    )
+                    qry.setWhere(manager.formatAssignValue(field, value, True))
                     qry.setForwardOnly(True)
                     qry.exec_()
                     if qry.next():
@@ -1167,10 +1147,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         qry.setSelect(relation_m1.foreignField())
                         qry.setFrom(table_metadata.name())
                         qry.setWhere(
-                            self.db()
-                            .connManager()
-                            .manager()
-                            .formatAssignValue(relation_m1.foreignField(), field, value, True)
+                            manager.formatAssignValue(
+                                relation_m1.foreignField(), field, value, True
+                            )
                         )
                         qry.setForwardOnly(True)
                         # LOGGER.debug(
@@ -1212,20 +1191,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         value_compound_key = self.private_cursor.buffer_.value(
                             field_compound_key.name()
                         )
-                        if filter_compound_key:
-                            filter_compound_key += " AND "
 
-                        filter_compound_key += "%s" % self.db().connManager().manager().formatAssignValue(
+                        filter_compound_key += " AND " if filter_compound_key else ""
+
+                        filter_compound_key += "%s" % manager.formatAssignValue(
                             field_compound_key, value_compound_key, True
                         )
 
-                        if field_1:
-                            field_1 += "+"
+                        field_1 += "+" if field_1 else ""
 
                         field_1 += "%s" % field_compound_key.alias()
 
-                        if values_fields:
-                            values_fields += "+"
+                        values_fields += "+" if values_fields else ""
 
                         values_fields = "%s" % str(value_compound_key)
 
@@ -1256,7 +1233,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 for relation in field.relationList():
                     if not relation.checkIn():
                         continue
-                    metadata = self.db().connManager().manager().metadata(relation.foreignTable())
+                    metadata = manager.metadata(relation.foreignTable())
                     if not metadata:
                         continue
                     field_metadata = metadata.field(relation.foreignField())
@@ -1282,10 +1259,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     qry.setSelect(relation.foreignField())
                     qry.setFrom(metadata.name())
                     qry.setWhere(
-                        self.db()
-                        .connManager()
-                        .manager()
-                        .formatAssignValue(relation.foreignField(), field, value, True)
+                        manager.formatAssignValue(relation.foreignField(), field, value, True)
                     )
                     qry.setForwardOnly(True)
                     qry.exec_()
@@ -1878,11 +1852,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return TRUE if the refreshment could be performed, FALSE otherwise
         """
-        from pineboolib.application.safeqsa import SafeQSA
 
-        if not self.private_cursor.metadata_:
-            raise Exception("Not initialized")
-        if not self._action:
+        if not self.private_cursor.metadata_ or not self._action:
             raise Exception("Not initialized")
 
         # if (
@@ -1938,15 +1909,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if field.isCounter():
 
                     siguiente = None
+                    function_counter = None
                     if self._action.scriptFormRecord():
+                        from pineboolib.application.safeqsa import SafeQSA
+
                         context_ = SafeQSA.formrecord("formRecord%s" % self._action.name()).iface
                         function_counter = getattr(context_, "calculateCounter", None)
-                        if function_counter is None:
-                            siguiente = utils.next_counter(field_name, self)
-                        else:
-                            siguiente = function_counter()
-                    else:
-                        siguiente = utils.next_counter(field_name, self)
+
+                    siguiente = (
+                        utils.next_counter(field_name, self)
+                        if function_counter is None
+                        else function_counter()
+                    )
 
                     if siguiente:
                         self.private_cursor.buffer_.set_value(field_name, siguiente)
@@ -2119,8 +2093,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if model._current_row_index > -1 and model._current_row_index < self.size():
             self.private_cursor._currentregister = model._current_row_index
             return True
-        else:
-            return False
+
+        return False
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(bool)
@@ -2266,7 +2240,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.private_cursor._model.refresh()
         self.private_cursor._currentregister = -1
 
-        if self.private_cursor.cursor_relation_ and self.modeAccess() == self.Browse:
+        if self.modeAccess() == self.Browse and self.private_cursor.cursor_relation_:
             self.private_cursor._currentregister = self.atFrom()
 
         self.refreshBuffer()
@@ -2294,7 +2268,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         relation_filter = None
-        final_filter = ""
 
         if (
             self.private_cursor.cursor_relation_
@@ -2321,8 +2294,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     else:
                         relation_filter = "%s AND %s" % (relation_filter, filter_assoc)
 
-        if self.mainFilter():
-            final_filter = self.mainFilter()
+        final_filter = self.mainFilter() if self.mainFilter() else ""
 
         if relation_filter:
             if not final_filter:
@@ -2349,47 +2321,36 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         filter = self.filter()
         base_filter = self.baseFilter()
-        if filter:
-            while filter.endswith(";"):
-                filter = filter[0 : len(filter) - 1]
+        while filter.endswith(";"):
+            filter = filter[0 : len(filter) - 1]
 
-        if not base_filter:
+        if not base_filter or base_filter in filter:
             return filter
-        else:
-            if not filter or filter in base_filter:
-                return base_filter
-            else:
-                if base_filter in filter:
-                    return filter
-                else:
-                    return "%s AND %s" % (base_filter, filter)
+        elif not filter or filter in base_filter:
+            return base_filter
+
+        return "%s AND %s" % (base_filter, filter)
 
     @decorators.pyqt_slot()
-    def setFilter(self, _filter: str = "") -> None:
+    def setFilter(self, final_filter: str = "") -> None:
         """
         Specify the cursor filter.
 
         @param _filter. Text string with the filter to apply.
         """
 
-        # self.private_cursor.filter_ = None
-
-        final_filter = _filter
         base_filter = self.baseFilter()
-        if base_filter:
-            if not final_filter:
-                final_filter = base_filter
-            elif final_filter in base_filter:
-                final_filter = base_filter
-            elif base_filter not in final_filter:
-                final_filter = base_filter + " AND " + final_filter
+
+        if not final_filter or final_filter in base_filter:
+            final_filter = base_filter
+        elif base_filter and base_filter not in final_filter:
+            final_filter = base_filter + " AND " + final_filter
 
         if (
-            final_filter
-            and self.private_cursor._persistent_filter
+            self.private_cursor._persistent_filter
             and self.private_cursor._persistent_filter not in final_filter
         ):
-            final_filter = final_filter + " OR " + self.private_cursor._persistent_filter
+            final_filter += " OR " + self.private_cursor._persistent_filter
 
         self.private_cursor._model.where_filters["filter"] = final_filter
 
