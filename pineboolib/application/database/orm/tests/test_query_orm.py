@@ -78,6 +78,52 @@ class TestQueryOrm(unittest.TestCase):
         self.assertFalse(class_area.get("E"))
         session.close()
 
+    def test_delete2(self) -> None:
+        """Test delete with children."""
+
+        session = qsa.thread_session_new()
+        session.begin()
+        class_area = qsa.orm_("fltest4")
+        obj_area = class_area()
+
+        obj_area.idarea = "E"
+        obj_area.other_field = "DSGDSGSDG**"
+        self.assertTrue(obj_area.save())
+
+        class_child = qsa.orm_("fltest5")
+        child_1 = class_child()
+        child_2 = class_child()
+
+        child_1.idmodulo = "A"
+        child_2.idmodulo = "B"
+        child_1.idarea = "E"
+        child_2.idarea = "E"
+        self.assertTrue(child_1.save())
+        child_1.session.commit()
+        session.begin()
+        self.assertTrue(child_2.save())
+        child_2.session.commit()
+
+        self.assertEqual(len(class_child.query().all()), 2)
+
+        # session.commit()
+        session.begin()
+        self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
+        # session = qsa.session()
+        # new_obj = class_area.get("E")
+        self.assertEqual(len(class_child.query().all()), 2)
+        lista = class_child.query().filter(class_child.idarea == "E").all()
+        for obj in lista:
+            self.assertTrue(class_area.query().filter(class_area.idarea == obj.idarea).first())
+            obj.delete()
+
+        session.commit()
+        # session.commit()
+        self.assertEqual(len(class_child.query().all()), 0)
+
+        self.assertFalse(class_area.get("E"))
+        session.close()
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
