@@ -277,8 +277,8 @@ class BaseModel(object):
             #    self._session.begin()
             # else:
             #    self._session.begin_nested()
+            self._force_mode = 2  # delete.
 
-            self._session.delete(self)
             self._flush()
         else:
             self._error_manager("delete", "_session is empty!")
@@ -335,6 +335,11 @@ class BaseModel(object):
 
             if self._current_mode == 2:  # delete
                 self._delete_cascade()
+
+                if (
+                    self not in self._session.deleted
+                ):  # hay que hacerlo aquí, despues de before_* , porque si nó, cualquier session.flush borraria el padre.
+                    self._session.delete(self)
 
             try:
                 self._session.flush()
