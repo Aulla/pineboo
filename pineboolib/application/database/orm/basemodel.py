@@ -374,15 +374,17 @@ class BaseModel(object):
 
         if mode == 0:  # insert
             try:
-                self._validate_cursor()
                 self.before_new()
+                self._validate_cursor()
+
             except Exception as error:
                 self._error_manager("before_new", error)
 
         elif mode == 1:  # edit
             try:
-                self._validate_cursor()
                 self.before_change()
+                self._validate_cursor()
+
             except Exception as error:
                 self._error_manager("before_change", error)
 
