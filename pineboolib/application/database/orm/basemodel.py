@@ -333,6 +333,8 @@ class BaseModel(object):
             self._current_mode = self.mode_access
             self._before_flush()
 
+            self._check_integrity()
+
             if self._current_mode == 2:  # delete
                 self._delete_cascade()
 
@@ -541,7 +543,7 @@ class BaseModel(object):
 
             setattr(self, name, default_value)
 
-    def save(self, check_integrity: bool = True) -> bool:
+    def save(self) -> bool:
         """Flush instance to current session."""
 
         if not hasattr(self, "_session"):
@@ -556,9 +558,6 @@ class BaseModel(object):
 
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
-
-                if check_integrity:
-                    self._check_integrity()
 
                 self._flush()
 
