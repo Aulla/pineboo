@@ -148,7 +148,7 @@ class TestBaseModel(unittest.TestCase):
                 "version": "0.0",
             },
         )
-        self.assertTrue(obj_3.save(False))
+
         obj_3.mode_access = 3
         self.assertEqual(obj_3.mode_access, 3)
 
