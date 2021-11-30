@@ -333,6 +333,8 @@ class BaseModel(object):
             self._current_mode = self.mode_access
             self._before_flush()
 
+            self._check_integrity()
+
             if self._current_mode == 2:  # delete
                 self._delete_cascade()
 
