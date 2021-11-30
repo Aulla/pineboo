@@ -344,6 +344,8 @@ class Array(object):
                 if hasattr(item, "items"):
                     for key, value in item.items():
                         result[key] = value
+                else:
+                    raise ValueError("type %s is not supported in concat : %s" % (type(item), item))
 
             return result
 
