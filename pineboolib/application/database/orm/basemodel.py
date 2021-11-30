@@ -562,9 +562,10 @@ class BaseModel(object):
 
                 self._flush()
 
-        self.update_copy()
+            self.update_copy()
 
-        return True
+            return True
+        return False
 
     def _check_integrity(self) -> bool:
         """Check data integrity."""
