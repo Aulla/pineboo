@@ -341,8 +341,9 @@ class Array(object):
         else:
             result = {}
             for item in args:
-                for key, value in item.items():
-                    result[key] = value
+                if hasattr(item, "items"):
+                    for key, value in item.items():
+                        result[key] = value
 
             return result
 
