@@ -118,7 +118,8 @@ class TestBaseModel(unittest.TestCase):
             obj_.save()
 
         obj_.descripcion = "PRUEBA"
-        self.assertTrue(obj_.save())
+        with self.assertRaises(Exception):
+            obj_.save()
 
         obj_2 = qsa.orm_("flareas")()
         obj_2.idarea = "F"
@@ -147,7 +148,7 @@ class TestBaseModel(unittest.TestCase):
                 "version": "0.0",
             },
         )
-        self.assertTrue(obj_3.save())
+
         obj_3.mode_access = 3
         self.assertEqual(obj_3.mode_access, 3)
 
