@@ -313,6 +313,7 @@ class Array(object):
         else:
             result_array: Dict[str, Any] = {}
             for item in args:
+                if hasattr(item, "items"):
                 for key, value in item.items():  # type: ignore [union-attr]
                     result_array[key] = value
 
