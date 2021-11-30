@@ -314,8 +314,10 @@ class Array(object):
             result_array: Dict[str, Any] = {}
             for item in args:
                 if hasattr(item, "items"):
-                for key, value in item.items():  # type: ignore [union-attr]
-                    result_array[key] = value
+                    for key, value in item.items():  # type: ignore [union-attr]
+                        result_array[key] = value
+                else:
+                    raise ValueError("type %s is not supported in concat : %s" % (type(item), item))
 
             return result_array
 
