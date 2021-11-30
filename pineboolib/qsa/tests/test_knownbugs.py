@@ -295,6 +295,21 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         self.assertTrue(qsa.Number.MIN_VALUE < 0)
         self.assertTrue(qsa.Number.MAX_VALUE > 0)
 
+    def test_attribute_dict(self) -> None:
+        """Test attribute dict converison."""
+
+        att1 = qsa.AttributeDict(
+            {"key_prueba1": ("valor_prueba1"), "key_prueba2": ("valor_prueba2")}
+        )
+        self.assertEqual(att1, {"key_prueba1": "valor_prueba1", "key_prueba2": "valor_prueba2"})
+
+    def test_array_concat(self) -> None:
+
+        array = qsa.Array().concat({"uno": "uno"}, {"dos": "dos"})
+        self.assertEqual(array, {"uno": "uno", "dos": "dos"})
+        array2 = qsa.Array().concat(["1", "2", "3"], ["5", "6"])
+        self.assertEqual(array2, ["1", "2", "3", "5", "6"])
+
     def test_execMainScript(self) -> None:
         """Test aqApp.execMainScript."""
 

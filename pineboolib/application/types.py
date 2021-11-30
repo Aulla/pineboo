@@ -299,6 +299,23 @@ class Array(object):
 
         return value
 
+    def concat(self, *args):
+        """Return arrays concatenated."""
+        if len(args) and isinstance(args[1], list):
+            result = []
+            for item in args:
+                result += item
+
+            return result
+
+        else:
+            result = {}
+            for item in args:
+                for key, value in item.items():
+                    result[key] = value
+
+            return result
+
 
 AttributeDict = utils_base.StructMyDict
 
