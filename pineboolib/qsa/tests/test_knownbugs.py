@@ -304,11 +304,133 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         self.assertEqual(att1, {"key_prueba1": "valor_prueba1", "key_prueba2": "valor_prueba2"})
 
     def test_array_concat(self) -> None:
-
+        """Test array concat simple."""
         array = qsa.Array().concat({"uno": "uno"}, {"dos": "dos"})
         self.assertEqual(array, {"uno": "uno", "dos": "dos"})
         array2 = qsa.Array().concat(["1", "2", "3"], ["5", "6"])
         self.assertEqual(array2, ["1", "2", "3", "5", "6"])
+
+    def test_array_concat2(self) -> None:
+        """Test array concat extended."""
+
+        codigo = """function getRules()
+                    {
+                        return new Array().concat(
+                            this.getCrudRules('pedidoscli', 'Pedidos de cliente'),
+                            [
+                                {
+                                    "idregla": 'pedidoscli/accion1',
+                                    "grupo": 'pedidoscli',
+                                    "descripcion": 'Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente.'
+                                },
+                                {
+                                    "idregla": 'pedidoscli/accion2',
+                                    "grupo": 'pedidoscli',
+                                    "descripcion": 'Puede ejecutar la accion 2 de pedidos de cliente'
+                                }
+                            ]
+                        );
+                    }
+                    function getCrudRules(grupo, descripcion)
+                    {
+                        var crudRules = [
+                            {
+                                'id': 'get',
+                                'desc': 'Puede recibir'
+                            },
+                            {
+                                'id': 'post',
+                                'desc': 'Puede crear'
+                            },
+                            {
+                                'id': 'patch',
+                                'desc': 'Puede modificar'
+                            },
+                            {
+                                'id': 'delete',
+                                'desc': 'Puede eliminar'
+                            }
+                        ]
+                        var rules = [{
+                            'idregla': grupo,
+                            'grupo': grupo,
+                            'descripcion': descripcion
+                        }]
+                        for (var i = 0; i < crudRules.length; i++) {
+                            rules.push({
+                                'idregla': grupo + '/' + crudRules[i].id,
+                                'grupo': grupo,
+                                'descripcion': crudRules[i].desc + ' ' + descripcion.toLowerCase()
+                            })
+                        }
+                        return rules;
+                    }
+                    """
+
+        cadena_result = qs2py(codigo)
+        ok_result = """def getRules(self):
+    return qsa.Array().concat(
+        self.getCrudRules("pedidoscli", "Pedidos de cliente"),
+        qsa.Array(
+            [
+                qsa.AttributeDict(
+                    {
+                        "idregla": ("pedidoscli/accion1"),
+                        "grupo": ("pedidoscli"),
+                        "descripcion": (
+                            "Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente."
+                        ),
+                    }
+                ),
+                qsa.AttributeDict(
+                    {
+                        "idregla": ("pedidoscli/accion2"),
+                        "grupo": ("pedidoscli"),
+                        "descripcion": ("Puede ejecutar la accion 2 de pedidos de cliente"),
+                    }
+                ),
+            ]
+        ),
+    )
+
+
+def getCrudRules(self, grupo, descripcion):
+    crudRules: Any = qsa.Array(
+        [
+            qsa.AttributeDict({"id": ("get"), "desc": ("Puede recibir")}),
+            qsa.AttributeDict({"id": ("post"), "desc": ("Puede crear")}),
+            qsa.AttributeDict({"id": ("patch"), "desc": ("Puede modificar")}),
+            qsa.AttributeDict({"id": ("delete"), "desc": ("Puede eliminar")}),
+        ]
+    )
+    rules: Any = qsa.Array([qsa.AttributeDict({"idregla": (grupo), "grupo": (grupo), "descripcion": (descripcion)})])
+    i: Any = 0
+    while_pass = True
+    while i < qsa.length(crudRules):
+        if not while_pass:
+            i += 1
+            while_pass = True
+            continue
+        while_pass = False
+        rules.append(
+            qsa.AttributeDict(
+                {
+                    "idregla": (qsa.ustr(grupo, "/", crudRules[i].id)),
+                    "grupo": (grupo),
+                    "descripcion": (qsa.ustr(crudRules[i].desc, " ", descripcion.lower())),
+                }
+            )
+        )
+        i += 1
+        while_pass = True
+        try:
+            i < qsa.length(crudRules)
+        except Exception:
+            break
+
+    return rules
+"""
+        self.assertEqual(cadena_result, ok_result)
 
     def test_execMainScript(self) -> None:
         """Test aqApp.execMainScript."""

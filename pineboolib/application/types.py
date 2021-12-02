@@ -331,8 +331,9 @@ class Array(object):
 
     def concat(self, *args):
         """Return arrays concatenated."""
-        if len(args) and isinstance(args[1], list):
-            result = []
+
+        if len(args) and isinstance(args[1], (list, Array)):
+            result: List[Any] = []
             for item in args:
                 result += item
 
@@ -341,11 +342,8 @@ class Array(object):
         else:
             result = {}
             for item in args:
-                if hasattr(item, "items"):
-                    for key, value in item.items():
-                        result[key] = value
-                else:
-                    raise ValueError("type %s is not supported in concat : %s" % (type(item), item))
+                for key, value in item.items():  # type: ignore [union-attr]
+                    result[key] = value
 
             return result
 
