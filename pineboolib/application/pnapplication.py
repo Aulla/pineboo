@@ -466,8 +466,10 @@ class PNApplication(QtCore.QObject):
 
         self._inicializing = False
         if not utils_base.is_library():
-            self.call("sys.init()", [])
+
             if application.PROJECT.main_window:
+                if not hasattr(application.PROJECT.main_window, "initModule"):
+                    self.call("sys.init()", [])
                 if hasattr(application.PROJECT.main_window, "initToolBox"):
                     application.PROJECT.main_window.initToolBox()
 
