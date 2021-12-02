@@ -149,6 +149,10 @@ class TestBaseModel(unittest.TestCase):
             },
         )
 
+        self.assertFalse(obj_3.is_being_changed())
+        self.assertTrue(obj_3.is_being_created())
+        self.assertFalse(obj_3.is_being_deleted())
+
         obj_3.mode_access = 3
         self.assertEqual(obj_3.mode_access, 3)
 
@@ -236,6 +240,8 @@ class TestBaseModel(unittest.TestCase):
         session.begin()
         obj_new = obj_class.get("O", session)
         obj_new.descripcion = "Nueva descripción"
+        self.assertTrue(obj_new.is_being_changed())
+        self.assertFalse(obj_new.is_being_created())
         self.assertTrue(obj_new.save())
         session.commit()
 
