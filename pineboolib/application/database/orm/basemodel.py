@@ -550,10 +550,15 @@ class BaseModel(object):
             self._error_manager(
                 "save", "This new instance was not initialized with qsa.orm_(class_name)"
             )
+
         else:
 
             if self._session is None:
                 self._error_manager("save", "_session is empty!")
+            elif self.mode_access == 2:
+                self._error_manager(
+                    "save", "you are trying to save an instance in the process of deletion!"
+                )
             else:
 
                 if self.mode_access == 0:  # insert
