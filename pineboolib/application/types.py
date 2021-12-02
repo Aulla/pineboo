@@ -303,7 +303,8 @@ class Array(object):
         self, *args: Union[List[Any], Dict[str, Any], "Array"]
     ) -> Union[List[Any], Dict[str, Any]]:
         """Return arrays concatenated."""
-        if len(args) and isinstance(args[1], list):
+
+        if len(args) and isinstance(args[1], (list, Array)):
             result_list: List[Any] = []
             for item in args:
                 result_list += item
@@ -313,11 +314,8 @@ class Array(object):
         else:
             result_array: Dict[str, Any] = {}
             for item in args:
-                if hasattr(item, "items"):
-                    for key, value in item.items():  # type: ignore [union-attr]
-                        result_array[key] = value
-                else:
-                    raise ValueError("type %s is not supported in concat : %s" % (type(item), item))
+                for key, value in item.items():  # type: ignore [union-attr]
+                    result_array[key] = value
 
             return result_array
 

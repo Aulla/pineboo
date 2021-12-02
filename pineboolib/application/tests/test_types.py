@@ -138,6 +138,115 @@ class TestArray(unittest.TestCase):
         array_3.splice(2, 1, 9, 10)  # Replace
         self.assertEqual(str(array_3), str(types.Array([3, 4, 9, 10, 6, 7])))
 
+    def test_concat(self) -> None:
+        """Test concat."""
+        rules = [
+            {"idregla": "pedidoscli", "grupo": "pedidoscli", "descripcion": "Pedidos de cliente"},
+            {
+                "idregla": "pedidoscli/get",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede recibir pedidos de cliente",
+            },
+            {
+                "idregla": "pedidoscli/post",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede crear pedidos de cliente",
+            },
+            {
+                "idregla": "pedidoscli/patch",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede modificar pedidos de cliente",
+            },
+            {
+                "idregla": "pedidoscli/delete",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede eliminar pedidos de cliente",
+            },
+            {
+                "idregla": "pedidoscli/accion1",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente.",
+            },
+            {
+                "idregla": "pedidoscli/accion2",
+                "grupo": "pedidoscli",
+                "descripcion": "Puede ejecutar la accion 2 de pedidos de cliente",
+            },
+        ]
+        self.assertEqual(self.getRules(), rules)
+
+    def getRules(self):
+        from pineboolib.qsa import qsa
+
+        result = qsa.Array().concat(
+            self.getCrudRules("pedidoscli", "Pedidos de cliente"),
+            qsa.Array(
+                [
+                    qsa.AttributeDict(
+                        {
+                            "idregla": ("pedidoscli/accion1"),
+                            "grupo": ("pedidoscli"),
+                            "descripcion": (
+                                "Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente."
+                            ),
+                        }
+                    ),
+                    qsa.AttributeDict(
+                        {
+                            "idregla": ("pedidoscli/accion2"),
+                            "grupo": ("pedidoscli"),
+                            "descripcion": ("Puede ejecutar la accion 2 de pedidos de cliente"),
+                        }
+                    ),
+                ]
+            ),
+        )
+        return result
+
+    def getCrudRules(self, grupo, descripcion):
+        from pineboolib.qsa import qsa
+
+        crudRules = qsa.Array(
+            [
+                qsa.AttributeDict({"id": ("get"), "desc": ("Puede recibir")}),
+                qsa.AttributeDict({"id": ("post"), "desc": ("Puede crear")}),
+                qsa.AttributeDict({"id": ("patch"), "desc": ("Puede modificar")}),
+                qsa.AttributeDict({"id": ("delete"), "desc": ("Puede eliminar")}),
+            ]
+        )
+        rules = qsa.Array(
+            [
+                qsa.AttributeDict(
+                    {"idregla": (grupo), "grupo": (grupo), "descripcion": (descripcion)}
+                )
+            ]
+        )
+
+        i = 0
+        while_pass = True
+        while i < qsa.length(crudRules):
+            if not while_pass:
+                i += 1
+                while_pass = True
+                continue
+            while_pass = False
+            rules.append(
+                qsa.AttributeDict(
+                    {
+                        "idregla": (qsa.ustr(grupo, "/", crudRules[i].id)),
+                        "grupo": (grupo),
+                        "descripcion": (qsa.ustr(crudRules[i].desc, " ", descripcion.lower())),
+                    }
+                )
+            )
+            i += 1
+            while_pass = True
+            try:
+                i < qsa.length(crudRules)
+            except Exception:
+                break
+        return rules
+
 
 class TestDate(unittest.TestCase):
     """Test Date class."""
