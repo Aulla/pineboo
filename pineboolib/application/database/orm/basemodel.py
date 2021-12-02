@@ -795,6 +795,21 @@ class BaseModel(object):
 
         return mode
 
+    def is_being_created(self) -> bool:
+        """Return in being created."""
+
+        return self.mode_access == 0
+
+    def is_being_changed(self) -> bool:
+        """Return in being changed."""
+
+        return self.mode_access == 1
+
+    def is_being_deleted(self) -> bool:
+        """Return in being deleted."""
+
+        return self.mode_access == 2
+
     def set_mode_access(self, value: int) -> None:
         """Set forced mode access."""
 
