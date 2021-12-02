@@ -321,7 +321,7 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
                                 {
                                     "idregla": 'pedidoscli/accion1',
                                     "grupo": 'pedidoscli',
-                                    "descripcion": 'Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente.'
+                                    "descripcion": 'Puede ejecutar la accion 1 de pedidos de cliente. más.'
                                 },
                                 {
                                     "idregla": 'pedidoscli/accion2',
@@ -378,7 +378,7 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
                         "idregla": ("pedidoscli/accion1"),
                         "grupo": ("pedidoscli"),
                         "descripcion": (
-                            "Puede ejecutar la accion 1 de pedidos de cliente. Puede ejecutar la accion 1 de pedidos de cliente."
+                            "Puede ejecutar la accion 1 de pedidos de cliente. más."
                         ),
                     }
                 ),

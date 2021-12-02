@@ -202,7 +202,7 @@ class QSADictModules:
             att = getattr(qsa_dict_modules, name)
             if isinstance(att, proxy_module.DelayedObjectProxyLoader) or (
                 name.endswith(("_orm", "_class"))
-                and (not name.startswith("fl") and not name in ("flusers", "flgroups"))
+                and (not name.startswith("fl") and name not in ("flusers", "flgroups"))
             ):
                 delattr(qsa_dict_modules, name)
 

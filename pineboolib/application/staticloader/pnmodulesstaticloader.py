@@ -361,7 +361,7 @@ class PNStaticLoader(QtCore.QObject):
 
         for info_item in info.dirs_:
             content_path_candidate = os.path.join(info_item.path_, name)
-            if not info_item.path_ in content_path_candidate:
+            if info_item.path_ not in content_path_candidate:
                 continue
             if info_item.active_ and os.path.exists(
                 content_path_candidate
