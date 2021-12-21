@@ -223,7 +223,11 @@ class XmlDigest:
             context.load_pkcs12(self._certificate)
 
             LOGGER.warning("Starting signing")
-            LOGGER.info("Policy : %s --> %s" % (self._policy, self._policy.identifier))
+            LOGGER.info(
+                "Policy : %s --> %s --> %s"
+                % (self._policy, self._policy.identifier, context.policies)
+            )
+
             LOGGER.info("Certificate : %s" % str(self._certificate))
             LOGGER.info("Signature : %s" % self._signature)
 
