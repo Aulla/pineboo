@@ -56,6 +56,7 @@ class TestSignatures(unittest.TestCase):
         )
         obj_.set_algorithm("sha1")
         self.assertTrue(obj_.sign())
+        self.assertTrue(obj_._policy is not None)
         self.assertTrue(obj_.signature_value())
 
     def test_xml_digest_512(self) -> None:
