@@ -54,10 +54,10 @@ fpdf2==2.3.1
 pdf2image==1.14.0
 poppler-utils
 Click>=7.0
-xmlsig
+xmlsig==0.1.7
 lxml
-cryptography==3.4.7
-xades
+cryptography==36.0.1
+xades==0.2.2
 qrcode[pil]
 pympler
 pyOpenSSL==20.0.1
