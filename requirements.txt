@@ -1,7 +1,7 @@
 black==19.3b0
 clipboard==0.0.4
 coloredlogs==14.0
-cryptography==3.4.7
+cryptography==36.0.1
 fernet==1.0.1
 fpdf2==2.4.2
 flake8==3.9.0
@@ -25,8 +25,8 @@ sqlalchemy==1.4.0b1
 sqlparse==0.3.1
 twine==3.1.1
 watchdog>=0.10.2
-xades==0.2.1
-xmlsig==0.1.5
+xades==0.2.2
+xmlsig==0.1.7
 Pillow==8.2.0
 PyYAML==5.3.1
 PyQt6==6.1.1
