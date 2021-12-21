@@ -52,7 +52,7 @@ class XmlDigest:
             "xmlsig.constants.TransformSha1",
         ]
         self._certificate = None
-        self._policy = ""
+        self._policy = None
         self._signature = ""
         self._is_signed = False
         self._use_algorithm = "sha256"
