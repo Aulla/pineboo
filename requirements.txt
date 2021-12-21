@@ -57,7 +57,7 @@ Click>=7.0
 xmlsig==0.1.7
 lxml
 cryptography==36.0.1
-xades==0.2.2
+xades==0.2.1
 qrcode[pil]
 pympler
 pyOpenSSL==20.0.1
