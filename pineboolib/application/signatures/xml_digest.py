@@ -215,11 +215,22 @@ class XmlDigest:
         self._root.append(self._signature)
 
         try:
+            if self._policy is None:
+                raise Exception("Policy is empty!")
             context = XAdESContext(self._policy)
+            if self._certificate is None:
+                raise Exception("Certificate is empty!")
             context.load_pkcs12(self._certificate)
+
+            LOGGER.warning("Starting signing")
+            LOGGER.info("Policy : %s --> %s" % (self._policy, self._policy.identifier))
+            LOGGER.info("Certificate : %s" % str(self._certificate))
+            LOGGER.info("Signature : %s" % self._signature)
+
             context.sign(self._signature)
+            LOGGER.warning("Signing finished sucefully!")
         except Exception as error:
-            LOGGER.warning("Error signing: %s", str(error))
+            LOGGER.warning("Error signing: %s" % str(error))
             return False
 
         self._is_signed = True
