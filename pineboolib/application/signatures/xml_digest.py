@@ -22,7 +22,7 @@ class XmlDigest:
     _policy_list: List[str]
     _cert_path: str
     _certificate: Any
-    _policy: str
+    _policy: Optional["policy.GenericPolicyId"]
     _signature: str
     _is_signed: bool
     _sha: Optional[int]
