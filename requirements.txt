@@ -25,7 +25,7 @@ sqlalchemy==1.4.0b1
 sqlparse==0.3.1
 twine==3.1.1
 watchdog>=0.10.2
-xades==0.2.2
+xades==0.2.1
 xmlsig==0.1.7
 Pillow==8.2.0
 PyYAML==5.3.1
