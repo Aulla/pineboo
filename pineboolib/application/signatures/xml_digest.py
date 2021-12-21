@@ -91,7 +91,7 @@ class XmlDigest:
 
         custom_policy: List[Any] = list(self._policy_list)
         if len(custom_policy) == 1:
-            custom_policy += [""]
+            custom_policy += ["Policy description"]
         custom_policy.append(self._sha)
 
         try:
