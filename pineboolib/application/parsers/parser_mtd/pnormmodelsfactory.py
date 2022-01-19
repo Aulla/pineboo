@@ -104,7 +104,7 @@ def save_model(path_, name: str) -> bool:
 def load_models() -> None:
     """Load all sqlAlchemy models."""
     # print("LOADING MODELS!!!")
-    db_admin = bool(settings.CONFIG.value("application/dbadmin_enabled", False))
+    db_admin = application.PROJECT._db_admin_mode
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
@@ -151,7 +151,7 @@ def load_models() -> None:
             if metadata.isQuery():
                 views_[name] = data
             else:
-                application.PROJECT.conn_manager.manager().metadata(name)
+                application.PROJECT.conn_manager.manager().metadata(name, not db_admin)
     # views las últimas...
     for key, data in views_.items():
         save_model(data, key)

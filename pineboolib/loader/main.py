@@ -359,9 +359,10 @@ def exec_main(options: "optparse.Values") -> int:
         monkey_patch_connect()
 
     if options.enable_dbadmin:
+        application.PROJECT._db_admin_mode = True
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
-
     if options.enable_quick:
+        application.PROJECT._db_admin_mode = False
         settings.CONFIG.set_value("application/dbadmin_enabled", False)
 
     if options.main_form:
@@ -412,6 +413,7 @@ def exec_main(options: "optparse.Values") -> int:
             if configdb is None:
                 return 2
         else:
+            application.PROJECT._db_admin_mode = True
             settings.CONFIG.set_value("application/dbadmin_enabled", True)
             configdb = connection.DEFAULT_SQLITE_CONN
 
