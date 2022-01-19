@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import traceback
-from pineboolib import application, logging
+from pineboolib import logging
 
 from typing import TYPE_CHECKING
 
