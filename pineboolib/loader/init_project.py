@@ -52,6 +52,11 @@ def init_project(
         if options.quit_after_call:
             return 0
 
+    if "plus_sys" in project.actions.keys():
+        project.call("formplus_sys.main", [], None, False)
+        if options.quit_after_call:
+            return 0
+
     if main_window is not None:
         project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
         # main_window = main_form.mainWindow
