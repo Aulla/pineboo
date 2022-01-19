@@ -28,9 +28,6 @@ class FormInternalObj(qsa.FormDBWidget):
         if not app_:
             return
 
-        if "plus_sys" in application.PROJECT.actions.keys():
-            application.PROJECT.call("formplus_sys.main", [])
-
         if qsa.SysType().isLoadedModule("flfactppal"):
             cod_ejercicio = None
             try:
