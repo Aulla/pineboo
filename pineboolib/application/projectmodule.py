@@ -68,6 +68,7 @@ class Project(object):
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
     USE_FLFILES_FOLDER: str = ""
+    _db_admin_mode: bool = None
 
     def __init__(self) -> None:
         """Initialize."""
@@ -89,7 +90,8 @@ class Project(object):
         self.files = {}  # FIXME: Add proper type
         self.areas = {}
         self.modules = {}
-        # self.options = Values()
+        self._db_admin_mode = settings.CONFIG.value("application/dbadmin_enabled", False)
+
         import pathlib
 
         if not self.tmpdir:
@@ -550,11 +552,7 @@ class Project(object):
         """Initialize current version numbers."""
         from . import PINEBOO_VER
 
-        return (
-            "DBAdmin v%s" % PINEBOO_VER
-            if settings.CONFIG.value("application/dbadmin_enabled", False)
-            else "Quick v%s" % PINEBOO_VER
-        )
+        return "DBAdmin v%s" % PINEBOO_VER if self._db_admin_mode else "Quick v%s" % PINEBOO_VER
 
     def message_manager(self):
         """Return message manager for splash and progress."""
