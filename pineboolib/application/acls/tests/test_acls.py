@@ -335,7 +335,7 @@ class TestACLS(unittest.TestCase):
         application.PROJECT.aq_app.set_acl(acl)
 
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
-
+        application.PROJECT._db_admin_mode = True
         project = application.PROJECT
         # project.main_form = eneboo
         main_form_class = getattr(eneboo, "MainForm", None)
@@ -374,7 +374,6 @@ class TestACLS(unittest.TestCase):
         acl.init()
         application.PROJECT.aq_app.set_acl(acl)
 
-        settings.CONFIG.set_value("application/dbadmin_enabled", True)
         project = application.PROJECT
         main_form_class = getattr(eneboo, "MainForm", None)
         # main_form_ = getattr(project.main_form, "MainForm", None)
