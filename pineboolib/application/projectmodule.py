@@ -69,7 +69,7 @@ class Project(object):
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
     USE_FLFILES_FOLDER: str = ""
-    _db_admin_mode: bool = None
+    _db_admin_mode: bool = False
 
     def __init__(self) -> None:
         """Initialize."""

@@ -40,7 +40,6 @@ from pineboolib.application.utils import path
 from pineboolib.application import load_script, qsadictmodules
 from pineboolib.application.database.orm import basemodel
 from pineboolib import logging, application
-from pineboolib.core import settings
 from . import pnmtdparser
 import sqlalchemy
 
