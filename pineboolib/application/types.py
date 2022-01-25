@@ -304,12 +304,16 @@ class Array(object):
     ) -> Union[List[Any], Dict[str, Any]]:
         """Return arrays concatenated."""
 
-        if len(args) and isinstance(args[1], (list, Array)):
+        if len(args) > 1 and isinstance(args[1], (list, Array)):
             result_list: List[Any] = []
             for item in args:
                 result_list += item
 
             return result_list
+        elif len(args) == 1 and isinstance(args[0], (list, Array)):
+            for item in args[0]:
+                self.append(item)
+            return self
 
         else:
             result_array: Dict[str, Any] = {}
