@@ -341,7 +341,7 @@ class Array(object):
         elif len(args) == 1 and isinstance(args[0], (list, Array)):
             for item in args[0]:
                 self.append(item)
-            return self
+            return self  # type: ignore [return-value]
 
         else:
             result = {}
