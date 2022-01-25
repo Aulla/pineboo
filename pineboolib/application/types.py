@@ -332,12 +332,16 @@ class Array(object):
     def concat(self, *args):
         """Return arrays concatenated."""
 
-        if len(args) and isinstance(args[1], (list, Array)):
+        if len(args) > 1 and isinstance(args[1], (list, Array)):
             result: List[Any] = []
             for item in args:
                 result += item
 
             return result
+        elif len(args) == 1 and isinstance(args[0], (list, Array)):
+            for item in args[0]:
+                self.append(item)
+            return self
 
         else:
             result = {}
