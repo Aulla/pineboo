@@ -589,6 +589,37 @@ class TestPNSqlQuery2(unittest.TestCase):
         qry.sql_inspector.resolve()
         self.assertTrue(qry.sql_inspector.suspected_injection())
 
+    def test_or_and_not_in_where(self) -> None:
+        """Test or and not in where."""
+
+        sql = (
+            "SELECT crm_contactos.codcontacto,crm_contactos.nombre,crm_contactos.email,crm_contactos.telefono1,"
+            + "crm_contactos.codagente,COUNT(ss_tratos.idtrato),SUM(ss_tratos.valor) FROM crm_contactos "
+            + "LEFT OUTER JOIN ss_tratos ON crm_contactos.codcontacto = ss_tratos.codcontacto AND "
+            + "crm_contactos.codagente = ss_tratos.codagente AND (ss_tratos.estado is null or ss_tratos.estado "
+            + "NOT IN ('Ganado','Perdido')) WHERE ((crm_contactos.nombre ILIKE '%%%%' OR crm_contactos.email ILIKE '%%%%'"
+            + " OR crm_contactos.telefono1 ILIKE '%%%%') AND crm_contactos.codagente IN ('555')) "
+            + "GROUP BY crm_contactos.codcontacto,crm_contactos.nombre,crm_contactos.email,crm_contactos.telefono1,"
+            + "crm_contactos.codagente ORDER BY crm_contactos.codcontacto ASC LIMIT 51"
+        )
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.sql_inspector.set_sql(sql)
+        qry.sql_inspector.resolve()
+        self.assertEqual(
+            qry.sql_inspector.field_list(),
+            {
+                "crm_contactos.codcontacto": 0,
+                "crm_contactos.nombre": 1,
+                "crm_contactos.email": 2,
+                "crm_contactos.telefono1": 3,
+                "crm_contactos.codagente": 4,
+                "count(ss_tratos.idtrato)": 5,
+                "sum(ss_tratos.valor)": 6,
+            },
+        )
+        self.assertEqual(qry.sql_inspector.table_names(), ["crm_contactos", "ss_tratos"])
+
     def test_as_in_select(self) -> None:
         """Test as in select."""
         sql = (
