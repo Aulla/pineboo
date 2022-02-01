@@ -419,7 +419,7 @@ class SqlInspector(object):
                     last_was_table = True
                     continue
 
-                elif table == "and":
+                elif table in ("and", "or"):
                     jump = 3
                     last_was_table = False
 
