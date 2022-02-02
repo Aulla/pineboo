@@ -1,7 +1,8 @@
 """Dummy_cursor module."""
 
+
 from pineboolib.core.utils import logging
-from pineboolib.application.metadata import pntablemetadata
+from pineboolib.application.metadata import pntablemetadata, pnaction
 from pineboolib import application
 
 from typing import Any, Optional, TYPE_CHECKING
@@ -107,6 +108,11 @@ class DummyCursor(object):
         """Return if buffer is modified."""
 
         return len(self._parent.changes()) > 0
+
+    def action(self) -> "pnaction.PNAction":
+        """Return PNAction."""
+
+        return pnaction.PNAction(self._parent._action)
 
     def getattr(self, name: str) -> None:
         """Search unknown functions."""

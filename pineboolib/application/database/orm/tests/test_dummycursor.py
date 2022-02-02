@@ -45,7 +45,7 @@ class TestDummyCursor(unittest.TestCase):
         self.assertTrue(fake_cursor.isModifiedBuffer())
 
     def test_basic_2(self) -> None:
-        """Test basic."""
+        """Test basic 2."""
 
         class_area = qsa.orm.flareas
         self.assertTrue(class_area)
@@ -58,3 +58,16 @@ class TestDummyCursor(unittest.TestCase):
         self.assertEqual(fake_cursor.primaryKey(), "idarea")
         self.assertTrue(fake_cursor.db())
         self.assertTrue(fake_cursor.metadata() is not None)
+
+    def test_basic_3(self) -> None:
+        """Test basic 3."""
+
+        class_area = qsa.orm.flareas
+        self.assertTrue(class_area)
+        obj_ = class_area()
+
+        fake_cursor = obj_.cursor
+
+        self.assertTrue(fake_cursor)
+        self.assertEqual(fake_cursor.action(), "flareas")
+        self.assertTrue(fake_cursor.action() == "flareas")
