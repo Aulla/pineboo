@@ -740,7 +740,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name Nombre del campo a comprobar
         @return TRUE si está deshabilitado y FALSE en caso contrario
         """
-        ret = False
+
         mode_access = self.modeAccess()
         if mode_access in (self.Insert, self.Edit):
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:

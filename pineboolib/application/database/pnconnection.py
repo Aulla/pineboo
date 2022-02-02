@@ -10,9 +10,6 @@ from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
 
-import time
-
-
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
 

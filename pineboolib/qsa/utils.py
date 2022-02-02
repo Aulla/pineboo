@@ -9,7 +9,6 @@ import threading
 import os
 
 from PyQt5 import QtCore
-from sqlalchemy.orm.session import sessionmaker  # type: ignore[import]
 from pineboolib.application import types
 from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging

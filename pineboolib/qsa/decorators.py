@@ -4,7 +4,7 @@ from pineboolib import application
 from . import utils
 
 
-from typing import Callable, Any, TypeVar, cast, Optional, TYPE_CHECKING
+from typing import Callable, Any, TypeVar, cast, TYPE_CHECKING
 
 import threading
 import functools

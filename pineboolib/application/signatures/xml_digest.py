@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12  # type: ignore[
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
 
-from typing import List, Optional, Any, Union, Tuple
+from typing import List, Optional, Any, Union
 
 LOGGER = logging.get_logger(__name__)
 
@@ -277,4 +277,3 @@ class XmlDigest:
                 LOGGER.warning("Error saving file %s: %s", file_path, str(error))
 
         return False
-

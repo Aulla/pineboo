@@ -1,6 +1,6 @@
 """Basemodel module."""
 
-from pineboolib.core.utils import logging, utils_base
+from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
 from pineboolib import application
