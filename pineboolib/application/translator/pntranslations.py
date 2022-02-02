@@ -6,7 +6,7 @@ from pineboolib.core import decorators
 from pineboolib import application, logging
 
 from PyQt5 import QtCore, Qt
-from typing import Any, Union
+from typing import Any
 
 
 """
@@ -20,9 +20,7 @@ class PNTranslations(object):
     FLTranslations class manages the different module and application traductions.
     """
 
-    def loadTsFile(
-        self, tor: Any, ts_file_name: Union[bytes, int, str], verbose: bool = False
-    ) -> bool:
+    def loadTsFile(self, tor: Any, ts_file_name: str, verbose: bool = False) -> bool:
         """
         If the .qm does not exist, convert the .ts we give to .qm.
 

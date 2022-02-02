@@ -1178,7 +1178,11 @@ class FLFieldDB(QtWidgets.QWidget):
         if type_ == "double":
             editor_dbl = cast(fllineedit.FLLineEdit, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_dbl.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_dbl.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.debug("Error al desconectar señal textChanged", exc_info=True)
             text_ = None
@@ -1203,7 +1207,9 @@ class FLFieldDB(QtWidgets.QWidget):
                         text_ = "%s0" % text_
                 editor_dbl.setText(text_)
 
-            cast(QtCore.pyqtSignal, editor_dbl.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_dbl.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
             # if v == None and not nulo:
             #    self.editor_.setText("0.00")
@@ -1214,7 +1220,11 @@ class FLFieldDB(QtWidgets.QWidget):
             if not hol:
                 editor_str = cast(fllineedit.FLLineEdit, self.editor_)
                 try:
-                    cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, editor_str.textChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal textChanged")
             else:
@@ -1240,14 +1250,22 @@ class FLFieldDB(QtWidgets.QWidget):
                 if do_home:
                     editor_str.home(False)
 
-                cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_str.textChanged
+                ).connect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
 
         elif type_ in ("timestamp", "json"):
 
             do_home = False
             editor_str = cast(fllineedit.FLLineEdit, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_str.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
@@ -1260,12 +1278,18 @@ class FLFieldDB(QtWidgets.QWidget):
             if do_home:
                 editor_str.home(False)
 
-            cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_str.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ in ("int", "uint"):
             editor_int = cast(fllineedit.FLLineEdit, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_int.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_int.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
@@ -1286,17 +1310,27 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     editor_int.setText(value)
 
-            cast(QtCore.pyqtSignal, editor_int.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_int.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "serial":
             editor_serial = cast(fllineedit.FLLineEdit, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_serial.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_serial.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
             editor_serial.setText(str(0))
 
-            cast(QtCore.pyqtSignal, editor_serial.textChanged).connect(self.updateValue)
+            cast(
+                QtCore.pyqtSignal, editor_serial.textChanged
+            ).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "pixmap":
             if not hasattr(self, "_editor_img"):
@@ -1360,7 +1394,11 @@ class FLFieldDB(QtWidgets.QWidget):
 
             else:
                 try:
-                    cast(QtCore.pyqtSignal, editor_date.dateChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, editor_date.dateChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal textChanged")
 
@@ -1371,7 +1409,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     editor_date.setDate()
 
-                cast(QtCore.pyqtSignal, editor_date.dateChanged).connect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_date.dateChanged
+                ).connect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
 
         elif type_ == "time":
             editor_time = cast(fltimeedit.FLTimeEdit, self.editor_)
@@ -1387,19 +1429,31 @@ class FLFieldDB(QtWidgets.QWidget):
 
             else:
                 try:
-                    cast(QtCore.pyqtSignal, editor_time.timeChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, editor_time.timeChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal timeChanged")
 
                 if value is not None:
                     editor_time.setTime(value)
 
-                cast(QtCore.pyqtSignal, editor_time.timeChanged).connect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_time.timeChanged
+                ).connect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
 
         elif type_ == "stringlist":
             editor_sl = cast(qtextedit.QTextEdit, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_sl.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal timeChanged")
             if value is not None:
@@ -1407,12 +1461,18 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 def_val = field.defaultValue() or ""
                 editor_sl.setText(str(def_val))
-            cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "bool":
             editor_bool = cast(flcheckbox.FLCheckBox, self.editor_)
             try:
-                cast(QtCore.pyqtSignal, editor_bool.toggled).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_bool.toggled
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal toggled")
 
@@ -1424,7 +1484,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 if def_val is not None:
                     editor_bool.setChecked(def_val)
 
-            cast(QtCore.pyqtSignal, editor_bool.toggled).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_bool.toggled).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         if not field.visible():
             if self.editor_:
@@ -1470,7 +1532,11 @@ class FLFieldDB(QtWidgets.QWidget):
             if float(str(e_text)) == float(value):
                 return
             try:
-                cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_le.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
@@ -1479,7 +1545,9 @@ class FLFieldDB(QtWidgets.QWidget):
 
             editor_le.setText(value, False)
 
-            cast(QtCore.pyqtSignal, editor_le.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_le.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "string":
             do_home = False
@@ -1497,7 +1565,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not editor.text():
                     do_home = True
 
-                cast(QtCore.pyqtSignal, editor.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
 
             if value:
                 if has_options_list:
@@ -1517,21 +1589,29 @@ class FLFieldDB(QtWidgets.QWidget):
                 if do_home:
                     editor.home(False)
 
-                cast(QtCore.pyqtSignal, editor.textChanged).connect(self.updateValue)
+                cast(QtCore.pyqtSignal, editor.textChanged).connect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
 
         elif type_ in ("uint", "int", "serial", "timestamp", "json"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             if value == editor_le.text():
                 return
             try:
-                cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_le.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
                 editor_le.setText(value)
 
-            cast(QtCore.pyqtSignal, editor_le.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_le.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "pixmap":
             if not self._editor_img:
@@ -1570,11 +1650,17 @@ class FLFieldDB(QtWidgets.QWidget):
                 return
 
             try:
-                cast(QtCore.pyqtSignal, editor_d.dateChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_d.dateChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal dateChanged")
             editor_d.setDate(value)
-            cast(QtCore.pyqtSignal, editor_d.dateChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_d.dateChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "time":
             editor_t = cast(fltimeedit.FLTimeEdit, self.editor_)
@@ -1582,7 +1668,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 return
 
             try:
-                cast(QtCore.pyqtSignal, editor_t.timeChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_t.timeChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
@@ -1590,7 +1680,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 value = "00:00:00"
 
             editor_t.setTime(value)
-            cast(QtCore.pyqtSignal, editor_t.timeChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_t.timeChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "stringlist":
             editor_sl = cast(qtextedit.QTextEdit, self.editor_)
@@ -1598,12 +1690,18 @@ class FLFieldDB(QtWidgets.QWidget):
                 return
 
             try:
-                cast(QtCore.pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
+                cast(
+                    QtCore.pyqtSignal, editor_sl.textChanged
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
             editor_sl.setText(value)
-            cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         elif type_ == "bool":
             editor_b = cast(flcheckbox.FLCheckBox, self.editor_)
@@ -1611,12 +1709,16 @@ class FLFieldDB(QtWidgets.QWidget):
                 return
 
             try:
-                cast(QtCore.pyqtSignal, editor_b.toggled).disconnect(self.updateValue)
+                cast(QtCore.pyqtSignal, editor_b.toggled).disconnect(  # type: ignore [attr-defined]
+                    self.updateValue
+                )
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
             editor_b.setChecked(value)
-            cast(QtCore.pyqtSignal, editor_b.toggled).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, editor_b.toggled).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
     def initCursor(self) -> None:
         """
@@ -2056,7 +2158,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    except Exception:
                         #        LOGGER.exception("Error al desconectar señal")
                         triggered = cast(QtCore.pyqtSignal, savepixmap_.triggered)
-                        triggered.connect(self.savePixmap)
+                        triggered.connect(self.savePixmap)  # type: ignore [attr-defined]
 
                     if self._push_button_db:
                         if has_push_button_db:
@@ -2107,11 +2209,19 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if self._showed:
                 try:
-                    cast(QtCore.pyqtSignal, self.editor_.dateChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, self.editor_.dateChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal")
 
-            cast(QtCore.pyqtSignal, self.editor_.dateChanged).connect(self.updateValue)
+            cast(
+                QtCore.pyqtSignal, self.editor_.dateChanged
+            ).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
             if (
                 self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert
                 and not field.allowNull()
@@ -2138,11 +2248,19 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._push_button_db.hide()
             if self._showed:
                 try:
-                    cast(QtCore.pyqtSignal, self.editor_.timeChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, self.editor_.timeChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal")
 
-            cast(QtCore.pyqtSignal, self.editor_.timeChanged).connect(self.updateValue)
+            cast(
+                QtCore.pyqtSignal, self.editor_.timeChanged
+            ).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
             if (
                 self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert
                 and not field.allowNull()
@@ -2185,11 +2303,19 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if self._showed:
                 try:
-                    cast(QtCore.pyqtSignal, self.editor_.textChanged).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, self.editor_.textChanged
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal")
 
-            cast(QtCore.pyqtSignal, self.editor_.textChanged).connect(self.updateValue)
+            cast(
+                QtCore.pyqtSignal, self.editor_.textChanged
+            ).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
             self.keyF4Pressed.connect(self.toggleAutoCompletion)
             if self._auto_com_mode == "OnDemandF4":
@@ -2309,10 +2435,16 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.installEventFilter(self)
             if self._showed:
                 try:
-                    cast(QtCore.pyqtSignal, self.editor_.activated).disconnect(self.updateValue)
+                    cast(
+                        QtCore.pyqtSignal, self.editor_.activated
+                    ).disconnect(  # type: ignore [attr-defined]
+                        self.updateValue
+                    )
                 except Exception:
                     LOGGER.exception("Error al desconectar señal")
-            cast(QtCore.pyqtSignal, self.editor_.activated).connect(self.updateValue)
+            cast(QtCore.pyqtSignal, self.editor_.activated).connect(  # type: ignore [attr-defined]
+                self.updateValue
+            )
 
         else:
 

@@ -677,7 +677,9 @@ class FLFormDB(QtWidgets.QDialog):
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            cast(QtCore.pyqtSignal, self.pushButtonCancel.clicked).connect(
+            cast(
+                QtCore.pyqtSignal, self.pushButtonCancel.clicked
+            ).connect(  # type: ignore [attr-defined]
                 cast(Callable, self.close)
             )
 

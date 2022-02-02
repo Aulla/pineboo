@@ -113,8 +113,8 @@ class QHttpRequest(object):
         if not self._valid:
             return ""
         ret_ = ""
-        for k, v in self._values:
-            ret_ += "%s:%s\r\n" % (k, v)
+        for key, value in self._values.items():
+            ret_ += "%s:%s\r\n" % (key, value)
 
         return ret_
 
@@ -366,7 +366,9 @@ class QHttp(HttpState, HttpError):
 
         self._manager = QtNetwork.QNetworkAccessManager()
         # self._request = QtNetwork.QNetworkRequest()
-        cast(QtCore.pyqtSignal, self._manager.finished).connect(self._slotNetworkFinished)
+        cast(QtCore.pyqtSignal, self._manager.finished).connect(  # type: ignore [attr-defined]
+            self._slotNetworkFinished
+        )
 
         self._error_str = self.tr("Unknown error")
 
@@ -482,8 +484,14 @@ class QHttp(HttpState, HttpError):
         else:
             self._reply = method_(_request, data_)
 
-        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
-        cast(QtCore.pyqtSignal, self._reply.uploadProgress).connect(self._slotNetworkProgressSend)
+        cast(
+            QtCore.pyqtSignal, self._reply.downloadProgress
+        ).connect(  # type: ignore [attr-defined]
+            self._slotNetworkProgressRead
+        )
+        cast(QtCore.pyqtSignal, self._reply.uploadProgress).connect(  # type: ignore [attr-defined]
+            self._slotNetworkProgressSend
+        )
         self._state = self.Connected
         self._current_id = request_header._id
         self.requestStarted.emit(request_header._id)

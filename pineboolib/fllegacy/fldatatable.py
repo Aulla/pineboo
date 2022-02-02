@@ -193,7 +193,11 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
-                cast(QtCore.pyqtSignal, self.cursor_.commited).disconnect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).disconnect(  # type: ignore [attr-defined]
+                    self.refresh
+                )
 
                 cur_chg = True
 
@@ -207,7 +211,11 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.only_table_)
 
-                cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).connect(  # type: ignore [attr-defined]
+                    self.refresh
+                )
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())

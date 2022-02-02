@@ -24,7 +24,7 @@ class QRadioButton(QtWidgets.QRadioButton):
         super().setChecked(False)
         self.dg_id = None
 
-        cast(pyqtSignal, self.clicked).connect(self.send_clicked)
+        cast(pyqtSignal, self.clicked).connect(self.send_clicked)  # type: ignore [attr-defined]
 
     def setButtonGroupId(self, id: int) -> None:
         """Set button group id."""

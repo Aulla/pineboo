@@ -41,9 +41,15 @@ class QListView(QtWidgets.QWidget):
         self._key = ""
         self._root_item = None
         self._current_row = -1
-        cast(QtCore.pyqtSignal, self._tree.doubleClicked).connect(self.doubleClickedEmit)
-        cast(QtCore.pyqtSignal, self._tree.clicked).connect(self.singleClickedEmit)
-        cast(QtCore.pyqtSignal, self._tree.activated).connect(self.singleClickedEmit)
+        cast(QtCore.pyqtSignal, self._tree.doubleClicked).connect(  # type: ignore [attr-defined]
+            self.doubleClickedEmit
+        )
+        cast(QtCore.pyqtSignal, self._tree.clicked).connect(  # type: ignore [attr-defined]
+            self.singleClickedEmit
+        )
+        cast(QtCore.pyqtSignal, self._tree.activated).connect(  # type: ignore [attr-defined]
+            self.singleClickedEmit
+        )
 
     def singleClickedEmit(self, index: Any) -> None:
         """Emit single clicked signal."""

@@ -123,7 +123,9 @@ def slot_done(
         if caller is not None:
             try:
                 # PyQt5-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
-                caller_signal_name: str = getattr(caller.signal_test, "signal")
+                caller_signal_name: str = getattr(
+                    caller.signal_test, "signal"  # type: ignore [arg-type]
+                )
                 if original_signal_name != caller_signal_name:
                     signal_name = original_signal_name[
                         1 : original_signal_name.find("(")
@@ -134,7 +136,7 @@ def slot_done(
                         args if args else "",
                         kwargs if kwargs else "",
                     )
-                    caller.signal_test.emit(signal_name, sender)
+                    caller.signal_test.emit(signal_name, sender)  # type: ignore [arg-type]
             except Exception:
                 LOGGER.trace("Error emitting signal_test", exc_info=True)
 
@@ -204,7 +206,7 @@ def disconnect(
         return None
     signal_, real_slot = signal_slot
     try:
-        signal_.disconnect(real_slot)
+        signal_.disconnect(real_slot)  # type: ignore [attr-defined]
     except Exception:
         LOGGER.trace("Error disconnecting %r", (sender, signal, receiver, slot), exc_info=True)
 

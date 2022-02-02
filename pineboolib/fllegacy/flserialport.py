@@ -101,7 +101,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return actual baud rate."""
         return self._obj.baudRate()
 
-    def setDataBits(self, data_bits: int) -> None:
+    def setDataBits(self, data_bits: "QtSerialPort.QSerialPort.DataBits") -> None:
         """Set data bits."""
         self._obj.setDataBits(data_bits)
 
@@ -109,7 +109,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return actual data bits."""
         return self._obj.dataBits()
 
-    def setParity(self, parity: int) -> None:
+    def setParity(self, parity: "QtSerialPort.QSerialPort.Parity") -> None:
         """Set parity check value."""
         self._obj.setParity(parity)
 
@@ -117,7 +117,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return parity check."""
         return self._obj.parity()
 
-    def setStopBits(self, stop_bit: int) -> None:
+    def setStopBits(self, stop_bit: "QtSerialPort.QSerialPort.StopBits") -> None:
         """Set stop bits."""
         self._obj.setStopBits(stop_bit)
 
@@ -125,7 +125,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return stop bits."""
         return self._obj.stopBits()
 
-    def setFlowControl(self, flow: int) -> None:
+    def setFlowControl(self, flow: "QtSerialPort.QSerialPort.FlowControl") -> None:
         """Set flow conrol."""
         self._obj.setFlowControl(flow)
 
@@ -144,11 +144,11 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
 
     def open(self) -> bool:
         """Return if port is open."""
-        return self._obj.open()
+        return self._obj.open()  # type: ignore [call-arg]
 
-    def close(self) -> bool:
+    def close(self) -> None:
         """Return if port is closed."""
-        return self._obj.close()
+        self._obj.close()
 
     @decorators.not_implemented_warn
     def writeText(self, data: str) -> None:

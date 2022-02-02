@@ -26,7 +26,6 @@ from typing import (
     Callable,
     Iterable,
     Dict,
-    Tuple,
     TYPE_CHECKING,
 )
 
@@ -574,7 +573,7 @@ def set_user_id(user_id: str) -> None:
     from_project("sys").iface.current_user = user_id
 
 
-def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Session"]:
+def driver_session(conn_name: str = "default") -> "orm_session.Session":
     """Return driver session."""
 
     return application.PROJECT.conn_manager.useConn(conn_name).driver().session()

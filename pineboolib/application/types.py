@@ -329,7 +329,9 @@ class Array(object):
 
         return value
 
-    def concat(self, *args):
+    def concat(
+        self, *args: Union[List[Any], Dict[str, Any], "Array"]
+    ) -> Union[List[Any], Dict[str, Any]]:
         """Return arrays concatenated."""
 
         if len(args) > 1 and isinstance(args[1], (list, Array)):
@@ -344,12 +346,12 @@ class Array(object):
             return self  # type: ignore [return-value]
 
         else:
-            result = {}
+            result_dict = {}
             for item in args:
                 for key, value in item.items():  # type: ignore [union-attr]
-                    result[key] = value
+                    result_dict[key] = value
 
-            return result
+            return result_dict
 
 
 AttributeDict = StructMyDict

@@ -191,7 +191,11 @@ class MainForm(imainwindow.IMainWindow):
         if self.window_menu is None:
             raise Exception("initMenuBar. self.window_menu is empty!")
 
-        cast(QtCore.pyqtSignal, self.window_menu.aboutToShow).connect(self.windowMenuAboutToShow)
+        cast(
+            QtCore.pyqtSignal, self.window_menu.aboutToShow
+        ).connect(  # type: ignore [attr-defined]
+            self.windowMenuAboutToShow
+        )
 
     def initToolBar(self) -> None:
         """Initialize toolbar."""

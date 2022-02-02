@@ -332,7 +332,9 @@ class MainForm(imainwindow.IMainWindow):
                 return True
 
             elif isinstance(obj_, QtWidgets.QDockWidget):
-                cast(QtCore.pyqtSignal, obj_.topLevelChanged).emit(False)
+                cast(QtCore.pyqtSignal, obj_.topLevelChanged).emit(  # type: ignore [attr-defined]
+                    False
+                )
             elif isinstance(obj_, flformdb.FLFormDB):
                 for number in range(self.tab_widget.count()):
                     if self.tab_widget.widget(number) is obj_:
@@ -1095,7 +1097,11 @@ class MainForm(imainwindow.IMainWindow):
             # action.setChecked(dock.doc_widget.isVisible())
             dock.set_visible.connect(action.setChecked)
             action.triggered.connect(dock.change_state)
-            cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(action.setChecked)
+            cast(
+                QtCore.pyqtSignal, dock.doc_widget.topLevelChanged
+            ).connect(  # type: ignore [attr-defined]
+                action.setChecked
+            )
             # dock.doc_widget.Close.connect(action.setChecked)
 
     def cloneAction(self, old_action, parent) -> Any:

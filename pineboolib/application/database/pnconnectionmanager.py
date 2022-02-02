@@ -290,7 +290,7 @@ class PNConnectionManager(QtCore.QObject):
         if isinstance(conn_or_session, pnconnection.PNConnection):
             session = conn_or_session.session(False)
         else:
-            session = conn_or_session
+            session = conn_or_session  # type: ignore [assignment]
 
         try:
             session.execute("SELECT 1").fetchone()
@@ -394,7 +394,7 @@ class PNConnectionManager(QtCore.QObject):
             if not isinstance(session_or_id, str):
                 session = session_or_id
             else:
-                session = self.useConn(session_or_id)
+                session = self.useConn(session_or_id)  # type: ignore [assignment]
 
         if session is not None:
             try:

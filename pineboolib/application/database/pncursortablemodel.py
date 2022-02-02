@@ -660,7 +660,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.beginRemoveRows(parent, 0, rows)
         self.endRemoveRows()
         if rows > 0:
-            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
+            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(  # type: ignore [attr-defined]
+                parent, 0, rows - 1
+            )
 
         self._refresh_field_info()
 

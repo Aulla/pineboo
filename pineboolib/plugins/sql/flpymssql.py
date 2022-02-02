@@ -2,7 +2,6 @@
 
 
 from pineboolib.core import decorators
-from pineboolib.core.utils import utils_base
 
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
@@ -12,7 +11,7 @@ from . import pnsqlschema
 
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
-from typing import Optional, Union, List, Any, Tuple, TYPE_CHECKING
+from typing import Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
@@ -55,7 +54,7 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
         # conn_.execute("set transaction isolation level read uncommitted;")
         return conn_
 
-    def session(self) -> Tuple[str, "orm_session.Session"]:
+    def session(self) -> "orm_session.Session":
         """Create a sqlAlchemy session."""
         while True:
             session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
@@ -67,9 +66,7 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        session_key = utils_base.session_id(self.db_._name, True)
-        self.db_._conn_manager._thread_sessions[session_key] = new_session
-        return (session_key, new_session)
+        return new_session
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""

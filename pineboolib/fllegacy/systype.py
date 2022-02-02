@@ -1655,8 +1655,16 @@ class AbanQDbDumper(QtCore.QObject):
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
         # FIXME: Mejorar lectura linea a linea
-        cast(QtCore.pyqtSignal, self.proc_.readyReadStandardOutput).connect(self.readFromStdout)
-        cast(QtCore.pyqtSignal, self.proc_.readyReadStandardError).connect(self.readFromStderr)
+        cast(
+            QtCore.pyqtSignal, self.proc_.readyReadStandardOutput
+        ).connect(  # type: ignore [attr-defined]
+            self.readFromStdout
+        )
+        cast(
+            QtCore.pyqtSignal, self.proc_.readyReadStandardError
+        ).connect(  # type: ignore [attr-defined]
+            self.readFromStderr
+        )
         self.proc_.start()
 
         while self.proc_.running:

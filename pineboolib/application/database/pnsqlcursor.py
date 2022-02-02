@@ -2193,7 +2193,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         obj_ = self.private_cursor._model
         del self.private_cursor._model
-        self.private_cursor._model = None
+        self.private_cursor._model = None  # type: ignore [assignment]
         garbage_collector.check_delete(obj_, "cursor_%s.tableModel" % self.curName())
 
     @decorators.pyqt_slot()

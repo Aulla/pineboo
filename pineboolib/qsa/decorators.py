@@ -150,10 +150,10 @@ def _delete_data(conn_name: str = "", wait: bool = True) -> None:
             LOGGER.debug("Removing sessions from connection %s", conn_name)
         if conn._session_atomic is not None:
             conn._session_atomic.close()
-            conn._session_atomic = None
+            conn._session_atomic = None  # type: ignore [assignment]
         if conn._session_legacy is not None:
             conn._session_legacy.close()
-            conn._session_legacy = None
+            conn._session_legacy = None  # type: ignore [assignment]
 
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
         time.sleep(0.05)
@@ -168,6 +168,6 @@ def _delete_data(conn_name: str = "", wait: bool = True) -> None:
         key = utils_base.session_id(conn_name)
         if id_thread in application.SERIALIZE_LIST.keys():
             if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-                application.SERIALIZE_LIST[id_thread].remove(
+                application.SERIALIZE_LIST[id_thread].remove(  # type: ignore [index] # noqa: F821
                     key
-                )  # type: ignore [index] # noqa: F821
+                )

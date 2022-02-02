@@ -112,7 +112,7 @@ class DummyCursor(object):
     def action(self) -> "pnaction.PNAction":
         """Return PNAction."""
 
-        return pnaction.PNAction(self._parent._action)
+        return pnaction.PNAction(self._parent._action)  # type: ignore [arg-type]
 
     def getattr(self, name: str) -> None:
         """Search unknown functions."""
