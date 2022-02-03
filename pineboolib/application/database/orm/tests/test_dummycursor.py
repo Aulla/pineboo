@@ -1,5 +1,6 @@
 """Test dummycursor module."""
 
+import datetime
 import unittest
 
 from pineboolib.loader.main import init_testing
@@ -71,3 +72,16 @@ class TestDummyCursor(unittest.TestCase):
         self.assertTrue(fake_cursor)
         self.assertEqual(fake_cursor.action(), "flareas")
         self.assertTrue(fake_cursor.action() == "flareas")
+
+    def test_basic_4(self) -> None:
+        """Test basic 4."""
+
+        class_fltest2 = qsa.orm.fltest2
+        self.assertTrue(class_fltest2)
+
+        obj_ = class_fltest2()
+
+        fake_cursor = obj_.cursor
+        fake_cursor.setValueBuffer("date_field", datetime.datetime.now())
+        self.assertTrue(isinstance(fake_cursor.valueBuffer("date_field"), qsa.Date))
+
