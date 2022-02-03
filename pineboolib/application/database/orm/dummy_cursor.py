@@ -3,7 +3,10 @@
 
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata, pnaction
+from pineboolib.application import types
 from pineboolib import application
+import datetime
+
 
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -33,11 +36,22 @@ class DummyCursor(object):
     def valueBuffer(self, field_name: str) -> Any:
         """Return field value."""
 
-        return (
+        value = (
             self._parent._cached_bufferchanged[field_name]
             if field_name in self._parent._cached_bufferchanged.keys()
             else getattr(self._parent, field_name)
         )
+
+        type_ = self.metadata().field(field_name).type()
+
+        if type_ == "date":
+            if isinstance(value, datetime.date):
+                value = types.Date(value.strftime("%Y-%m-%d"))
+        elif type_ == "time":
+            if isinstance(value, datetime.time):
+                value = value.strftime("%H:%M:%S")
+
+        return value
 
     def modeAccess(self) -> int:
         """Return mode_access."""
@@ -49,7 +63,18 @@ class DummyCursor(object):
     def valueBufferCopy(self, field_name: str) -> Any:
         """Return field value copy."""
 
-        return getattr(self._parent.copy(), field_name)
+        value = getattr(self._parent.copy(), field_name)
+
+        type_ = self.metadata().field(field_name).type()
+
+        if type_ == "date":
+            if isinstance(value, datetime.date):
+                value = types.Date(value.strftime("%Y-%m-%d"))
+        elif type_ == "time":
+            if isinstance(value, datetime.time):
+                value = value.strftime("%H:%M:%S")
+
+        return value
 
     def setValueBuffer(self, field_name: str, value: Any) -> Any:
         """Set field value."""
