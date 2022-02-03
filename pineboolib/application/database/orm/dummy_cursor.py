@@ -42,7 +42,7 @@ class DummyCursor(object):
             else getattr(self._parent, field_name)
         )
 
-        type_ = self.metadata().field(field_name).type()
+        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
 
         if type_ == "date":
             if isinstance(value, datetime.date):
@@ -65,7 +65,7 @@ class DummyCursor(object):
 
         value = getattr(self._parent.copy(), field_name)
 
-        type_ = self.metadata().field(field_name).type()
+        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
 
         if type_ == "date":
             if isinstance(value, datetime.date):
