@@ -84,4 +84,3 @@ class TestDummyCursor(unittest.TestCase):
         fake_cursor = obj_.cursor
         fake_cursor.setValueBuffer("date_field", datetime.datetime.now())
         self.assertTrue(isinstance(fake_cursor.valueBuffer("date_field"), qsa.Date))
-
