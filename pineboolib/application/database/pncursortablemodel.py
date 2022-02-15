@@ -8,7 +8,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging, utils_base
 
-from sqlalchemy import exc, orm, inspect, engine
+from sqlalchemy import exc, orm, inspect
 from pineboolib.application.utils import date_conversion, xpm
 from .orm import utils as orm_utils
 from . import pnsqlquery
