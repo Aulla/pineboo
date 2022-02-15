@@ -242,7 +242,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Set current ORDER BY.
         """
-        self._sort_order = ""
+        # self._sort_order = ""
         self._sort_order = sort_order
 
     def data(
@@ -826,13 +826,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         if current_pos is None:
                             current_pos = max_val // 2
 
-                        while current_pos > self._data_proxy._last_current_size:
-                            if not self._data_proxy.fetch_more():
-                                break
+                        # while current_pos > self._data_proxy._last_current_size:
+                        #    if not self._data_proxy.fetch_more():
+                        #        break
 
-                        if current_pos < self._data_proxy._last_current_size:
-                            data = self._data_proxy[current_pos]
-                        else:
+                        # if current_pos < self._data_proxy._last_current_size:
+                        #    data = self._data_proxy[current_pos]
+                        data = self._data_proxy[current_pos]
+
+                        if self._data_proxy._last_current_size < current_pos:
                             LOGGER.warning(
                                 "Error seek possition %s over %s (len %s). Total: %s"
                                 % (
@@ -842,16 +844,17 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                                     self._data_proxy._total_rows,
                                 )
                             )
+                            return False
 
                         if pk_value > data:
-                            if current_pos == max_val or current_pos == 0:
+                            if current_pos in (max_val, 0):
                                 upper = True
                             else:
 
                                 min_val = current_pos
                                 current_pos += (max_val - min_val) // 2
                         else:
-                            if current_pos == min_val or current_pos == 0:
+                            if current_pos in (min_val, 0):
                                 upper = False
                             else:
 
@@ -868,28 +871,24 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                         if upper:
                             current_pos += 1
-                        if current_pos < self._data_proxy._last_current_size:
-                            self._data_proxy._cached_data.insert(current_pos, new_data[0])
-                            self._data_proxy._last_current_size += 1
-                            self._data_proxy._total_rows += 1
-                        else:
-                            self._data_proxy._cached_data.append(new_data[0])
+
+                        self._data_proxy.insert(
+                            new_data,
+                            current_pos
+                            if current_pos < self._data_proxy._last_current_size
+                            else -1,
+                        )
 
                         break
             return True
 
         elif mode == 2:  # Edit.
-            index = self._data_proxy.index(pk_value)
-            self._data_proxy._cached_data[index] = new_data[0]
+            self._data_proxy.update_pk(pk_value, new_data[0])
 
             return True
 
         elif mode == 3:  # Delete.
-            index = self._data_proxy.index(pk_value)
-            if index > -1:
-                del self._data_proxy._cached_data[index]
-                self._data_proxy._total_rows -= 1
-                self._data_proxy._last_current_size -= 1
+            self._data_proxy.delete_pk(pk_value)
 
             return True
 
@@ -1110,10 +1109,13 @@ class ProxyIndex:
         """Initialize."""
 
         self._query = result_query
-        self._qry_rows_loaded = 2000 if rows > 2000 else rows
-        self._cached_data = [data[0] for data in result_query.fetchmany(self._qry_rows_loaded)]
-        self._last_current_size = self._qry_rows_loaded
         self._qry_rows_total = self._total_rows = int(rows)
+
+        self._qry_rows_loaded = 0
+        self._last_current_size = 0
+        self._cached_data = []
+
+        self.fetch_more(2000 if rows > 2000 else rows)
 
     def __getitem__(self, index: int) -> Any:
         """Return item value."""
@@ -1126,13 +1128,13 @@ class ProxyIndex:
         if self._last_current_size > index:
             data = self._cached_data[index]
 
-            if isinstance(
-                data, (engine.cursor.CursorResult)  # type: ignore [attr-defined] # noqa: F821
-            ):
-                LOGGER.warning(
-                    "este result.rowProxy no debería estar aqui!: %s", data[0], stack_info=True
-                )
-                data = data[0]
+            # if isinstance(
+            #    data, (engine.cursor.CursorResult)  # type: ignore [attr-defined] # noqa: F821
+            # ):
+            #    LOGGER.warning(
+            #        "este result.rowProxy no debería estar aqui!: %s", data[0], stack_info=True
+            #    )
+            #    data = data[0]
 
         return data
 
@@ -1145,13 +1147,6 @@ class ProxyIndex:
 
         return self._cached_data.index(value)
 
-        # while True:
-        #    try:
-        #        return self._cached_data.index(value)
-        #    except ValueError:
-        #        if not self.fetch_more():
-        #            return -1
-
     def fetch_more(self, fetch_size: int = 2000) -> bool:
         """Fetch more data to cached data."""
 
@@ -1161,15 +1156,7 @@ class ProxyIndex:
                 fetch_size = self._qry_rows_total - self._qry_rows_loaded
 
             try:
-                self._cached_data += [
-                    data[0][0]
-                    if isinstance(
-                        data[0],
-                        engine.cursor.CursorResult,  # type: ignore [attr-defined] # noqa: F821
-                    )
-                    else data[0]
-                    for data in self._query.fetchmany(fetch_size)
-                ]
+                self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
                 self._qry_rows_loaded += fetch_size
                 self._last_current_size += fetch_size
                 return True
@@ -1180,5 +1167,38 @@ class ProxyIndex:
                     self._qry_rows_loaded,
                     self._qry_rows_total,
                 )
+
+        return False
+
+    def insert(self, value: Any, position: int = -1) -> bool:
+        """Insert a value to cache."""
+
+        if position == -1:
+            self._cached_data.append(value)
+        else:
+            self._cached_data.insert(position, value)
+
+        self._last_current_size += 1
+        self._total_rows += 1
+
+        return True
+
+    def update_pk(self, pk_value: Any, value: Any) -> bool:
+        """Update a cached value."""
+
+        self._cached_data[self.index(pk_value)] = value
+
+        return True
+
+    def delete_pk(self, pk_value: Any) -> bool:
+        """Delete a cached value."""
+
+        index = self.index(pk_value)
+        if index > -1:
+            del self._cached_data[index]
+            self._total_rows -= 1
+            self._last_current_size -= 1
+
+            return True
 
         return False
