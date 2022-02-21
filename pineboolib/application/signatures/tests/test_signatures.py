@@ -50,7 +50,7 @@ class TestSignatures(unittest.TestCase):
         obj_.set_password("123456")
         obj_.set_policy(
             [
-                "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
+                "http://www.facturae.gob.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
                 "Politica de Firma FacturaE v3.1",
             ]
         )
@@ -73,7 +73,7 @@ class TestSignatures(unittest.TestCase):
         obj_.set_password("123456")
         obj_.set_policy(
             [
-                "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
+                "http://www.facturae.gob.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
                 "Politica de Firma FacturaE v3.1",
             ]
         )
