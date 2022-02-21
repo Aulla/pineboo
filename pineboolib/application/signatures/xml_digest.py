@@ -5,6 +5,7 @@ from pineboolib.core.utils import logging
 import os
 import xmlsig  # type: ignore[import] # noqa: F821
 from lxml import etree  # type: ignore[import] # noqa: F821
+from cryptography.hazmat import backends  # type: ignore[import] # noqa: F821
 from cryptography.hazmat.primitives.serialization import pkcs12  # type: ignore[import] # noqa: F821
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
@@ -47,7 +48,7 @@ class XmlDigest:
         self._cert_path = cert_path
         self._pass = pwsd_
         self._policy_list = [
-            "http://www.facturae.gob.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
+            "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
             "Politica de Firma FacturaE v3.1",
             "xmlsig.constants.TransformSha1",
         ]
@@ -74,7 +75,9 @@ class XmlDigest:
 
             with open(self._cert_path, "rb") as cert_file:
                 self._certificate = tuple(
-                    pkcs12.load_key_and_certificates(cert_file.read(), self._pass.encode())
+                    pkcs12.load_key_and_certificates(
+                        cert_file.read(), self._pass.encode(), backends.default_backend()
+                    )
                 )
         except Exception as error:
             LOGGER.warning("Error loading certificate: %s", str(error))
@@ -91,7 +94,7 @@ class XmlDigest:
 
         custom_policy: List[Any] = list(self._policy_list)
         if len(custom_policy) == 1:
-            custom_policy += [""]
+            custom_policy += ["Policy description"]
         custom_policy.append(self._sha)
 
         try:
@@ -215,11 +218,26 @@ class XmlDigest:
         self._root.append(self._signature)
 
         try:
+            if self._policy is None:
+                raise Exception("Policy is empty!")
             context = XAdESContext(self._policy)
+            if self._certificate is None:
+                raise Exception("Certificate is empty!")
             context.load_pkcs12(self._certificate)
+
+            LOGGER.warning("Starting signing")
+            LOGGER.info(
+                "Policy : %s --> %s --> %s"
+                % (self._policy, self._policy.identifier, context.policies)
+            )
+
+            LOGGER.info("Certificate : %s" % str(self._certificate))
+            LOGGER.info("Signature : %s" % self._signature)
+
             context.sign(self._signature)
+            LOGGER.warning("Signing finished sucefully!")
         except Exception as error:
-            LOGGER.warning("Error signing: %s", str(error))
+            LOGGER.warning("Error signing: %s" % str(error))
             return False
 
         self._is_signed = True
