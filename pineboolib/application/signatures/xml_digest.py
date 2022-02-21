@@ -5,6 +5,7 @@ from pineboolib.core.utils import logging
 import os
 import xmlsig  # type: ignore[import] # noqa: F821
 from lxml import etree  # type: ignore[import] # noqa: F821
+from cryptography.hazmat import backends  # type: ignore[import] # noqa: F821
 from cryptography.hazmat.primitives.serialization import pkcs12  # type: ignore[import] # noqa: F821
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
@@ -74,7 +75,9 @@ class XmlDigest:
 
             with open(self._cert_path, "rb") as cert_file:
                 self._certificate = tuple(
-                    pkcs12.load_key_and_certificates(cert_file.read(), self._pass.encode())
+                    pkcs12.load_key_and_certificates(
+                        cert_file.read(), self._pass.encode(), backends.default_backend()
+                    )
                 )
         except Exception as error:
             LOGGER.warning("Error loading certificate: %s", str(error))
