@@ -1,6 +1,6 @@
 """Flqpsql module."""
 
-from pineboolib.application.metadata import pntablemetadata
+from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
@@ -9,7 +9,7 @@ from pineboolib.interfaces import isqldriver
 
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union, List, Dict, Any, Tuple
 
 LOGGER = logging.get_logger(__name__)
 
@@ -41,6 +41,8 @@ class FLQPSQL(isqldriver.ISqlDriver):
             1184: "timestamp",
             114: "json",
         }
+
+        self._legacy_migrate = False
 
     def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return connection."""
@@ -316,3 +318,67 @@ class FLQPSQL(isqldriver.ISqlDriver):
 
         util.destroyProgressDialog()
         return
+
+    def create_migration_sql(
+        self, metadata: "pntablemetadata.PNTableMetaData", old_table_name: str
+    ) -> str:
+        """Generate migration sql."""
+
+        field_names: List[str] = []
+        field_values: List[str] = []
+        field_names, field_values = self.sql_cast(metadata, old_table_name)
+
+        sql = ""
+        if field_names:
+            sql = """INSERT INTO %s (%s) SELECT %s from %s""" % (
+                metadata.name(),
+                ",".join(field_names),
+                ",".join(field_values),
+                old_table_name,
+            )
+
+        return sql
+
+    def sql_cast(
+        self, metadata: "pntablemetadata.PNTableMetaData", table_name: str
+    ) -> Tuple[List[str], List[str]]:
+        """Return field cast."""
+
+        fields_db_data = self.recordInfo2(table_name)
+        fields_meta_data = self.recordInfo(metadata)
+        fields_data_names = [field[0] for field in fields_db_data]
+        fields_meta_names = [field[0] for field in fields_meta_data]
+        field_names: List[str] = []
+        field_values: List[str] = []
+        for field_meta_name in fields_meta_names:
+            name = field_meta_name
+            value = ""
+            field_meta_data = fields_meta_data[fields_meta_names.index(field_meta_name)]
+            if field_meta_name in fields_data_names:
+                value = self.cast_field(
+                    fields_db_data[fields_data_names.index(field_meta_name)], field_meta_data
+                )
+
+            if field_meta_data[2]:  # not allow_null
+                default_value: Any = self.formatValue(field_meta_data[1], field_meta_data[5], False)
+                value = "ISNULL(%s,%s)" % (value, default_value) if value else default_value
+
+            field_names.append(name)
+            field_values.append(value)
+
+        return field_names, field_values
+
+    def cast_field(self, data_field: List[Any], meta_field: List[Any]) -> str:
+        """Cast a field."""
+
+        # 1 name
+        # 2 sql_type
+        # 3 allow_null
+        # 4 field_size
+        # 5 field_precission
+
+        value = data_field[0]
+        if self.notEqualsFields(data_field, meta_field):
+            value = "CAST ( %s AS %s )" % (value, self.setType(meta_field[1]))
+
+        return value

@@ -3,9 +3,11 @@ ISSqlSchema module.
 """
 
 
-from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
+from PyQt6 import QtCore, QtWidgets
+from attr import fields_dict  # type: ignore[import]
 
 from pineboolib import logging, application
+from pineboolib.application.metadata import pnfieldmetadata
 
 from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
@@ -13,7 +15,7 @@ from pineboolib.application.database import pnsqlquery
 
 from pineboolib.application import qsadictmodules
 
-from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
+from typing import Iterable, Optional, Union, List, Any, Dict, cast, Tuple, TYPE_CHECKING
 from pineboolib.core import decorators
 
 from pineboolib.fllegacy import flutil
@@ -83,6 +85,7 @@ class ISqlDriver(object):
     _sp_level: int
     _use_altenative_isolation_level: bool
     _use_create_table_save_points: bool
+    _legacy_migrate: bool
 
     def __init__(self):
         """Inicialize."""
@@ -115,6 +118,7 @@ class ISqlDriver(object):
         self._sp_level = 0
         self._use_altenative_isolation_level = False
         self._use_create_table_save_points = True
+        self._legacy_migrate = True
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -720,6 +724,91 @@ class ISqlDriver(object):
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
+        return (
+            self.legacy_alter_table(new_metadata)
+            if self._legacy_migrate
+            else self.alter_table(new_metadata)
+        )
+
+    def alter_table(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Modify a table structure."""
+
+        if self.hasCheckColumn(new_metadata):
+            return False
+
+        field_list = new_metadata.fieldList()
+        if not field_list:
+            return False
+
+        util = flutil.FLUtil()
+        table_name = new_metadata.name()
+
+        renamed_table = "%salteredtable%s" % (
+            table_name,
+            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
+        )
+
+        query = pnsqlquery.PNSqlQuery(None, "dbAux")
+
+        session_ = query.db().session()
+        query.db().transaction()
+
+        if new_metadata.isQuery():
+            if table_name in self.tables("Views"):
+                query.exec_("DROP VIEW %s %s" % (table_name, self._text_cascade))
+            elif table_name in self.tables("Tables"):
+                query.exec_("DROP TABLE %s %s" % (table_name, self._text_cascade))
+
+        else:
+            if table_name not in self.tables("Tables"):
+                LOGGER.warning(
+                    "El metadata indica erroneamente, que %s es una tabla. Proceso cancelado.",
+                    table_name,
+                )
+                session_.rollback()
+                return False
+
+            if not self.remove_index(new_metadata, query):
+                session_.rollback()
+                return False
+
+            if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
+                session_.rollback()
+                return False
+
+        if not self.db_.createTable(new_metadata):
+            session_.rollback()
+            return False
+
+        if new_metadata.isQuery():
+            session_.commit()
+            return True
+
+        # generar la consulta
+        sql_qry = self.create_migration_sql(new_metadata, renamed_table)
+        if not sql_qry:
+            session_.rollback()
+            return False
+
+        try:
+            session_.connection().execute(sql_qry)
+        except Exception as error:
+            LOGGER.error("alter_table: %s", str(error))
+            session_.rollback()
+            return False
+        else:
+            session_.commit()
+            return True
+
+    def create_migration_sql(
+        self, metadata: "pntablemetadata.PNTableMetaData", old_table_name: str
+    ) -> str:
+
+        return ""
+
+    def legacy_alter_table(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Modify a table structure."""
+
         if self.hasCheckColumn(new_metadata):
             return False
 
@@ -1292,3 +1381,16 @@ class ISqlDriver(object):
         """Return if table engine is valid."""
 
         return False
+
+    def sql_cast(
+        self, metadata: "pntablemetadata.PNTableMetaData", table_name: str
+    ) -> Tuple[List[str], List[str]]:
+        """Return field cast."""
+
+        return [""], [""]
+
+    def cast_field(self, data_field: List[Any], meta_field: List[Any]) -> str:
+        """Cast a field."""
+
+        return ""
+
