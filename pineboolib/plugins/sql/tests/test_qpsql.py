@@ -76,7 +76,6 @@ class TestFLPGSql(unittest.TestCase):
             driver.cast_field(["string_field", "double", False, 0, 0, None, False], meta_field),
         )
 
-        print("**", driver.setType("date"))
         # date -> str
         self.assertEqual(
             "CAST ( string_field AS VARCHAR )",

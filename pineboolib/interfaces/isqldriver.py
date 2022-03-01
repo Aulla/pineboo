@@ -4,10 +4,8 @@ ISSqlSchema module.
 
 
 from PyQt6 import QtCore, QtWidgets
-from attr import fields_dict  # type: ignore[import]
 
 from pineboolib import logging, application
-from pineboolib.application.metadata import pnfieldmetadata
 
 from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
@@ -740,7 +738,6 @@ class ISqlDriver(object):
         if not field_list:
             return False
 
-        util = flutil.FLUtil()
         table_name = new_metadata.name()
 
         renamed_table = "%salteredtable%s" % (
@@ -1393,4 +1390,3 @@ class ISqlDriver(object):
         """Cast a field."""
 
         return ""
-
