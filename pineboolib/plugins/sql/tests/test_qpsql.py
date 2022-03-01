@@ -58,44 +58,44 @@ class TestFLPGSql(unittest.TestCase):
         print("meta", meta_data)
 
         # str -> str
-        meta_field = meta_data[1]
+        meta_field = meta_data[8]  # empty_relation
         self.assertEqual(
             "string_field",
             driver.cast_field(["string_field", "string", False, 0, 0, None, False], meta_field),
         )
         # int -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "uint", False, 0, 0, None, False], meta_field),
         )
 
         # double -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "double", False, 0, 0, None, False], meta_field),
         )
 
         # date -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "date", False, 0, 0, None, False], meta_field),
         )
 
         # json -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "json", False, 0, 0, None, False], meta_field),
         )
 
         # timestamp -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "timestamp", False, 0, 0, None, False], meta_field),
         )
 
         # stringlist -> str
         self.assertEqual(
-            "CAST ( string_field AS VARCHAR )",
+            "CAST ( string_field AS VARCHAR(15) )",
             driver.cast_field(["string_field", "stringlist", False, 0, 0, None, False], meta_field),
         )
 

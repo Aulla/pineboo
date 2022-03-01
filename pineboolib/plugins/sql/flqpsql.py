@@ -379,6 +379,6 @@ class FLQPSQL(isqldriver.ISqlDriver):
 
         value = data_field[0]
         if self.notEqualsFields(data_field, meta_field) or data_field[1] != meta_field[1]:
-            value = "CAST ( %s AS %s )" % (value, self.setType(meta_field[1]))
+            value = "CAST ( %s AS %s )" % (value, self.setType(meta_field[1], meta_field[3]))
 
         return value
