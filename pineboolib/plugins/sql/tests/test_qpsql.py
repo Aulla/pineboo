@@ -1,6 +1,8 @@
 """Test_FLPGSql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.metadata import pntablemetadata
 from .. import flqpsql
 
 
@@ -36,7 +38,6 @@ class TestFLPGSql(unittest.TestCase):
 
     def test_basic_2(self) -> None:
         """Basics test 1."""
-        from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         sql = (
@@ -47,6 +48,112 @@ class TestFLPGSql(unittest.TestCase):
 
         driver = flqpsql.FLQPSQL()
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata(), False))
+
+    def test_cast_1(self) -> None:
+        """Cast test 1 (to string)."""
+
+        metadata = pnsqlcursor.PNSqlCursor("fltest").metadata()
+        driver = flqpsql.FLQPSQL()
+
+        meta_data = driver.recordInfo(metadata)
+        print("meta", meta_data)
+
+        # str -> str
+        meta_field = meta_data[1]
+        self.assertEqual(
+            "string_field",
+            driver.cast_field(["string_field", "string", False, 0, 0, None, False], meta_field),
+        )
+        # int -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "uint", False, 0, 0, None, False], meta_field),
+        )
+
+        # double -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "double", False, 0, 0, None, False], meta_field),
+        )
+
+        print("**", driver.setType("date"))
+        # date -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "date", False, 0, 0, None, False], meta_field),
+        )
+
+        # json -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "json", False, 0, 0, None, False], meta_field),
+        )
+
+        # timestamp -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "timestamp", False, 0, 0, None, False], meta_field),
+        )
+
+        # stringlist -> str
+        self.assertEqual(
+            "CAST ( string_field AS VARCHAR )",
+            driver.cast_field(["string_field", "stringlist", False, 0, 0, None, False], meta_field),
+        )
+
+    def test_cast_2(self) -> None:
+        """Cast test 2 (to uint)."""
+
+        metadata = pnsqlcursor.PNSqlCursor("fltest").metadata()
+        driver = flqpsql.FLQPSQL()
+
+        meta_data = driver.recordInfo(metadata)
+        print("meta", meta_data)
+
+        # str -> uint
+        meta_field = meta_data[6]
+        self.assertEqual(
+            "CAST ( uint_field AS INT4 )",
+            driver.cast_field(["uint_field", "string", False, 0, 0, None, False], meta_field),
+        )
+        # int -> uint
+        self.assertEqual(
+            "uint_field",
+            driver.cast_field(["uint_field", "uint", False, 0, 0, None, False], meta_field),
+        )
+
+        # double -> uint
+        self.assertEqual(
+            "CAST ( uint_field AS INT4 )",
+            driver.cast_field(["uint_field", "double", False, 0, 0, None, False], meta_field),
+        )
+
+    def test_cast_3(self) -> None:
+        """Cast test 3 (to double)."""
+
+        metadata = pnsqlcursor.PNSqlCursor("fltest").metadata()
+        driver = flqpsql.FLQPSQL()
+
+        meta_data = driver.recordInfo(metadata)
+        print("meta", meta_data)
+
+        # str -> double
+        meta_field = meta_data[4]
+        self.assertEqual(
+            "CAST ( double_field AS FLOAT8 )",
+            driver.cast_field(["double_field", "string", False, 0, 0, None, False], meta_field),
+        )
+        # int -> double
+        self.assertEqual(
+            "CAST ( double_field AS FLOAT8 )",
+            driver.cast_field(["double_field", "uint", False, 0, 0, None, False], meta_field),
+        )
+
+        # double -> double
+        self.assertEqual(
+            "double_field",
+            driver.cast_field(["double_field", "double", False, 0, 0, None, False], meta_field),
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:

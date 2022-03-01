@@ -378,7 +378,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
         # 5 field_precission
 
         value = data_field[0]
-        if self.notEqualsFields(data_field, meta_field):
+        if self.notEqualsFields(data_field, meta_field) or data_field[1] != meta_field[1]:
             value = "CAST ( %s AS %s )" % (value, self.setType(meta_field[1]))
 
         return value
