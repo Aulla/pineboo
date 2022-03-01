@@ -1,6 +1,6 @@
 """Flqpsql module."""
 
-from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
+from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil

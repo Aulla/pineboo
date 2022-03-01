@@ -2,7 +2,6 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlcursor
-from pineboolib.application.metadata import pntablemetadata
 from .. import flqpsql
 
 
