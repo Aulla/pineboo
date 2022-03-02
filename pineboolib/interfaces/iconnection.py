@@ -340,3 +340,8 @@ class IConnection:
         """Close connection."""
 
         return  # pragma: no cover
+
+    def resolve_dsn(self) -> str:
+        """Return dsn data."""
+
+        return ""

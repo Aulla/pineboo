@@ -38,7 +38,7 @@ Ejemplo de uso:
 """
 from pineboolib.application.utils import path
 from pineboolib.application import load_script, qsadictmodules
-from pineboolib.application.database.orm import basemodel
+from pineboolib.application.database.orm import basemodel, alembic_tools
 from pineboolib import logging, application
 from . import pnmtdparser
 import sqlalchemy
@@ -159,3 +159,6 @@ def load_models() -> None:
 
     del models_
     del views_
+
+    alm = alembic_tools.Migration(application.PROJECT.conn_manager.mainConn())
+    alm.upgrade()
