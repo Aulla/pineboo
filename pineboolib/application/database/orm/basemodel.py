@@ -98,6 +98,10 @@ class BaseModel(object):
         if "no_init" in kwargs:
             target.no_init = kwargs["no_init"]
 
+        for key, value in kwargs.items():
+            if hasattr(target, key):
+                setattr(target, key, value)
+
         target._common_init()
 
     @classmethod
