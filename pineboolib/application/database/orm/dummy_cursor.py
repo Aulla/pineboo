@@ -3,7 +3,7 @@
 
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata, pnaction
-from pineboolib.application import types
+from pineboolib.application import types, qsatypes
 from pineboolib import application
 import datetime
 
@@ -79,6 +79,11 @@ class DummyCursor(object):
     def setValueBuffer(self, field_name: str, value: Any) -> Any:
         """Set field value."""
 
+        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
+
+        if type_ == "date":
+            if isinstance(value, qsatypes.date.Date):
+                value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
         setattr(self._parent, field_name, value)
 
     def setValueBufferCopy(self, field_name: str, value: Any) -> Any:
