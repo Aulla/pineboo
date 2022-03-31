@@ -40,7 +40,7 @@ class BaseModel(object):
     _buffer_copy: "Copy"
     _result_before_flush: bool
     _result_after_flush: bool
-    _force_mode: int
+    _force_mode: Optional[int]
     _current_mode: Optional[int]
     _cursor: "dummy_cursor.DummyCursor"
     _before_commit_function: str
