@@ -114,6 +114,7 @@ class BaseModel(object):
     def _common_init(self) -> None:
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal(self)  # pylint: disable=invalid-name
+        self._force_mode = None
         self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():
@@ -781,7 +782,7 @@ class BaseModel(object):
 
     def get_mode_access(self) -> int:
         """Return mode_access."""
-        if hasattr(self, "_force_mode") and self._force_mode:
+        if hasattr(self, "_force_mode") and self._force_mode is not None:
             return self._force_mode
 
         session = self.session
