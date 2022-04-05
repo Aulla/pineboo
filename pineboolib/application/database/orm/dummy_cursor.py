@@ -96,6 +96,11 @@ class DummyCursor(object):
 
         return getattr(self._parent, field_name) is None
 
+    def isValid(self):
+        """Return if cursor is valid."""
+
+        return self._parent is not None
+
     def setNull(self, field_name: str):
         """Set value to Null."""
 
