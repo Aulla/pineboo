@@ -210,6 +210,17 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertTrue(qry.seek(size_ - 1, True))  # last
         self.assertEqual(qry.value(0), val_last)
 
+    def test_parentesis(self) -> None:
+        """Test parentesis."""
+
+        qry = pnsqlquery.PNSqlQuery("fake")
+        qry.exec_(
+            "select CAST(MAX(codagente) as INTEGER), campo_dos from agentes where codagente ~ '^[0-9]+$' AND codagente < 99990"
+        )
+        self.assertEqual(qry.tablesList(), ["agentes"])
+        self.assertEqual(qry.from_(), "agentes")
+        self.assertEqual(qry.fieldList(), ["cast (max(codagente) as integer)", "campo_dos"])
+
     def test_only_inspector(self) -> None:
         """Test only inspector."""
 
