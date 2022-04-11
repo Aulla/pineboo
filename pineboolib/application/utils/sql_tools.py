@@ -274,11 +274,12 @@ class SqlInspector(object):
             for field in list(fields_list):
 
                 # Comprueba si hay field_names compuestos
-                if (
-                    field.find("(") > -1 and not field.find(")") > -1
-                ) or field == "case":  # si es multiple de verdad
+                if (field.find("(") > -1 and not field.find(")") > -1) or field in [
+                    "case",
+                    "cast",
+                ]:  # si es multiple de verdad
                     # Contamos los parentesis
-                    if field == "case":
+                    if field in ["case", "cast"]:
                         inicio_parentesis.append(str(len(inicio_parentesis) + 1))
                         composed_field[inicio_parentesis[-1]] = []
 
@@ -318,6 +319,7 @@ class SqlInspector(object):
 
                     else:
                         segmento = field[field.find(")") :]
+                        print("*", composed_field, field, inicio_parentesis)
                         composed_field[inicio_parentesis[-1]].append(field)
                         while segmento.find(")") > -1 and not field.find("(") > -1:
                             if len(inicio_parentesis) == 1:
