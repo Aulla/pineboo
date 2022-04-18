@@ -225,7 +225,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return sql
 
-    def recordInfo2(self, table_name: str) -> Dict[List]:
+    def recordInfo2(self, table_name: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
 
         info = {}

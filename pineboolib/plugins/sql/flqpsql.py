@@ -162,7 +162,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return sql
 
-    def recordInfo2(self, tablename: str) -> Dict[List[Any]]:
+    def recordInfo2(self, tablename: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
         info = {}
         sql = (
@@ -173,20 +173,30 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "and pg_attribute.attisdropped = false order by pg_attribute.attnum" % tablename.lower()
         )
         cursor = self.execute_query(sql)
-        res = cursor.fetchall() if cursor else []
-        for columns in res:
-            field_size = columns[3]
-            field_precision = columns[4]
-            field_name = columns[0]
-            field_type = columns[1]
-            field_allow_null = columns[2]
-            field_default_value = columns[5]
+        # res = cursor.fetchall() if cursor else []
+        # for columns in res:
+        #    field_size = columns[3]
+        #    field_precision = columns[4]
+        #    field_name = columns[0]
+        #    field_type = columns[1]
+        #    field_allow_null = columns[2]
+        #    field_default_value = columns[5]
+
+        for (
+            field_name,
+            field_type,
+            field_allow_null,
+            field_size,
+            field_precision,
+            field_default_value,
+        ) in list(cursor.fetchall() if cursor else []):
 
             if isinstance(field_default_value, str) and field_default_value:
-                if field_default_value.find("::character varying") > -1:
-                    field_default_value = field_default_value[
-                        0 : field_default_value.find("::character varying")
-                    ]
+                field_default_value = (
+                    field_default_value[0 : field_default_value.find("::character varying")]
+                    if field_default_value.find("::character varying") > -1
+                    else field_default_value
+                )
 
             if field_size == -1 and field_precision > -1:
                 field_size = field_precision - 4
@@ -198,8 +208,11 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if field_precision < 0:
                 field_precision = 0
 
-            if field_default_value and field_default_value[0] == "'":
-                field_default_value = field_default_value[1 : len(field_default_value) - 2]
+            field_default_value = (
+                field_default_value[1 : len(field_default_value) - 2]
+                if field_default_value and field_default_value[0] == "'"
+                else field_default_value
+            )
 
             info[field_name] = [
                 field_name,

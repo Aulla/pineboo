@@ -198,7 +198,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return DictCursor
 
-    def recordInfo2(self, table_name: str) -> Dict[list]:
+    def recordInfo2(self, table_name: str) -> Dict[str, List[Any]]:
         """Obtain current cursor information on columns."""
 
         info = {}
