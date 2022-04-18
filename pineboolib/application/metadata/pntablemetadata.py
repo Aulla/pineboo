@@ -201,9 +201,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if not self.private._primary_key:
-
+            length_field_list = len(self.fieldList())
             for field in self.fieldList():
-                if field.type() == "serial" or len(self.fieldList()) == 1:
+                if field.type() == "serial" or length_field_list == 1:
                     LOGGER.debug(
                         "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
                     )

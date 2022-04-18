@@ -69,30 +69,26 @@ class FLQPSQL(isqldriver.ISqlDriver):
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
         type_ = type_.lower()
-        res_ = ""
-        if type_ == "int":
-            res_ = "INT2"
-        elif type_ == "uint":
-            res_ = "INT4"
-        elif type_ in ("bool", "unlock"):
-            res_ = "BOOLEAN"
-        elif type_ == "double":
-            res_ = "FLOAT8"
-        elif type_ == "time":
-            res_ = "TIME"
-        elif type_ == "date":
-            res_ = "DATE"
-        elif type_ in ("pixmap", "stringlist"):
-            res_ = "TEXT"
-        elif type_ == "string":
-            res_ = "VARCHAR"
-        elif type_ == "bytearray":
-            res_ = "BYTEA"
-        elif type_ == "timestamp":
-            res_ = "TIMESTAMPTZ"
-        elif type_ == "json":
-            res_ = "JSON"
-        else:
+
+        type_array = {
+            "int": "INT2",
+            "uint": "INT4",
+            "bool": "BOOLEAN",
+            "unlock": "BOOLEAN",
+            "double": "FLOAT8",
+            "time": "TIME",
+            "date": "DATE",
+            "pixmap": "TEXT",
+            "stringlist": "TEXT",
+            "string": "VARCHAR",
+            "bytearray": "BYTEA",
+            "timestamp": "TIMESTAMPTZ",
+            "json": "JSON",
+        }
+
+        res_ = type_array[type_] if type_ in type_array.keys() else ""
+
+        if not res_:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
 
@@ -177,9 +173,9 @@ class FLQPSQL(isqldriver.ISqlDriver):
 
         return sql
 
-    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+    def recordInfo2(self, tablename: str) -> Dict[List[Any]]:
         """Return info from a database table."""
-        info = []
+        info = {}
         sql = (
             "select pg_attribute.attname, pg_attribute.atttypid, pg_attribute.attnotnull, pg_attribute.attlen, pg_attribute.atttypmod, "
             "pg_get_expr(pg_attrdef.adbin, pg_attrdef.adrelid) from pg_class, pg_attribute "
@@ -216,17 +212,16 @@ class FLQPSQL(isqldriver.ISqlDriver):
             if field_default_value and field_default_value[0] == "'":
                 field_default_value = field_default_value[1 : len(field_default_value) - 2]
 
-            info.append(
-                [
-                    field_name,
-                    self.decodeSqlType(field_type),
-                    field_allow_null,
-                    field_size,
-                    field_precision,
-                    None,  # defualt_value
-                    None,  # is_pk
-                ]
-            )
+            info[field_name] = [
+                field_name,
+                self.decodeSqlType(field_type),
+                field_allow_null,
+                field_size,
+                field_precision,
+                None,  # defualt_value
+                None,  # is_pk
+            ]
+
         return info
 
     def decodeSqlType(self, type_: Union[int, str]) -> str:

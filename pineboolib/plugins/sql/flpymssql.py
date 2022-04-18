@@ -12,7 +12,7 @@ from pineboolib.interfaces import isqldriver
 
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
-from typing import Optional, Union, List, Any, TYPE_CHECKING
+from typing import Optional, Union, List, Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
@@ -321,9 +321,9 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
         return True
 
-    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+    def recordInfo2(self, tablename: str) -> Dict[List[Any]]:
         """Return info from a database table."""
-        info = []
+        info = {}
         sql = (
             "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT, NUMERIC_PRECISION_RADIX,"
             + " CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s'"
@@ -340,17 +340,16 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
             field_allow_null = columns[2] == "YES"
             field_default_value = columns[3]
 
-            info.append(
-                [
-                    field_name,
-                    field_type,
-                    not field_allow_null,
-                    field_size,
-                    None,
-                    field_default_value,
-                    None,  # field_pk
-                ]
-            )
+            info[field_name] = [
+                field_name,
+                field_type,
+                not field_allow_null,
+                field_size,
+                None,
+                field_default_value,
+                None,  # field_pk
+            ]
+
         return info
 
     def vacuum(self) -> None:

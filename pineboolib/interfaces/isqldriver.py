@@ -399,10 +399,7 @@ class ISqlDriver(object):
             result_ = "'%s'" % str(flutil.FLUtil.dateDMAtoAMD(value))
 
         elif type_ == "time":
-            if value:
-                result_ = "'%s'" % value
-            else:
-                result_ = ""
+            result_ = "'%s'" % value if value else ""
         elif type_ == "json":
             if not value:
                 result_ = {}
@@ -546,12 +543,7 @@ class ISqlDriver(object):
     def mismatchedTable(self, table_name: str, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Return if a table is mismatched."""
 
-        dict_database: Dict[str, List[Any]] = dict(
-            [
-                [rec_d[0], rec_d]  # type: ignore [misc] # noqa: F821
-                for rec_d in self.recordInfo2(table_name)
-            ]
-        )
+        dict_database: Dict[str, List[Any]] = self.recordInfo2(table_name)
 
         if metadata.isQuery():
             if application.USE_MISMATCHED_VIEWS:
@@ -568,12 +560,7 @@ class ISqlDriver(object):
                 return False
 
         else:
-            dict_metadata: Dict[str, List[Any]] = dict(
-                [
-                    [rec_m[0], rec_m]  # type: ignore [misc] # noqa: F821
-                    for rec_m in self.recordInfo(metadata)
-                ]
-            )
+            dict_metadata: Dict[str, List[Any]] = self.recordInfo(metadata)
 
             if len(dict_metadata.keys()) != len(dict_database.keys()):
                 return True
@@ -602,23 +589,25 @@ class ISqlDriver(object):
         return False
 
     @decorators.not_implemented_warn
-    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+    def recordInfo2(self, tablename: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
-        return []  # pragma: no cover
+        return {}  # pragma: no cover
 
-    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> List[list]:
+    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[list]:
         """Obtain current cursor information on columns."""
 
         return [
-            [
-                field.name(),
-                field.type(),
-                not field.allowNull(),
-                field.length(),
-                field.partDecimal(),
-                field.defaultValue(),
-                field.isPrimaryKey(),
-            ]
+            {
+                field.name(): [
+                    field.name(),
+                    field.type(),
+                    not field.allowNull(),
+                    field.length(),
+                    field.partDecimal(),
+                    field.defaultValue(),
+                    field.isPrimaryKey(),
+                ]
+            }
             for field in table_metadata.fieldList()
         ]
 

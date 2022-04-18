@@ -10,6 +10,7 @@ from pineboolib.core.utils import logging, utils_base
 
 from sqlalchemy import exc, orm, inspect
 from pineboolib.application.utils import date_conversion, xpm
+
 from .orm import utils as orm_utils
 from . import pnsqlquery
 
@@ -25,7 +26,12 @@ from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKI
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
-    from pineboolib.interfaces import iconnection, isqlcursor, isqldriver  # pragma: no cover
+    from pineboolib.interfaces import (
+        iconnection,
+        isqlcursor,
+        isqldriver,
+        itablemetadata,
+    )  # pragma: no cover
     from pineboolib.fllegacy import fldatatable  # pragma: no cover
     from . import pnconnectionmanager  # pragma: no cover
     from . import pnbuffer  # pragma: no cover
@@ -531,11 +537,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         If any field does not exist it gets marked as ommitted.
         """
         is_query = self.metadata().isQuery()
-        qry_file = self.metadata().query()
-        qry_tables = []
+        qry_tables: List[Tuple[str, "itablemetadata.ITableMetaData"]] = []
         qry = None
 
         if is_query:
+            qry_file = self.metadata().query()
             qry = self.conn_manager.manager().query(qry_file)
             if qry is None:
                 LOGGER.error(
@@ -569,9 +575,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     self.sql_fields.append(qry_fields[field.name()])
                 else:
                     found = False
-                    for table, mtd in qry_tables:
-                        if field.name() in mtd.fieldNames():
-                            self.sql_fields.append("%s.%s" % (table, field.name()))
+                    for table_name, table_meta in qry_tables:
+                        if field.name() in table_meta.fieldNames():
+                            self.sql_fields.append("%s.%s" % (table_name, field.name()))
                             found = True
                             break
                     # Omito los campos que aparentemente no existen
@@ -733,32 +739,25 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def buildWhere(self) -> str:
         """Return valid where."""
 
-        where_filter = ""
-        for key, wfilter in sorted(self.where_filters.items()):
-            if not wfilter:
-                continue
+        where_filter = " AND ".join(
+            [value.strip() for key, value in sorted(self.where_filters.items()) if value]
+        )
 
-            wfilter = wfilter.strip()
+        if self._sort_order:
+            if where_filter.find("ORDER BY") == -1:
+                order_by = " ORDER BY %s" % self._sort_order
+                if where_filter.find(";") > -1:
+                    where_filter = where_filter.replace(";", "%s;" % order_by)
+                else:
+                    where_filter += order_by
 
-            if not wfilter:
-                continue
-            if not where_filter:
-                where_filter = wfilter
-            elif wfilter not in where_filter:
-                if where_filter not in wfilter:
-                    where_filter += " AND " + wfilter
-
-        # Si no existe un orderBy y se ha definido uno desde FLTableDB ...
-        if where_filter.find("ORDER BY") == -1 and self.getSortOrder():
-            if where_filter.find(";") > -1:  # Si el where termina en ; ...
-                where_filter = where_filter.replace(";", " ORDER BY %s;" % self.getSortOrder())
-            else:
-                where_filter = "%s ORDER BY %s" % (where_filter, self.getSortOrder())
-
-        if where_filter.strip() and not where_filter.strip().startswith("ORDER"):
-            where_filter = "WHERE %s" % where_filter
-
-        return where_filter
+        return (
+            where_filter
+            if where_filter.strip().startswith("ORDER")
+            else "WHERE %s" % where_filter
+            if where_filter
+            else ""
+        )
 
     def updateCacheData(self, mode: int) -> bool:
         """Update cache data without refresh."""
@@ -786,10 +785,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.conn_manager.manager().formatAssignValue(self.metadata().field(pk_name), pk_value)
         )
         if extra_where not in sql_query:
-            if sql_query.find("WHERE") > -1:
-                sql_query += " AND"
-            else:
-                sql_query += " WHERE"
+            sql_query += " AND" if sql_query.find("WHERE") > -1 else " WHERE"
             sql_query += extra_where
 
         result = self.session.execute(sql_query)
@@ -897,12 +893,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def get_obj_from_row(self, row: int) -> Optional[Callable]:
         """Return row object from proxy."""
-        ret_ = None
 
         if row > -1 and row < self.rowCount() and self._data_proxy:
-            # print("get_obj_from_row", row, self._data_proxy[row])
             pk_value = self._data_proxy[row]
-            # print("get_obj_from_row", row, pk_value)
             session_ = self.session
 
             query = orm_utils.DynamicFilter(
@@ -914,14 +907,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 % (self.metadata().primaryKey(), str(pk_value).replace(" ", "_|_space_|_"))
             )
             try:
-                ret_ = query.return_query().first()
+                return query.return_query().first()
             except Exception as error:
                 raise Exception("get_object_from_row %s (%s) : %s" % (row, pk_value, error))
-            # for number, obj_ in enumerate(self._data_proxy):
-            #    if number == row:
-            #        return obj_
 
-        return ret_
+        return None
 
     def seek_row(self, row: int) -> bool:
         """Seek row selected."""

@@ -70,7 +70,7 @@ class TestFLSqlite(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         conn_ = cursor.db()
         ret = conn_.driver().recordInfo2("fltest")
-        self.assertEqual(["id", "uint", True, 0, None, None, True], ret[0])
+        self.assertEqual(["id", "uint", True, 0, None, None, True], ret[ret.keys()[0]])
         self.assertTrue(conn_.alterTable(cursor.metadata()))
 
     def test_mismatched(self) -> None:

@@ -12,7 +12,7 @@ from pineboolib.interfaces import isqldriver
 import os
 
 
-from typing import Optional, Any, List, TYPE_CHECKING
+from typing import Optional, Any, List, Dict, TYPE_CHECKING
 from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
 
 
@@ -221,10 +221,10 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         return sql
 
-    def recordInfo2(self, table_name: str) -> List[List]:
+    def recordInfo2(self, table_name: str) -> Dict[List]:
         """Return info from a database table."""
 
-        info = []
+        info = {}
         sql = "PRAGMA table_info('%s')" % table_name
 
         cursor = self.execute_query(sql)
@@ -239,17 +239,15 @@ class FLSQLITE(isqldriver.ISqlDriver):
             if field_type.find("VARCHAR(") > -1:
                 field_size = field_type[field_type.find("(") + 1 : len(field_type) - 1]
 
-            info.append(
-                [
-                    field_name,
-                    self.decodeSqlType(field_type),
-                    not field_allow_null,
-                    int(field_size),
-                    None,  # field_precision
-                    None,  # default value
-                    field_primary_key,
-                ]
-            )
+            info[field_name] = [
+                field_name,
+                self.decodeSqlType(field_type),
+                not field_allow_null,
+                int(field_size),
+                None,  # field_precision
+                None,  # default value
+                field_primary_key,
+            ]
 
         return info
 
