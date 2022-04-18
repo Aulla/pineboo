@@ -6,7 +6,7 @@ Module for MYISAM driver.
 from pineboolib import logging
 from . import pnsqlschema
 
-from typing import Any, Optional, List, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
@@ -198,10 +198,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return DictCursor
 
-    def recordInfo2(self, table_name: str) -> List[list]:
+    def recordInfo2(self, table_name: str) -> Dict[list]:
         """Obtain current cursor information on columns."""
 
-        info = []
+        info = {}
 
         sql = "SHOW FIELDS FROM %s" % table_name
 
@@ -233,17 +233,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if field_type == "string" and field_size == "255":
                 field_size = "0"
 
-            info.append(
-                [
-                    field_name,
-                    field_type,
-                    field_allow_null,
-                    int(field_size),
-                    field_precision,
-                    field_default_value,
-                    field_primary_key,
-                ]
-            )
+            info[field_name] = [
+                field_name,
+                field_type,
+                field_allow_null,
+                int(field_size),
+                field_precision,
+                field_default_value,
+                field_primary_key,
+            ]
 
         return info
 
