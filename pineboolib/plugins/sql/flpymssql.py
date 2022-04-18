@@ -321,7 +321,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
         return True
 
-    def recordInfo2(self, tablename: str) -> Dict[List[Any]]:
+    def recordInfo2(self, tablename: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
         info = {}
         sql = (

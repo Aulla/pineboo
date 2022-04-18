@@ -97,7 +97,7 @@ class TestStress(unittest.TestCase):
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
 
         self.assertEqual(before_change_structure[list(before_change_structure.keys())[1]][3], 0)
-        self.assertEqual(list(after_change_structure.keys())[1][3], 180)
+        self.assertEqual(after_change_structure[list(after_change_structure.keys())[1]][3], 180)
 
     def test_basic_4(self) -> None:
         """Test basic 4."""

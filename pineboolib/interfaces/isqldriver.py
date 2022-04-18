@@ -593,23 +593,26 @@ class ISqlDriver(object):
         """Return info from a database table."""
         return {}  # pragma: no cover
 
-    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[list]:
+    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[str, list[Any]]:
         """Obtain current cursor information on columns."""
 
-        return [
-            {
-                field.name(): [
+        return dict(
+            [
+                (
                     field.name(),
-                    field.type(),
-                    not field.allowNull(),
-                    field.length(),
-                    field.partDecimal(),
-                    field.defaultValue(),
-                    field.isPrimaryKey(),
-                ]
-            }
-            for field in table_metadata.fieldList()
-        ]
+                    [
+                        field.name(),
+                        field.type(),
+                        not field.allowNull(),
+                        field.length(),
+                        field.partDecimal(),
+                        field.defaultValue(),
+                        field.isPrimaryKey(),
+                    ],
+                )
+                for field in table_metadata.fieldList()
+            ]
+        )
 
     @decorators.not_implemented_warn
     def decodeSqlType(self, type_: str) -> str:
@@ -719,8 +722,7 @@ class ISqlDriver(object):
         util = flutil.FLUtil()
         table_name = new_metadata.name()
 
-        old_columns_info = self.recordInfo2(table_name)
-        old_field_names: List[str] = [old_column[0] for old_column in old_columns_info]
+        old_field_names: List[str] = list(self.recordInfo2(table_name).keys())
 
         renamed_table = "%salteredtable%s" % (
             table_name,
