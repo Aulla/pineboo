@@ -8,7 +8,7 @@ from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Dict, Any
 
 LOGGER = logging.get_logger(__name__)
 
