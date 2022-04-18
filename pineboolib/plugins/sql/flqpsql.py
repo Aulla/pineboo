@@ -198,15 +198,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     else field_default_value
                 )
 
-            if field_size == -1 and field_precision > -1:
-                field_size = field_precision - 4
-                field_precision = -1
+            if (
+                field_size == -1  # type: ignore [comparison-overlap]
+                and field_precision > -1  # type: ignore [operator]
+            ):
+                field_size = field_precision - 4  # type: ignore [operator, assignment]
+                field_precision = -1  # type: ignore [assignment]
 
-            if field_size < 0:
-                field_size = 0
+            if field_size < 0:  # type: ignore [operator]
+                field_size = 0  # type: ignore [assignment]
 
-            if field_precision < 0:
-                field_precision = 0
+            if field_precision < 0:  # type: ignore [operator]
+                field_precision = 0  # type: ignore [assignment]
 
             field_default_value = (
                 field_default_value[1 : len(field_default_value) - 2]

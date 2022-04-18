@@ -600,7 +600,7 @@ class PNSqlSchema(object):
         """Return info from a database table."""
         return {}  # pragma: no cover
 
-    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[str, list[Any]]:
+    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[str, List[Any]]:
         """Obtain current cursor information on columns."""
 
         return dict(
