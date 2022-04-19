@@ -89,4 +89,3 @@ class TestDummyCursor(unittest.TestCase):
         self.assertEqual(str(now_qsa_date)[0:10], str(fake_cursor.valueBuffer("date_field"))[0:10])
 
         self.assertTrue(fake_cursor.isValid())
-
