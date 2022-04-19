@@ -118,33 +118,27 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
-        res_ = ""
+
         type_ = type_.lower()
-        if type_ == "int":
-            res_ = "INTEGER"
-        elif type_ == "uint":
-            res_ = "INTEGER"
-        elif type_ in ("bool", "unlock"):
-            res_ = "BOOLEAN"
-        elif type_ == "double":
-            res_ = "FLOAT"
-        elif type_ == "time":
-            res_ = "VARCHAR(20)"
-        elif type_ == "date":
-            res_ = "VARCHAR(20)"
-        elif type_ == "pixmap":
-            res_ = "TEXT"
-        elif type_ == "string":
-            res_ = "VARCHAR"
-        elif type_ == "stringlist":
-            res_ = "TEXT"
-        elif type_ == "bytearray":
-            res_ = "CLOB"
-        elif type_ == "timestamp":
-            res_ = "DATETIME"
-        elif type_ == "json":
-            res_ = "JSON"
-        else:
+        type_array = {
+            "int": "INTEGER",
+            "uint": "INTEGER",
+            "bool": "BOOLEAN",
+            "unlock": "BOOLEAN",
+            "double": "FLOAT",
+            "time": "VARCHAR(20)",
+            "date": "VARCHAR(20)",
+            "pixmap": "TEXT",
+            "stringlist": "TEXT",
+            "string": "VARCHAR",
+            "bytearray": "CLOB",
+            "timestamp": "DATETIME",
+            "json": "JSON",
+        }
+
+        res_ = type_array[type_] if type_ in type_array.keys() else ""
+
+        if not res_:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
 
@@ -232,14 +226,13 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         sql = "PRAGMA table_info('%s')" % table_name
 
         cursor = self.execute_query(sql)
-        res = cursor.fetchall() if cursor else []
 
-        for columns in res:
-            field_name = columns[1]
-            field_type = columns[2]
+        for col0, field_name, field_type, col3, col4, col5 in list(
+            cursor.fetchall() if cursor else []
+        ):
             field_size = 0
-            field_allow_null = columns[3] == 0 and columns[5] == 0
-            field_primary_key = columns[5] == 1
+            field_allow_null = col3 == 0 and col5 == 0
+            field_primary_key = col5 == 1
             if field_type.find("VARCHAR(") > -1:
                 field_size = field_type[field_type.find("(") + 1 : len(field_type) - 1]
 
@@ -259,22 +252,21 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Return the specific field type."""
 
         ret = str(type_)
-        if type_ == "BOOLEAN":  # y unlock
-            ret = "bool"
-        elif type_ == "FLOAT":
-            ret = "double"
-        elif type_.find("VARCHAR") > -1:  # Aqui también puede ser time y date
-            ret = "string"
-        elif type_ == "TEXT":  # Aquí también puede ser pixmap
-            ret = "stringlist"
-        elif type_ == "INTEGER":  # serial
-            ret = "uint"
-        elif type_ == "DATETIME":
-            ret = "timestamp"
-        elif type_ == "JSON":
-            ret = "json"
+        key = type_
+        if key.find("VARCHAR") > -1:
+            key = "VARCHAR"
 
-        return ret
+        array_types = {
+            "VARCHAR": "string",  # Aqui también puede ser time y date
+            "FLOAT": "double",
+            "INTEGER": "uint",  # serial
+            "BOOLEAN": "bool",  # y unlock
+            "TEXT": "stringlist",  # Aquí también puede ser pixmap
+            "DATETIME": "timestamp",
+            "JSON": "json",
+        }
+
+        return array_types[key] if key in array_types else ret
 
     def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
