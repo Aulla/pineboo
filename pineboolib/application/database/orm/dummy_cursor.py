@@ -34,6 +34,15 @@ class DummyCursor(object):
 
         self._parent = parent_model
 
+    def modeAccess(self) -> int:
+        """Return mode_access."""
+
+        return (
+            self._parent.mode_access
+            if self._parent._current_mode is None
+            else self._parent._current_mode
+        )
+
     def valueBuffer(self, field_name: str) -> Any:
         """Return field value."""
 
@@ -45,28 +54,22 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            raise Exception(
-                "dummy_cursor.valueBuffer. Field %s not found in %s table."
+            LOGGER.warn(
+                "dummy_cursor.valueBuffer. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
+        else:
 
-        type_ = meta_field.type()  # type: ignore [union-attr]
+            type_ = meta_field.type()  # type: ignore [union-attr]
 
-        if type_ == "date":
-            if isinstance(value, datetime.date):
-                value = types.Date(value.strftime("%Y-%m-%d"))
-        elif type_ == "time":
-            if isinstance(value, datetime.time):
-                value = value.strftime("%H:%M:%S")
+            if type_ == "date":
+                if isinstance(value, datetime.date):
+                    value = types.Date(value.strftime("%Y-%m-%d"))
+            elif type_ == "time":
+                if isinstance(value, datetime.time):
+                    value = value.strftime("%H:%M:%S")
 
         return value
-
-    def modeAccess(self) -> int:
-        """Return mode_access."""
-        if self._parent._current_mode is not None:
-            return self._parent._current_mode
-
-        return self._parent.mode_access
 
     def valueBufferCopy(self, field_name: str) -> Any:
         """Return field value copy."""
@@ -76,19 +79,20 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            raise Exception(
-                "dummy_cursor.valueBufferCopy. Field %s not found in %s table."
+            LOGGER.warn(
+                "dummy_cursor.valueBufferCopy. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
+        else:
 
-        type_ = meta_field.type()  # type: ignore [union-attr]
+            type_ = meta_field.type()  # type: ignore [union-attr]
 
-        if type_ == "date":
-            if isinstance(value, datetime.date):
-                value = types.Date(value.strftime("%Y-%m-%d"))
-        elif type_ == "time":
-            if isinstance(value, datetime.time):
-                value = value.strftime("%H:%M:%S")
+            if type_ == "date":
+                if isinstance(value, datetime.date):
+                    value = types.Date(value.strftime("%Y-%m-%d"))
+            elif type_ == "time":
+                if isinstance(value, datetime.time):
+                    value = value.strftime("%H:%M:%S")
 
         return value
 
@@ -98,16 +102,17 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            raise Exception(
-                "dummy_cursor.setValueBuffer. Field %s not found in %s table."
+            LOGGER.warn(
+                "dummy_cursor.setValueBuffer. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
+        else:
 
-        type_ = meta_field.type()  # type: ignore [union-attr]
+            type_ = meta_field.type()  # type: ignore [union-attr]
 
-        if type_ == "date":
-            if isinstance(value, date.Date):
-                value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
+            if type_ == "date":
+                if isinstance(value, date.Date):
+                    value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
         setattr(self._parent, field_name, value)
 
     def setValueBufferCopy(self, field_name: str, value: Any) -> Any:
@@ -116,16 +121,17 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            raise Exception(
-                "dummy_cursor.setValueBufferCopy. Field %s not found in %s table."
+            LOGGER.warn(
+                "dummy_cursor.setValueBufferCopy. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
+        else:
 
-        type_ = meta_field.type()  # type: ignore [union-attr]
+            type_ = meta_field.type()  # type: ignore [union-attr]
 
-        if type_ == "date":
-            if isinstance(value, date.Date):
-                value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
+            if type_ == "date":
+                if isinstance(value, date.Date):
+                    value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
 
         setattr(self._parent.copy(), field_name, value)
 
