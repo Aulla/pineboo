@@ -161,7 +161,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         primary_key = ""
 
         unlocks = 0
-        sql_fields = []
+        sql_fields: List[str] = []
         for field in tmd.fieldList():
 
             type_ = field.type()
@@ -201,7 +201,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                     )
                     raise Exception(
                         "A primary key (%s) has been defined before the field %s.%s -> %s"
-                        % (primary_key, tmd.name(), field.name(), sql)
+                        % (primary_key, tmd.name(), field.name(), sql_fields)
                     )
             else:
 
@@ -229,10 +229,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             cursor.fetchall() if cursor else []
         ):
             field_size = 0
-            field_allow_null = col3 == 0 and col5 == 0
-            field_primary_key = col5 == 1
+            field_allow_null = col3 == 0 and col5 == 0  # type: ignore [comparison-overlap]
+            field_primary_key = col5 == 1  # type: ignore [comparison-overlap]
             if field_type.find("VARCHAR(") > -1:
-                field_size = field_type[field_type.find("(") + 1 : len(field_type) - 1]
+                field_size = field_type[  # type: ignore [assignment]
+                    field_type.find("(") + 1 : len(field_type) - 1
+                ]  # type: ignore [assignment]
 
             info[field_name] = [
                 field_name,
