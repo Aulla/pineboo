@@ -108,7 +108,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
         field_list = tmd.fieldList()
 
         unlocks = 0
-        sql_fields = []
+        sql_fields: List[str] = []
         for field in field_list:
 
             sql_field = field.name()
@@ -159,7 +159,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
                     )
                     raise Exception(
                         "A primary key (%s) has been defined before the field %s.%s -> %s"
-                        % (primary_key, tmd.name(), field.name(), sql)
+                        % (primary_key, tmd.name(), field.name(), sql_fields)
                     )
             else:
 
