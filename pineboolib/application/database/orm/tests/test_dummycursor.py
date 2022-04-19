@@ -89,3 +89,29 @@ class TestDummyCursor(unittest.TestCase):
         self.assertEqual(str(now_qsa_date)[0:10], str(fake_cursor.valueBuffer("date_field"))[0:10])
 
         self.assertTrue(fake_cursor.isValid())
+
+    def test_valueBufferException(self) -> None:
+        """Test value buffers."""
+
+        qsa.thread_session_new()
+        class_area = qsa.orm.flareas
+        self.assertTrue(class_area)
+        obj_ = class_area()
+        fake_cursor_empty = obj_.get_cursor()
+        obj_.idarea = "M1"
+        obj_.descripcion = "area M1"
+        obj_.save()
+
+        self.assertFalse(fake_cursor_empty.isModifiedBuffer(), obj_.changes())
+
+        fake_cursor = obj_.get_cursor()
+        self.assertTrue(fake_cursor)
+        with self.assertRaises(Exception):
+            fake_cursor.setValueBuffer("descripcion2", "area M2")
+        with self.assertRaises(Exception):
+            fake_cursor.setValueBufferCopy("descripcion2", "area M2")
+        with self.assertRaises(Exception):
+            fake_cursor.valueBuffer("descripcion2")
+        with self.assertRaises(Exception):
+            fake_cursor.valueBufferCopy("descripcion2")
+
