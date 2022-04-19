@@ -159,23 +159,22 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         util = flutil.FLUtil()
         primary_key = ""
-        sql = "CREATE TABLE %s (" % tmd.name()
-
-        field_list = tmd.fieldList()
 
         unlocks = 0
-        for number, field in enumerate(field_list):
+        sql_fields = []
+        for field in tmd.fieldList():
+
             type_ = field.type()
 
-            sql += field.name()
+            sql_field = field.name()
 
             if type_ == "serial":
-                sql += " INTEGER"
+                sql_field += " INTEGER"
                 if not field.isPrimaryKey():
-                    sql += " PRIMARY KEY"
+                    sql_field += " PRIMARY KEY"
             else:
                 if type_ == "unlock":
-                    unlocks = unlocks + 1
+                    unlocks += 1
 
                     if unlocks > 1:
                         LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
@@ -184,11 +183,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                         )
                         return None
 
-                sql += " %s" % self.setType(type_, field.length())
+                sql_field += " %s" % self.setType(type_, field.length())
 
             if field.isPrimaryKey():
                 if not primary_key:
-                    sql += " PRIMARY KEY"
+                    sql_field += " PRIMARY KEY"
                     primary_key = field.name()
                 else:
                     LOGGER.warning(
@@ -206,13 +205,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                     )
             else:
 
-                sql += " UNIQUE" if field.isUnique() else ""
-                sql += " NULL" if field.allowNull() else " NOT NULL"
+                sql_field += " UNIQUE" if field.isUnique() else ""
+                sql_field += " NULL" if field.allowNull() else " NOT NULL"
 
-            if number != len(field_list) - 1:
-                sql += ","
+            sql_fields.append(sql_field)
 
-        sql += ");"
+        sql = "CREATE TABLE %s (%s);" % (tmd.name(), ",".join(sql_fields))
 
         if tmd.primaryKey() and create_index:
             sql += "CREATE INDEX %s_pkey ON %s (%s)" % (tmd.name(), tmd.name(), tmd.primaryKey())
