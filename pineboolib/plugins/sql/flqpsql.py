@@ -104,14 +104,14 @@ class FLQPSQL(isqldriver.ISqlDriver):
 
         util = flutil.FLUtil()
         primary_key = ""
-        sql = "CREATE TABLE %s (" % tmd.name()
 
         field_list = tmd.fieldList()
 
         unlocks = 0
-        for number, field in enumerate(field_list):
+        sql_fields = []
+        for field in field_list:
 
-            sql += field.name()
+            sql_field = field.name()
             type_ = field.type()
             if type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
@@ -127,7 +127,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
                         except Exception as error:
                             LOGGER.error("%s::sqlCreateTable:%s", __name__, str(error))
 
-                sql += " INT4 DEFAULT NEXTVAL('%s')" % seq
+                sql_field += " INT4 DEFAULT NEXTVAL('%s')" % seq
             else:
                 if type_ == "unlock":
                     unlocks += 1
@@ -141,11 +141,11 @@ class FLQPSQL(isqldriver.ISqlDriver):
                         )
                         return None
 
-                sql += " %s" % self.setType(type_, field.length())
+                sql_field += " %s" % self.setType(type_, field.length())
 
             if field.isPrimaryKey():
                 if not primary_key:
-                    sql = sql + " PRIMARY KEY"
+                    sql_field += " PRIMARY KEY"
                     primary_key = field.name()
                 else:
                     LOGGER.warning(
@@ -163,15 +163,12 @@ class FLQPSQL(isqldriver.ISqlDriver):
                     )
             else:
 
-                sql += " UNIQUE" if field.isUnique() else ""
-                sql += " NULL" if field.allowNull() else " NOT NULL"
+                sql_field += " UNIQUE" if field.isUnique() else ""
+                sql_field += " NULL" if field.allowNull() else " NOT NULL"
 
-            if number != len(field_list) - 1:
-                sql += ","
+            sql_fields.append(sql_field)
 
-        sql += ")"
-
-        return sql
+        return "CREATE TABLE %s (%s)" % (tmd.name(), ",".join(sql_fields))
 
     def recordInfo2(self, tablename: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
