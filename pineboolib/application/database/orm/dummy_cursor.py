@@ -3,7 +3,8 @@
 
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata, pnaction
-from pineboolib.application import types, qsatypes
+from pineboolib.application import types
+from pineboolib.application.qsatypes import date
 from pineboolib import application
 import datetime
 
@@ -41,8 +42,15 @@ class DummyCursor(object):
             if field_name in self._parent._cached_bufferchanged.keys()
             else getattr(self._parent, field_name)
         )
+        meta_table = self._parent.table_metadata()
+        meta_field = meta_table.field(field_name)
+        if meta_field is None:
+            raise Exception(
+                "dummy_cursor.valueBuffer. Field %s not found in %s table."
+                % (field_name, meta_table.name())
+            )
 
-        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
+        type_ = meta_field.type()  # type: ignore [union-attr]
 
         if type_ == "date":
             if isinstance(value, datetime.date):
@@ -65,7 +73,15 @@ class DummyCursor(object):
 
         value = getattr(self._parent.copy(), field_name)
 
-        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
+        meta_table = self._parent.table_metadata()
+        meta_field = meta_table.field(field_name)
+        if meta_field is None:
+            raise Exception(
+                "dummy_cursor.valueBufferCopy. Field %s not found in %s table."
+                % (field_name, meta_table.name())
+            )
+
+        type_ = meta_field.type()  # type: ignore [union-attr]
 
         if type_ == "date":
             if isinstance(value, datetime.date):
@@ -79,15 +95,37 @@ class DummyCursor(object):
     def setValueBuffer(self, field_name: str, value: Any) -> Any:
         """Set field value."""
 
-        type_ = self.metadata().field(field_name).type()  # type: ignore [union-attr]
+        meta_table = self._parent.table_metadata()
+        meta_field = meta_table.field(field_name)
+        if meta_field is None:
+            raise Exception(
+                "dummy_cursor.setValueBuffer. Field %s not found in %s table."
+                % (field_name, meta_table.name())
+            )
+
+        type_ = meta_field.type()  # type: ignore [union-attr]
 
         if type_ == "date":
-            if isinstance(value, qsatypes.date.Date):
+            if isinstance(value, date.Date):
                 value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
         setattr(self._parent, field_name, value)
 
     def setValueBufferCopy(self, field_name: str, value: Any) -> Any:
         """Set field value."""
+
+        meta_table = self._parent.table_metadata()
+        meta_field = meta_table.field(field_name)
+        if meta_field is None:
+            raise Exception(
+                "dummy_cursor.setValueBufferCopy. Field %s not found in %s table."
+                % (field_name, meta_table.name())
+            )
+
+        type_ = meta_field.type()  # type: ignore [union-attr]
+
+        if type_ == "date":
+            if isinstance(value, date.Date):
+                value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
 
         setattr(self._parent.copy(), field_name, value)
 
