@@ -253,7 +253,7 @@ def setup_gui(app: "QtWidgets.QApplication") -> None:
     app.setFont(font)
 
 
-def init_testing() -> None:
+def init_testing(level: int = 1000) -> None:
     """Initialize Pineboo for testing purposes."""
     settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
@@ -271,7 +271,7 @@ def init_testing() -> None:
 
         LOGGER.info("PINEBOO TESTING %s.", application.PINEBOO_VER)
         # application.PROJECT.load_version()
-        application.PROJECT.setDebugLevel(1000)
+        application.PROJECT.setDebugLevel(level)
         application.PROJECT.set_app(qapp)
 
         dgi = dgi_module.load_dgi("qt", None)
