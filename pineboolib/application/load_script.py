@@ -232,6 +232,11 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
                     "Error in %s model. Please check columns and make sure exists a primaryKey column"
                     % script_name
                 )
+        else:
+            LOGGER.warning(
+                "No existe la clase %s dentro de %s. No se puede usar este orm."
+                % (class_name, "%s_model.py" % script_name)
+            )
 
     return model_class
 
