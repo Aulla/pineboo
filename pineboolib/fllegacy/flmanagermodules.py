@@ -114,7 +114,7 @@ class FLManagerModules(object):
         self.dict_module_files_ = {}
 
     def commonInit(self) -> None:
-        """Common init."""
+        """Run common init."""
 
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
         self._file_watcher = observers.Observer()
