@@ -103,38 +103,8 @@ class FLManagerModules(object):
         if db is None:
             raise ValueError("Database is required")
         self.conn_ = db
-        self._file_watcher = observers.Observer()
-        self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
-        event_handler = events.FileSystemEventHandler()
 
-        if self.static_db_info_.enabled_:
-            # Mapear los scripts!
-            LOGGER.warning("STATIC LOAD IS ENABLED!")
-
-            self.static_db_info_.readSettings()
-            for dir_path in self.static_db_info_.dirs_:
-                LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_:
-                    if os.path.exists(dir_path.path_):
-                        # self._file_watcher.addPath(dir_path.path_)
-                        self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
-                    else:
-                        LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !", dir_path.path_)
-
-            # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-            #    self.static_db_info_.msg_static_changed
-            # )
-            # self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-            #    self.static_db_info_.msg_static_changed
-            # )
-            # LOGGER.warning(
-            #    "Monitoring...\nfiles:%s\nfolders:%s",
-            #    self._file_watcher.files(),
-            #    self._file_watcher.directories(),
-            # )
-            event_handler.on_any_event = self.static_db_info_.msg_static_changed
-            self._file_watcher.start()
-
+        self.commonInit()
         self.active_id_module_ = ""
         self.active_id_area_ = ""
         self.sha_local_ = ""
@@ -143,12 +113,44 @@ class FLManagerModules(object):
 
         self.dict_module_files_ = {}
 
-    # """
-    # Acciones de inicialización del sistema de módulos.
-    # """
-    # @decorators.not_implemented_warn
-    # def init(self):
-    #    pass
+    def commonInit(self) -> None:
+        """Common init."""
+
+        self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
+        self._file_watcher = observers.Observer()
+        flfiles_folder = application.PROJECT.USE_FLFILES_FOLDER
+
+        if self.static_db_info_.enabled_ or flfiles_folder:
+            num_folders = 0
+            LOGGER.warning("STATIC LOAD IS ENABLED!")
+            event_handler = events.FileSystemEventHandler()
+
+            if flfiles_folder:
+                LOGGER.warning("USING FLFILES_FOLDER AS STATIC LOAD FOLDER!")
+                num_folders += 1 if self.addFolder(flfiles_folder, event_handler) else 0
+            else:
+                self.static_db_info_.readSettings()
+                for dir_path in self.static_db_info_.dirs_:
+                    LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
+                    if dir_path.active_:
+                        num_folders += 1 if self.addFolder(dir_path.path_, event_handler) else 0
+
+            if num_folders > 0:
+                event_handler.on_any_event = self.static_db_info_.msg_static_changed
+
+                self._file_watcher.start()
+                LOGGER.warning("STATIC LOAD IS WORKING")
+
+    def addFolder(self, folder: str, event_handler) -> bool:
+        """Add folder."""
+
+        if os.path.exists(folder):
+            self._file_watcher.schedule(event_handler, folder, recursive=True)
+        else:
+            LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !" % folder)
+            return False
+
+        return True
 
     def reloadStaticLoader(self) -> None:
         """Reload static loader."""
@@ -158,38 +160,7 @@ class FLManagerModules(object):
             del self._file_watcher
         del self.static_db_info_
 
-        # self._file_watcher = QtCore.QFileSystemWatcher()
-        self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
-
-        if self.static_db_info_.enabled_:
-            # Mapear los scripts!
-            LOGGER.warning("STATIC LOAD IS ENABLED!")
-            self._file_watcher = observers.Observer()
-            event_handler = events.FileSystemEventHandler()
-
-            self.static_db_info_.readSettings()
-            for dir_path in self.static_db_info_.dirs_:
-                LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_:
-                    if os.path.exists(dir_path.path_):
-
-                        self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
-                    else:
-                        LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !", dir_path.path_)
-
-            # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-            #    self.static_db_info_.msg_static_changed
-            # )
-            # self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-            #    self.static_db_info_.msg_static_changed
-            # )
-            event_handler.on_any_event = self.static_db_info_.msg_static_changed
-            self._file_watcher.start()
-            # LOGGER.warning(
-            #    "Monitoring...\nfiles:%s\nfolders:%s",
-            #    self._file_watcher.files(),
-            #    self._file_watcher.directories(),
-            # )
+        self.commonInit()
 
     def finish(self) -> None:
         """Run tasks when closing the module."""
