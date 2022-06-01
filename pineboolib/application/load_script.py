@@ -10,7 +10,7 @@ from pineboolib.application.parsers.parser_mtd import pnmtdparser
 from pineboolib import application
 
 import xml.etree.ElementTree as ET
-from importlib import machinery
+from importlib import util
 from sqlalchemy.ext import declarative
 from sqlalchemy import exc
 
@@ -290,8 +290,11 @@ def _load(  # type: ignore [return] # noqa: F821, F723
             raise PermissionError
 
     try:
-        loader = machinery.SourceFileLoader(module_name, script_name)
-        return loader.load_module()  # type: ignore[call-arg] # noqa: F821
+
+        spec = util.spec_from_file_location(module_name, script_name)
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
     except Exception as error:
         if capture_error:
