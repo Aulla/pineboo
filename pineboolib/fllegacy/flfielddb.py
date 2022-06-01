@@ -399,7 +399,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def setFieldAlias(self, alias: str) -> None:
         """
-        Set the field alias, shown on its label if showAlias ​​is True.
+        Set the field alias, shown on its label if showAlias is True.
 
         @param alias Field alias, is the value of the tag. If it is empty it does nothing.
         """
@@ -941,7 +941,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def showAlias(self) -> bool:
         """
-        Return the value of the showAlias ​​property.
+        Return the value of the showAlias property.
 
         This property is used to know if you have to show the alias when you are
         in related cursor mode.
@@ -951,7 +951,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def setShowAlias(self, value: bool) -> None:
         """
-        Set the state of the showAlias ​​property.
+        Set the state of the showAlias property.
         """
 
         self._show_alias = value
@@ -1045,7 +1045,7 @@ class FLFieldDB(QtWidgets.QWidget):
     @decorators.pyqt_slot("QString")
     def refresh(self, field_name: Optional[str] = None) -> None:
         """
-        Refresh the content of the field with the cursor values ​​of the source table.
+        Refresh the content of the field with the cursor values of the source table.
 
         If the name of a field is indicated it only "refreshes" if the indicated field
         matches the fieldRelation property, taking the field value as a filter
