@@ -516,7 +516,7 @@ class FLManagerModules(object):
 
     def activeIdArea(self) -> str:
         """
-        Return the area of ​​the active module.
+        Return the area of the active module.
 
         @return Area identifier
         """
