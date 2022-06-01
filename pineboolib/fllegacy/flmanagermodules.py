@@ -842,10 +842,11 @@ class FLManagerModules(object):
                 mtd = mng.metadata(ET.fromstring(str_ret), True)
 
                 if mtd is not None and not mtd.isQuery():
-                    if not self.conn_.existsTable(mtd.name()):
-                        self.conn_.createTable(mtd)
-                    elif self.conn_.canRegenTables():
-                        self.conn_.regenTable(mtd.name(), mtd)
+                    conn_ = application.PROJECT.conn_manager.useConn("dbaux")
+                    if not conn_.existsTable(mtd.name()):
+                        conn_.createTable(mtd)
+                    elif conn_.canRegenTables():
+                        conn_.regenTable(mtd.name(), mtd)
 
         return str_ret
 
