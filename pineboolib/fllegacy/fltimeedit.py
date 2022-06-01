@@ -13,6 +13,9 @@ class FLTimeEdit(QtWidgets.QTimeEdit):
         super().__init__(parent)
         self.setDisplayFormat("hh:mm:ss")
         self.setMinimumWidth(90)
+        self.setTime(
+            "00:00:00"
+        )  # Normalmente deberia inicar a 00:00:00, pero inicia a 23:00:00 BUG??
         # self.setMaximumWidth(90)
 
     def setTime(self, value: Union[str, QtCore.QTime]) -> None:  # type: ignore
