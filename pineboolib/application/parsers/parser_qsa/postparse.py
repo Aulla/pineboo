@@ -718,11 +718,14 @@ class Module(object):
     def loadModule(self):
         """Import and return Python file."""
         try:
-            from importlib import machinery
+            from importlib import util
 
             name = self.name[: self.name.find(".")]
-            loader = machinery.SourceFileLoader(name, os.path.join(self.path, self.name))
-            self.module = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+            spec = util.spec_from_file_location(name, os.path.join(self.path, self.name))
+            module = util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            self.module = module
+
             result = True
 
         except FileNotFoundError:
