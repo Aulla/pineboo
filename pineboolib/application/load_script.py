@@ -1,5 +1,6 @@
 """Load_script module."""
 
+from importlib.machinery import ModuleSpec
 from pineboolib.core.utils import logging
 from .utils.path import _path
 
@@ -291,10 +292,13 @@ def _load(  # type: ignore [return] # noqa: F821, F723
 
     try:
 
-        spec = util.spec_from_file_location(module_name, script_name)
-        module = util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
+        spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_name, script_name)
+        if spec and spec.loader is not None:
+            module = util.module_from_spec(spec)
+            spec.loader.exec_module(module)  # type: ignore [attr-defined]
+            return module
+        else:
+            raise Exception("Module named %s can't be loaded from %s" % (module_name, script_name))
 
     except Exception as error:
         if capture_error:

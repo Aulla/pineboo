@@ -2,6 +2,7 @@
 Data Types for QSA.
 """
 import codecs
+
 import os
 import collections
 
@@ -15,7 +16,10 @@ from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
 from .. import logging
 
-from typing import Any, Optional, Dict, Union, Generator, List
+from typing import Any, Optional, Dict, Union, Generator, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from importlib.machinery import ModuleSpec
 
 LOGGER = logging.get_logger(__name__)
 
@@ -75,7 +79,6 @@ def function(*args: str) -> Any:
     """
 
     import sys as python_sys
-    import importlib
 
     # Leer código QS embebido en Source
     # asumir que es una funcion anónima, tal que:
@@ -94,6 +97,7 @@ function anon(%s) {
 
     # print("Compilando QS en línea: ", qs_source)
     from .parsers.parser_qsa import flscriptparse, postparse, pytnyzer
+    from importlib import util
 
     prog = flscriptparse.parse(qs_source)
     if prog is None:
@@ -112,15 +116,13 @@ function anon(%s) {
     module = None
     module_path = "tempdata.anon"
 
-    # if module_path in python_sys.modules:
-    #    print("**", module_path)
-    #    module = importlib.reload(python_sys.modules[module_path])
-    # else:
-    spec = importlib.util.spec_from_file_location(module_path, dest_filename)  # type: ignore
-    module = importlib.util.module_from_spec(spec)  # type: ignore
-
-    python_sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
+    spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_path, dest_filename)
+    if spec and spec.loader is not None:
+        module = util.module_from_spec(spec)
+        python_sys.modules[spec.name] = module
+        spec.loader.exec_module(module)  # type: ignore [attr-defined]
+    else:
+        raise Exception("Module named %s can't be loaded from %s" % (module_path, dest_filename))
 
     forminternalobj = getattr(module, "FormInternalObj", None)
     # os.remove(dest_filename)

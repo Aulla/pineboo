@@ -2,6 +2,7 @@
 """
 Simplify AST-XML structures for later generation of Python files.
 """
+from importlib.machinery import ModuleSpec
 from optparse import OptionParser
 import os
 import sys
@@ -720,11 +721,17 @@ class Module(object):
         try:
             from importlib import util
 
-            name = self.name[: self.name.find(".")]
-            spec = util.spec_from_file_location(name, os.path.join(self.path, self.name))
-            module = util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            self.module = module
+            module_name = self.name[: self.name.find(".")]
+            script_name = os.path.join(self.path, self.name)
+            spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_name, script_name)
+            if spec and spec.loader is not None:
+                module = util.module_from_spec(spec)
+                spec.loader.exec_module(module)  # type: ignore [attr-defined]
+                self.module = module
+            else:
+                raise Exception(
+                    "Module named %s can't be loaded from %s" % (module_name, script_name)
+                )
 
             result = True
 
