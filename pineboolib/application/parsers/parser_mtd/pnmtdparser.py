@@ -84,7 +84,7 @@ def _generate_model(mtd_table: "pntablemetadata.PNTableMetaData", header: bool =
     return _create_declaration(mtd_table, header)
 
 
-def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
+def generate_field(field: "pnfieldmetadata.PNFieldMetaData", prev: str = "sqlalchemy") -> str:
     """
     Get text representation for sqlAlchemy of a field type given its pnfieldmetadata.PNFieldMetaData.
     """
@@ -92,45 +92,7 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     # TYPE
 
     # = "String"
-    ret = ""
-    type_ = field.type()
-    if type_ in ("int, serial"):
-        ret = "sqlalchemy.Integer"
-    elif type_ in ("uint"):
-        ret = "sqlalchemy.BigInteger"
-    elif type_ in ("calculated"):
-        ret = "sqlalchemy.String"
-    # elif field.type() in ("double"):
-    #    ret = "sqlalchemy.Numeric"
-    #    ret += "(%s , %s)" % (field.partInteger(), field.partDecimal())
-    elif type_ == "double":
-        ret = "sqlalchemy.Float"
-
-    elif type_ in ("string", "stringlist", "pixmap"):
-        ret = "sqlalchemy.String"
-        if field.length():
-            ret += "(%s)" % field.length()
-
-    elif type_ in ("bool", "unlock"):
-        ret = "sqlalchemy.Boolean"
-
-    elif type_ == "timestamp":
-        ret = "sqlalchemy.DateTime"
-
-    elif type_ == "json":
-        ret = "sqlalchemy.types.JSON"
-
-    elif type_ == "time":
-        ret = "sqlalchemy.Time"
-
-    elif type_ == "date":
-        ret = "sqlalchemy.Date"
-
-    elif type_ in ("bytearray"):
-        ret = "sqlalchemy.LargeBinary"
-
-    else:
-        ret = "Desconocido %s" % type_
+    ret = resolve_type(field.type(), field.length(), prev)
 
     data.append(ret)
 
@@ -138,6 +100,52 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
         data.append("primary_key = True")
 
     return ", ".join(data)
+
+
+def resolve_type(type_: str, field_length: int, prev: str) -> str:
+    """Return type resolved."""
+
+    ret = ""
+
+    if type_ in ("int, serial"):
+        ret = "%s.Integer" % (prev)
+    elif type_ in ("uint"):
+        ret = "%s.BigInteger" % (prev)
+    elif type_ in ("calculated"):
+        ret = "%s.String" % (prev)
+    # elif field.type() in ("double"):
+    #    ret = "sqlalchemy.Numeric"
+    #    ret += "(%s , %s)" % (field.partInteger(), field.partDecimal())
+    elif type_ == "double":
+        ret = "%s.Float" % (prev)
+
+    elif type_ in ("string", "stringlist", "pixmap"):
+        ret = "%s.String" % (prev)
+        if field_length:
+            ret += "(%s)" % field_length
+
+    elif type_ in ("bool", "unlock"):
+        ret = "%s.Boolean" % (prev)
+
+    elif type_ == "timestamp":
+        ret = "%s.DateTime" % (prev)
+
+    elif type_ == "json":
+        ret = "%s.types.JSON" % (prev)
+
+    elif type_ == "time":
+        ret = "%s.Time" % (prev)
+
+    elif type_ == "date":
+        ret = "%s.Date" % (prev)
+
+    elif type_ in ("bytearray"):
+        ret = "%s.LargeBinary" % (prev)
+
+    else:
+        ret = "Desconocido %s" % type_
+
+    return ret
 
 
 def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[str]:

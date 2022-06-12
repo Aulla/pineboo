@@ -3,12 +3,12 @@
 Defines the PNConnection class.
 """
 from PyQt5 import QtCore, QtWidgets
-
 from pineboolib.core import settings, utils, decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
+from pineboolib.application.database.orm import alembic_tools
 
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
@@ -576,8 +576,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
+        # print(
+        #    "* ALTER TABLE %s * %s "
+        #    % ("LEGACY" if application.USE_ALTER_TABLE_LEGACY else "ALEMBIC", new_metadata.name())
+        # )
+        if application.USE_ALTER_TABLE_LEGACY:
+            return self.connManager().dbAux().driver().alterTable(new_metadata)
 
-        return self.connManager().dbAux().driver().alterTable(new_metadata)
+        alm = alembic_tools.Migration(self.connManager().dbAux())
+        return alm.upgrade(new_metadata)
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""

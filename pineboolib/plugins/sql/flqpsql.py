@@ -1,6 +1,7 @@
 """Flqpsql module."""
 
 from pineboolib.application.metadata import pntablemetadata
+from pineboolib.application.parsers.parser_mtd import pnmtdparser
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
@@ -8,9 +9,12 @@ from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union, List, Dict, Any, TYPE_CHECKING
 
 LOGGER = logging.get_logger(__name__)
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata import pnfieldmetadata
 
 
 class FLQPSQL(pnsqlschema.PNSqlSchema):
@@ -232,6 +236,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         if type_ == 16:
             ret = "bool"
+        elif type_ == 20:
+            ret = "uint"
         elif type_ == 23:
             ret = "uint"
         elif type_ == 25:
@@ -336,3 +342,25 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         util.destroyProgressDialog()
         return
+
+    def resolveAlterColumn(
+        self,
+        table_name: str,
+        field_meta: "pnfieldmetadata.PNFieldMetaData",
+        db_value: List[Union[int, str]],
+    ):
+        """Return string alter column."""
+
+        result = "op.alter_column('%s', '%s', %s)" % (
+            table_name,
+            field_meta.name(),
+            "type_=%s, existing_type=%s, postgresql_using='%s', nullable=%s"
+            % (
+                pnmtdparser.generate_field(field_meta, "sa"),
+                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),
+                "%s::%s" % (field_meta.name(), self.setType(field_meta.type())),
+                field_meta.allowNull(),
+            ),
+        )
+
+        return result
