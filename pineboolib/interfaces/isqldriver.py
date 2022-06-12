@@ -1293,7 +1293,7 @@ class ISqlDriver(object):
     def calculateChanges(
         self, table_metadata: "itablemetadata.ITableMetaData"
     ) -> Dict[str, List[Any]]:
-        """Calculate changes betwen metadata and tables"""
+        """Calculate changes betwen metadata and tables."""
 
         result: Dict[str, List] = {"upgrade": [], "downgrade": []}
         table_name = table_metadata.name()
