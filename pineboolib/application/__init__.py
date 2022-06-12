@@ -30,4 +30,4 @@ ENABLE_ACLS: bool = True  # Enable acls usage.
 USE_INTERACTIVE_GUI: bool = True  # Enable interactiveGUI value.
 ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
 PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
-USE_ALTER_TABLE_LEGACY: bool = False
+USE_ALTER_TABLE_LEGACY: bool = True
