@@ -10,6 +10,7 @@ from pineboolib import logging, application
 from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
+from pineboolib.application.parsers.parser_mtd import pnmtdparser
 
 from pineboolib.application import qsadictmodules
 
@@ -29,9 +30,12 @@ import traceback
 
 import re
 
+from pineboolib.interfaces import itablemetadata
+
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pnfieldmetadata
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
         result,  # noqa: F401
@@ -629,7 +633,7 @@ class ISqlDriver(object):
         # 5 default_value,
         # 6 is_primary_key
 
-        ret = False
+        ret = 0
         try:
             if field_db[2] != field_meta[2] and not is_query:  # nulos
                 if field_meta[1] != "serial":
@@ -638,7 +642,7 @@ class ISqlDriver(object):
                     ):  # Si en meta , nulo false y pk , dejamos pasar
                         pass
                     else:
-                        ret = True
+                        ret = 1
 
             if not ret:
                 db_type = field_db[1]
@@ -647,34 +651,36 @@ class ISqlDriver(object):
                 if db_type == "string":
                     if meta_type == "string":
                         if field_db[3] not in [field_meta[3], 0, 255]:
-                            ret = True
+                            ret = 2
                     elif meta_type not in ("time", "date"):
-                        ret = True
+                        ret = 3
 
                 elif db_type == "uint" and meta_type not in ("int", "uint", "serial"):
-                    ret = True
+                    ret = 4
                 elif db_type == "bool" and meta_type not in ("bool", "unlock"):
-                    ret = True
+                    ret = 5
                 elif db_type == "double" and meta_type != "double":
-                    ret = True
+                    ret = 6
                 elif db_type == "stringlist" and meta_type not in (
                     "stringlist",
                     "pixmap",
                     "string",
                 ):
-                    ret = True
+                    ret = 7
                 elif db_type == "timestamp" and meta_type != "timestamp":
-                    ret = True
+                    ret = 8
                 elif db_type == "json" and meta_type != "json":
-                    ret = True
+                    ret = 9
 
         except Exception as error:
             LOGGER.error("notEqualsFields %s %s (%s)", field_db, field_meta, str(error))
 
-        # if ret:
-        #    LOGGER.warning("Falla database: %s, metadata: %s", field_db, field_meta)
+        if ret:
+            LOGGER.warning(
+                "Falla database: %s, metadata: %s fallo:%s" % (field_db, field_meta, ret)
+            )
 
-        return ret
+        return ret > 0
 
     @decorators.not_implemented_warn
     def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
@@ -1283,3 +1289,58 @@ class ISqlDriver(object):
         """Return if table engine is valid."""
 
         return False
+
+    def calculateChanges(self, table_metadata: "itablemetadata.ITableMetaData") -> Dict[str, str]:
+        """Calculate changes betwen metadata and tables"""
+
+        result = {"upgrade": [], "downgrade": []}
+        table_name = table_metadata.name()
+        db_data_list = self.recordInfo2(table_metadata.name())
+        meta_data_list = self.recordInfo(table_metadata)
+
+        for db_key, db_value in db_data_list.items():
+            if db_key not in meta_data_list.keys():  # drop.
+                result["upgrade"].append("op.drop_column('%s', '%s')" % (table_name, db_key))
+
+            elif self.notEqualsFields(db_value, meta_data_list[db_key], table_metadata.isQuery()):
+                result["upgrade"].append(
+                    self.resolveAlterColumn(table_name, table_metadata.field(db_key), db_value)
+                )
+
+        for field_name in meta_data_list.keys():
+            if field_name not in db_data_list.keys():  # add
+                col_data = self.buildColumnData(table_metadata.field(field_name))
+                result["upgrade"].append("op.add_column('%s', %s)" % (table_name, col_data))
+        # print("***", result)
+        return result
+
+    def buildColumnData(self, field_metadata: "pnfieldmetadata.PNFieldMetaData") -> str:
+        """Return build data."""
+        data_result = pnmtdparser.generate_field(field_metadata, "sa")
+        result = "sa.Column('%s', %s, nullable=%s)" % (
+            field_metadata.name(),
+            data_result,
+            field_metadata.allowNull(),
+        )
+
+        return result
+
+    def resolveAlterColumn(
+        self,
+        table_name: str,
+        field_meta: "pnfieldmetadata.PNFieldMetaData",
+        db_value: List[Union[int, str]],
+    ):
+        """Return string alter column."""
+
+        return "op.alter_column('%s', '%s', %s)" % (
+            table_name,
+            field_meta.name(),
+            "type_=%s, existing_type=%s, nullable=%s"
+            % (
+                pnmtdparser.generate_field(field_meta, "sa"),
+                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),
+                field_meta.allowNull(),
+            ),
+        )
+

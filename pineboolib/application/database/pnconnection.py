@@ -2,6 +2,7 @@
 """
 Defines the PNConnection class.
 """
+import pineboolib
 from pineboolib.interfaces.isqlcursor import ISqlCursor
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
@@ -9,6 +10,7 @@ from pineboolib.core import settings, utils, decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
 from pineboolib import application
+from pineboolib.application.database.orm import alembic_tools
 
 from typing import List, Optional, Any, Union, TYPE_CHECKING
 
@@ -540,8 +542,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
+        # print(
+        #    "* ALTER TABLE %s * %s "
+        #    % ("LEGACY" if application.USE_ALTER_TABLE_LEGACY else "ALEMBIC", new_metadata.name())
+        # )
+        if application.USE_ALTER_TABLE_LEGACY:
+            return self.connManager().dbAux().driver().alterTable(new_metadata)
 
-        return self.connManager().dbAux().driver().alterTable(new_metadata)
+        alm = alembic_tools.Migration(self.connManager().dbAux())
+        return alm.upgrade(new_metadata)
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""
@@ -580,3 +589,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return length formated."""
 
         return self.driver().sqlLength(field_name, size)
+
+    def resolve_dsn(self) -> str:
+        """Return dsn data."""
+
+        return self.driver().loadConnectionString(
+            self._db_name, self._db_host, self._db_port, self._db_user_name, self._db_password
+        )
