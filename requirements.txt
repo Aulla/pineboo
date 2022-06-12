@@ -61,3 +61,4 @@ xades==0.2.1
 qrcode[pil]
 pympler
 pyOpenSSL==20.0.1
+alembic==1.8.0
