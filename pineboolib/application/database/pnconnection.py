@@ -626,6 +626,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().sqlLength(field_name, size)
 
+    def resolve_dsn(self) -> str:
+        """Return dsn data."""
+
+        return self.driver().loadConnectionString(
+            self._db_name, self._db_host, self._db_port, self._db_user_name, self._db_password
+        )
+
 
 # ===============================================================================
 #     def before_flush(self, session, flush_context, instances=None) -> bool:
