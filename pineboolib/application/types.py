@@ -14,7 +14,7 @@ from PyQt5.Qt import QIODevice  # type: ignore
 
 from pineboolib.core import decorators, settings
 
-from pineboolib.core.utils import logging
+
 from pineboolib.core.utils.utils_base import StructMyDict, filedir
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
