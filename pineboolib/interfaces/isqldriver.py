@@ -597,7 +597,7 @@ class ISqlDriver(object):
         """Return info from a database table."""
         return {}  # pragma: no cover
 
-    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> Dict[str, List[Any]]:
+    def recordInfo(self, table_metadata: "itablemetadata.ITableMetaData") -> Dict[str, List[Any]]:
         """Obtain current cursor information on columns."""
 
         return dict(
@@ -1290,10 +1290,12 @@ class ISqlDriver(object):
 
         return False
 
-    def calculateChanges(self, table_metadata: "itablemetadata.ITableMetaData") -> Dict[str, str]:
+    def calculateChanges(
+        self, table_metadata: "itablemetadata.ITableMetaData"
+    ) -> Dict[str, List[Any]]:
         """Calculate changes betwen metadata and tables"""
 
-        result = {"upgrade": [], "downgrade": []}
+        result: Dict[str, List] = {"upgrade": [], "downgrade": []}
         table_name = table_metadata.name()
         db_data_list = self.recordInfo2(table_metadata.name())
         meta_data_list = self.recordInfo(table_metadata)
@@ -1304,12 +1306,18 @@ class ISqlDriver(object):
 
             elif self.notEqualsFields(db_value, meta_data_list[db_key], table_metadata.isQuery()):
                 result["upgrade"].append(
-                    self.resolveAlterColumn(table_name, table_metadata.field(db_key), db_value)
+                    self.resolveAlterColumn(
+                        table_name,
+                        table_metadata.field(db_key),  # type: ignore [arg-type]
+                        db_value,
+                    )
                 )
 
         for field_name in meta_data_list.keys():
             if field_name not in db_data_list.keys():  # add
-                col_data = self.buildColumnData(table_metadata.field(field_name))
+                col_data = self.buildColumnData(
+                    table_metadata.field(field_name)  # type: ignore [arg-type]
+                )
                 result["upgrade"].append("op.add_column('%s', %s)" % (table_name, col_data))
         # print("***", result)
         return result
@@ -1339,8 +1347,7 @@ class ISqlDriver(object):
             "type_=%s, existing_type=%s, nullable=%s"
             % (
                 pnmtdparser.generate_field(field_meta, "sa"),
-                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),
+                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),  # type: ignore [arg-type]
                 field_meta.allowNull(),
             ),
         )
-

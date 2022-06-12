@@ -2,7 +2,7 @@
 """
 Defines the PNConnection class.
 """
-import pineboolib
+
 from pineboolib.interfaces.isqlcursor import ISqlCursor
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 

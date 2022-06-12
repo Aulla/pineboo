@@ -341,7 +341,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
             "type_=%s, existing_type=%s, postgresql_using='%s', nullable=%s"
             % (
                 pnmtdparser.generate_field(field_meta, "sa"),
-                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),
+                pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),  # type: ignore [arg-type]
                 "%s::%s" % (field_meta.name(), self.setType(field_meta.type())),
                 field_meta.allowNull(),
             ),
