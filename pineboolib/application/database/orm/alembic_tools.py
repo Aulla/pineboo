@@ -4,17 +4,16 @@ from pineboolib.application.utils import path
 from pineboolib import logging
 from alembic import config, migration
 import configparser
+import os
 
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import List, Dict, Any, TYPE_CHECKING
 
 LOGGER = logging.get_logger(__name__)
 
 if TYPE_CHECKING:
 
     from pineboolib.interfaces import iconnection, itablemetadata
-
-import os
 
 
 class Migration:
@@ -55,7 +54,7 @@ class Migration:
 
         return True
 
-    def applyChangesInFile(self, file_name: str, changes_dict: Dict[str, str]):
+    def applyChangesInFile(self, file_name: str, changes_dict: Dict[str, List[Any]]):
         """Apply changes in file."""
         try:
             file_ = open(file_name, "r", encoding="UTF-8")
@@ -118,11 +117,14 @@ class Migration:
             file_path = os.path.join(folder_path, file_name)
             file_time = os.path.getctime(file_path)
 
-            if not last or file_time > last[0]:
-                # print("Seleccionando", file_time, file_path)
+            if last is None:
+                last = [file_time, file_path]
+                continue
+
+            if file_time > last[0]:  # type: ignore [unreachable]
                 last = [file_time, file_path]
 
-        return last[1] if last is not None else ""
+        return "" if last is None else str(last[1])
 
     def getCurrentRev(self):
         """Return current revision stored in database."""
@@ -141,17 +143,11 @@ class Migration:
         if not os.path.exists(self._alembic_folder):
             # borrar alembic_version
             os.mkdir(self._alembic_folder)
-            init = True
-
             os.chdir(self._alembic_folder)
 
             config.main(argv=["init", "alembic"])
 
-            dsn = self._conn.resolve_dsn()
-
             alembic_ini = os.path.join(self._alembic_folder, "alembic.ini")
-
-            # print("ALEMBIC.INI", alembic_ini)
 
             config_ = configparser.ConfigParser()
             config_.read(alembic_ini)
