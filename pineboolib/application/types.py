@@ -9,8 +9,8 @@ import collections
 from typing import Any, Optional, Dict, Union, Generator, List, TYPE_CHECKING
 
 from os.path import expanduser
-from PyQt5 import QtCore  # type: ignore
-from PyQt5.Qt import QIODevice  # type: ignore
+from PyQt5 import QtCore
+from PyQt5.QtCore import QIODevice
 
 from pineboolib.core import decorators, settings
 
@@ -578,7 +578,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if encode is not None:
             self._encode = encode
 
-        self._mode = self.ReadWrite
+        self._mode = self.ReadWrite  # type: ignore [assignment]
 
     def open(self, mode: QIODevice) -> bool:
         """Open file."""
@@ -586,11 +586,11 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         self._mode = mode
         self.eof = False
         if self._q_file is not None:
-            self._q_file.open(self._mode)
+            self._q_file.open(self._mode)  # type: ignore [call-overload]
 
         return True
 
-    def ioDevice(self) -> QIODevice:
+    def ioDevice(self) -> QIODevice:  # type: ignore [override]
         """Return ioDevice mode."""
         return self._q_file
 
@@ -635,7 +635,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             raise ValueError("self._file_name is empty!")
 
         mode = "w"
-        if self._mode == self.Append:
+        if self._mode == self.Append:  # type: ignore [comparison-overlap]
             mode = "a"
 
         if not isinstance(data, str):

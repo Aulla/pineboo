@@ -45,7 +45,7 @@ class FormInternalObj(qsa.FormDBWidget):
         icon_name = None
         # versionMinimaFL = None
         dependencias = qsa.Array()
-        fichero.open(qsa.File.ReadOnly)
+        fichero.open(qsa.File.ReadOnly)  # type: ignore [arg-type]
         file_ = fichero.read()
         module_xml = qsa.FLDomDocument()
         if module_xml.setContent(file_):
@@ -86,7 +86,7 @@ class FormInternalObj(qsa.FormDBWidget):
             area_description or "", fichero.path or "", modulo or ""
         )
         icon_file = qsa.File(qsa.ustr(fichero.path, u"/", icon_name))
-        icon_file.open(qsa.File.ReadOnly)
+        icon_file.open(qsa.File.ReadOnly)  # type: ignore [arg-type]
         icono = icon_file.read()
         icon_file.close()
 
@@ -169,7 +169,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return cadena
 
         fichero = qsa.File(nombre_fichero)
-        fichero.open(qsa.File.ReadOnly)
+        fichero.open(qsa.File.ReadOnly)  # type: ignore [arg-type]
         file_data = fichero.read()
         xml_trans = qsa.FLDomDocument()
         if xml_trans.setContent(file_data):

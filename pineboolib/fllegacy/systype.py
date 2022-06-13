@@ -1174,7 +1174,7 @@ class SysType(sysbasetype.SysBaseType):
         file_ = types.File(file_path_)
         content = u""
         try:
-            file_.open(types.File.ReadOnly)
+            file_.open(types.File.ReadOnly)  # type: ignore [arg-type]
             content = str(file_.read())
         except Exception:
             error = traceback.format_exc()
@@ -1846,7 +1846,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         file_name = utils_base.ustr(dir_base, table, u".csv")
         file_ = types.File(file_name)
-        if not file_.open(types.File.WriteOnly):
+        if not file_.open(types.File.WriteOnly):  # type: ignore [arg-type]
             return False
         ts_ = QtCore.QTextStream(file_.ioDevice())
         ts_.setCodec(AQS.TextCodec_codecForName(u"utf8"))

@@ -40,7 +40,9 @@ class TestClasses(unittest.TestCase):
         txt_ = "Hola!"
         txt_2 = "Hola de nuevo!"
         file_1 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
-        self.assertTrue(file_1.open(qsa.File.WriteOnly | qsa.File.Append))
+        self.assertTrue(
+            file_1.open(qsa.File.WriteOnly | qsa.File.Append)  # type: ignore [arg-type]
+        )
 
         text_stream = qsa.QTextStream()
         text_stream.setDevice(file_1.ioDevice())
@@ -52,7 +54,9 @@ class TestClasses(unittest.TestCase):
             self.assertEqual(read_data, "Hola!\n")
 
         file_2 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
-        self.assertTrue(file_2.open(qsa.File.WriteOnly | qsa.File.Append))
+        self.assertTrue(
+            file_2.open(qsa.File.WriteOnly | qsa.File.Append)  # type: ignore [arg-type]
+        )
 
         text_stream = qsa.QTextStream()
         text_stream.setDevice(file_2.ioDevice())

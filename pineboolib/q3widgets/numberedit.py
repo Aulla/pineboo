@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget  # type: ignore
 from .qlineedit import QLineEdit
 from .qlabel import QLabel
 from .qhboxlayout import QHBoxLayout
-from PyQt5.Qt import QDoubleValidator  # type: ignore
+from PyQt5.QtGui import QDoubleValidator  # type: ignore
 from typing import Any, SupportsFloat, SupportsInt, Union, cast
 
 

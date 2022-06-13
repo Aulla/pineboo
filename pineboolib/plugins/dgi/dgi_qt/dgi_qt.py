@@ -46,7 +46,7 @@ class DgiQt(dgi_schema.DgiSchema):
             cls = getattr(mod_, name, None)
 
         if cls is None:
-            array_mod = [PyQt5.QtWidgets, PyQt5.QtXml, PyQt5.QtGui, PyQt5.Qt, PyQt5.QtCore]
+            array_mod = [PyQt5.QtWidgets, PyQt5.QtXml, PyQt5.QtGui, PyQt5.QtCore]
             for mod in array_mod:
                 cls = getattr(mod, name, None)
                 if cls is not None:
