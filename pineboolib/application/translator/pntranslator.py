@@ -7,7 +7,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core import settings
 from pineboolib import application
 
-from PyQt5 import Qt
+from PyQt5 import QtCore
 
 
 from . import pntranslations
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class PNTranslator(Qt.QTranslator):
+class PNTranslator(QtCore.QTranslator):
     """FLTranspator class."""
 
     _multi_lang: bool
@@ -104,7 +104,7 @@ class PNTranslator(Qt.QTranslator):
 
         return ret_
 
-    def translate(
+    def translate(  # type: ignore [override]
         self, context: str, source_text: str, disambiguation: str = None, num: int = -1
     ) -> Optional[str]:
         """Return a translated text."""

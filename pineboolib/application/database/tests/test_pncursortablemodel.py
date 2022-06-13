@@ -140,7 +140,7 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         model = cursor.model()
         model.disable_refresh(True)
-        model.sort(1, QtCore.Qt.DescendingOrder)
+        model.sort(1, QtCore.Qt.AscendingOrder)
         self.assertTrue(model._disable_refresh)
         model.disable_refresh(False)
         model.update_rows()

@@ -243,7 +243,9 @@ class PNStaticLoader(QtCore.QObject):
             QtWidgets.QTableWidget, self._dialog.tblDirs  # type: ignore[attr-defined] # noqa: F821
         )
         cur_row = tbl_dir.currentRow()
-        dir_init = tbl_dir.item(cur_row, 0).text() if cur_row > -1 else ""
+        dir_init = (
+            tbl_dir.item(cur_row, 0).text() if cur_row > -1 else ""  # type: ignore [union-attr]
+        )
 
         dir = QtWidgets.QFileDialog.getExistingDirectory(
             None, self.tr("Selecciones el directorio a insertar"), dir_init
@@ -276,7 +278,9 @@ class PNStaticLoader(QtCore.QObject):
         if cur_row == -1:
             return
 
-        actual_dir = tbl_dir.item(cur_row, 0).text() if cur_row > -1 else ""
+        actual_dir = (
+            tbl_dir.item(cur_row, 0).text() if cur_row > -1 else ""  # type: ignore [union-attr]
+        )
 
         new_dir = QtWidgets.QFileDialog.getExistingDirectory(
             None, self.tr("Selecciones el directorio a modificar"), actual_dir
@@ -309,7 +313,7 @@ class PNStaticLoader(QtCore.QObject):
         ):
             return
 
-        info = self._info.findPath(tbl_dir.item(cur_row, 0).text())
+        info = self._info.findPath(tbl_dir.item(cur_row, 0).text())  # type: ignore [union-attr]
         if info:
             self._info.dirs_.remove(info)
 
@@ -332,8 +336,8 @@ class PNStaticLoader(QtCore.QObject):
             return
 
         for row in range(tbl_dir.rowCount()):
-            if tbl_dir.cellWidget(row, 1) is chk:
-                info = self._info.findPath(tbl_dir.item(row, 0).text())
+            if tbl_dir.cellWidget(row, 1) is chk:  # type: ignore [comparison-overlap]
+                info = self._info.findPath(tbl_dir.item(row, 0).text())  # type: ignore [union-attr]
                 if info:
                     info.active_ = state
 

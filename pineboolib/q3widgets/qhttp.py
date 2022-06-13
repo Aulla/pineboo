@@ -573,7 +573,7 @@ class QHttp(HttpState, HttpError):
     def error(self) -> int:
         """Return error."""
 
-        return cast(int, self._reply.error())
+        return cast(int, self._reply.error)
 
     def errorString(self) -> str:
         """Return error string."""

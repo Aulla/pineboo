@@ -118,7 +118,7 @@ class QTable(Q3TableWidget):
 
     def setCellAlignment(self, row: int, col: int, alig_: int) -> None:
         """Set cell alignment."""
-        self.item(row, col).setTextAlignment(alig_)
+        self.item(row, col).setTextAlignment(alig_)  # type: ignore [union-attr]
 
     def setNumCols(self, n: int) -> None:
         """Set num cols."""
@@ -202,7 +202,9 @@ class QTable(Q3TableWidget):
         """Return text from a index."""
         if row is None:
             return
-        return self.item(row, col).text() if self.item(row, col) else ""
+        return (
+            self.item(row, col).text() if self.item(row, col) else ""  # type: ignore [union-attr]
+        )
 
     def setText(self, row: int, col: int, value: Any) -> None:
         """Set text to a index."""
@@ -251,7 +253,7 @@ class QTable(Q3TableWidget):
         widget = self.cellWidget(row, col)
         if widget is not None:
             if row in self.read_only_rows or col in self.read_only_cols:
-                widget.setEnabled(False)
+                widget.setEnabled(False)  # type: ignore [attr-defined]
 
     def adjustColumn(self, k: int) -> None:
         """Adjust a column specified by name."""

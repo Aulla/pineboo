@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib import logging, application
 
-from PyQt5 import QtCore, QtWidgets, Qt, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 from pineboolib.core import decorators, settings
@@ -147,7 +147,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(QtGui.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -163,7 +163,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)

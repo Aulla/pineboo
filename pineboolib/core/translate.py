@@ -3,6 +3,6 @@
 
 def translate(group: str, context: str) -> str:
     """Return the translation if it exists."""
-    from PyQt5 import Qt
+    from PyQt5 import QtWidgets
 
-    return Qt.qApp.translate(group.encode(), context.encode())
+    return QtWidgets.qApp.translate(group, context)

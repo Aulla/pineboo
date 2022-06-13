@@ -51,7 +51,7 @@ class DockListView(QtCore.QObject):
         self.tree_widget.setObjectName(self.objectName())
         self.tree_widget.setColumnCount(2)
         self.tree_widget.setHeaderLabels(["", ""])
-        self.tree_widget.headerItem().setHidden(True)
+        self.tree_widget.headerItem().setHidden(True)  # type: ignore [union-attr]
         self.tree_widget.hideColumn(1)
 
         self.doc_widget.setWidget(self.tree_widget)
@@ -689,7 +689,11 @@ class MainForm(imainwindow.IMainWindow):
         if tree_widget is None:
             return
         if check_max and tree_widget.topLevelItemCount() >= self.MAX_RECENT:
-            last_name = tree_widget.topLevelItem(tree_widget.topLevelItemCount() - 1).text(1)
+            last_name = tree_widget.topLevelItem(
+                tree_widget.topLevelItemCount() - 1
+            ).text(  # type: ignore [union-attr]
+                1
+            )
             action_ = cast(QtWidgets.QAction, self.ag_rec_.findChild(QtWidgets.QAction, last_name))
             if action_:
                 self.ag_rec_.removeAction(action_)

@@ -4,7 +4,7 @@ Defines PNCursorTableModel class.
 """
 
 
-from PyQt5 import QtCore, QtGui, Qt, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
@@ -449,7 +449,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         center_width = (row_width - pixmap.width()) / 2
                         center_height = (row_height - pixmap.height()) / 2
                         new_pixmap.fill(QtCore.Qt.transparent)
-                        painter = Qt.QPainter(new_pixmap)
+                        painter = QtGui.QPainter(new_pixmap)
                         painter.drawPixmap(
                             int(center_width),
                             int(center_height),

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets, Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings, decorators
@@ -239,7 +239,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(QtGui.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -255,7 +255,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -278,7 +278,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonFirst.setSizePolicy(size_policy)
                 self.pushButtonFirst.setMaximumSize(push_button_size)
                 self.pushButtonFirst.setMinimumSize(push_button_size)
-                self.pushButtonFirst.setShortcut(Qt.QKeySequence(self.tr("F5")))
+                self.pushButtonFirst.setShortcut(QtGui.QKeySequence(self.tr("F5")))
                 self.pushButtonFirst.setWhatsThis(
                     "Aceptar los cambios e ir al primer registro (F5)"
                 )
@@ -297,7 +297,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonPrevious.setSizePolicy(size_policy)
                 self.pushButtonPrevious.setMaximumSize(push_button_size)
                 self.pushButtonPrevious.setMinimumSize(push_button_size)
-                self.pushButtonPrevious.setShortcut(Qt.QKeySequence(self.tr("F6")))
+                self.pushButtonPrevious.setShortcut(QtGui.QKeySequence(self.tr("F6")))
                 self.pushButtonPrevious.setWhatsThis(
                     "Aceptar los cambios e ir al registro anterior (F6)"
                 )
@@ -318,7 +318,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonNext.setSizePolicy(size_policy)
                 self.pushButtonNext.setMaximumSize(push_button_size)
                 self.pushButtonNext.setMinimumSize(push_button_size)
-                self.pushButtonNext.setShortcut(Qt.QKeySequence(self.tr("F7")))
+                self.pushButtonNext.setShortcut(QtGui.QKeySequence(self.tr("F7")))
                 self.pushButtonNext.setWhatsThis(
                     "Aceptar los cambios e ir al registro siguiente (F7)"
                 )
@@ -339,7 +339,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonLast.setSizePolicy(size_policy)
                 self.pushButtonLast.setMaximumSize(push_button_size)
                 self.pushButtonLast.setMinimumSize(push_button_size)
-                self.pushButtonLast.setShortcut(Qt.QKeySequence(self.tr("F8")))
+                self.pushButtonLast.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 self.pushButtonLast.setWhatsThis("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setToolTip("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -356,7 +356,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAcceptContinue.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-refresh.png"))
             )
-            self.pushButtonAcceptContinue.setShortcut(Qt.QKeySequence(self.tr("F9")))
+            self.pushButtonAcceptContinue.setShortcut(QtGui.QKeySequence(self.tr("F9")))
             self.pushButtonAcceptContinue.setWhatsThis(
                 "Aceptar los cambios y continuar con la edición de un nuevo registro (F9)"
             )
@@ -380,7 +380,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAccept.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
             )
-            self.pushButtonAccept.setShortcut(Qt.QKeySequence(self.tr("F10")))
+            self.pushButtonAccept.setShortcut(QtGui.QKeySequence(self.tr("F10")))
             self.pushButtonAccept.setWhatsThis("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setToolTip("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -400,7 +400,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
         self.pushButtonCancel.setMinimumSize(push_button_size)
-        self.pushButtonCancel.setShortcut(Qt.QKeySequence(self.tr("Esc")))
+        self.pushButtonCancel.setShortcut(QtGui.QKeySequence(self.tr("Esc")))
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
         )

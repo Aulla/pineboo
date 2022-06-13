@@ -52,7 +52,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
                 elif self._tipo in ("int", "uint", "double"):
                     self.setAlignment(QtCore.Qt.AlignRight)
 
-    def setText(self, text_: str, check_focus: bool = True) -> None:
+    def setText(self, text_: str, check_focus: bool = True) -> None:  # type: ignore [override]
         """Set text to control."""
 
         text_ = str(text_)

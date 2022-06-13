@@ -5,7 +5,7 @@ import os
 from pineboolib.core import decorators
 from pineboolib import application, logging
 
-from PyQt5 import QtCore, Qt
+from PyQt5 import QtCore
 from typing import Any
 
 
@@ -71,12 +71,12 @@ class PNTranslations(object):
         verbose = False
         meta_trans = False
 
-        file_ = Qt.QFile(ts_input_file)
+        file_ = QtCore.QFile(ts_input_file)
         if not file_.open(QtCore.QIODevice.ReadOnly):
             LOGGER.warning("Cannot open file '%s'", ts_input_file)
             return
 
-        stream = Qt.QTextStream(file_)
+        stream = QtCore.QTextStream(file_)
         full_text = stream.readAll()
         file_.close()
 
@@ -88,8 +88,8 @@ class PNTranslations(object):
                 raise Exception("Project has no connection yet")
 
             key = application.PROJECT.conn_manager.managerModules().shaOfFile(ts_input_file)
-            for key, value in full_text:
-                toks = value.split(" ")
+            for key, value in full_text:  # type: ignore [misc]
+                toks = value.split(" ")  # type: ignore [has-type]
 
                 for token in toks:
                     if key == "TRANSLATIONS":

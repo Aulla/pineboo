@@ -1,6 +1,6 @@
 """Qtimeedit module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, Qt  # type: ignore
+from PyQt5 import QtWidgets, QtCore
 from typing import Optional, Union
 
 
@@ -13,11 +13,11 @@ class QTimeEdit(QtWidgets.QTimeEdit):
 
         self.setDisplayFormat("hh:mm:ss A")
 
-    def setTime(self, time: Union[Qt.QTime, str]) -> None:
+    def setTime(self, time) -> None:
         """Set time."""
-        if not isinstance(time, Qt.QTime):
+        if not isinstance(time, QtCore.QTime):
             t_list = time.split(":")
-            time = Qt.QTime(int(t_list[0]), int(t_list[1]), int(t_list[2]))
+            time = QtCore.QTime(int(t_list[0]), int(t_list[1]), int(t_list[2]))
         super().setTime(time)
 
     def getTime(self) -> str:
