@@ -1,7 +1,7 @@
 """Qtimeedit module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore
-from typing import Optional, Union
+from typing import Optional
 
 
 class QTimeEdit(QtWidgets.QTimeEdit):
