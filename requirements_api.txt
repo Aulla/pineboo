@@ -34,3 +34,4 @@ pyOpenSSL
 xades
 qrcode[pil]
 pympler
+alembic==1.8.0
