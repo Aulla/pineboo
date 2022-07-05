@@ -11,7 +11,6 @@ import odf  # type: ignore
 from odf import table, style  # type: ignore
 
 from pineboolib import logging
-from pineboolib.core import decorators
 
 if TYPE_CHECKING:
     from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore # pragma: no cover
