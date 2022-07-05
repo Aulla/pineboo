@@ -370,8 +370,7 @@ class Project(object):
         @param show_exceptions. Boolean que especifica si se muestra los errores.
         @return Boolean con el resultado.
         """
-        # FIXME: No deberíamos usar este método. En Python hay formas mejores
-        # de hacer esto.
+
         LOGGER.trace(
             "JS.CALL: fn:%s args:%s ctx:%s", function, args, object_context, stack_info=True
         )
