@@ -780,7 +780,6 @@ class FLTableDB(QtWidgets.QWidget):
         """
         self._init_search = init_search
 
-    @decorators.beta_implementation
     def setOrderCols(self, fields: List[str]):
         """
         Set the order of the columns in the table.
@@ -838,7 +837,6 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             self.refreshDelayed()
 
-    @decorators.beta_implementation
     def orderCols(self) -> List[str]:
         """
         Return the list of fields sorted by their columns in the table from left to right.
@@ -909,7 +907,6 @@ class FLTableDB(QtWidgets.QWidget):
         """
         self._check_column_enabled = value
 
-    @decorators.beta_implementation
     def aliasCheckColumn(self) -> Optional[str]:
         """
         Obtain the header label text for the selection column.
@@ -1948,7 +1945,6 @@ class FLTableDB(QtWidgets.QWidget):
 
         return where
 
-    @decorators.beta_implementation
     def initFakeEditor(self) -> None:
         """
         Initialize a false and non-functional editor.
@@ -2467,7 +2463,6 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.moveCol(_index, self._sort_column_2)
 
-    @decorators.beta_implementation
     def moveCol(self, from_: int, to_: int, first_search: bool = True) -> None:
         """
         Move a column from one source field to the column in another destination field.
