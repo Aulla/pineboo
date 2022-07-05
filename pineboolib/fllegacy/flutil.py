@@ -279,7 +279,6 @@ class FLUtil(object):
         return buffer.upper()
 
     @classmethod
-    @decorators.beta_implementation
     def enLetraMoneda(cls, num: Union[int, str, float], currency: str) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in any currency indicated.
@@ -318,7 +317,6 @@ class FLUtil(object):
         return res.upper()
 
     @classmethod
-    @decorators.beta_implementation
     def enLetraMonedaEuro(cls, num: Union[int, float]) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in Euros.
@@ -429,7 +427,6 @@ class FLUtil(object):
         return date_conversion.date_amd_to_dma(date_str) or ""
 
     @classmethod
-    @decorators.beta_implementation
     def formatoMiles(cls, value: str) -> str:
         """
         Format a text string by placing thousands separators.
