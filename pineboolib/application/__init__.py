@@ -32,4 +32,3 @@ ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
 PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
 USE_ALTER_TABLE_LEGACY: bool = True
 PERSISTENT: Dict[str, Any] = {}
-
