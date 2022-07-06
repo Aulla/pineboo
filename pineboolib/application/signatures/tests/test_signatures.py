@@ -59,6 +59,24 @@ class TestSignatures(unittest.TestCase):
         self.assertTrue(obj_._policy is not None)
         self.assertTrue(obj_.signature_value())
 
+    """     def test_pdf_digest(self) -> None:
+        """ "Test pdf_digest." """
+
+        pdf_unsigned_file = fixture_path("pdf_unsigned.pdf")
+        pdf_signed_file = fixture_path("pdf_signed.pdf")
+        if os.path.exists(pdf_signed_file):
+            os.remove(pdf_signed_file)
+
+        cert_file = fixture_path("cert.p12")
+
+        obj_ = qsa.PdfDigest(pdf_unsigned_file, cert_file)
+        obj_.set_password("123456")
+        obj_.set_stamp("stamp test")
+        self.assertTrue(obj_.sign(pdf_signed_file))
+        self.assertTrue(os.path.exists(pdf_signed_file))
+
+        self.assertTrue(os.path.exists(pdf_signed_file)) """
+
     def test_xml_digest_512(self) -> None:
         """Test xml_digest."""
 
