@@ -5,7 +5,7 @@ This package holds all functions and classes that are like side resources.
 """
 
 from .projectmodule import Project
-from typing import Dict, List
+from typing import Dict, List, Any
 
 PROJECT = Project()
 
@@ -31,3 +31,5 @@ USE_INTERACTIVE_GUI: bool = True  # Enable interactiveGUI value.
 ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
 PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
 USE_ALTER_TABLE_LEGACY: bool = True
+PERSISTENT: Dict[str, Any] = {}
+
