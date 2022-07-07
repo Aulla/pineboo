@@ -35,3 +35,7 @@ xades
 qrcode[pil]
 pympler
 alembic==1.7.7
+pyHanko[opentype]==0.13.2
+uharfbuzz>=0.25.0
+fonttools>=4.33.3
+pandas==1.1.5
