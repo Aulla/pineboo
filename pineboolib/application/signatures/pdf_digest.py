@@ -4,8 +4,6 @@ from pineboolib.core.utils import logging
 from pineboolib.core import fonts, images as core_images
 import os
 from pyhanko import stamp  # type: ignore[import]
-from pyhanko.pdf_utils import text, images  # type: ignore[import]
-from pyhanko.pdf_utils.font import opentype  # type: ignore[import]
 from pyhanko.sign import signers, fields  # type: ignore[import]
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter  # type: ignore[import]
 from pyhanko.sign.fields import SigSeedSubFilter  # type: ignore[import]
@@ -133,6 +131,8 @@ class PdfDigest:
             kwargs = {"signature_meta": signature_meta, "signer": self._certificate}
 
             if self._stamp:
+                from pyhanko.pdf_utils.font import opentype  # type: ignore[import]
+                from pyhanko.pdf_utils import text, images  # type: ignore[import]
 
                 if not os.path.exists(self._stamp["font"]):
                     LOGGER.warning("font file %s not found!" % self._stamp["font"])
