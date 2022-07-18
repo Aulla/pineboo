@@ -248,14 +248,14 @@ class PNPackager(object):
         stream.writeBytes(b"")
         stream.writeBytes(b"")
         stream.writeBytes(b"")
-        stream.writeBytes(QtCore.qCompress(modules_def).data())
-        stream.writeBytes(QtCore.qCompress(files_def).data())
+        stream.writeBytes(QtCore.qCompress(modules_def).data())  # type: ignore [call-overload]
+        stream.writeBytes(QtCore.qCompress(files_def).data())  # type: ignore [call-overload]
         # FILE CONTENTS
         try:
             for filepath in self._file_list:
                 sys.stdout.write(".")
                 sys.stdout.flush()
-                stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
+                stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())  # type: ignore [call-overload]
 
         except Exception as exception:
             self._addError("pack (add files)", str(exception))

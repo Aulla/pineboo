@@ -38,7 +38,7 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
         value_in = input_
 
         if value_in is None or self._formatting:
-            return (self.Acceptable, value_in, pos_cursor)
+            return (self.State.Acceptable, value_in, pos_cursor)
 
         # pos_cursor= len(value_in)
         state = super().validate(value_in, pos_cursor)
@@ -51,7 +51,7 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
             state_ = value_in[1:]
             if (
                 value_in[0] == "-"
-                and super().validate(state_, pos_cursor)[0] == self.Acceptable
+                and super().validate(state_, pos_cursor)[0] == self.State.Acceptable
                 or state_ == ""
             ):
                 ret_0 = self.State.Acceptable

@@ -23,7 +23,7 @@ class FLIntValidator(QtGui.QIntValidator):
         """Return validate result."""
 
         if not input_ or self._formatting:
-            return (self.Acceptable, input_, pos_cursor)
+            return (self.State.Acceptable, input_, pos_cursor)
 
         state = super().validate(input_, pos_cursor)
 
@@ -31,17 +31,17 @@ class FLIntValidator(QtGui.QIntValidator):
         ret_1 = state[1]
         ret_2 = state[2]
 
-        if state[0] in (self.Invalid, self.Intermediate) and len(input_) > 0:
+        if state[0] in (self.State.Invalid, self.State.Intermediate) and len(input_) > 0:
             text_ = input_[1:]
             if (
                 input_[0] == "-"
-                and super().validate(text_, pos_cursor)[0] == self.Acceptable
+                and super().validate(text_, pos_cursor)[0] == self.State.Acceptable
                 or not text_
             ):
-                ret_0 = self.Acceptable
+                ret_0 = self.State.Acceptable
             else:
-                ret_0 = self.Invalid
+                ret_0 = self.State.Invalid
         else:
-            ret_0 = self.Acceptable
+            ret_0 = self.State.Acceptable
 
         return (ret_0, ret_1, ret_2)

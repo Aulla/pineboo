@@ -346,7 +346,7 @@ class FLDataTable(QtWidgets.QTableView):
         self.pk_checked.clear()
         model = self.cur.model()
         for idx in model._check_column.keys():
-            model._checkColumn[idx].setChecked(False)
+            model._check_column[idx].setChecked(False)
 
     def setPrimaryKeyChecked(self, pk_value: str, on_: bool) -> None:
         """
@@ -621,7 +621,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         popup.move(tmp_pos.x(), tmp_pos.y())
 
-        popup.exec_(event.globalPos())
+        popup.exec(event.globalPos())
         del popup
         event.accept()
 

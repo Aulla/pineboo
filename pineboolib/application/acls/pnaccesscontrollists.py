@@ -129,7 +129,7 @@ class PNAccessControlLists(object):
 
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        name_: str = obj.name() if hasattr(
+        name_: str = obj.name() if hasattr(  # type: ignore [union-attr]
             obj, "name"
         ) else obj.objectName()  # type: ignore [union-attr]
 

@@ -791,7 +791,7 @@ class MainForm(imainwindow.IMainWindow):
 
         if container_ and idm:
             for item in [
-                item.widget() for item in container_.findChildren(QtWidgets.QMdiSubWindow)
+                item.widget() for item in container_.findChildren(QtWidgets.QMdiSubWindow)  # type: ignore [attr-defined]
             ]:
                 key = "Geometry/%s/" % item._action_name
                 settings.SETTINGS.set_value("%s/X" % key, item.x())

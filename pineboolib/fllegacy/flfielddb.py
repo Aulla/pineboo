@@ -972,9 +972,9 @@ class FLFieldDB(QtWidgets.QWidget):
         if str(key) not in self._accel.keys():
             accel = QtGui.QShortcut(QtGui.QKeySequence(key), self)
             # accel.activated.connect(self.ActivatedAccel)
-            self._accel[str(accel.id())] = accel
+            self._accel[str(accel.id())] = accel  # type: ignore [attr-defined]
 
-        return str(accel.id())
+        return str(accel.id())  # type: ignore [attr-defined]
 
     def removeAccel(self, key: str) -> bool:
         """

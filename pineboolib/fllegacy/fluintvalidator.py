@@ -28,7 +28,7 @@ class FLUIntValidator(QtGui.QIntValidator):
         i_v = QtGui.QIntValidator(0, 1000000000, self)
         state = i_v.validate(input_, pos_cursor)
 
-        ret_0 = self.Invalid if state[0] is self.State.Intermediate else state[0]
+        ret_0 = self.State.Invalid if state[0] is self.State.Intermediate else state[0]
         ret_1 = state[1]
         ret_2 = state[2]
 

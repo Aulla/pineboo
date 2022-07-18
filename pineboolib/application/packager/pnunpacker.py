@@ -45,7 +45,7 @@ class PNUnpacker(QtCore.QObject):
         @return record string.
         """
 
-        data_bytes = QtCore.qUncompress(self.stream_.readBytes()).data()
+        data_bytes : bytes = QtCore.qUncompress(self.stream_.readBytes()).data()  # type: ignore [call-overload]
         try:
             data_ = data_bytes.decode("utf-8")
         except UnicodeDecodeError:
@@ -60,7 +60,7 @@ class PNUnpacker(QtCore.QObject):
         @return record bytes.
         """
 
-        return QtCore.qUncompress(self.stream_.readBytes())
+        return QtCore.qUncompress(self.stream_.readBytes())  # type: ignore [call-overload]
 
     def getVersion(self) -> str:
         """

@@ -729,7 +729,7 @@ class MainForm(imainwindow.IMainWindow):
         pop_menu = QtWidgets.QMenu()
         pop_menu.move(pos)
         pop_menu.addAction(self.tr("Añadir Marcadores"))
-        res = pop_menu.exec_()
+        res = pop_menu.exec()
         if res and self.ag_menu_ is not None:
             action = cast(QtGui.QAction, self.ag_menu_.findChild(QtGui.QAction, item.text(1)))
             if action and not action.objectName().endswith("actiongroup_name"):
@@ -752,7 +752,7 @@ class MainForm(imainwindow.IMainWindow):
         pop_menu = QtWidgets.QMenu()
         pop_menu.move(pos)
         pop_menu.addAction(self.tr("Eliminar Marcador"))
-        res = pop_menu.exec_()
+        res = pop_menu.exec()
         if res:
             action = cast(QtGui.QAction, self.ag_mar_.findChild(QtGui.QAction, item.text(1)))
             if action and self.ag_mar_:
@@ -1080,11 +1080,11 @@ class MainForm(imainwindow.IMainWindow):
         """Initialize the 3 available docks."""
 
         self.dck_mar_ = DockListView(self.main_widget, "pinebooDockMarks", self.tr("Marcadores"))
-        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mar_.doc_widget)
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mar_.doc_widget)  # type: ignore [attr-defined]
         self.dck_rec_ = DockListView(self.main_widget, "pinebooDockRecent", self.tr("Recientes"))
-        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_rec_.doc_widget)
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_rec_.doc_widget)  # type: ignore [attr-defined]
         self.dck_mod_ = DockListView(self.main_widget, "pinebooDockModules", self.tr("Módulos"))
-        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mod_.doc_widget)
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mod_.doc_widget)  # type: ignore [attr-defined]
 
         window_menu = cast(
             QtWidgets.QMenu, self.main_widget.findChild(QtWidgets.QMenu, "windowMenu")

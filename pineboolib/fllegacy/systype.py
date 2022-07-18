@@ -419,7 +419,7 @@ class SysType(sysbasetype.SysBaseType):
         push_button_accept.clicked.connect(diag.accept)  # type: ignore [attr-defined]
         push_button_cancel.clicked.connect(diag.reject)  # type: ignore [attr-defined]
         if not application.PROJECT.app.platformName() != "offscreen":
-            return False if (diag.exec_() == 0) else True
+            return False if (diag.exec() == 0) else True
         else:
             return True
 
@@ -855,7 +855,7 @@ class SysType(sysbasetype.SysBaseType):
         if not application.PROJECT.app.platformName() == "offscreen":
             return messagebox.MessageBox.Yes
 
-        ret = messagebox.MessageBox.No if (diag.exec_() == 0) else messagebox.MessageBox.Yes
+        ret = messagebox.MessageBox.No if (diag.exec() == 0) else messagebox.MessageBox.Yes
         if check_remember is not None:
             settings.SETTINGS.set_value(key + key_remember, check_remember.isChecked())
         return ret

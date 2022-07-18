@@ -261,13 +261,13 @@ class PNApplication(QtCore.QObject):
         if widget_ is None:
             return ""  # type: ignore [unreachable]
 
-        tab_widget = widget_.findChild(QtWidgets.QTabWidget, obj_name)
+        tab_widget = cast(QtWidgets.QTabWidget, widget_.findChild(QtWidgets.QTabWidget, obj_name))
         if tab_widget is None:
             return ""  # type: ignore [unreachable]
 
         tab_names: str = ""
-        for number in enumerate(tab_widget.count()):
-            item = tab_widget.index(number)
+        for number in range(tab_widget.count()):
+            item : 'QtWidgets.QWidget' = tab_widget.widget(number)
             tab_names += "%s/%s*" % (item.objectName(), tab_widget.tabText(number))
 
         return tab_names

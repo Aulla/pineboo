@@ -20,13 +20,11 @@ ASTGenerator = Generator[Tuple[str, str], None, None]
 
 try:
     import black  # type: ignore
-except ImportError:
-    black = None
-
-if black:
     BLACK_FILEMODE = black.FileMode(line_length=120)
-else:
-    BLACK_FILEMODE = None
+except ImportError:
+    black = None  # type: ignore [assignment]
+    BLACK_FILEMODE = None  # type: ignore [assignment]
+
 
 STRICT_MODE = False
 

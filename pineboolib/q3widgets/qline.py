@@ -31,7 +31,7 @@ class QLine(QtWidgets.QFrame):
         """Set orientation."""
 
         self._orientation = ori_
-        self.setFrameShape(self.HLine if ori_ == 1 else self.VLine)
+        self.setFrameShape(self.Shape.HLine if ori_ == 1 else self.Shape.VLine)
 
     def getOrientation(self) -> int:
         """Return orientation."""

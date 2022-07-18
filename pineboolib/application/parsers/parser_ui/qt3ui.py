@@ -1055,7 +1055,7 @@ def load_icon(xml: "ET.Element") -> None:
     if img_format == "XPM.GZ":
         data = zlib.decompress(data, 15)
         img_format = "XPM"
-    pixmap.loadFromData(data, img_format)
+    pixmap.loadFromData(data, img_format)  # type: ignore [call-overload]
     icon = QtGui.QIcon(pixmap)
     ICONS[name] = icon
 
