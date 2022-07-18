@@ -1280,7 +1280,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return False
         haber = 0
         haberME = 0
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             haber = self.iface.netoVentasFacturaCli(curFactura)
             haberME = 0
@@ -1338,7 +1338,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 qsa.MessageBox.NoButton,
             )
             return False
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         qryIva: "qsa.FLSqlQuery" = qsa.FLSqlQuery()
         qryIva.setTablesList("lineasivafactcli")
         qryIva.setSelect("neto, iva, totaliva, recargo, totalrecargo, codimpuesto")
@@ -1504,7 +1504,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 qsa.MessageBox.NoButton,
             )
             return False
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             debe = irpf
             debeME = 0
@@ -1555,7 +1555,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 qsa.MessageBox.NoButton,
             )
             return False
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             haber = recFinanciero
             haberME = 0
@@ -1658,7 +1658,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 )
                 return False
 
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             haber = irpf
             haberME = 0
@@ -1693,7 +1693,7 @@ class FormInternalObj(qsa.FormDBWidget):
         util: "qsa.FLUtil" = qsa.FLUtil()
         debe = 0
         debeME = 0
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             debe = qsa.parseFloat(curFactura.valueBuffer("total"))
             debeME = 0
@@ -2027,7 +2027,7 @@ class FormInternalObj(qsa.FormDBWidget):
     ) -> "bool":
         ctaCompras: "qsa.Array" = qsa.Array()
         util: "qsa.FLUtil" = qsa.FLUtil()
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         debe = 0
         debeME = 0
         idUltimaPartida = 0
@@ -2175,7 +2175,7 @@ class FormInternalObj(qsa.FormDBWidget):
         haber = 0
         haberME = 0
         baseImponible = 0
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         recargo = 0
         iva = 0
         regimenIVA: str = util.sqlSelect(
@@ -2362,7 +2362,7 @@ class FormInternalObj(qsa.FormDBWidget):
         totalIVA = 0
         if sinIVA:
             totalIVA = qsa.parseFloat(curFactura.valueBuffer("totaliva"))
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             haber = qsa.parseFloat(curFactura.valueBuffer("total"))
             haber -= totalIVA
@@ -2416,7 +2416,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 qsa.MessageBox.NoButton,
             )
             return False
-        monedaSistema: bool = (valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa"))
+        monedaSistema: bool = valoresDefecto.coddivisa == curFactura.valueBuffer("coddivisa")
         if monedaSistema:
             debe = recFinanciero
             debeME = 0
