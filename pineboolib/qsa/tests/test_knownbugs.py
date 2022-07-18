@@ -312,7 +312,7 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
 
     def test_array_concat2(self) -> None:
         """Test array concat extended."""
-
+        self.maxDiff = None
         codigo = """function getRules()
                     {
                         return new Array().concat(
@@ -397,13 +397,43 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
 def getCrudRules(self, grupo, descripcion):
     crudRules: Any = qsa.Array(
         [
-            qsa.AttributeDict({"id": ("get"), "desc": ("Puede recibir")}),
-            qsa.AttributeDict({"id": ("post"), "desc": ("Puede crear")}),
-            qsa.AttributeDict({"id": ("patch"), "desc": ("Puede modificar")}),
-            qsa.AttributeDict({"id": ("delete"), "desc": ("Puede eliminar")}),
+            qsa.AttributeDict(
+                {
+                    "id": ("get"),
+                    "desc": ("Puede recibir"),
+                }
+            ),
+            qsa.AttributeDict(
+                {
+                    "id": ("post"),
+                    "desc": ("Puede crear"),
+                }
+            ),
+            qsa.AttributeDict(
+                {
+                    "id": ("patch"),
+                    "desc": ("Puede modificar"),
+                }
+            ),
+            qsa.AttributeDict(
+                {
+                    "id": ("delete"),
+                    "desc": ("Puede eliminar"),
+                }
+            ),
         ]
     )
-    rules: Any = qsa.Array([qsa.AttributeDict({"idregla": (grupo), "grupo": (grupo), "descripcion": (descripcion)})])
+    rules: Any = qsa.Array(
+        [
+            qsa.AttributeDict(
+                {
+                    "idregla": (grupo),
+                    "grupo": (grupo),
+                    "descripcion": (descripcion),
+                }
+            )
+        ]
+    )
     i: Any = 0
     while_pass = True
     while i < qsa.length(crudRules):
