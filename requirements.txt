@@ -1,5 +1,5 @@
 alembic==1.8.0
-black==19.10b0
+black==22.6.0
 clipboard==0.0.4
 coloredlogs==14.0
 cryptography==36.0.1
