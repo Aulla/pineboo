@@ -411,7 +411,7 @@ class ClassManager(object):
             if class_ is None:
                 module_ = load_script.load_module(application.FILE_CLASSES[name])
                 main_class = getattr(module_, name, None)
-                qsadictmodules.QSADictModules.save_other("%s_class" % name, main_class)
+                qsadictmodules.QSADictModules.set_qsa_tree("%s_class" % name, main_class)
                 class_ = main_class
         return class_
 

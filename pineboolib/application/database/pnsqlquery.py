@@ -114,6 +114,7 @@ class PNSqlQuery(object):
     _posicion: int
     _last_query: str
     private_query: "PNSqlQueryPrivate"
+    _data_size : int
 
     def __init__(
         self, cx=None, connection_name: Union[str, "iconnection.IConnection"] = "default"
@@ -140,6 +141,7 @@ class PNSqlQuery(object):
         self._datos = []
         self._invalid_tables_list = False
         self.private_query._field_list = []
+        self._data_size = 0
         self._is_active = False
 
         retorno_qry = None
@@ -213,22 +215,19 @@ class PNSqlQuery(object):
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
-        # print("*****", self.db().session().transaction, self.sql(), self._datos)
+
         self._posicion = -1
-        # except Exception as exc:
-        # LOGGER.error(exc)
-        # LOGGER.info("Error ejecutando consulta: <%s>", sql)
-        # LOGGER.trace("Detalle:", stack_info=True)
+
         if self.db().lastError():
             LOGGER.error("Error ejecutando consulta: <%s>\n%s", sql, self.db().lastError())
             self._invalid_tables_list = True
 
             # LOGGER.trace("Detalle:", stack_info=True)
             return False
-
+        self._data_size = len(self._datos)
         self._is_active = True
         # conn.commit()
-        LOGGER.trace("_exec: Rows: %s SQL: <%s>", len(self._datos), sql)
+        LOGGER.trace("_exec: Rows: %s SQL: <%s>", self._data_size, sql)
 
         return True
 
@@ -521,11 +520,8 @@ class PNSqlQuery(object):
 
         @return List of text strings with the names of the fields in the query.
         """
-        # return self.private_query._field_list if self.private_query._field_list else self.sql_inspector.field_names()
-        if not alternate_order:
-            return self.sql_inspector.field_names() or self.private_query._field_list
-        else:
-            return self.private_query._field_list or self.sql_inspector.field_names()
+
+        return self.sql_inspector.field_names() or self.private_query._field_list if not alternate_order else self.private_query._field_list or self.sql_inspector.field_names()
 
     def setGroupDict(self, groups_dict: Dict[int, str]) -> None:
         """
@@ -604,7 +600,7 @@ class PNSqlQuery(object):
         LOGGER.warning("DEBUG : Contenido de la consulta : ")
         LOGGER.warning(linea)
 
-    def value(self, field_name: Union[str, int, None], raw: bool = False) -> Any:
+    def value(self, field_name_or_pos: Union[str, int, None], raw: bool = False) -> Any:
         """
         Get the value of a query field.
 
@@ -619,29 +615,18 @@ class PNSqlQuery(object):
 
         """
 
-        ret = None
-
-        if field_name is None:
+        if field_name_or_pos is None:
             LOGGER.trace("value::invalid use with n=None.", stack_info=True)
             return None
 
-        if isinstance(field_name, str):
-            pos: int = self.sql_inspector.fieldNameToPos(field_name.lower())
-        elif isinstance(field_name, int):
-            pos = field_name
+        pos: int = self.sql_inspector.fieldNameToPos(field_name_or_pos.lower()) if isinstance(
+            field_name_or_pos, str) else int(field_name_or_pos)
 
-        if self._row:
-            ret = self._row[pos]
-
-        if ret in (None, "None"):
-            ret = self.sql_inspector.resolve_empty_value(pos)
-        else:
-            try:
-                ret = self.sql_inspector.resolve_value(pos, ret, raw)
-            except Exception:
-                LOGGER.exception("value::error retrieving row position %s", pos)
-
-        return ret
+        try:
+            ret = self._row[pos] if self._row else None
+            return self.sql_inspector.resolve_empty_value(pos) if ret in (None, "None") else self.sql_inspector.resolve_value(pos, ret, raw)
+        except Exception:
+            LOGGER.exception("value::error retrieving row position %s", pos)
 
     def isNull(self, field_name: str) -> bool:
         """
@@ -728,21 +713,16 @@ class PNSqlQuery(object):
         """
 
         self.private_query._tables_list = []
-        if isinstance(table_list, list):
-            table_list = ",".join(table_list)
-        else:
-            table_list = str(table_list)
 
+        table_list = ",".join(table_list) if isinstance(table_list, list) else str(table_list)
         table_list = table_list.replace(" ", "")
+        mng = self.db().connManager().manager()
         for tabla in table_list.split(","):
-            if not self.db().connManager().manager().existsTable(tabla):
-
-                if not self.db().connManager().manager().metadata(tabla):
-                    if tabla == table_list:
-                        self._invalid_tables_list = True
-                        LOGGER.warning(
-                            "setTablesList: table not found %r. Query will not execute.", tabla
-                        )
+            if not mng.existsTable(tabla) and not mng.metadata(tabla):
+                self._invalid_tables_list = True
+                LOGGER.warning(
+                    "setTablesList: table not found %r. Query will not execute.", tabla
+                )
             self.private_query._tables_list.append(tabla)
 
     def setValueParam(self, param_name: str, value: Any) -> None:
@@ -762,10 +742,7 @@ class PNSqlQuery(object):
         @param name Parameter name.
         """
 
-        if param_name in self.private_query._parameter_dict.keys():
-            return self.private_query._parameter_dict[param_name]
-        else:
-            return None
+        return self.private_query._parameter_dict[param_name] if param_name in self.private_query._parameter_dict.keys() else None
 
     def size(self) -> int:
         """
@@ -773,7 +750,7 @@ class PNSqlQuery(object):
 
         @return number of results.
         """
-        return len(self._datos)
+        return self._data_size
 
     def fieldMetaDataList(self) -> List["IFieldMetaData"]:
         """
@@ -847,7 +824,7 @@ class PNSqlQuery(object):
 
         @return number of lines.
         """
-        return len(self._datos)
+        return self._data_size
 
     def lastError(self) -> str:
         """Return last error if exists , empty elsewhere."""
@@ -876,11 +853,10 @@ class PNSqlQuery(object):
         @return True or False.
         """
 
-        if relative:
-            position += self._posicion
+        position += self._posicion if relative else 0
 
         if self._datos:
-            if position >= 0 and position < len(self._datos):
+            if position >= 0 and position < self._data_size:
                 self._posicion = position
                 self._row = self._datos[self._posicion]
                 return True
@@ -896,7 +872,7 @@ class PNSqlQuery(object):
 
         if self._datos:
             self._posicion += 1
-            if self._posicion < len(self._datos):
+            if self._posicion < self._data_size:
                 self._row = self._datos[self._posicion]
                 return True
 
@@ -911,7 +887,7 @@ class PNSqlQuery(object):
 
         if self._datos:
             self._posicion -= 1
-            if self._posicion >= 0:
+            if self._posicion > -1:
                 self._row = self._datos[self._posicion]
                 return True
 
@@ -939,7 +915,7 @@ class PNSqlQuery(object):
         """
 
         if self._datos:
-            self._posicion = len(self._datos) - 1
+            self._posicion = self._data_size - 1
             self._row = self._datos[self._posicion]
             return True
 

@@ -72,7 +72,7 @@ def save_model(path_, name: str) -> bool:
 
     if model_class is not None:
         # event.listen(model_class, "load", model_class._constructor_init)
-        qsadictmodules.QSADictModules.save_other(
+        qsadictmodules.QSADictModules.set_qsa_tree(
             "%s_orm" % name, cast(basemodel.BaseModel, model_class)
         )
         sqlalchemy.event.listen(

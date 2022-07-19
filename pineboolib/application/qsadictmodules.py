@@ -82,24 +82,15 @@ class QSADictModules:
         return hasattr(cls.qsa_dict_modules(), scriptname)
 
     @classmethod
-    def save_action(
-        cls, script_name: str, delayed_action: "proxy.DelayedObjectProxyLoader"
-    ) -> None:
-        """
-        Save Action into project for QSA.
-        """
-        setattr(cls.qsa_dict_modules(), script_name, delayed_action)
-
-    @classmethod
-    def save_other(
+    def set_qsa_tree(
         cls,
         script_name: str,
-        other: Optional[Union["proxy.DelayedObjectProxyLoader", "basemodel.BaseModel"]],
+        action_or_model: Optional[Union["proxy.DelayedObjectProxyLoader", "basemodel.BaseModel"]],
     ) -> None:
         """
-        Save other objects for QSA.
+        Save action or other objects for QSA.
         """
-        setattr(cls.qsa_dict_modules(), script_name, other)
+        setattr(cls.qsa_dict_modules(), script_name, action_or_model)
 
     @classmethod
     def save_action_for_root_module(cls, action: "xmlaction.XMLAction") -> bool:
@@ -115,7 +106,7 @@ class QSADictModules:
         delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s" % module_name
         )
-        cls.save_action(module_name, delayed_action)
+        cls.set_qsa_tree(module_name, delayed_action)
         safeqsa.SafeQSA.save_root_module(module_name, delayed_action)
         return True
 
@@ -139,7 +130,7 @@ class QSADictModules:
         delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s.Action.form%s" % (module.mod.name, name)
         )
-        cls.save_action(actionname, delayed_action)
+        cls.set_qsa_tree(actionname, delayed_action)
         safeqsa.SafeQSA.save_mainform(actionname, delayed_action)
         return True
 
@@ -163,7 +154,7 @@ class QSADictModules:
             name="QSA.Module.%s.Action.formRecord%s" % (module.mod.name, name),
         )
 
-        cls.save_action(actionname, delayed_action)
+        cls.set_qsa_tree(actionname, delayed_action)
         safeqsa.SafeQSA.save_formrecord(actionname, delayed_action)
         return True
 
@@ -188,7 +179,7 @@ class QSADictModules:
                 action.load_class,
                 name="QSA.Module.%s.Action.class_%s" % (module.mod.name, class_name),
             )
-            cls.save_other(action._name, delayed_action)
+            cls.set_qsa_tree(action._name, delayed_action)
 
     @classmethod
     def clean_all(cls):
@@ -196,8 +187,7 @@ class QSADictModules:
         qsa_dict_modules = cls.qsa_dict_modules()
 
         safeqsa.SafeQSA.clean_all()
-        list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
-        for name in list_:
+        for name in [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]:
             att = getattr(qsa_dict_modules, name)
             if isinstance(att, proxy.DelayedObjectProxyLoader) or (
                 name.endswith(("_orm", "_class"))
