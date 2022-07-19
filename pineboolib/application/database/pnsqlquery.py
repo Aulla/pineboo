@@ -28,7 +28,7 @@ class PNSqlQueryPrivate(object):
     """
     PNSqlQueryPrivate class.
 
-    Store internal values ​​of the query.
+    Store internal values of the query.
     """
 
     _name: str

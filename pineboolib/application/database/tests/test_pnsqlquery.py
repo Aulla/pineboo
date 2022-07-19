@@ -358,8 +358,9 @@ class TestPNSqlQuery2(unittest.TestCase):
         from pineboolib.qsa import qsa
         from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
         import os
-
+        cur_date_str = str(qsa.Date())
         qsa_sys = qsa.sys
+
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         self.assertTrue(qsa_sys.loadModules(path, False))
@@ -491,26 +492,26 @@ class TestPNSqlQuery2(unittest.TestCase):
         cur_tareas.refreshBuffer()
         # cur_tareas.setValueBuffer("idtarea", 2)
         cur_tareas.setValueBuffer("nombre", "prueba2")
-        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
-        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechaini", cur_date_str)
+        cur_tareas.setValueBuffer("fechafinal", cur_date_str)
         self.assertTrue(cur_tareas.commitBuffer())
         cur_tareas.setModeAccess(cur_tareas.Insert)
         cur_tareas.refreshBuffer()
         # cur_tareas.setValueBuffer("idtarea", 3)
         cur_tareas.setValueBuffer("nombre", "prueba3")
-        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
-        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechaini", cur_date_str)
+        cur_tareas.setValueBuffer("fechafinal", cur_date_str)
         self.assertTrue(cur_tareas.commitBuffer())
         cur_tareas.setModeAccess(cur_tareas.Insert)
         cur_tareas.refreshBuffer()
         cur_tareas.setValueBuffer("nombre", "prueba4")
-        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechaini", cur_date_str)
         self.assertTrue(cur_tareas.commitBuffer())
         cur_tareas.setModeAccess(cur_tareas.Insert)
         cur_tareas.refreshBuffer()
         # cur_tareas.setValueBuffer("idtarea", 3)
         cur_tareas.setValueBuffer("nombre", "prueba5")
-        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechafinal", cur_date_str)
         self.assertTrue(cur_tareas.commitBuffer())
         cur_tareas.commit()
 
