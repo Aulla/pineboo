@@ -21,7 +21,7 @@ import os
 import datetime
 
 
-from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, Tuple, cast, Callable, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -537,7 +537,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         If any field does not exist it gets marked as ommitted.
         """
         is_query = self.metadata().isQuery()
-        qry_tables: List[Tuple[str, "itablemetadata.ITableMetaData"]] = []
+        qry_tables: List[
+            Tuple[
+                str,
+                Optional[Union["itablemetadata.ITableMetaData", "pntablemetadata.PNTableMetaData"]],
+            ]
+        ] = []
         qry = None
 
         if is_query:
@@ -557,10 +562,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 fieldname.split(".")[-1]: fieldname for fieldname in qry_select
             }
 
-            for table in qry.tablesList():
-                mtd = self.conn_manager.manager().metadata(table, True)
-                if mtd:
-                    qry_tables.append((table, mtd))
+            # for table in qry.tablesList():
+            #    mtd = self.conn_manager.manager().metadata(table, True)
+            #    if mtd:
+            #        qry_tables.append((table, mtd))
+
+            qry_tables = [
+                (table, self.conn_manager.manager().metadata(table, True))
+                for table in qry.tablesList()
+            ]
 
         for number, field in enumerate(self.metadata().fieldList()):
             # if field.visibleGrid():
@@ -576,7 +586,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 else:
                     found = False
                     for table_name, table_meta in qry_tables:
-                        if field.name() in table_meta.fieldNames():
+                        if table_meta and field.name() in table_meta.fieldNames():
                             self.sql_fields.append("%s.%s" % (table_name, field.name()))
                             found = True
                             break
@@ -932,25 +942,19 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def value(self, row: int, field_name: str) -> Any:
         """Return colum value from a row."""
 
-        ret = None
-
-        if row > -1 and row < self.rowCount():
-            obj_ = self.get_obj_from_row(row)
-            ret = getattr(obj_, field_name, None)
-
-        return ret
+        return (
+            getattr(self.get_obj_from_row(row), field_name, None)
+            if row > -1 and row < self.rowCount()
+            else None
+        )
 
     def find_pk_row(self, pk_value: Any) -> int:
         """Retrieve row index of a record given a primary key."""
 
-        ret_ = -1
         try:
-            if self._data_proxy:
-                ret_ = self._data_proxy.index(pk_value)
+            return self._data_proxy.index(pk_value) if self._data_proxy else -1
         except ValueError:
-            pass
-
-        return ret_
+            return -1
 
     def fieldType(self, field_name: str) -> str:
         """
@@ -1110,23 +1114,10 @@ class ProxyIndex:
     def __getitem__(self, index: int) -> Any:
         """Return item value."""
 
-        data = None
-
         if self._last_current_size <= index:
             self.fetch_more(index - self._last_current_size + 1)
 
-        if self._last_current_size > index:
-            data = self._cached_data[index]
-
-            # if isinstance(
-            #    data, (engine.cursor.CursorResult)  # type: ignore [attr-defined] # noqa: F821
-            # ):
-            #    LOGGER.warning(
-            #        "este result.rowProxy no debería estar aqui!: %s", data[0], stack_info=True
-            #    )
-            #    data = data[0]
-
-        return data
+        return self._cached_data[index] if self._last_current_size > index else None
 
     def index(self, value: Any) -> int:
         """Return data position."""
@@ -1142,8 +1133,11 @@ class ProxyIndex:
 
         if self._qry_rows_loaded < self._qry_rows_total and self._query:
             to_fetch = self._qry_rows_loaded + fetch_size
-            if to_fetch > 0 and to_fetch >= self._qry_rows_total:
-                fetch_size = self._qry_rows_total - self._qry_rows_loaded
+            fetch_size = (
+                (self._qry_rows_total - self._qry_rows_loaded)
+                if to_fetch > 0 and to_fetch >= self._qry_rows_total
+                else fetch_size
+            )
 
             try:
                 self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]

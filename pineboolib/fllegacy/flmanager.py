@@ -27,7 +27,7 @@ import copy
 
 from xml.etree import ElementTree
 
-from typing import Optional, Union, Any, Dict, TYPE_CHECKING
+from typing import Optional, Union, Any, Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection  # pragma: no cover
@@ -280,7 +280,7 @@ class FLManager(QtCore.QObject, IManager):
             editable = True
             concur_warn = False
             detect_locks = False
-            child_list = []
+            child_list: List["ElementTree.Element"] = []
             for child in metadata_name_or_xml:
                 if child.tag == "field":
                     child_list.append(child)
@@ -484,15 +484,12 @@ class FLManager(QtCore.QObject, IManager):
         if isinstance(metadata_or_name, str):
             return metadata_or_name == metadata2.name()
         else:
-            if None in [metadata_or_name, metadata2]:
+            if None in [metadata_or_name, metadata2] or len(metadata_or_name.fieldList()) != len(
+                metadata2.fieldList()
+            ):
                 return False
 
-            if len(metadata_or_name.fieldList()) != len(metadata2.fieldList()):
-                return False
-
-            for field1 in metadata_or_name.fieldList():
-                if field1.isCheck():
-                    continue
+            for field1 in [field for field in metadata_or_name.fieldList() if not field.isCheck()]:
 
                 field2 = metadata2.field(field1.name())
                 if field2 is None:
@@ -616,20 +613,21 @@ class FLManager(QtCore.QObject, IManager):
 
         type_: str = ""
         field_name_: str = ""
+        args_0: Union[pnfieldmetadata.PNFieldMetaData, str] = args[0]
         value_: Any = args[1]
         upper_: bool = args[2]
 
-        if isinstance(args[0], pnfieldmetadata.PNFieldMetaData):
+        if isinstance(args_0, pnfieldmetadata.PNFieldMetaData):
 
-            field_name_ = args[0].name()
-            type_ = args[0].type()
+            field_name_ = args_0.name()
+            type_ = args_0.type()
 
-            mtd_ = args[0].metadata()
+            mtd_ = args_0.metadata()
 
             if mtd_ is None:
                 return ""
 
-            if args[0].isPrimaryKey():
+            if args_0.isPrimaryKey():
                 field_name_ = mtd_.primaryKey(True)
 
             if mtd_.isQuery() and field_name_.find(".") == -1:
@@ -640,12 +638,12 @@ class FLManager(QtCore.QObject, IManager):
                     if item_field_name == field_name_:
                         break
             else:
-                item_field_name = args[0].name()
+                item_field_name = args_0.name()
 
             field_name_ = "%s.%s" % (mtd_.name(), item_field_name)
 
         else:
-            field_name_ = args[0]
+            field_name_ = args_0
             type_ = args[1] if isinstance(args[1], str) else args[1].type()
 
             if len(args) == 4:
@@ -657,8 +655,11 @@ class FLManager(QtCore.QObject, IManager):
         if not format_value_:
             return "1 = 1"
 
-        if upper_ and type_ in ["string", "stringlist", "timestamp"]:
-            field_name_ = "upper(%s)" % field_name_
+        field_name_ = (
+            "upper(%s)" % field_name_
+            if upper_ and type_ in ["string", "stringlist", "timestamp"]
+            else field_name_
+        )
 
         return "%s %s" % (field_name_, format_value_)
 
@@ -733,7 +734,6 @@ class FLManager(QtCore.QObject, IManager):
                 field_name_ = args[0].name()
                 field_type_ = args[0].type()
                 value_ = args[1]
-                upper_ = False
 
         elif isinstance(args[0], str):
             field_name_ = args[0]
@@ -753,8 +753,11 @@ class FLManager(QtCore.QObject, IManager):
         if not field_name_:
             field_name_ = args[0] if isinstance(args[0], str) else args[0].name()
 
-        if upper_ and field_type_ in ["string", "stringlist", "timestamp"]:
-            field_name_ = "upper(%s)" % field_name_
+        field_name_ = (
+            "upper(%s)" % field_name_
+            if upper_ and field_type_ in ["string", "stringlist", "timestamp"]
+            else field_name_
+        )
 
         return "%s %s %s" % (
             field_name_,

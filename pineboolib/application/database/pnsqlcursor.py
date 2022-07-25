@@ -1328,12 +1328,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     def obj(self) -> Optional["QtWidgets.QTableView"]:
         """Return parent widget."""
 
-        ret = None
         model = self.model()
-        if model is not None:
-            ret = model.parent_view
-
-        return ret
+        return model.parent_view if model is not None else None  # type: ignore [unreachable]
 
     def setUnLock(self, field_name: str, value: bool) -> None:
         """
@@ -1532,18 +1528,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return None
 
         mtd = self.private_cursor.metadata_
-        if mtd is None:
-            return None
 
-        field = mtd.field(field_name)
+        field = mtd.field(field_name) if mtd else None
         if field is None:
             return None
 
         if tableMD is None:
             rel_m1 = field.relationM1()
-            if rel_m1 is None:
-                raise Exception("relation is empty!")
-            tableMD = self.db().connManager().manager().metadata(rel_m1.foreignTable())
+            tableMD = (
+                self.db().connManager().manager().metadata(rel_m1.foreignTable())
+                if rel_m1 is not None
+                else None
+            )
 
         if tableMD is None:
             return None
@@ -1657,14 +1653,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         row = self.currentRegister()
 
-        if not row:
-            row = 0
-        elif row < 0:
-            return -1
-        elif row >= self.size():
-            return -2
-        # LOGGER.debug("%s.Row %s ----> %s" % (self.curName(), row, self))
-        return row
+        return 0 if not row else -1 if row < 0 else -2 if row >= self.size() else row
 
     def isValid(self) -> bool:
         """
@@ -1851,20 +1840,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             field_list = self.private_cursor.metadata_.fieldList()
 
             for field in field_list:
+
                 field_name = field.name()
-
-                # if self.private_cursor.buffer_ is None:
-                #    raise Exception("buffer is empty!")
-
-                # self.private_cursor.buffer_.setNull(field_name)
-                # if not self.private_cursor.buffer_.isGenerated(field_name):
-                #    continue
                 type_ = field.type()
-                # fltype = FLFieldself.private_cursor.metadata_.flDecodeType(type_)
-                # fltype = self.private_cursor.metadata_.field(field_name).flDecodeType(type_)
                 default_value = field.defaultValue()
+
                 if default_value is not None:
-                    # default_value.cast(fltype)
                     self.buffer().set_value(field_name, default_value)
 
                 if type_ == "serial":
@@ -1877,7 +1858,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 if field.isCounter():
 
-                    siguiente = None
                     function_counter = None
                     if self._action.scriptFormRecord():
                         from pineboolib.application.safeqsa import SafeQSA
@@ -2468,7 +2448,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         All changes made to the buffer become effective at the cursor when invoking this method.
         The way to make these changes is determined by the access mode established for
-        the cursor, see FLSqlCursor :: Mode, if the mode is edit or insert update with the new values ​​of
+        the cursor, see FLSqlCursor :: Mode, if the mode is edit or insert update with the new value of
         the fields of the record, if the mode is delete deletes the record, and if the mode is navigation it does nothing.
         First of all it also checks referential integrity by invoking the FLSqlCursor :: checkIntegrity () method.
 

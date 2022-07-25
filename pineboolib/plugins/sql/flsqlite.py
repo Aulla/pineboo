@@ -57,9 +57,10 @@ class FLSQLITE(isqldriver.ISqlDriver):
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
-            if self.db_filename == main_conn.driver().db_filename:
-                self._engine = main_conn.driver()._engine
-                self._connection = main_conn.driver()._connection
+            conn_driver = main_conn.driver()
+            if self.db_filename == conn_driver.db_filename:
+                self._engine = conn_driver._engine
+                self._connection = conn_driver._connection
                 return self._connection
 
         if conn_ is None:
@@ -142,8 +143,8 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
     def process_booleans(self, where: str) -> str:
         """Process booleans fields."""
-        where = where.replace("'true'", "1")
-        return where.replace("'false'", "0")
+
+        return where.replace("'true'", "1").replace("'false'", "0")
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -221,16 +222,17 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         cursor = self.execute_query(sql)
 
-        for col0, field_name, field_type, col3, col4, col5 in list(
+        for col0, field_name, field_type, allow_null, col4, is_pk in list(
             cursor.fetchall() if cursor else []
         ):
-            field_size = 0
-            field_allow_null = col3 == 0 and col5 == 0  # type: ignore [comparison-overlap]
-            field_primary_key = col5 == 1  # type: ignore [comparison-overlap]
-            if field_type.find("VARCHAR(") > -1:
-                field_size = field_type[  # type: ignore [assignment]
-                    field_type.find("(") + 1 : len(field_type) - 1
-                ]  # type: ignore [assignment]
+
+            field_allow_null = allow_null == 0 and is_pk == 0  # type: ignore [comparison-overlap]
+            field_primary_key = is_pk == 1  # type: ignore [comparison-overlap]
+            field_size = (
+                int(field_type[field_type.find("(") + 1 : len(field_type) - 1])
+                if field_type.find("VARCHAR(") > -1
+                else 0
+            )
 
             info[field_name] = [
                 field_name,
@@ -247,10 +249,8 @@ class FLSQLITE(isqldriver.ISqlDriver):
     def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
 
-        ret = str(type_)
         key = type_
-        if key.find("VARCHAR") > -1:
-            key = "VARCHAR"
+        key = "VARCHAR" if key.find("VARCHAR") > -1 else key
 
         array_types = {
             "VARCHAR": "string",  # Aqui también puede ser time y date
@@ -262,7 +262,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
             "JSON": "json",
         }
 
-        return array_types[key] if key in array_types else ret
+        return array_types[key] if key in array_types else str(type_)
 
     def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
@@ -285,7 +285,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
                     "SELECT name FROM sqlite_master WHERE %s%s ORDER BY name ASC"
                     % (" OR ".join(where), and_name)
                 )
-                result_list += cursor.fetchall() if cursor else []
+                result_list = cursor.fetchall() if cursor else []
 
             table_list += [item[0] for item in result_list]
 
