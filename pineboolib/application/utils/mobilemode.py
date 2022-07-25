@@ -31,7 +31,7 @@ def check_mobile_mode() -> bool:
     return (
         True
         if QtCore.QSysInfo().productType() in ("android", "ios")
-        else settings.CONFIG.value(u"ebcomportamiento/mobileMode", False)
+        else settings.CONFIG.value("ebcomportamiento/mobileMode", False)
     )
 
 

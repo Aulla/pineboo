@@ -38,9 +38,9 @@ class FLDateEdit(qdateedit.QDateEdit):
         self, date: Union[str, datetime.date, Date, QtCore.QDate] = ""
     ) -> None:
         """Set Date."""
-        new_date: Union[str, datetime.date, Date, QtCore.QDate, None] = None if isinstance(
-            date, QtCore.QDate
-        ) and date.isNull() else date
+        new_date: Union[str, datetime.date, Date, QtCore.QDate, None] = (
+            None if isinstance(date, QtCore.QDate) and date.isNull() else date
+        )
 
         super().setDate(
             QtCore.QDate.fromString(str("01-01-2000"), self.DMY)

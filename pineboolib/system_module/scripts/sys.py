@@ -44,23 +44,23 @@ class FormInternalObj(qsa.FormDBWidget):
             if cod_ejercicio:
                 util = qsa.FLUtil()
                 nombre_ejercicio = util.sqlSelect(
-                    u"ejercicios", u"nombre", qsa.ustr(u"codejercicio='", cod_ejercicio, u"'")
+                    "ejercicios", "nombre", qsa.ustr("codejercicio='", cod_ejercicio, "'")
                 )
-                if qsa.AQUtil.sqlSelect(u"flsettings", u"valor", u"flkey='PosInfo'") == "True":
+                if qsa.AQUtil.sqlSelect("flsettings", "valor", "flkey='PosInfo'") == "True":
                     texto = ""
                     if nombre_ejercicio:
-                        texto = qsa.ustr(u"[ ", nombre_ejercicio, u" ]")
+                        texto = qsa.ustr("[ ", nombre_ejercicio, " ]")
                     texto = qsa.ustr(
                         texto,
-                        u" [ ",
+                        " [ ",
                         app_.db()
                         .mainConn()
                         .driverNameToDriverAlias(app_.db().mainConn().driverName()),
-                        u" ] * [ ",
+                        " ] * [ ",
                         qsa.SysType().nameBD(),
-                        u" ] * [ ",
+                        " ] * [ ",
                         qsa.SysType().nameUser(),
-                        u" ] ",
+                        " ] ",
                     )
                     app_.setCaptionMainWidget(texto)
 
@@ -68,8 +68,8 @@ class FormInternalObj(qsa.FormDBWidget):
                     if nombre_ejercicio:
                         app_.setCaptionMainWidget(nombre_ejercicio)
 
-                if not settings.readBoolEntry(u"application/oldApi", False):
-                    valor = util.readSettingEntry(u"ebcomportamiento/ebCallFunction")
+                if not settings.readBoolEntry("application/oldApi", False):
+                    valor = util.readSettingEntry("ebcomportamiento/ebCallFunction")
                     if valor:
                         funcion = qsa.Function(valor)
                         try:
@@ -93,13 +93,13 @@ class FormInternalObj(qsa.FormDBWidget):
                     while _qry.next():
                         value = util.sha1("%s%s" % (value, _qry.value(0)))
 
-            _cur_serial = qsa.FLSqlCursor(u"flserial", "dbaux")
+            _cur_serial = qsa.FLSqlCursor("flserial", "dbaux")
             _cur_serial.select()
             _cur_serial.setModeAccess(
                 _cur_serial.Edit if _cur_serial.first() else _cur_serial.Insert
             )
             _cur_serial.refreshBuffer()
-            _cur_serial.setValueBuffer(u"sha", value)
+            _cur_serial.setValueBuffer("sha", value)
             return _cur_serial.commitBuffer()
 
         return True

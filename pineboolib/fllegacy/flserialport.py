@@ -1,6 +1,6 @@
 """Flserial por module."""
 
-from PyQt6 import QtCore , QtSerialPort  # type: ignore[import]
+from PyQt6 import QtCore, QtSerialPort  # type: ignore[import]
 from pineboolib.core import decorators
 
 
@@ -97,35 +97,35 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return actual baud rate."""
         return self._obj.baudRate()
 
-    def setDataBits(self, data_bits: 'QtSerialPort.QSerialPort.DataBits') -> None:
+    def setDataBits(self, data_bits: "QtSerialPort.QSerialPort.DataBits") -> None:
         """Set data bits."""
         self._obj.setDataBits(data_bits)
 
-    def dataBits(self) -> 'QtSerialPort.QSerialPort.DataBits':
+    def dataBits(self) -> "QtSerialPort.QSerialPort.DataBits":
         """Return actual data bits."""
         return self._obj.dataBits()
 
-    def setParity(self, parity: 'QtSerialPort.QSerialPort.Parity') -> None:
+    def setParity(self, parity: "QtSerialPort.QSerialPort.Parity") -> None:
         """Set parity check value."""
         self._obj.setParity(parity)
 
-    def parity(self) -> 'QtSerialPort.QSerialPort.Parity':
+    def parity(self) -> "QtSerialPort.QSerialPort.Parity":
         """Return parity check."""
         return self._obj.parity()
 
-    def setStopBits(self, stop_bit: 'QtSerialPort.QSerialPort.StopBits') -> None:
+    def setStopBits(self, stop_bit: "QtSerialPort.QSerialPort.StopBits") -> None:
         """Set stop bits."""
         self._obj.setStopBits(stop_bit)
 
-    def stopBits(self) -> 'QtSerialPort.QSerialPort.StopBits':
+    def stopBits(self) -> "QtSerialPort.QSerialPort.StopBits":
         """Return stop bits."""
         return self._obj.stopBits()
 
-    def setFlowControl(self, flow: 'QtSerialPort.QSerialPort.FlowControl') -> None:
+    def setFlowControl(self, flow: "QtSerialPort.QSerialPort.FlowControl") -> None:
         """Set flow conrol."""
         self._obj.setFlowControl(flow)
 
-    def flowControl(self) -> 'QtSerialPort.QSerialPort.FlowControl':
+    def flowControl(self) -> "QtSerialPort.QSerialPort.FlowControl":
         """Return flow control."""
         return self._obj.flowControl()
 

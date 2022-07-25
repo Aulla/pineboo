@@ -258,9 +258,11 @@ class FLManagerModules(object):
         @return QString with the contents of the file or None in case of error.
         """
 
-        sys_table: bool = self.conn_.connManager().manager().isSystemTable(
-            file_name
-        ) if file_name.endswith(".mtd") else False
+        sys_table: bool = (
+            self.conn_.connManager().manager().isSystemTable(file_name)
+            if file_name.endswith(".mtd")
+            else False
+        )
 
         data = ""
 

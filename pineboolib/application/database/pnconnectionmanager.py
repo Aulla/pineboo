@@ -128,9 +128,11 @@ class PNConnectionManager(QtCore.QObject):
         Allow you to select a connection.
         """
 
-        name: str = name_or_conn.connectionName() if isinstance(
-            name_or_conn, iconnection.IConnection
-        ) else name_or_conn
+        name: str = (
+            name_or_conn.connectionName()
+            if isinstance(name_or_conn, iconnection.IConnection)
+            else name_or_conn
+        )
 
         name_conn_: str = utils_base.session_id(name)
         self.check_alive_connections()

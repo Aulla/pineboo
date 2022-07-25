@@ -90,9 +90,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif isinstance(conn_or_autopopulate, str):
             connection_name_or_db = conn_or_autopopulate
 
-        db_connection: "iconnection.IConnection" = application.PROJECT.conn_manager.useConn(
-            connection_name_or_db
-        ) if isinstance(connection_name_or_db, str) else connection_name_or_db
+        db_connection: "iconnection.IConnection" = (
+            application.PROJECT.conn_manager.useConn(connection_name_or_db)
+            if isinstance(connection_name_or_db, str)
+            else connection_name_or_db
+        )
 
         self._name = ""
         self._valid = False
@@ -2601,8 +2603,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if self.modeAccess() == self.Insert:
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
-                if self.private_cursor.cursor_relation_.metadata() and self.private_cursor.cursor_relation_.valueBuffer(
-                    self.private_cursor.relation_.foreignField()
+                if (
+                    self.private_cursor.cursor_relation_.metadata()
+                    and self.private_cursor.cursor_relation_.valueBuffer(
+                        self.private_cursor.relation_.foreignField()
+                    )
                 ):
                     self.setValueBuffer(
                         self.private_cursor.relation_.field(),

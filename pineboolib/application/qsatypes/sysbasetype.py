@@ -237,17 +237,17 @@ class SysBaseType(object):
     @classmethod
     def reportChanges(cls, changes: Dict[str, str] = {}):
         """Create a report for project changes."""
-        ret = u""
+        ret = ""
         # DEBUG:: FOR-IN: ['key', 'changes']
         for key in changes.keys():
-            if key == u"size":
+            if key == "size":
                 continue
             chg = changes[key].split("@")
             ret += "Nombre: %s \n" % chg[0]
             ret += "Estado: %s \n" % chg[1]
             ret += "ShaOldTxt: %s \n" % chg[2]
             ret += "ShaNewTxt: %s \n" % chg[3]
-            ret += u"###########################################\n"
+            ret += "###########################################\n"
 
         return ret
 
@@ -302,12 +302,12 @@ class SysBaseType(object):
         while i < len(files):
             item = files.item(i)
             fil = {
-                "id": item.namedItem(u"name").toElement().text(),
-                "module": item.namedItem(u"module").toElement().text(),
-                "text": item.namedItem(u"text").toElement().text(),
-                "shatext": item.namedItem(u"shatext").toElement().text(),
-                "binary": item.namedItem(u"binary").toElement().text(),
-                "shabinary": item.namedItem(u"shabinary").toElement().text(),
+                "id": item.namedItem("name").toElement().text(),
+                "module": item.namedItem("module").toElement().text(),
+                "text": item.namedItem("text").toElement().text(),
+                "shatext": item.namedItem("shatext").toElement().text(),
+                "binary": item.namedItem("binary").toElement().text(),
+                "shabinary": item.namedItem("shabinary").toElement().text(),
             }
             i += 1
             if len(fil["id"]) == 0:
@@ -345,7 +345,7 @@ class SysBaseType(object):
     def infoMsgBox(cls, msg: str = "") -> None:
         """Show information message box."""
         msg = ustr(msg)
-        msg += u"\n"
+        msg += "\n"
         application.PROJECT.message_manager().send("msgBoxInfo", None, [msg])
 
     @classmethod
@@ -362,7 +362,7 @@ class SysBaseType(object):
     def errorMsgBox(cls, msg: str = None) -> None:
         """Show error message box."""
         msg = ustr(msg)
-        msg += u"\n"
+        msg += "\n"
 
         application.PROJECT.message_manager().send("msgBoxError", None, [msg])
 
@@ -382,15 +382,15 @@ class SysBaseType(object):
     def infoPopup(cls, msg: Optional[str] = None) -> None:
         """Show information popup."""
         msg = ustr(msg)
-        caption = cls.translate(u"AbanQ Información")
+        caption = cls.translate("AbanQ Información")
         msg = msg.replace("\n", "<br>")
         msg_html = ustr(
-            u'<img source="about.png" align="right">',
-            u"<b><u>",
+            '<img source="about.png" align="right">',
+            "<b><u>",
             caption,
-            u"</u></b><br><br>",
+            "</u></b><br><br>",
             msg,
-            u"<br>",
+            "<br>",
         )
         cls._warnHtmlPopup(msg_html, [])
 
@@ -399,14 +399,14 @@ class SysBaseType(object):
         """Show warning popup."""
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
-        caption = cls.translate(u"AbanQ Aviso")
+        caption = cls.translate("AbanQ Aviso")
         msg_html = ustr(
-            u'<img source="bug.png" align="right">',
-            u"<b><u>",
+            '<img source="bug.png" align="right">',
+            "<b><u>",
             caption,
-            u"</u></b><br><br>",
+            "</u></b><br><br>",
             msg,
-            u"<br>",
+            "<br>",
         )
         cls._warnHtmlPopup(msg_html, [])
 
@@ -415,21 +415,21 @@ class SysBaseType(object):
         """Show error popup."""
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
-        caption = cls.translate(u"AbanQ Error")
+        caption = cls.translate("AbanQ Error")
         msg_html = ustr(
-            u'<img source="remove.png" align="right">',
-            u"<b><u>",
+            '<img source="remove.png" align="right">',
+            "<b><u>",
             caption,
-            u"</u></b><br><br>",
+            "</u></b><br><br>",
             msg,
-            u"<br>",
+            "<br>",
         )
         cls._warnHtmlPopup(msg_html, [])
 
     @classmethod
     def trTagText(cls, tag_text: str = "") -> str:
         """Process QT_TRANSLATE_NOOP tags."""
-        if not tag_text.startswith(u"QT_TRANSLATE_NOOP"):
+        if not tag_text.startswith("QT_TRANSLATE_NOOP"):
             return tag_text
         txt = tag_text[len("QT_TRANSLATE_NOOP") + 1 :]
         txt = "[%s]" % txt[0 : len(txt) - 1]
@@ -442,7 +442,7 @@ class SysBaseType(object):
         QtWidgets.QMessageBox.warning(
             QtWidgets.QApplication.focusWidget(),
             "Pineboo",
-            cls.translate(u"Funcionalidad no soportada aún en Pineboo."),
+            cls.translate("Funcionalidad no soportada aún en Pineboo."),
             QtWidgets.QMessageBox.StandardButton.Ok,
         )
         return
@@ -457,10 +457,10 @@ class SysBaseType(object):
 
         if clase in ["QPushButton", "QToolButton"]:
             pass
-        elif clase == u"QLabel":
-            cls.runObjMethod(container, component, u"text", value)
-        elif clase == u"FLFieldDB":
-            cls.runObjMethod(container, component, u"setValue", value)
+        elif clase == "QLabel":
+            cls.runObjMethod(container, component, "text", value)
+        elif clase == "FLFieldDB":
+            cls.runObjMethod(container, component, "setValue", value)
         else:
             return False
         return True
@@ -475,9 +475,9 @@ class SysBaseType(object):
         clase = object_.__class__.__name__
 
         if clase in ["QToolButton", "QPushButton"]:
-            cls.runObjMethod(container, component, u"setEnabled", False)
-        elif clase == u"FLFieldDB":
-            cls.runObjMethod(container, component, u"setDisabled", True)
+            cls.runObjMethod(container, component, "setEnabled", False)
+        elif clase == "FLFieldDB":
+            cls.runObjMethod(container, component, "setDisabled", True)
         else:
             return False
 
@@ -492,12 +492,12 @@ class SysBaseType(object):
 
         clase = object_.__class__.__name__
 
-        if clase == u"QPushButton":
+        if clase == "QPushButton":
             pass
-        elif clase == u"QToolButton":
-            cls.runObjMethod(container, component, u"setEnabled", True)
-        elif clase == u"FLFieldDB":
-            cls.runObjMethod(container, component, u"setDisabled", False)
+        elif clase == "QToolButton":
+            cls.runObjMethod(container, component, "setEnabled", True)
+        elif clase == "FLFieldDB":
+            cls.runObjMethod(container, component, "setDisabled", False)
         else:
             return False
         return True
@@ -511,10 +511,10 @@ class SysBaseType(object):
 
         clase = object_.__class__.__name__
 
-        if clase == u"FLTableDB":
+        if clase == "FLTableDB":
             pass
-        elif clase == u"FLFieldDB":
-            cls.runObjMethod(container, component, u"setFilter", filter)
+        elif clase == "FLFieldDB":
+            cls.runObjMethod(container, component, "setFilter", filter)
         else:
             return False
 
@@ -587,31 +587,31 @@ class SysBaseType(object):
 
         os_name = cls.osName()
         if os_name == "LINUX":
-            if cls.launchCommand([u"xdg-open", url]):
+            if cls.launchCommand(["xdg-open", url]):
                 return True
-            elif cls.launchCommand([u"gnome-open", url]):
+            elif cls.launchCommand(["gnome-open", url]):
                 return True
-            elif cls.launchCommand([u"kfmclient openURL", url]):
+            elif cls.launchCommand(["kfmclient openURL", url]):
                 return True
-            elif cls.launchCommand([u"kfmclient exec", url]):
+            elif cls.launchCommand(["kfmclient exec", url]):
                 return True
-            elif cls.launchCommand([u"firefox", url]):
+            elif cls.launchCommand(["firefox", url]):
                 return True
-            elif cls.launchCommand([u"mozilla", url]):
+            elif cls.launchCommand(["mozilla", url]):
                 return True
-            elif cls.launchCommand([u"opera", url]):
+            elif cls.launchCommand(["opera", url]):
                 return True
-            elif cls.launchCommand([u"google-chrome", url]):
+            elif cls.launchCommand(["google-chrome", url]):
                 return True
             return False
 
-        elif os_name == u"WIN32":
-            if url.startswith(u"mailto"):
+        elif os_name == "WIN32":
+            if url.startswith("mailto"):
                 url = url.replace("&", "^&")
-            return cls.launchCommand([u"cmd.exe", u"/C", u"start", u"", url])
+            return cls.launchCommand(["cmd.exe", "/C", "start", "", url])
 
-        elif os_name == u"MACX":
-            return cls.launchCommand([u"open", url])
+        elif os_name == "MACX":
+            return cls.launchCommand(["open", url])
 
         return False
 

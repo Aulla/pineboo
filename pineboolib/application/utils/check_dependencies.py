@@ -15,8 +15,8 @@ def check_dependencies(dict_: "core_check_dependencies.DependencyCheck", exit: b
     @param dict_. Dict with the name of the agency and the module to be checked.
     @param exit . Exit if dependence fails.
     """
-    dep_error: "core_check_dependencies.DependencyError" = core_check_dependencies.get_dependency_errors(
-        dict_
+    dep_error: "core_check_dependencies.DependencyError" = (
+        core_check_dependencies.get_dependency_errors(dict_)
     )
     if not dep_error:
         return True

@@ -360,7 +360,7 @@ class FLCodBar(object):
 
         bar_code = barcode.get_barcode_class(type_.lower())
         try:
-            bar_ = bar_code(u"%s" % value_)
+            bar_ = bar_code("%s" % value_)
         except Exception:
             bar_ = bar_code("000000000000")
 

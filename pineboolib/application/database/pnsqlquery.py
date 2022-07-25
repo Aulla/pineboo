@@ -114,7 +114,7 @@ class PNSqlQuery(object):
     _posicion: int
     _last_query: str
     private_query: "PNSqlQueryPrivate"
-    _data_size : int
+    _data_size: int
 
     def __init__(
         self, cx=None, connection_name: Union[str, "iconnection.IConnection"] = "default"
@@ -181,7 +181,7 @@ class PNSqlQuery(object):
         """
         Run a query.
 
-        This can be specified or calculated from the values ​​previously provided.
+        This can be specified or calculated from the values previously provided.
         @param sql. query text.
         @return True or False return if the execution is successful.
         """
@@ -275,9 +275,11 @@ class PNSqlQuery(object):
 
         @return text string with the query SELECT.
         """
-        ret_: List[
-            str
-        ] = self.private_query._field_list if self.private_query._field_list else self.sql_inspector.field_names()
+        ret_: List[str] = (
+            self.private_query._field_list
+            if self.private_query._field_list
+            else self.sql_inspector.field_names()
+        )
 
         return ",".join(ret_)
 
@@ -521,7 +523,11 @@ class PNSqlQuery(object):
         @return List of text strings with the names of the fields in the query.
         """
 
-        return self.sql_inspector.field_names() or self.private_query._field_list if not alternate_order else self.private_query._field_list or self.sql_inspector.field_names()
+        return (
+            self.sql_inspector.field_names() or self.private_query._field_list
+            if not alternate_order
+            else self.private_query._field_list or self.sql_inspector.field_names()
+        )
 
     def setGroupDict(self, groups_dict: Dict[int, str]) -> None:
         """
@@ -619,12 +625,19 @@ class PNSqlQuery(object):
             LOGGER.trace("value::invalid use with n=None.", stack_info=True)
             return None
 
-        pos: int = self.sql_inspector.fieldNameToPos(field_name_or_pos.lower()) if isinstance(
-            field_name_or_pos, str) else int(field_name_or_pos)
+        pos: int = (
+            self.sql_inspector.fieldNameToPos(field_name_or_pos.lower())
+            if isinstance(field_name_or_pos, str)
+            else int(field_name_or_pos)
+        )
 
         try:
             ret = self._row[pos] if self._row else None
-            return self.sql_inspector.resolve_empty_value(pos) if ret in (None, "None") else self.sql_inspector.resolve_value(pos, ret, raw)
+            return (
+                self.sql_inspector.resolve_empty_value(pos)
+                if ret in (None, "None")
+                else self.sql_inspector.resolve_value(pos, ret, raw)
+            )
         except Exception:
             LOGGER.exception("value::error retrieving row position %s", pos)
 
@@ -720,9 +733,7 @@ class PNSqlQuery(object):
         for tabla in table_list.split(","):
             if not mng.existsTable(tabla) and not mng.metadata(tabla):
                 self._invalid_tables_list = True
-                LOGGER.warning(
-                    "setTablesList: table not found %r. Query will not execute.", tabla
-                )
+                LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)
             self.private_query._tables_list.append(tabla)
 
     def setValueParam(self, param_name: str, value: Any) -> None:
@@ -742,7 +753,11 @@ class PNSqlQuery(object):
         @param name Parameter name.
         """
 
-        return self.private_query._parameter_dict[param_name] if param_name in self.private_query._parameter_dict.keys() else None
+        return (
+            self.private_query._parameter_dict[param_name]
+            if param_name in self.private_query._parameter_dict.keys()
+            else None
+        )
 
     def size(self) -> int:
         """

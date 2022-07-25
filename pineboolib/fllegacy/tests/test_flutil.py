@@ -61,7 +61,7 @@ class TestFLUtil(unittest.TestCase):
         )
 
     def test_basic_1(self) -> None:
-        """"Test basic 1."""
+        """ "Test basic 1."""
 
         from pineboolib.qsa import qsa
 

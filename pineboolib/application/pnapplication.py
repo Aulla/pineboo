@@ -267,7 +267,7 @@ class PNApplication(QtCore.QObject):
 
         tab_names: str = ""
         for number in range(tab_widget.count()):
-            item : 'QtWidgets.QWidget' = tab_widget.widget(number)
+            item: "QtWidgets.QWidget" = tab_widget.widget(number)
             tab_names += "%s/%s*" % (item.objectName(), tab_widget.tabText(number))
 
         return tab_names

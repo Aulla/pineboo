@@ -16,7 +16,7 @@ class FormInternalObj(qsa.FormDBWidget):
         setting = "scripts/sys/modLastDirModules_%s" % qsa.sys.nameBD()
         last_dir = util.readSettingEntry(setting)
         modules_dir = qsa.FileDialog.getExistingDirectory(
-            last_dir, util.translate(u"scripts", u"Directorio de Módulos")
+            last_dir, util.translate("scripts", "Directorio de Módulos")
         )
 
         if not modules_dir:
@@ -24,14 +24,14 @@ class FormInternalObj(qsa.FormDBWidget):
         qsa.Dir().setCurrent(modules_dir)
 
         command_result = qsa.Array()
-        if util.getOS() == u"WIN32":
+        if util.getOS() == "WIN32":
             command_result = self.command_exec("cmd.exe /C dir /B /S *.mod")
         else:
             command_result = self.command_exec("find . -name *.mod")
 
         if not command_result.ok:
             qsa.MessageBox.warning(
-                util.translate(u"scripts", u"Error al buscar los módulos en el directorio:\n")
+                util.translate("scripts", "Error al buscar los módulos en el directorio:\n")
                 + modules_dir,
                 qsa.MessageBox.Ok,
                 qsa.MessageBox.NoButton,
@@ -39,7 +39,7 @@ class FormInternalObj(qsa.FormDBWidget):
             )
             return
 
-        opciones = command_result.salida.split(u"\n")
+        opciones = command_result.salida.split("\n")
         opciones.pop()
         modulos = self.options_chooser(opciones)
         if not modulos:
@@ -49,7 +49,7 @@ class FormInternalObj(qsa.FormDBWidget):
             qsa.sys.processEvents()
             if not self.load_module(modulo):
                 qsa.MessageBox.warning(
-                    util.translate(u"scripts", u"Error al cargar el módulo:\n") + modulo,
+                    util.translate("scripts", "Error al cargar el módulo:\n") + modulo,
                     qsa.MessageBox.Ok,
                     qsa.MessageBox.NoButton,
                     qsa.MessageBox.NoButton,
@@ -67,19 +67,19 @@ class FormInternalObj(qsa.FormDBWidget):
         """Execute a command and return a value."""
         res = qsa.Array()
         qsa.ProcessStatic.execute(comando)
-        if qsa.ProcessStatic.stderr != u"":
-            res[u"ok"] = False
-            res[u"salida"] = qsa.ProcessStatic.stderr
+        if qsa.ProcessStatic.stderr != "":
+            res["ok"] = False
+            res["salida"] = qsa.ProcessStatic.stderr
         else:
-            res[u"ok"] = True
-            res[u"salida"] = qsa.ProcessStatic.stdout
+            res["ok"] = True
+            res["salida"] = qsa.ProcessStatic.stdout
 
         return res
 
     def load_module(self, nombre_fichero: str) -> bool:
         """Load a module and return True if loaded."""
         util = qsa.FLUtil()
-        if util.getOS() == u"WIN32":
+        if util.getOS() == "WIN32":
             nombre_fichero = nombre_fichero[0 : len(nombre_fichero) - 1]
 
         return qsa.from_project("formflreloadlast").load_module(nombre_fichero)
@@ -93,10 +93,10 @@ class FormInternalObj(qsa.FormDBWidget):
         """Show a choose option dialog and return selected values."""
         util = qsa.FLUtil()
         dialog = qsa.Dialog()
-        dialog.okButtonText = util.translate(u"scripts", u"Aceptar")
-        dialog.cancelButtonText = util.translate(u"scripts", u"Cancelar")
+        dialog.okButtonText = util.translate("scripts", "Aceptar")
+        dialog.cancelButtonText = util.translate("scripts", "Cancelar")
         bgroup = qsa.GroupBox()
-        bgroup.setTitle(util.translate(u"scripts", u"Seleccione módulos a cargar"))
+        bgroup.setTitle(util.translate("scripts", "Seleccione módulos a cargar"))
         dialog.add(bgroup)
         resultado = qsa.Array()
         check_box_list = qsa.Array()

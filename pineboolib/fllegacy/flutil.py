@@ -658,7 +658,7 @@ class FLUtil(object):
 
         number = float(value)
 
-        multiplier = 10 ** part_decimal
+        multiplier = 10**part_decimal
         result = str(math.floor(number * multiplier + 0.5) / multiplier)
         pos_comma = result.find(".") + 1
 

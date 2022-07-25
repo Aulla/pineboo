@@ -59,7 +59,7 @@ def auto_qt_translate_text(text: Optional[str]) -> str:
 def qt_translate_noop(string: str, path: str, mod: str) -> str:
     """Translate string."""
 
-    if string.find(u"QT_TRANSLATE_NOOP") == -1:
+    if string.find("QT_TRANSLATE_NOOP") == -1:
         return string
     string_list = string[18:-1].split(",")
     string = string_list[1][1:-1]
@@ -75,11 +75,11 @@ def qt_translate_noop(string: str, path: str, mod: str) -> str:
     file_data = fichero.read()
     xml_translations = QtXml.QDomDocument()
     if xml_translations.setContent(file_data):
-        node_mess = xml_translations.elementsByTagName(u"message")
+        node_mess = xml_translations.elementsByTagName("message")
         for node_number in range(len(node_mess)):
             node = node_mess.item(node_number)
-            if node.namedItem(u"source").toElement().text() == string:
-                traduccion = node.namedItem(u"translation").toElement().text()
+            if node.namedItem("source").toElement().text() == string:
+                traduccion = node.namedItem("translation").toElement().text()
                 if traduccion:
                     return traduccion
 

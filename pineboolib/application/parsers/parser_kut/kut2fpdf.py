@@ -932,14 +932,14 @@ class Kut2FPDF(object):
                     )
 
             if self.design_mode:
-                """ LOGGER.warning(
+                """LOGGER.warning(
                     "draw ! %s, x: %s, y: %s, ox:%s, oy:%s",
                     actual_text,
                     pos_x,
                     pos_y,
                     orig_x,
                     orig_y,
-                ) """
+                )"""
             self._document.text(pos_x, pos_y, actual_text)
             result_section_size += start_section_size
 

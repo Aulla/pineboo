@@ -464,9 +464,7 @@ class QHttp(HttpState, HttpError):
         for k in request_header._values.keys():
             if k != "host":
                 _request.setRawHeader(
-                    str.encode(  # type: ignore [arg-type] # noqa: F821
-                        k
-                    ),
+                    str.encode(k),  # type: ignore [arg-type] # noqa: F821
                     str.encode(  # type: ignore [arg-type] # noqa: F821
                         str(request_header._values[k]).lower()
                     ),

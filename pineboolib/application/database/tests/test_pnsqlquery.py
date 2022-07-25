@@ -358,6 +358,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         from pineboolib.qsa import qsa
         from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
         import os
+
         cur_date_str = str(qsa.Date())
         qsa_sys = qsa.sys
 

@@ -135,9 +135,9 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
                 unlocks += 1
 
                 if unlocks > 1:
-                    LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
+                    LOGGER.debug("FLManager : No se ha podido crear la tabla " + tmd.name())
                     LOGGER.debug(
-                        u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                        "FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
                     )
                     return None
 

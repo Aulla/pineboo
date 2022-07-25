@@ -76,13 +76,13 @@ class FlFiles(object):
         xml_module = QtXml.QDomDocument()
         descripcion_modulo: str
         if xml_module.setContent(datos_module):
-            node_module = xml_module.namedItem(u"MODULE")
-            modulo = node_module.namedItem(u"name").toElement().text()
-            descripcion_modulo = node_module.namedItem(u"alias").toElement().text()
-            area = node_module.namedItem(u"area").toElement().text()
-            descripcion_area = node_module.namedItem(u"areaname").toElement().text()
-            version = node_module.namedItem(u"version").toElement().text()
-            nombre_icono = node_module.namedItem(u"icon").toElement().text()
+            node_module = xml_module.namedItem("MODULE")
+            modulo = node_module.namedItem("name").toElement().text()
+            descripcion_modulo = node_module.namedItem("alias").toElement().text()
+            area = node_module.namedItem("area").toElement().text()
+            descripcion_area = node_module.namedItem("areaname").toElement().text()
+            version = node_module.namedItem("version").toElement().text()
+            nombre_icono = node_module.namedItem("icon").toElement().text()
             # if node_module.namedItem(u"flversion"):
             #    versionMinimaFL = node_module.namedItem(u"flversion").toElement().text()
             # if node_module.namedItem(u"dependencies") is not None:

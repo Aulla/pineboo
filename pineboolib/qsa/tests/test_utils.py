@@ -220,7 +220,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(qsa.user_id(), "pululo")
 
     def my_fun(self) -> None:
-        """"Callable test function."""
+        """ "Callable test function."""
         print("EY")
 
     @classmethod

@@ -280,7 +280,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file.txt",
+            "/test_types_file.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         contenido_3 = 'QT_TRANSLATE_NOOP("MetaData","Código")'
@@ -298,7 +298,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file_static.txt",
+            "/test_types_file_static.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         types.FileStatic.write(temporal, contenido)
@@ -311,7 +311,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file_bytes.txt",
+            "/test_types_file_bytes.txt",
         )
         contenido = "Texto escrito en bytes\n".encode("utf-8")
         types.File(temporal).write(contenido)
@@ -324,7 +324,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file_bytes.txt",
+            "/test_types_file_bytes.txt",
         )
         contenido = "Texto\n".encode("utf-8")
         types.File(temporal).write(contenido)
@@ -337,7 +337,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file_lines.txt",
+            "/test_types_file_lines.txt",
         )
         contenido = "Esta es la linea"
         types.File(temporal).writeLine("%s 1" % contenido)
@@ -354,7 +354,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_types_file_full_name.txt",
+            "/test_types_file_full_name.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         file_ = types.File(temporal)
@@ -367,7 +367,7 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_last_modified.txt",
+            "/test_last_modified.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         file_ = types.File(temporal)
@@ -378,7 +378,7 @@ class TestFile(unittest.TestCase):
     def test_properties(self) -> None:
         temporal = "%s%s" % (
             settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            u"/test_last_modified.txt",
+            "/test_last_modified.txt",
         )
         file_ = types.File(temporal)
         self.assertEqual(file_.path, settings.CONFIG.value("ebcomportamiento/temp_dir"))

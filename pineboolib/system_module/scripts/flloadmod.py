@@ -10,8 +10,8 @@ class FormInternalObj(qsa.FormDBWidget):
         """Entry function."""
         continuar = qsa.MessageBox.warning(
             qsa.util.translate(
-                u"scripts",
-                u"Antes de cargar un módulo asegúrese de tener una copia de seguridad de todos los datos,\n"
+                "scripts",
+                "Antes de cargar un módulo asegúrese de tener una copia de seguridad de todos los datos,\n"
                 + "y de que no hay ningun otro usuario conectado a la base de datos mientras se realiza la carga.\n\n¿Desea continuar?",
             ),
             qsa.MessageBox.Yes,
@@ -20,16 +20,16 @@ class FormInternalObj(qsa.FormDBWidget):
         if continuar == qsa.MessageBox.No:
             return
         nombre_fichero = qsa.FileDialog.getOpenFileName(
-            u"modfiles(*.mod)", qsa.util.translate(u"scripts", u"Elegir Fichero")
+            "modfiles(*.mod)", qsa.util.translate("scripts", "Elegir Fichero")
         )
         if nombre_fichero:
             fichero = qsa.File(nombre_fichero)
             if not qsa.from_project("formRecordflmodules").aceptarLicenciaDelModulo(
-                qsa.ustr(fichero.path, u"/")
+                qsa.ustr(fichero.path, "/")
             ):
                 qsa.MessageBox.critical(
                     qsa.util.translate(
-                        u"scripts", u"Imposible cargar el módulo.\nLicencia del módulo no aceptada."
+                        "scripts", "Imposible cargar el módulo.\nLicencia del módulo no aceptada."
                     ),
                     qsa.MessageBox.Ok,
                 )
@@ -54,11 +54,11 @@ def deps_evaluate(deps: qsa.Array) -> bool:
     for dep in deps:
         if not qsa.sys.isLoadedModule(dep):
             res = qsa.MessageBox.warning(
-                qsa.util.translate(u"scripts", u"Este módulo depende del módulo ")
+                qsa.util.translate("scripts", "Este módulo depende del módulo ")
                 + dep
                 + qsa.util.translate(
-                    u"scripts",
-                    u", que no está instalado.\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?",
+                    "scripts",
+                    ", que no está instalado.\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?",
                 ),
                 qsa.MessageBox.Yes,
                 qsa.MessageBox.No,

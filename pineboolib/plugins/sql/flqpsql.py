@@ -135,11 +135,9 @@ class FLQPSQL(isqldriver.ISqlDriver):
                     unlocks += 1
 
                     if unlocks > 1:
+                        LOGGER.warning("FLManager : No se ha podido crear la tabla %s ", tmd.name())
                         LOGGER.warning(
-                            u"FLManager : No se ha podido crear la tabla %s ", tmd.name()
-                        )
-                        LOGGER.warning(
-                            u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                            "FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
                         )
                         return None
 

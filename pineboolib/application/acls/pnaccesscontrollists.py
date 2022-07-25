@@ -129,9 +129,9 @@ class PNAccessControlLists(object):
 
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        name_: str = obj.name() if hasattr(  # type: ignore [union-attr]
-            obj, "name"
-        ) else obj.objectName()  # type: ignore [union-attr]
+        name_: str = (
+            obj.name() if hasattr(obj, "name") else obj.objectName()  # type: ignore [union-attr]
+        )  # type: ignore [union-attr]
 
         user_: str = application.PROJECT.conn_manager.mainConn().user()
 
@@ -231,8 +231,8 @@ class PNAccessControlLists(object):
         if not dom_document:
             return None
 
-        rule: "pnaccesscontrol.PNAccessControl" = pnaccesscontrolfactory.PNAccessControlFactory().create(
-            str(qry.value(1))
+        rule: "pnaccesscontrol.PNAccessControl" = (
+            pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
         )
 
         rule.setName(str(qry.value(2)))

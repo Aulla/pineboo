@@ -207,9 +207,7 @@ class MainForm(imainwindow.IMainWindow):
         if self.main_widget is None:
             return
 
-        menu_bar = (
-            self.main_widget.menuBar()  # type: ignore [attr-defined] # noqa: F821
-        )
+        menu_bar = self.main_widget.menuBar()  # type: ignore [attr-defined] # noqa: F821
         if menu_bar is None:
             LOGGER.warning("No se encuentra toolbar en %s", self.main_widget.objectName())
             return
