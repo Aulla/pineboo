@@ -6,7 +6,7 @@ Defines the PNConnection class.
 from pineboolib.interfaces.isqlcursor import ISqlCursor
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
-from pineboolib.core import settings, utils, decorators
+from pineboolib.core import settings, decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
 from pineboolib import application
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from . import pnconnectionmanager  # pragma: no cover
 
-LOGGER = utils.logging.get_logger(__name__)
+LOGGER = utils_base.logging.get_logger(__name__)
 
 
 class PNConnection(QtCore.QObject, iconnection.IConnection):

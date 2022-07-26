@@ -237,29 +237,28 @@ def sql_insert(
     @param conn_name_ Connection name.
     @return True in case of successful insertion, False in any other case.
     """
-    _field_list: Union[List[Any], types.Array]
-    _value_list: Union[List[Any], types.Array]
+    _value_list: Union[List[Any], types.Array] = (
+        value_list_.split(",")
+        if isinstance(value_list_, str)
+        else value_list_
+        if isinstance(value_list_, (List, types.Array))
+        else [value_list_]
+    )
 
-    if isinstance(field_list_, str):
-        _field_list = field_list_.split(",")
-    else:
-        _field_list = field_list_
+    _field_list: Union[List[Any], types.Array] = (
+        field_list_.split(",") if isinstance(field_list_, str) else field_list_
+    )
 
-    if isinstance(value_list_, str):
-        _value_list = value_list_.split(",")
-    elif isinstance(value_list_, (List, types.Array)):
-        _value_list = value_list_
-    else:
-        _value_list = [value_list_]
+    len_field_list = len(_field_list)
 
-    if len(_field_list) != len(_value_list):
+    if len_field_list != len(_value_list):
         return False
 
     _cursor = pnsqlcursor.PNSqlCursor(table_, True, conn_)
     _cursor.setModeAccess(_cursor.Insert)
     _cursor.refreshBuffer()
 
-    for _pos in range(len(_field_list)):
+    for _pos in range(len_field_list):
 
         if _value_list[_pos] is None:
             _cursor.setNull(_field_list[_pos])
@@ -358,24 +357,15 @@ def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    if isinstance(conn_, str):
-        my_conn = application.PROJECT.conn_manager.useConn(conn_)
-    else:
-        my_conn = conn_
+    my_conn = application.PROJECT.conn_manager.useConn(conn_) if isinstance(conn_, str) else conn_
 
     try:
         last = my_conn.lastError()
         LOGGER.info("execSql: Ejecutando la consulta : %s", sql_)
-        if my_conn.driver()._parse_porc:
-            sql_ = sql_.replace("%", "%%")
+        sql_ = sql_.replace("%", "%%") if my_conn.driver()._parse_porc else sql_
 
-        # sql = conn_.db().driver().fix_query(sql)
-        # cur.execute(sql)
-        # conn_.conn.commit()
-        result_ = my_conn.execute_query(sql_)  # noqa: F841
-        if my_conn.lastError() != last:
-            return False
-        return True
+        my_conn.execute_query(sql_)  # noqa: F841
+        return my_conn.lastError() == last
     except Exception as exc:
         LOGGER.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
         return False

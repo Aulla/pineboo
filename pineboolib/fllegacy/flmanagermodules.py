@@ -370,11 +370,7 @@ class FLManagerModules(object):
 
         root_ = tree.getroot()
 
-        ui_version = root_.get("version")
-
-        if ui_version is None:
-            ui_version = "1.0"
-
+        ui_version = root_.get("version") or "1.0"
         wid = root_.find("widget")
         geometry = []
 
@@ -555,12 +551,12 @@ class FLManagerModules(object):
         @param id_area Identifier of the area from which you want to get the modules list
         @return List of module identifiers
         """
-        ret_ = []
-        for key in application.PROJECT.modules.keys():
-            if application.PROJECT.modules[key].areaid == id_area:
-                ret_.append(key)
 
-        return ret_
+        return [
+            key
+            for key in application.PROJECT.modules.keys()
+            if application.PROJECT.modules[key].areaid == id_area
+        ]
 
     def listAllIdModules(self) -> List[str]:
         """
@@ -654,10 +650,7 @@ class FLManagerModules(object):
         if qry.lastError is None:
             return "error"
 
-        if qry.next():
-            return str(qry.value(0))
-        else:
-            return ""
+        return str(qry.value(0)) if qry.next() else ""
 
     def setShaLocalFromGlobal(self) -> None:
         """

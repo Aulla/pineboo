@@ -641,7 +641,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
     def copy(self, other: Optional["PNTableMetaData"] = None) -> None:
         """
-        Copy the values ​​of a PNFieldMetaData from another.
+        Copy the values of a PNFieldMetaData from another.
 
         @param other. PNTableMetaData.
         """

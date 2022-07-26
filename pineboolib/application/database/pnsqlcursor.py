@@ -1375,10 +1375,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         ret_ = False
         if self.private_cursor.mode_access_ is not self.Insert:
-            row = self.currentRegister()
+            if self.private_cursor._currentregister > -1:
 
-            for field_name in self.private_cursor.metadata_.fieldNamesUnlock():
-                if row > -1:
+                for field_name in self.private_cursor.metadata_.fieldNamesUnlock():
                     if self.private_cursor.buffer_.value(field_name) not in ("True", True, 1, "1"):
                         ret_ = True
                         break
@@ -1651,7 +1650,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return Index position.
         """
 
-        row = self.currentRegister()
+        row = self.private_cursor._currentregister
 
         return 0 if not row else -1 if row < 0 else -2 if row >= self.size() else row
 
@@ -1985,12 +1984,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         Move the cursor to the specified position.
 
-        @param i. index position to seek.
+        @param pos. index position to seek.
         @return True if ok else False.
         """
 
-        if self.currentRegister():
-            pos += self.currentRegister()
+        pos += self.private_cursor._currentregister if self.private_cursor._currentregister else 0
 
         return self.move(pos)
 
@@ -2058,7 +2056,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
 
-        result = self.move(0) if not self.currentRegister() == 0 else True
+        result = self.move(0) if not self.private_cursor._currentregister == 0 else True
 
         if result:
             if emite:
@@ -2472,31 +2470,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return False
 
-        # if (
-        #    self.db().interactiveGUI()
-        #    and self.db().canDetectLocks()
-        #    and (
-        #        check_locks or self.metadata().detectLocks()
-        #    )  # type: ignore [union-attr] # noqa: F821
-        # ):
-        #    self.checkRisksLocks()
-        #    if self.private_cursor._in_risks_locks:
-        #        ret = QtWidgets.QMessageBox.warning(
-        #            QtWidgets.QApplication.activeWindow(),
-        #            "Bloqueo inminente",
-        #            "Los registros que va a modificar están bloqueados actualmente.\n"
-        #            "Si continua hay riesgo de que su conexión quede congelada hasta finalizar el bloqueo.\n"
-        #            "\n¿ Desa continuar aunque exista riesgo de bloqueo ?",
-        #            QtWidgets.QMessageBox.Ok,
-        #            cast(
-        #                QtWidgets.QMessageBox.StandardButton,
-        #                QtWidgets.QMessageBox.No
-        #                | QtWidgets.QMessageBox.Default
-        #                | QtWidgets.QMessageBox.Escape,
-        #            ),
-        #        )
-        #        if ret == QtWidgets.QMessageBox.No:
-        #            return False
+        commit_buffer_session = self.db().session()
 
         if not self.checkIntegrity():
             LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
@@ -2575,9 +2549,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 LOGGER.warning(
                     "NESTED STARTED: %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
                     self.curName().upper(),
-                    self.db().session(),
-                    self.db().session().transaction.parent,
-                    self.db().session().transaction,
+                    commit_buffer_session,
+                    commit_buffer_session.transaction.parent,
+                    commit_buffer_session.transaction,
                 )
             use_nested = True
 
@@ -2670,48 +2644,40 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 field_name = field.name()
 
-                result = None
-                if not self.isNull(field_name):
-                    result = self.private_cursor.buffer_.value(  # type: ignore [union-attr] # noqa: F821
-                        field_name
-                    )
-
-                else:
+                if self.isNull(field_name):
                     continue
 
-                relation_list = field.relationList()
-                if not relation_list:
-                    continue
-                else:
-                    for relation in relation_list:
+                result = self.private_cursor.buffer_.value(  # type: ignore [union-attr] # noqa: F821
+                    field_name
+                )
 
-                        cursor = PNSqlCursor(relation.foreignTable())
-                        foreign_mtd = cursor.private_cursor.metadata_
-                        if foreign_mtd is None:
-                            continue
-                        foreign_field = foreign_mtd.field(relation.foreignField())
-                        if foreign_field is None:
-                            continue
+                for relation in field.relationList():
 
-                        relation_m1 = foreign_field.relationM1()
+                    cursor = PNSqlCursor(relation.foreignTable())
+                    foreign_mtd = cursor.private_cursor.metadata_
+                    if foreign_mtd is None:
+                        continue
+                    foreign_field = foreign_mtd.field(relation.foreignField())
+                    if foreign_field is None:
+                        continue
 
-                        if relation_m1 and relation_m1.deleteCascade():
-                            cursor.setForwardOnly(True)
-                            cursor.select(
-                                self.conn()
-                                .connManager()
-                                .manager()
-                                .formatAssignValue(
-                                    relation.foreignField(), foreign_field, result, True
-                                )
-                            )
+                    relation_m1 = foreign_field.relationM1()
 
-                            while cursor.next():
-                                cursor.setModeAccess(self.Del)
-                                cursor.refreshBuffer()
-                                if not cursor.commitBuffer(False):
-                                    LOGGER.warning("CommitBuffer cancelado. delC devolvió False.")
-                                    return False
+                    if relation_m1 and relation_m1.deleteCascade():
+                        cursor.setForwardOnly(True)
+                        cursor.select(
+                            self.conn()
+                            .connManager()
+                            .manager()
+                            .formatAssignValue(relation.foreignField(), foreign_field, result, True)
+                        )
+
+                        while cursor.next():
+                            cursor.setModeAccess(self.Del)
+                            cursor.refreshBuffer()
+                            if not cursor.commitBuffer(False):
+                                LOGGER.warning("CommitBuffer cancelado. delC devolvió False.")
+                                return False
 
             if not self.model().delete_current_buffer():
                 LOGGER.warning(
@@ -2786,9 +2752,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     LOGGER.warning(
                         "ENDING NESTED : %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
                         self.curName().upper(),
-                        self.db().session(),
-                        self.db().session().transaction.parent,
-                        self.db().session().transaction,
+                        commit_buffer_session,
+                        commit_buffer_session.transaction.parent,
+                        commit_buffer_session.transaction,
                     )
                 self.db().commit()
 
@@ -2796,7 +2762,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     LOGGER.warning(
                         "RESULT NESTED : %s, CURRENT : %s",
                         self.curName().upper(),
-                        self.db().session().transaction,
+                        commit_buffer_session.transaction,
                     )
 
             # if self.transactionLevel() == 0:
@@ -2839,32 +2805,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             active_widget = QtWidgets.QApplication.activeModalWidget()
             if not active_widget:
                 active_widget = QtWidgets.QApplication.activePopupWidget()
-            if not active_widget:
-                active_widget = QtWidgets.QApplication.activeWindow()
+                if not active_widget:
+                    active_widget = QtWidgets.QApplication.activeWindow()
 
             if active_widget:
                 active_widget_enabled = active_widget.isEnabled()
 
-        if self.private_cursor.mode_access_ == self.Insert:
-            if (
-                cursor_relation.private_cursor.metadata_ is not None
-                and cursor_relation.modeAccess() == self.Insert
-            ):
-                if active_widget and active_widget_enabled:
-                    active_widget.setEnabled(False)
-                if not cursor_relation.commitBuffer():
-                    self.private_cursor.mode_access_ = self.Browse
-                    result = False
-                else:
-                    self.setFilter("")
-                    cursor_relation.refresh()
-                    cursor_relation.setModeAccess(self.Edit)
-                    cursor_relation.refreshBuffer()
-
-                if active_widget and active_widget_enabled:
-                    active_widget.setEnabled(True)
-
-        elif self.private_cursor.mode_access_ in [self.Browse, self.Edit]:
+        if self.private_cursor.mode_access_ in [self.Browse, self.Edit, self.Insert]:
             if (
                 cursor_relation.private_cursor.metadata_ is not None
                 and cursor_relation.modeAccess() == self.Insert
@@ -2876,6 +2823,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor.mode_access_ = self.Browse
                     result = False
                 else:
+                    if self.private_cursor.mode_access_ == self.Insert:
+                        self.setFilter("")
                     cursor_relation.refresh()
                     cursor_relation.setModeAccess(self.Edit)
                     cursor_relation.refreshBuffer()
@@ -2902,11 +2851,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return The list with the levels of transactions that this cursor has initiated and remain open
         """
-        lista = []
-        for item in self.private_cursor._transactions_opened:
-            lista.append(str(item))
-
-        return lista
+        return [str(item) for item in self.private_cursor._transactions_opened]
 
     @decorators.pyqt_slot()
     @decorators.beta_implementation
@@ -2928,11 +2873,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 LOGGER.trace("rollbackOpened: %s %s", count, self.curName())
 
             self.rollback()
-        # i = 0
-        # while i < count:
-        #    LOGGER.trace("Deshaciendo transacción abierta", self.transactionLevel())
-        #    self.rollback()
-        #    i = i + 1
 
     @decorators.pyqt_slot()
     def commitOpened(self, count: int = -1, message: str = None) -> None:
@@ -3078,11 +3018,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if self.private_cursor._transactions_opened:
             metadata = self.private_cursor.metadata_
-            table_name = None
-            if metadata:
-                table_name = metadata.name()
-            else:
-                table_name = self.curName()
+            table_name = metadata.name() if metadata else self.curName()
 
             message = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
@@ -3139,10 +3075,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.private_cursor._model.getSortOrder()
 
-    # @decorators.not_implemented_warn
-    # def list(self):
-    #    return None
-
     def filter(self) -> str:
         """
         Return the cursor filter.
@@ -3155,15 +3087,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if "filter" in self.private_cursor._model.where_filters
             else ""
         )
-
-    # def field(self, name: str) -> Optional["pnbuffer.FieldStruct"]:
-    #    """
-    #    Return a specified FieldStruct of the buffer.
-    #    """
-
-    #    if not self.private_cursor.buffer_:
-    #        raise Exception("self.private_cursor.buffer_ is not defined!")
-    #    return self.private_cursor.buffer_.field(name)
 
     def update(self, notify: bool = True) -> bool:
         """
@@ -3178,80 +3101,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if not self.private_cursor.buffer_:
                 raise Exception("Buffer is not set. Cannot update")
-            # solo los campos modified
-            # lista = self.private_cursor.buffer_.modifiedFields()
-            # self.private_cursor.buffer_.setNoModifiedFields()
-            # TODO: pKVaue debe ser el valueBufferCopy, es decir, el antiguo. Para
-            # .. soportar updates de PKey, que, aunque inapropiados deberían funcionar.
-            # pk_name = self.private_cursor.buffer_.pK()
-            # if pk_name is None:
-            #    raise Exception("PrimaryKey is not defined!")
 
-            # primary_key_value = self.private_cursor.buffer_.value(pk_name)
-            # obj_ = self.db()._current_transaction.query(self._cursor_model).get(primary_key_value)
-            # for field_name in lista:
-            #    setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
-
-            # if lista and obj_:
-
-            # if self.transactionLevel() == 0:
-            #    self.db().session().transaction.commit()
             self.db().session().flush()
             update_successful = True
-
-            # dict_update = {
-            #    field_name: self.private_cursor.buffer_.value(field_name) for field_name in lista
-            # }
-            # try:
-            #    update_successful = self.model.data_update(
-            #        primary_key_value, dict_update
-            #    )
-            # except Exception:
-            #    LOGGER.exception("PNSqlCursor.update:: Unhandled error on model updateRowDB:: ")
-            #    update_successful = False
-            # TODO: En el futuro, si no se puede conseguir un update, hay que
-            # "tirar atrás" todo.
-            # if update_successful:
-            # row = self.private_cursor._model.findPKRow([primary_key_value])
-            # if row is not None:
-            #    if (
-            #        self.private_cursor._model.value(row, self.private_cursor._model.pK())
-            #        != primary_key_value
-            #    ):
-            #        raise AssertionError(
-            #            "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
-            #            % (
-            #                self.private_cursor._model.value(
-            #                    row, self.private_cursor._model.pK()
-            #                ),
-            #                primary_key_value,
-            #            )
-            #        )
-            #    self.private_cursor._model.setValuesDict(row, dict_update)
-
-            # else:
-            # Método clásico
-            #    LOGGER.warning(
-            #        "update :: WARN :: Los indices del CursorTableModel no funcionan o el PKey no existe."
-            #    )
-            # row = 0
-            # while row < self.private_cursor._model.rowCount():
-            #    if (
-            #        self.private_cursor._model.value(row, self.private_cursor._model.pK())
-            #        == primary_key_value
-            #    ):
-            #    obj_ = self.model._data_proxy.get(primay_key_value)
-            #    for field_name in lista:
-            #        setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
-
-            #    for field_name in lista:
-            #        self.private_cursor._model.set_value(
-            #            row, field_name, self.private_cursor.buffer_.value(field_name)
-            #        )
-
-            #    break
-
-            # row = row + 1
 
             if notify:
                 self.bufferCommited.emit()
@@ -3297,10 +3149,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return primary key field name.
         """
 
-        if self.private_cursor.metadata_:
-            return self.private_cursor.metadata_.primaryKey()
-        else:
-            return ""
+        return self.private_cursor.metadata_.primaryKey() if self.private_cursor.metadata_ else ""
 
     def fieldType(self, field_name: str = None) -> Optional[int]:
         """
@@ -3310,10 +3159,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return int identifier.
         """
 
-        if field_name and self.private_cursor.metadata_:
-            return self.private_cursor.metadata_.fieldType(field_name)
-        else:
-            return None
+        return (
+            self.private_cursor.metadata_.fieldType(field_name)
+            if field_name and self.private_cursor.metadata_
+            else None
+        )
 
     """
     private slots:
@@ -3356,6 +3206,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         self._currentregister = -1
         self._acos_cond_name = None
         self.buffer_ = None
+        self._buffer_copy = None
         self.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
         self.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
         self._activated_check_integrity = True
@@ -3399,26 +3250,20 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
                 del self.acl_table_[self._id_acl]
                 # self.acl_table_ = None
 
-        if self._buffer_copy:
-            del self._buffer_copy
-            self._buffer_copy = None
+        del self._buffer_copy
+        self._buffer_copy = None
 
-        if self.relation_:
-            del self.relation_
-            self.relation_ = None
+        del self.relation_
+        self.relation_ = None
 
-        if self.edition_states_:
-            del self.edition_states_
-            self.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
-            # LOGGER.trace("AQBoolFlagState count %s", self.count_)
+        del self.edition_states_
+        self.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
 
-        if self.browse_states_:
-            del self.browse_states_
-            self.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
-            # LOGGER.trace("AQBoolFlagState count %s", self.count_)
-        if self._transactions_opened:
-            del self._transactions_opened
-            self._transactions_opened = []
+        del self.browse_states_
+        self.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
+
+        del self._transactions_opened
+        self._transactions_opened = []
 
     def doAcl(self) -> None:
         """
