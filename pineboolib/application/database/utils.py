@@ -242,7 +242,7 @@ def sql_insert(
         if isinstance(value_list_, str)
         else value_list_
         if isinstance(value_list_, (List, types.Array))
-        else [value_list_]
+        else [value_list_]  # type: ignore [list-item]
     )
 
     _field_list: Union[List[Any], types.Array] = (
