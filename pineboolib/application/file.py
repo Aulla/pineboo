@@ -41,11 +41,7 @@ class File(object):
         self.module = module
         self.filename = filename
         self.sha = sha
-        if filename.endswith(".qs.py"):
-            self.ext = ".qs.py"
-            self.name = os.path.splitext(os.path.splitext(filename)[0])[0]
-        else:
-            self.name, self.ext = os.path.splitext(filename)
+        self.name, self.ext = os.path.splitext(filename)
 
         self.filekey = (
             "%s/%s/file%s/%s/%s%s" % (db_name, module, self.ext, self.name, sha, self.ext)
