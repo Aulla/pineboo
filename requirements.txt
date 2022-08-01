@@ -1,4 +1,4 @@
-alembic==1.8.0
+alembic==1.8.1
 black==22.6.0
 clipboard==0.0.4
 coloredlogs==14.0
@@ -24,7 +24,7 @@ pympler
 python-barcode
 python-daemon
 qrcode[pil]
-sqlalchemy==1.4.0b1
+sqlalchemy==1.4.39
 sqlparse==0.3.1
 twine==3.1.1
 uharfbuzz>=0.25.0
