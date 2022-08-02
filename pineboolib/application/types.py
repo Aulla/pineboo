@@ -99,12 +99,17 @@ function anon(%s) {
     from .parsers.parser_qsa import flscriptparse, postparse, pytnyzer
     from importlib import util
 
+    module_name = "anon_%s" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")
+
     prog = flscriptparse.parse(qs_source)
     if prog is None:
         raise ValueError("Failed to convert to Python")
     tree_data = flscriptparse.calctree(prog, alias_mode=0)
     ast = postparse.post_parse(tree_data)
-    dest_filename = "%s/anon.py" % settings.CONFIG.value("ebcomportamiento/temp_dir")
+    dest_filename = "%s/%s.py" % (
+        settings.CONFIG.value("ebcomportamiento/temp_dir"),
+        module_name,
+    )
     # f1 = io.StringIO()
     if os.path.exists(dest_filename):
         os.remove(dest_filename)
@@ -114,7 +119,7 @@ function anon(%s) {
     pytnyzer.write_python_file(file_, ast)
     file_.close()
     module = None
-    module_path = "tempdata.anon"
+    module_path = "tempdata.%s" % (module_name)
 
     spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_path, dest_filename)
     if spec and spec.loader is not None:

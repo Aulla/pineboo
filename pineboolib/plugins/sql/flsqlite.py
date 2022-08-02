@@ -141,10 +141,10 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         return "%s(%s)" % (res_, leng) if leng else res_
 
-    def process_booleans(self, where: str) -> str:
-        """Process booleans fields."""
+    # def process_booleans(self, where: str) -> str:
+    #    """Process booleans fields."""
 
-        return where.replace("'true'", "1").replace("'false'", "0")
+    #    return where.replace("'true'", "1").replace("'false'", "0")
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True

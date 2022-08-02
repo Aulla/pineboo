@@ -250,15 +250,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if application.USE_INTERACTIVE_GUI:
             self._interactive_gui = gui_name
 
-    def formatValue(self, table: str, value: Any, upper: bool) -> Any:
+    def formatValue(self, type_: str, value: Any, upper: bool) -> Any:
         """Return a correctly formatted value to be assigned as a where filter."""
 
-        return self.driver().formatValue(table, value, upper)
+        return self.driver().formatValue(type_, value, upper)
 
-    def formatValueLike(self, table: str, value: Any, upper: bool) -> str:
+    def formatValueLike(self, type_: str, value: Any, upper: bool) -> str:
         """Return a correctly formatted value to be assigned as a WHERE LIKE filter."""
 
-        return self.driver().formatValueLike(table, value, upper)
+        return self.driver().formatValueLike(type_, value, upper)
 
     def lastActiveCursor(self) -> Optional["ISqlCursor"]:
         """Return the last active cursor in the sql driver."""

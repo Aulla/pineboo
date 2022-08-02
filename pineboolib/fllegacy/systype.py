@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import]
 
 from pineboolib.core.utils import utils_base, logging
 
-from pineboolib.core import settings, translate
+from pineboolib.core import decorators, settings, translate
 
 from pineboolib import application
 from pineboolib.application import types, process
@@ -63,13 +63,14 @@ class AQTimer(QtCore.QTimer):
 class AQGlobalFunctionsClass(QtCore.QObject):
     """AQSGlobalFunction class."""
 
-    functions_ = types.Array()
+    functions_: Dict[str, Callable]
     mappers_: "QtCore.QSignalMapper"
 
     def __init__(self):
         """Initialize."""
 
         super().__init__()
+        self.functions_ = types.Array()
         self.mappers_ = QtCore.QSignalMapper()
 
     def set(self, function_name: str, global_function: Callable) -> None:
@@ -1299,10 +1300,12 @@ class SysType(sysbasetype.SysBaseType):
 
         return valor_
 
-    def qsaExceptions(self):
+    @decorators.deprecated
+    def qsaExceptions(self) -> None:
         """Return QSA exceptions found."""
 
-        return application.PROJECT.conn_manager.qsaExceptions()
+        return
+        # return application.PROJECT.conn_manager.qsaExceptions()
 
     def serverTime(self) -> str:
         """Return time from database."""
@@ -1320,7 +1323,12 @@ class SysType(sysbasetype.SysBaseType):
         """Return xml with local changes."""
         ret = {}
         ret["size"] = 0
-        str_xml_update = utils_db.sql_select("flupdates", "filesdef", "actual='true'")
+        str_xml_update = utils_db.quick_sql_select(
+            "flupdates",
+            "filesdef",
+            "actual=%s"
+            % application.PROJECT.conn_manager.default().formatValue("bool", True, False),
+        )
         if not str_xml_update:
             return ret
         document_update = QtXml.QDomDocument()
@@ -1473,6 +1481,9 @@ class AbanQDbDumper(QtCore.QObject):
         self.widget_.resize(800, 600)
         # lay = qvboxlayout.QVBoxLayout(self.widget_, 6, 6)
         lay = qvboxlayout.QVBoxLayout(self.widget_)
+        lay.setContentsMargins(6, 6, 6, 6)
+        lay.setSpacing(6)
+
         frm = QtWidgets.QFrame(self.widget_)
         frm.setFrameShape(QtWidgets.QFrame.Shape.Box)
         frm.setLineWidth(1)
@@ -1480,6 +1491,8 @@ class AbanQDbDumper(QtCore.QObject):
 
         # lay_frame = qvboxlayout.QVBoxLayout(frm, 6, 6)
         lay_frame = qvboxlayout.QVBoxLayout(frm)
+        lay_frame.setContentsMargins(6, 6, 6, 6)
+        lay_frame.setSpacing(6)
         lbl = qlabel.QLabel(frm)
         lbl.setText(
             SysType.translate("Driver: %s")
