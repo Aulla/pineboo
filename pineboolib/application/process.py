@@ -133,10 +133,6 @@ class Process(ProcessBaseClass):
             argumentos = args[1:]
             self.setArguments(argumentos)
 
-    def start(self, *args: Any) -> None:
-        """Start the process."""
-        super().start()
-
     def stop(self) -> None:
         """Stop the process."""
         self.kill()
