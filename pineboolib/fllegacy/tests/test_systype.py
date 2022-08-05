@@ -176,7 +176,7 @@ class TestSysType(unittest.TestCase):
         self.assertEqual(list_extensions, [])
         self.assertEqual(sys.calculateShaGlobal(), "cfc09ed22ee2b16a0c571bb99f383b7dd4113553")
         changes = sys.localChanges()
-        self.assertEqual(changes["size"], 0)
+        self.assertEqual(changes["size"], 96)
         res_ = sys.xmlFilesDefBd()
         self.assertEqual(sys.diffXmlFilesDef(res_, res_)["size"], 0)
         self.assertTrue(res_)
