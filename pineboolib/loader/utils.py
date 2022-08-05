@@ -77,9 +77,7 @@ def monkey_patch_connect() -> None:
                 newslot = BoundSignal.slot_decorator(self, slot, stack)
             else:
                 newslot = slot
-            return BoundSignal._CONNECT(  # type: ignore [call-arg] # noqa: F821
-                self, newslot, type_, no_receiver_check
-            )
+            return BoundSignal._CONNECT(self, newslot)  # type: ignore [call-arg] # noqa: F821
 
         def emit(self: Any, *args: Any) -> Any:
             """Proxy original Qt Emit function for tracing signal emits."""
