@@ -1457,6 +1457,8 @@ class AbanQDbDumper(QtCore.QObject):
     ):
         """Inicialize."""
 
+        super().__init__()
+
         self._fun_log = self.addLog if fun_log is None else fun_log  # type: ignore
 
         self.db_ = application.PROJECT.aq_app.db().mainConn() if db_ is None else db_
@@ -1475,11 +1477,10 @@ class AbanQDbDumper(QtCore.QObject):
 
     def buildGui(self) -> None:
         """Build a Dialog for database dump."""
-        self.widget_ = qdialog.QDialog()
-        self.widget_.caption = SysType.translate("Copias de seguridad")
-        self.widget_.setModal(True)
+        self.widget_ = QtWidgets.QDialog(application.PROJECT.main_window)
+        self.widget_.setWindowTitle(SysType.translate("Copias de seguridad"))
         self.widget_.resize(800, 600)
-        # lay = qvboxlayout.QVBoxLayout(self.widget_, 6, 6)
+
         lay = qvboxlayout.QVBoxLayout(self.widget_)
         lay.setContentsMargins(6, 6, 6, 6)
         lay.setSpacing(6)
@@ -1524,7 +1525,7 @@ class AbanQDbDumper(QtCore.QObject):
         )
         self._label_dir_base.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)
         lay_aux.addWidget(self._label_dir_base)
-        self.pushbutton_change_dir = qpushbutton.QPushButton(SysType.translate("Cambiar"), frm)
+        self.pushbutton_change_dir = qpushbutton.QPushButton(SysType.translate("Cambiar"))
         self.pushbutton_change_dir.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Preferred
         )
@@ -1534,9 +1535,7 @@ class AbanQDbDumper(QtCore.QObject):
         )
         lay_aux.addWidget(self.pushbutton_change_dir)
         lay.addWidget(frm)
-        self.pb_init_dump = qpushbutton.QPushButton(
-            SysType.translate("INICIAR COPIA"), self.widget_
-        )
+        self.pb_init_dump = qpushbutton.QPushButton(SysType.translate("INICIAR COPIA"))
         self.pb_init_dump.clicked.connect(self.initDump)  # type: ignore [attr-defined]
         lay.addWidget(self.pb_init_dump)
         lbl = qlabel.QLabel(self.widget_)
@@ -1547,7 +1546,7 @@ class AbanQDbDumper(QtCore.QObject):
         self._ted_log.setAlignment(
             cast(
                 QtCore.Qt.AlignmentFlag,
-                QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter,
+                QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
             )
         )
         lay.addWidget(self._ted_log)
@@ -1561,11 +1560,9 @@ class AbanQDbDumper(QtCore.QObject):
         self.dumpDatabase()
         if gui:
             self.widget_.enable = True
+            SysType.infoMsgBox(self.state_.msg)
             if self.state_.ok:
-                SysType.infoMsgBox(self.state_.msg)
                 self.widget_.close()
-            else:
-                SysType.errorMsgBox(self.state_.msg)
 
     def genFileName(self) -> str:
         """Return a file name."""
@@ -1583,6 +1580,7 @@ class AbanQDbDumper(QtCore.QObject):
 
     def changeDirBase(self, dir_: Optional[str] = None) -> None:
         """Change base dir."""
+
         dir_base_path = dir_
         if not dir_base_path:
             dir_base_path = filedialog.FileDialog.getExistingDirectory(self._dir_base)
@@ -1619,18 +1617,11 @@ class AbanQDbDumper(QtCore.QObject):
         self.proc_ = process.Process()
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
-        # FIXME: Mejorar lectura linea a linea
-        cast(
-            QtCore.pyqtSignal, self.proc_.readyReadStandardOutput
-        ).connect(  # type: ignore [attr-defined] # noqa: F821
-            self.readFromStdout
-        )
-        cast(
-            QtCore.pyqtSignal, self.proc_.readyReadStandardError
-        ).connect(  # type: ignore [attr-defined] # noqa: F821
-            self.readFromStderr
-        )
-        self.proc_.start()
+
+        self.proc_.readyReadStandardOutput.connect(self.readFromStdout)
+        self.proc_.readyReadStandardError.connect(self.readFromStdout)
+
+        self.proc_.start(QtCore.QIODeviceBase.OpenModeFlag.ReadOnly)
 
         while self.proc_.running:
             SysType.processEvents()
@@ -1639,17 +1630,10 @@ class AbanQDbDumper(QtCore.QObject):
 
     def readFromStdout(self) -> None:
         """Read data from stdOutput."""
-
-        text = self.proc_.readLine().decode(self.encoding)
-        if text not in (None, ""):
-            self._fun_log(text)
-
-    def readFromStderr(self) -> None:
-        """Read data from stdError."""
-
-        text = self.proc_.readLine().decode(self.encoding)
-        if text not in (None, ""):
-            self._fun_log(text)
+        while self.proc_.canReadLine():
+            text = self.proc_.readLine().decode(self.encoding)
+            if text not in (None, ""):
+                self._fun_log(text)
 
     def dumpDatabase(self) -> bool:
         """Dump database to target specified by sql driver class."""
