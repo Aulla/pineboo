@@ -70,7 +70,7 @@ class AQGlobalFunctionsClass(QtCore.QObject):
         """Initialize."""
 
         super().__init__()
-        self.functions_ = types.Array()
+        self.functions_ = {}
         self.mappers_ = QtCore.QSignalMapper()
 
     def set(self, function_name: str, global_function: Callable) -> None:
@@ -1439,13 +1439,13 @@ class AbanQDbDumper(QtCore.QObject):
     _show_gui: bool
     _dir_base: str
     _file_name: str
-    widget_: "qdialog.QDialog"
+    widget_: "QtWidgets.QDialog"
     _label_dir_base: "qlabel.QLabel"
     pushbutton_change_dir: "qpushbutton.QPushButton"
     _ted_log: "qtextedit.QTextEdit"
     pb_init_dump: "qpushbutton.QPushButton"
-    state_: types.Array
-    _fun_log: Callable
+    state_: "types.Array"
+    _fun_log: "Callable"
     proc_: "process.Process"
 
     def __init__(
@@ -1556,10 +1556,10 @@ class AbanQDbDumper(QtCore.QObject):
 
         gui = self._show_gui and self.widget_ is not None
         if gui:
-            self.widget_.enable = False
+            self.widget_.setEnabled(False)
         self.dumpDatabase()
         if gui:
-            self.widget_.enable = True
+            self.widget_.setEnabled(True)
             SysType.infoMsgBox(self.state_.msg)
             if self.state_.ok:
                 self.widget_.close()
@@ -1618,8 +1618,8 @@ class AbanQDbDumper(QtCore.QObject):
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
 
-        self.proc_.readyReadStandardOutput.connect(self.readFromStdout)
-        self.proc_.readyReadStandardError.connect(self.readFromStdout)
+        self.proc_.readyReadStandardOutput.connect(self.readFromStdout)  # type: ignore [attr-defined]
+        self.proc_.readyReadStandardError.connect(self.readFromStdout)  # type: ignore [attr-defined]
 
         self.proc_.start(QtCore.QIODeviceBase.OpenModeFlag.ReadOnly)
 
