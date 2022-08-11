@@ -18,7 +18,7 @@ class Fltest3(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
         "alias": "Test table",
         "fields": [
             {
-                "name": "counter",
+                "name": "counter_field",
                 "alias": "Contador",
                 "pk": True,
                 "type": "string",
@@ -34,7 +34,7 @@ class Fltest3(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
                 "alias": "TimeZone field",
                 "type": "timestamp",
                 "null": False,
-                "default": "",
+                "default": "2000-01-01 00:00:00",
             },
             {
                 "name": "bool_field",
@@ -50,7 +50,7 @@ class Fltest3(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
 
     # --- Fields --->
 
-    counter = sqlalchemy.Column("counter", sqlalchemy.String(6), primary_key=True)
+    counter_field = sqlalchemy.Column("counter_field", sqlalchemy.String(6), primary_key=True)
     string_field = sqlalchemy.Column("string_field", sqlalchemy.String)
     timezone_field = sqlalchemy.Column("timezone_field", sqlalchemy.DateTime)
     bool_field = sqlalchemy.Column("bool_field", sqlalchemy.Boolean)

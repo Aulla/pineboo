@@ -1,5 +1,6 @@
 """Basemodel module."""
 
+from multiprocessing import context
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
@@ -52,6 +53,7 @@ class BaseModel(object):
     legacy_metadata: Dict[str, Any]
     _cached_bufferchanged: Dict[str, Any]
     serial: bool = True
+    counter: bool = True
     no_init: bool = False
 
     @classmethod
@@ -91,9 +93,13 @@ class BaseModel(object):
             )
 
         target._new_object = True
+        target.counter = True
 
         if "serial" in kwargs:
             target.serial = kwargs["serial"]
+
+        if "counter" in kwargs:
+            target.counter = kwargs["counter"]
 
         if "no_init" in kwargs:
             target.no_init = kwargs["no_init"]
@@ -151,6 +157,11 @@ class BaseModel(object):
                 if self._new_object:
                     if self.serial:
                         self.init_serial()
+
+                    if self.counter:
+                        for field in self.legacy_metadata["fields"]:
+                            if "counter" in field.keys() and field["counter"]:
+                                self.init_counter(field["name"])
 
                     if self._action and self._action._record_widget is not None:
                         iface = getattr(
@@ -926,6 +937,23 @@ class BaseModel(object):
                 .driver()
                 .nextSerialVal(self.__tablename__, self.pk_name),
             )
+
+    def init_counter(self, field_name: str) -> None:
+        """Initialice counter field."""
+
+        if getattr(self, field_name, None) is None and self._session is not None:
+            context_ = getattr(self._action, "_record_widget", None)
+            iface = getattr(context_, "iface", None) if context_ else None
+            func = getattr(iface, "calculateCounter", None) if iface else None
+            value = None
+            if func:
+                value = func()
+            else:
+                from pineboolib.application.database import utils
+
+                value = utils.next_counter(field_name, self.cursor)
+            if value is not None:
+                setattr(self, field_name, value)
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)

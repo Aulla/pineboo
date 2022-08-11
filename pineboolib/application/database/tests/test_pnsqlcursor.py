@@ -410,7 +410,7 @@ class TestValues(unittest.TestCase):
         self.assertTrue(cursor_2.commitBuffer())
         cursor_2.select()
         self.assertTrue(cursor_2.first())
-        self.assertTrue(cursor_2.valueBuffer("counter"), "000001")
+        self.assertTrue(cursor_2.valueBuffer("counter_field"), "000001")
         cursor_2.setModeAccess(cursor_2.Del)
         cursor_2.refreshBuffer()
         self.assertTrue(cursor_2.commitBuffer())

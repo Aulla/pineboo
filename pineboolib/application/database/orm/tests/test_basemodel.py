@@ -260,6 +260,16 @@ class TestBaseModel(unittest.TestCase):
         obj_2.descripcion = "Descripción de P"
         self.assertEqual(obj_.descripcion, "Descripción de P")
 
+    def test_counter(self) -> None:
+        """Test counter."""
+        qsa.thread_session_new()
+        obj_class = qsa.orm_("fltest3")
+        obj_ = obj_class()
+        self.assertEqual(obj_.counter_field, "000001")
+        obj_class = qsa.orm_("fltest3")
+        obj2_ = obj_class(counter=False)
+        self.assertEqual(obj2_.counter_field, None)
+
     def test_z_delete(self) -> None:
         """Test delete."""
 
