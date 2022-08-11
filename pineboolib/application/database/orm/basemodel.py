@@ -52,7 +52,7 @@ class BaseModel(object):
     legacy_metadata: Dict[str, Any]
     _cached_bufferchanged: Dict[str, Any]
     serial: bool = True
-    counter: bool = True
+    counter: bool = False
     no_init: bool = False
 
     @classmethod
@@ -92,7 +92,7 @@ class BaseModel(object):
             )
 
         target._new_object = True
-        target.counter = True
+        target.counter = False
 
         if "serial" in kwargs:
             target.serial = kwargs["serial"]
