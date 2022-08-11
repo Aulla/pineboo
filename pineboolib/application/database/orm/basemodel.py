@@ -1,6 +1,5 @@
 """Basemodel module."""
 
-from multiprocessing import context
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
