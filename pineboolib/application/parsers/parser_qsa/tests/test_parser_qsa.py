@@ -341,7 +341,68 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         self.assertEqual(simple_qs_py, simple_py)
 
+    def test_ignore_no_python_flag_disabled(self) -> None:
+        """Test no python flag."""
+        from pineboolib import application
+        from pineboolib.core.utils import utils_base
+        from pineboolib.application.parsers import parser_qsa
+        import os
+        import shutil
+
+        utils_base.FORCE_DESKTOP = False
+
+        print(
+            "Is library",
+            utils_base.is_library(),
+            "ignore no_python tags",
+            parser_qsa.IGNORE_NO_PYTHON_TAGS,
+        )
+        qs_path = fixture_path("no_python.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "no_python.qs")
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        shutil.copy(qs_path, tmp_path)
+
+        self.assertTrue(application.PROJECT.parse_script_list([tmp_path]))
+        qs_py_path = "%spy" % tmp_path[:-2]
+
+        utils_base.FORCE_DESKTOP = True
+
+        file_ = open(qs_py_path, "r", encoding="utf-8")
+        qs_py = file_.read()
+        self.assertTrue(qs_py.find("TYPE_INT_") > -1)
+        self.assertTrue(qs_py.find("TYPE_UINT_") == -1)
+
+    def test_ignore_no_python_flag_enabled(self) -> None:
+        """Test no python flag."""
+        from pineboolib import application
+        from pineboolib.core.utils import utils_base
+        from pineboolib.application.parsers import parser_qsa
+        import os
+        import shutil
+
+        utils_base.FORCE_DESKTOP = False
+        parser_qsa.IGNORE_NO_PYTHON_TAGS = True
+
+        qs_path = fixture_path("no_python.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "no_python2.qs")
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        shutil.copy(qs_path, tmp_path)
+
+        self.assertTrue(application.PROJECT.parse_script_list([tmp_path]))
+        qs_py_path = "%spy" % tmp_path[:-2]
+
+        parser_qsa.IGNORE_NO_PYTHON_TAGS = False
+        utils_base.FORCE_DESKTOP = True
+
+        file_ = open(qs_py_path, "r", encoding="utf-8")
+        qs_py = file_.read()
+        self.assertTrue(qs_py.find("TYPE_INT_") > -1)
+        self.assertTrue(qs_py.find("TYPE_UINT_") > -1)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+
         finish_testing()

@@ -2,5 +2,6 @@
 Parse QS files and write Python files.
 """
 
-USE_THREADS = True
-PARSER_QSA_VERSION = "1.3"
+USE_THREADS: bool = True
+PARSER_QSA_VERSION: str = "1.3"
+IGNORE_NO_PYTHON_TAGS: bool = False

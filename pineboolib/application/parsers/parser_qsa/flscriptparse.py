@@ -11,6 +11,8 @@ import re
 from typing import Any, Dict, List, Tuple, Optional, TextIO
 
 from pineboolib.core.utils import utils_base
+from pineboolib.application.parsers import parser_qsa
+
 
 import ply.yacc as yacc  # type: ignore
 import ply.lex as lex  # type: ignore
@@ -832,13 +834,14 @@ def printtree(
 
 def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     """Parse QS String."""
+
     global INPUT_DATA
     global ERROR_COUNT
     global SEEN_TOKENS
 
     if clean:
         data = clean_no_python_never(data)
-        if utils_base.is_library():
+        if utils_base.is_library() and not parser_qsa.IGNORE_NO_PYTHON_TAGS:
             data = clean_no_python(data)
     SEEN_TOKENS[:] = []
     parser.error = 0
