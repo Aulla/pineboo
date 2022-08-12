@@ -125,7 +125,7 @@ class FLManagerModules(object):
             LOGGER.warning("STATIC LOAD IS ENABLED!")
             event_handler = events.FileSystemEventHandler()
 
-            if flfiles_folder:
+            if flfiles_folder and application.USE_FLFILES_FOLDER_AS_STATIC_LOAD:
                 LOGGER.warning("USING FLFILES_FOLDER AS STATIC LOAD FOLDER!")
                 num_folders += 1 if self.addFolder(flfiles_folder, event_handler) else 0
             else:
