@@ -2576,10 +2576,7 @@ def parse_ast(elem: ET.Element, parent: Optional[ASTPython] = None) -> ASTPython
 def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}) -> ASTGenerator:
     """Create a new file template."""
 
-    from pineboolib.application import projectmodule, PINEBOO_VER
-
-    prj = projectmodule.Project()
-    prj.load_version()
+    from pineboolib.application import PINEBOO_VER
 
     yield "line", "# -*- coding: utf-8 -*-"
     yield "line", "# Translated with pineboolib %s" % PINEBOO_VER
