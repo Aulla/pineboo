@@ -194,6 +194,7 @@ QSA_KNOWN_ATTRS = {
     "QTabWidget",
     "QTable",
     "QTextEdit",
+    "QTextStream",
     "QTimeEdit",
     "QToolBar",
     "QToolBox",
