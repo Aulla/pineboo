@@ -601,13 +601,20 @@ class BaseModel(object):
                 if mode < 2:  # 0 insert,1 edit
                     # not Null fields.
                     if not field.allowNull():
-
-                        if getattr(self, field_name, None) is None:
+                        value = getattr(self, field_name, None)
+                        if value is None:
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Field %s.%s need a value"
                                 % (table_meta.name(), field_name),
                             )
+                        elif field.type() == "date" and not isinstance(value, datetime.date):
+                            self._error_manager(
+                                "_check_integrity",
+                                "INTEGRITY::Type Error %s.%s -> Value must be a datetime.date type, but found %s type"
+                                % (table_meta.name(), field_name, type(value)),
+                            )
+
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
 
                 relation_m1 = field.relationM1()
