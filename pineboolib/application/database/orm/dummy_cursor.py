@@ -111,7 +111,7 @@ class DummyCursor(object):
             type_ = meta_field.type()  # type: ignore [union-attr]
 
             if type_ == "date":
-                if isinstance(value, date.Date):
+                if isinstance(value, (date.Date, str)):
                     value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
         setattr(self._parent, field_name, value)
 
