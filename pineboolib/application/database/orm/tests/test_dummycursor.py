@@ -82,8 +82,12 @@ class TestDummyCursor(unittest.TestCase):
         obj_ = class_fltest2()
 
         fake_cursor = obj_.cursor
+        fake_cursor.setValueBuffer("date_field", "2000-01-01")
+        self.assertTrue(isinstance(fake_cursor.valueBuffer("date_field"), qsa.Date))
         fake_cursor.setValueBuffer("date_field", datetime.datetime.now())
         self.assertTrue(isinstance(fake_cursor.valueBuffer("date_field"), qsa.Date))
+        fake_cursor.setValueBuffer("time_field", "08:00:01")
+        self.assertTrue(isinstance(fake_cursor.valueBuffer("time_field"), str))
         now_qsa_date = qsa.Date()
         fake_cursor.setValueBuffer("date_field", now_qsa_date)
         self.assertEqual(str(now_qsa_date)[0:10], str(fake_cursor.valueBuffer("date_field"))[0:10])

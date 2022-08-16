@@ -614,6 +614,12 @@ class BaseModel(object):
                                 "INTEGRITY::Type Error %s.%s -> Value must be a datetime.date type, but found %s type"
                                 % (table_meta.name(), field_name, type(value)),
                             )
+                        elif field.type() == "time" and not isinstance(value, datetime.time):
+                            self._error_manager(
+                                "_check_integrity",
+                                "INTEGRITY::Type Error %s.%s -> Value must be a datetime.time type, but found %s type"
+                                % (table_meta.name(), field_name, type(value)),
+                            )
 
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
 

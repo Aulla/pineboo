@@ -111,8 +111,12 @@ class DummyCursor(object):
             type_ = meta_field.type()  # type: ignore [union-attr]
 
             if type_ == "date":
-                if isinstance(value, (date.Date, str)):
+                if not isinstance(value, datetime.date):
                     value = datetime.datetime.strptime(str(value)[0:10], "%Y-%m-%d").date()
+            elif type_ == "time":
+                if not isinstance(value, datetime.time):
+                    value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
+
         setattr(self._parent, field_name, value)
 
     def setValueBufferCopy(self, field_name: str, value: Any) -> Any:
