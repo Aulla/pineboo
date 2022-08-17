@@ -1211,7 +1211,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             value = getattr(lib, text, None)
             if value is not None:
                 return value
-        if text in ["GroupBoxPanel", "LineEditPanel"]:
+        if text in ["GroupBoxPanel", "LineEditPanel", "ToolBarPanel"]:
             return QtWidgets.QFrame.Shape.StyledPanel
         if text in ("Single", "SingleRow"):
             return QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
@@ -1219,7 +1219,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             return "QtWidgets.QTableView {selection-background-color: red;}"
         if text in ("MultiRow", "Multi"):
             return QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
-        if text in ("Reject"):
+        if text == "Reject":
             return False
 
         att_found = getattr(widget, text, None)
