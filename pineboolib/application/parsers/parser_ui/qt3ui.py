@@ -1203,6 +1203,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             QtCore.Qt.FocusPolicy,
             QtWidgets.QFrame.Shadow,
             QtWidgets.QFrame.Shape,
+            QtCore.Qt.TextFormat,
         ]
         for lib in libs_2:
             value = getattr(lib, text, None)
