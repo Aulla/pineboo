@@ -154,12 +154,10 @@ class QListView(QtWidgets.QWidget):
 
         self._cols_labels = []
 
-    @decorators.not_implemented_warn
-    def defaultRenameAction(self) -> bool:
+    def getDefaultRenameAction(self) -> bool:
         """Return default_rename_action enabled."""
         return self._default_rename_action
 
-    @decorators.not_implemented_warn
     def setDefaultRenameAction(self, default: bool) -> None:
         """Set default_rename_action enabled."""
         self._default_rename_action = default
@@ -171,3 +169,16 @@ class QListView(QtWidgets.QWidget):
             return cast(QtGui.QStandardItemModel, self._tree.model())
         else:
             raise Exception("No hay _tree")
+
+    def setRootIsDecorated(self, show: bool) -> None:
+        """Set tree root decorated."""
+
+        self._tree.setRootIsDecorated(show)
+
+    def getRootIsDecorated(self) -> bool:
+        """Return if tree is root decorated."""
+
+        return self._tree.rootIsDecorated()
+
+    rootIsDecorated = property(getRootIsDecorated, setRootIsDecorated)
+    defaultRenameAction = property(getDefaultRenameAction, setDefaultRenameAction)
