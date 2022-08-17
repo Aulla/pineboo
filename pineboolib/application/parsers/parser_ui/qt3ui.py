@@ -1204,6 +1204,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             QtWidgets.QFrame.Shadow,
             QtWidgets.QFrame.Shape,
             QtCore.Qt.TextFormat,
+            QtWidgets.QTabWidget.TabShape,
         ]
         for lib in libs_2:
             value = getattr(lib, text, None)
