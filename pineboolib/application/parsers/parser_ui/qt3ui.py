@@ -1217,6 +1217,8 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             return "QtWidgets.QTableView {selection-background-color: red;}"
         if text in ("MultiRow", "Multi"):
             return QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
+        if text in ("Reject"):
+            return False
 
         att_found = getattr(widget, text, None)
         if att_found is not None:
