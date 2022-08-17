@@ -2,7 +2,6 @@
 
 # -*- coding: utf-8 -*-
 from PyQt6 import QtCore, QtWidgets, QtGui  # type: ignore[import]
-from pineboolib.core import decorators
 
 from typing import Any, List, Optional, Union, cast
 
