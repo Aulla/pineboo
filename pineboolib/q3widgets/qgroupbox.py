@@ -67,7 +67,7 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
         """Set line width."""
 
         style_ = "%s#%s {  border: %spx solid gray; margin-top: 20px; border-radius: 3px;}" % (
-            __class__.__name__,
+            type(self).__name__,
             self.objectName(),
             width,
         )
