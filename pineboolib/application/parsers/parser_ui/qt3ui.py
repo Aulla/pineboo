@@ -1212,7 +1212,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             return QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
         if text == "FollowStyle":
             return "QtWidgets.QTableView {selection-background-color: red;}"
-        if text == "MultiRow":
+        if text in ("MultiRow", "Multi"):
             return QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
 
         att_found = getattr(widget, text, None)
