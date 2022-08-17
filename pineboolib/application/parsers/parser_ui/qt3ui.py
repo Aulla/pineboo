@@ -833,6 +833,8 @@ class LoadWidget:
             # Ignore "cursor" styles, this is for blinking cursor styles
             # not needed.
             return
+        elif pname == "iconText":
+            set_fn = widget.setWindowIconText
 
         else:
             set_fn = getattr(widget, setpname, None)
