@@ -64,6 +64,17 @@ class QComboBox(QtWidgets.QComboBox):
 
         super().setCurrentText(value)
 
+    def setSizeLimit(self, size: int) -> None:
+        """Set size limit."""
+
+        super().setMaxCount(size)
+
+    def getSizeLimit(self) -> int:
+        """Return size limit."""
+
+        return super().maxCount()
+
+    sizeLimit = property(getSizeLimit, setSizeLimit, None, "get/set size allowed items limits")
     currentItem = property(getCurrentItem, setCurrentItem, None, "get/set current item index")
     currentText: str = property(  # type: ignore [assignment] # noqa F821
         getCurrentText, setCurrentText, None, "get/set current text"
