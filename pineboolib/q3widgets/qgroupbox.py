@@ -66,9 +66,10 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
     def setLineWidth(self, width: int) -> None:
         """Set line width."""
 
-        style_ = (
-            "QGroupBox#%s {  border: %spx solid gray; margin-top: 20px; border-radius: 3px;}"
-            % (self.objectName(), width)
+        style_ = "%s#%s {  border: %spx solid gray; margin-top: 20px; border-radius: 3px;}" % (
+            __class__.__name__,
+            self.objectName(),
+            width,
         )
         self.line_width = width
         self.setStyleSheet(style_)
@@ -106,8 +107,6 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
     @decorators.not_implemented_warn
     def setFrameShadow(self, frame_shadow: None) -> None:
         """Set frame shadow."""
-
-        pass
 
     @decorators.not_implemented_warn
     def setFrameShape(self, frame_shape: None) -> None:
