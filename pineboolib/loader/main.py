@@ -283,7 +283,7 @@ def init_testing(level: int = 1000) -> None:
     _initialize_data()
 
 
-def finish_testing(delete_tmpdir=True) -> None:
+def finish_testing(delete_tmpdir: bool = True) -> None:
     """Clear data from pineboo project."""
 
     from pineboolib.application import qsadictmodules
