@@ -64,7 +64,10 @@ class FLSQLITE(isqldriver.ISqlDriver):
                 return self._connection
 
         if conn_ is None:
-            if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
+            if (
+                not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir)
+                and not self.db_filename == ":memory:"
+            ):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
             self.get_common_params()
