@@ -283,7 +283,7 @@ def init_testing(level: int = 1000) -> None:
     _initialize_data()
 
 
-def finish_testing() -> None:
+def finish_testing(delete_tmpdir=True) -> None:
     """Clear data from pineboo project."""
 
     from pineboolib.application import qsadictmodules
@@ -298,16 +298,17 @@ def finish_testing() -> None:
     qsadictmodules.QSADictModules.clean_all()
     application.PROJECT.conn_manager.finish()
 
-    LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
-    try:
+    if delete_tmpdir:
+        LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
+        try:
 
-        shutil.rmtree(application.PROJECT.tmpdir)
-    except Exception as error:
-        LOGGER.warning(
-            "No se ha podido borrar %s al limpiar cambios del test. %s",
-            application.PROJECT.tmpdir,
-            error,
-        )
+            shutil.rmtree(application.PROJECT.tmpdir)
+        except Exception as error:
+            LOGGER.warning(
+                "No se ha podido borrar %s al limpiar cambios del test. %s",
+                application.PROJECT.tmpdir,
+                error,
+            )
 
     if not os.path.exists(application.PROJECT.tmpdir):
         os.mkdir(application.PROJECT.tmpdir)
