@@ -333,15 +333,18 @@ class FLQPSQL(isqldriver.ISqlDriver):
     ):
         """Return string alter column."""
 
+        def_value: Optional[str] = field_meta.defaultValue()
+
         result = "op.alter_column('%s', '%s', %s)" % (
             table_name,
             field_meta.name(),
-            "type_=%s, existing_type=%s, postgresql_using='%s', nullable=%s"
+            "type_=%s, existing_type=%s, postgresql_using='%s', nullable=%s%s"
             % (
                 pnmtdparser.generate_field(field_meta, "sa"),
                 pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),  # type: ignore [arg-type]
                 "%s::%s" % (field_meta.name(), self.setType(field_meta.type())),
                 field_meta.allowNull(),
+                " ,server_default='%s'" % def_value if def_value is not None else "",
             ),
         )
 

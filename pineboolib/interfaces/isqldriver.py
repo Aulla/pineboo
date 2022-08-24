@@ -1322,13 +1322,17 @@ class ISqlDriver(object):
         # print("***", result)
         return result
 
-    def buildColumnData(self, field_metadata: "pnfieldmetadata.PNFieldMetaData") -> str:
+    def buildColumnData(self, field_meta: "pnfieldmetadata.PNFieldMetaData") -> str:
         """Return build data."""
-        data_result = pnmtdparser.generate_field(field_metadata, "sa")
-        result = "sa.Column('%s', %s, nullable=%s)" % (
-            field_metadata.name(),
+        data_result = pnmtdparser.generate_field(field_meta, "sa")
+
+        def_value: Optional[str] = field_meta.defaultValue()
+
+        result = "sa.Column('%s', %s, nullable=%s%s)" % (
+            field_meta.name(),
             data_result,
-            field_metadata.allowNull(),
+            field_meta.allowNull(),
+            " ,server_default='%s'" % def_value if def_value is not None else "",
         )
 
         return result
@@ -1341,13 +1345,16 @@ class ISqlDriver(object):
     ):
         """Return string alter column."""
 
+        def_value: Optional[str] = field_meta.defaultValue()
+
         return "op.alter_column('%s', '%s', %s)" % (
             table_name,
             field_meta.name(),
-            "type_=%s, existing_type=%s, nullable=%s"
+            "type_=%s, existing_type=%s, nullable=%s%s"
             % (
                 pnmtdparser.generate_field(field_meta, "sa"),
                 pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),  # type: ignore [arg-type]
                 field_meta.allowNull(),
+                " ,server_default='%s'" % def_value if def_value is not None else "",
             ),
         )
