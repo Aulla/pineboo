@@ -334,6 +334,13 @@ class FLQPSQL(isqldriver.ISqlDriver):
         """Return string alter column."""
 
         def_value: Optional[str] = field_meta.defaultValue()
+        text_default_value = ""
+        if not field_meta.allowNull():
+            text_default_value = " ,server_default='%s'" % (
+                def_value
+                if def_value is not None
+                else self.formatValue(field_meta.type(), None, False)
+            )
 
         result = "op.alter_column('%s', '%s', %s)" % (
             table_name,
@@ -344,7 +351,7 @@ class FLQPSQL(isqldriver.ISqlDriver):
                 pnmtdparser.resolve_type(db_value[1], db_value[3], "sa"),  # type: ignore [arg-type]
                 "%s::%s" % (field_meta.name(), self.setType(field_meta.type())),
                 field_meta.allowNull(),
-                " ,server_default='%s'" % def_value if def_value is not None else "",
+                text_default_value,
             ),
         )
 
