@@ -54,7 +54,7 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            LOGGER.warn(
+            LOGGER.warning(
                 "dummy_cursor.valueBuffer. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
@@ -79,7 +79,7 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            LOGGER.warn(
+            LOGGER.warning(
                 "dummy_cursor.valueBufferCopy. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
@@ -102,7 +102,7 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            LOGGER.warn(
+            LOGGER.warning(
                 "dummy_cursor.setValueBuffer. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )
@@ -125,7 +125,7 @@ class DummyCursor(object):
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
         if meta_field is None:
-            LOGGER.warn(
+            LOGGER.warning(
                 "dummy_cursor.setValueBufferCopy. Field metadata %s not found in %s table."
                 % (field_name, meta_table.name())
             )

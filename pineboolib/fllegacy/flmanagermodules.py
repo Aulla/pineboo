@@ -244,7 +244,7 @@ class FLManagerModules(object):
         try:
             return str(open(path_name, "rb").read(), encode_)
         except Exception:
-            LOGGER.warn("Error trying to read %r", path_name, exc_info=True)
+            LOGGER.warning("Error trying to read %r", path_name, exc_info=True)
             return ""
 
     def contentCached(self, file_name: str, sha_key=None) -> Optional[str]:

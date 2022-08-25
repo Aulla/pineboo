@@ -159,12 +159,12 @@ def main() -> None:
     for mpath, mname in module_files_in:
         xml_name = os.path.join(mpath, "%s.xml" % mname)
         if not os.path.exists(os.path.join(src_path, xml_name)):
-            LOGGER.warn("File not found %r. Ignoring module." % xml_name)
+            LOGGER.warning("File not found %r. Ignoring module." % xml_name)
             continue
         if os.sep in mpath:
             mpath_list = mpath.split(os.sep)
             if len(mpath_list) > 2:
-                LOGGER.warn("Path %r is not supported, maximum is depth 2" % mpath)
+                LOGGER.warning("Path %r is not supported, maximum is depth 2" % mpath)
                 continue
             mpath_parent = mpath_list[0]
             _touch_dir(os.path.join(dst_path, mpath_parent))
