@@ -560,6 +560,21 @@ class PNApplication(QtCore.QObject):
 
         DB_SIGNALS.notify_roll_back_transaction_ = value
 
+    def notifyBeginTransaction(self) -> bool:
+        """Return if notify begin transaction is enabled."""
+
+        return DB_SIGNALS.notify_begin_transaction_
+
+    def notifyEndTransaction(self) -> bool:
+        """Return if notify end transaction is enabled."""
+
+        return DB_SIGNALS.notify_end_transaction_
+
+    def notifyRollbackTransaction(self) -> bool:
+        """Return if notify rollback transaction is enabled."""
+
+        return DB_SIGNALS.notify_roll_back_transaction_
+
     @decorators.not_implemented_warn
     def printTextEdit(self, editor_):
         """Not implemented."""
