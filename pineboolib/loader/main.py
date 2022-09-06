@@ -287,6 +287,7 @@ def finish_testing(delete_tmpdir: bool = True) -> None:
     """Clear data from pineboo project."""
 
     from pineboolib.application import qsadictmodules
+    from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 
     application.PROJECT.conn_manager.manager().cleanupMetaData()
     application.PROJECT.actions = {}
@@ -297,6 +298,11 @@ def finish_testing(delete_tmpdir: bool = True) -> None:
 
     qsadictmodules.QSADictModules.clean_all()
     application.PROJECT.conn_manager.finish()
+    for item_name in list(pnormmodelsfactory.PROCESSED):  # Si es de sistema, no se elimina.
+        if item_name.startswith("fl"):
+            continue
+
+        pnormmodelsfactory.PROCESSED.remove(item_name)
 
     if delete_tmpdir:
         LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
