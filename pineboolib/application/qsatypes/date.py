@@ -229,7 +229,9 @@ class Date(object):
     def parse(cls, value: str) -> "Date":
         """Parse a ISO string into a date."""
         # return Date(value, "yyyy-MM-dd")
-        return datetime.datetime.strptime(value, "%Y-%m-%d").timestamp()
+        if "T" not in value:
+            value = "%sT00:00:00" % value
+        return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S").timestamp()
 
     def __str__(self) -> str:
         """Support for str()."""
