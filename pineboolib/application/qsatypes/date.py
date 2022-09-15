@@ -4,6 +4,7 @@ Module for Date type.
 from typing import Union, Optional, Any
 from PyQt6 import QtCore  # type: ignore[import]
 from pineboolib.application.utils.date_conversion import date_dma_to_amd
+import datetime
 
 
 class Date(object):
@@ -227,7 +228,8 @@ class Date(object):
     @classmethod
     def parse(cls, value: str) -> "Date":
         """Parse a ISO string into a date."""
-        return Date(value, "yyyy-MM-dd")
+        # return Date(value, "yyyy-MM-dd")
+        return datetime.datetime.strptime(value, "%Y-%m-%d").timestamp()
 
     def __str__(self) -> str:
         """Support for str()."""
