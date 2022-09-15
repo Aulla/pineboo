@@ -1,6 +1,7 @@
 """Test_date module."""
 
 import unittest
+import datetime
 
 
 class TestDate(unittest.TestCase):
@@ -44,4 +45,4 @@ class TestDate(unittest.TestCase):
         self.assertEqual(date2_.getDay(), 14)
 
         date3_ = date2_.parse("2019-06-02T00:00:00")
-        self.assertEqual(date3_, 1559426400.0)
+        self.assertEqual(datetime.datetime.strptime("2019-06-02", "%Y-%m-%d").timestamp(), date3_)
