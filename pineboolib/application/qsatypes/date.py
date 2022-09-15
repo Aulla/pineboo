@@ -226,7 +226,7 @@ class Date(object):
         return Date(self.date_.addYears(years).toString("yyyy-MM-dd"))
 
     @classmethod
-    def parse(cls, value: str) -> "Date":
+    def parse(cls, value: str) -> float:
         """Parse a ISO string into a date."""
         # return Date(value, "yyyy-MM-dd")
         if "T" not in value:
