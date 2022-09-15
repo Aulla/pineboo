@@ -43,5 +43,5 @@ class TestDate(unittest.TestCase):
         date2_.setDate(14)
         self.assertEqual(date2_.getDay(), 14)
 
-        date3_ = date2_.parse("2019-06-02")
-        self.assertEqual(date3_.getYear(), 2019)
+        date3_ = date2_.parse("2019-06-02T00:00:00")
+        self.assertEqual(date3_, 1559426400.0)
