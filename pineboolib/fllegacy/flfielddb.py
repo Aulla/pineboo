@@ -1352,7 +1352,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._editor_img = flpixmapview.FLPixmapView(self)
                 self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._editor_img.setSizePolicy(self.sizePolicy())
-                self._editor_img.setMaximumSize(147, 24)
+                self._editor_img.setMinimumSize(self.minimumSize())
+                self._editor_img.setMaximumSize(self.maximumSize())
                 # self._editor_img.setMinimumSize(self.minimumSize())
                 self._editor_img.setAutoScaled(True)
                 # self._widgets_layout.removeWidget(self._push_button_db)
@@ -1642,7 +1643,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._editor_img = flpixmapview.FLPixmapView(self)
                 self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._editor_img.setSizePolicy(self.sizePolicy())
-                self._editor_img.setMaximumSize(147, 24)
+                self._editor_img.setMaximumSize(self.maximumSize())
                 # self._editor_img.setMinimumSize(self.minimumSize())
                 self._editor_img.setAutoScaled(True)
                 if self._widgets_layout is None:
