@@ -253,7 +253,7 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
             ret = "int"
         elif t == "date":
             ret = "date"
-        elif t in ["mediumtext", "longtext"]:
+        elif t in ["mediumtext"]:
             ret = "stringlist"
         elif t == "tinyint":
             ret = "bool"
@@ -265,7 +265,7 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
             ret = "time"
         elif t == "timestamp":
             ret = "timestamp"
-        elif t == "json":
+        elif t in ["json", "longtext"]:
             ret = "json"
 
         else:
