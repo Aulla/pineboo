@@ -1004,6 +1004,7 @@ class TextEditOutput(QtWidgets.QPlainTextEdit):
         self.oldStderr = sys.stderr  # pylint: disable=invalid-name
         sys.stdout = self  # type: ignore [assignment] # noqa F821
         sys.stderr = self  # type: ignore [assignment] # noqa F821
+        self.setReadOnly(True)
 
     def write(self, txt: Union[bytearray, bytes, str]) -> None:
         """Set text."""
