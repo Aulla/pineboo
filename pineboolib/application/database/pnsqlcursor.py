@@ -1757,9 +1757,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             self.private_cursor.timer_.stop()
 
-        self.setFilter("")
         pos = self.atFrom()
-        self.select()
+
+        filter_ = self.filter()
+        if not filter_:
+            self.setFilter()
+
+        self.select(filter_)
         if not self.seek(pos, False, True):
             self.newBuffer.emit()
 
