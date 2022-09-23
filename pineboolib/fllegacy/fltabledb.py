@@ -7,7 +7,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata, pnrelationmetadata
 from pineboolib.application.qsatypes import sysbasetype
-
+from pineboolib.application import qsadictmodules
 from pineboolib.q3widgets import qtable
 
 from pineboolib.core.utils import utils_base
@@ -2844,14 +2844,23 @@ class FLTableDB(QtWidgets.QWidget):
             return
 
         refresh_data = False
+        msec_refresh = 200
 
-        msec_refresh = 400
-        colidx = self._table_records.visual_index_to_metadata_index(self._sort_column_1)
+        valid_idx = self._table_records.visual_index_to_column_index(
+            self._sort_column_1
+        )  # corrige posición con ocultos.
+        colidx = self._table_records.visual_index_to_metadata_index(
+            valid_idx
+        )  # posicion en metadata.
+
+
         if colidx is None:
             raise Exception("Unexpected: Column not found")
         field = self.cursor().model().metadata().indexFieldObject(colidx)
         base_filter = (
-            self.cursor().db().connManager().manager().formatAssignValueLike(field, chr_, True)
+            (self.cursor().db().connManager().manager().formatAssignValueLike(field, chr_, True))
+            if chr_
+            else None
         )
 
         id_module = (
@@ -2861,7 +2870,7 @@ class FLTableDB(QtWidgets.QWidget):
             .managerModules()
             .idModuleOfFile("%s.mtd" % self.cursor().metadata().name())
         )
-        function_qsa = id_module + ".tableDB_filterRecords_" + self.cursor().metadata().name()
+        function_qsa = "tableDB_filterRecords_" + self.cursor().metadata().name()
 
         vargs = []
         vargs.append(self.cursor().metadata().name())
@@ -2869,21 +2878,14 @@ class FLTableDB(QtWidgets.QWidget):
         vargs.append(field.name())
         vargs.append(base_filter)
 
-        if function_qsa:
-            msec_refresh = 200
-            ret = None
-            try:
+        iface = qsadictmodules.from_project(id_module).iface
+        func_ = getattr(iface, function_qsa, None)
+        if func_:
+            LOGGER.debug("function_qsa:%s.%s:", (id_module, function_qsa))
+            ret = func_(*vargs)
 
-                ret = application.PROJECT.call(function_qsa, vargs, None, False)
-                LOGGER.debug("function_qsa:%s:", function_qsa)
-            except Exception:
-                pass
-            else:
-                if ret is not isinstance(ret, bool):
-                    base_filter = ret
-                else:
-                    if not chr_:
-                        base_filter = None
+            if ret is not isinstance(ret, bool):
+                base_filter = ret
 
         self.refreshDelayed(msec_refresh, refresh_data)
         self._filter = base_filter or ""
