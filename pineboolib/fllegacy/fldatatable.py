@@ -721,7 +721,9 @@ class FLDataTable(QtWidgets.QTableView):
                     else:
                         filter_ = self.filter_
 
-            self.cursor_.setFilter(filter_)
+            self.cursor_.setMainFilter(filter_)
+            self.cursor_.setFilter()
+
             if self.sort_:
                 self.cursor_.setSort(self.sort_)
 
