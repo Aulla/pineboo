@@ -84,14 +84,15 @@ class DgiQt(dgi_schema.DgiSchema):
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
             if parent is None:
                 parent = QtWidgets.QApplication.activeWindow()
-            return QtWidgets.QMessageBox.warning(
+            return QtWidgets.QMessageBox.question(
                 parent,
                 title,
                 text,
                 cast(
                     QtWidgets.QMessageBox.StandardButton,
                     QtWidgets.QMessageBox.StandardButton.Yes
-                    | QtWidgets.QMessageBox.StandardButton.No,
+                    | QtWidgets.QMessageBox.StandardButton.No
+                    | QtWidgets.QMessageBox.StandardButton.Yes,
                 ),
             )
 
