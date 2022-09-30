@@ -276,11 +276,11 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
     def vacuum(self):
         """Vacuum tables."""
         table_names = self.db_.tables("Tables")
-        self._connection.connection.set_isolation_level(0)
+        # self._connection.connection.set_isolation_level(0)
         for table_name in table_names:
             if self.db_.connManager().manager().metadata(table_name) is not None:
                 self.execute_query("ANALYZE TABLE %s" % table_name)
-        self._connection.connection.set_isolation_level(1)
+        # self._connection.connection.set_isolation_level(1)
 
     def getAlternativeConn(
         self, name: str, host: str, port: int, usern: str, passw_: str
