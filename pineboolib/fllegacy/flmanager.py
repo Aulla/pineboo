@@ -24,6 +24,7 @@ from pineboolib import logging, application
 from . import flutil
 
 import copy
+import os
 
 from xml.etree import ElementTree
 
@@ -1410,13 +1411,23 @@ class FLManager(QtCore.QObject, IManager):
                 else "fllarge_" + ref_key.split("@")[1]
             )
 
+            conn = application.PROJECT.conn_manager.mainConn()
+            cache_dir = os.path.join(application.PROJECT.tmpdir, "cache", conn.DBName(), "cacheXPM")
+            if not os.path.exists(cache_dir):
+                os.mkdir(cache_dir)
+
+            file_name = os.path.join(cache_dir, "%s.xpm" % ref_key)
+
+            if os.path.exists(file_name):
+                return file_name
+
             if self.existsTable(table_name):
                 qry = pnsqlquery.PNSqlQuery(None, "dbAux")
                 qry.setSelect("contenido")
                 qry.setFrom(table_name)
                 qry.setWhere("refkey = '%s'" % ref_key)
                 if qry.exec_() and qry.first():
-                    return xpm.cache_xpm(qry.value(0))
+                    return xpm.cache_xpm(qry.value(0), ref_key)
 
         return None
 
