@@ -9,7 +9,7 @@ from pineboolib import logging, application
 LOGGER = logging.get_logger(__name__)
 
 
-def cache_xpm(value: str) -> str:
+def cache_xpm(value: str, xpm_name: str = "") -> str:
     """
     Return a path to a file with the content of the specified string.
 
@@ -21,8 +21,9 @@ def cache_xpm(value: str) -> str:
         LOGGER.warning("the value is empty!")
         return ""
 
-    xpm_name = value[: value.find("[]")]
-    xpm_name = xpm_name[xpm_name.rfind(" ") + 1 :]
+    if not xpm_name:
+        xpm_name = value[: value.find("[]")]
+        xpm_name = xpm_name[xpm_name.rfind(" ") + 1 :]
 
     conn = application.PROJECT.conn_manager.mainConn()
     if conn is None:
