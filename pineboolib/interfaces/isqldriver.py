@@ -1012,6 +1012,7 @@ class ISqlDriver(object):
         )
 
         for number, table_fllarge in enumerate(fllarge_tables_list):
+
             util.setLabelText(util.translate("application", "Revisando tabla %s" % table_fllarge))
 
             sql = "SELECT refkey FROM %s WHERE 1 = 1" % table_fllarge
@@ -1019,8 +1020,7 @@ class ISqlDriver(object):
             old_target = ""
             metadata_target = None
 
-            for line in list(cursor_qry1):
-
+            for num, line in enumerate(list(cursor_qry1)):
                 target = line[0].split("@")[1]
                 found = False
                 if target != old_target:
@@ -1035,11 +1035,14 @@ class ISqlDriver(object):
                         if found:
                             break
                         if field.type() == "pixmap":
-                            sql = "SELECT %s FROM %s WHERE 1 = 1" % (
+                            sql = "SELECT %s FROM %s WHERE %s" % (
                                 field.name(),
                                 target,
+                                "1 = 1"
+                                if multi_fllarge
+                                else "%s=%s"
+                                % (field.name(), self.formatValue("string", line[0], False)),
                             )  # 1 a 1 , si busco especifico me da problemas mssql
-
                             cursor_finder: Iterable = conn_dbaux.execute_query(sql) or []
                             for result_finder in list(cursor_finder):
                                 if result_finder[0] == line[0]:
@@ -1052,7 +1055,7 @@ class ISqlDriver(object):
                         fllarge_to_delete[table_fllarge].append(line[0])
 
             util.setProgress(number)
-
+            QtWidgets.QApplication.processEvents()
         util.destroyProgressDialog()
 
         util.createProgressDialog(
@@ -1319,7 +1322,7 @@ class ISqlDriver(object):
                     table_metadata.field(field_name)  # type: ignore [arg-type]
                 )
                 result["upgrade"].append("op.add_column('%s', %s)" % (table_name, col_data))
-        # print("***", result)
+
         return result
 
     def buildColumnData(self, field_meta: "pnfieldmetadata.PNFieldMetaData") -> str:
