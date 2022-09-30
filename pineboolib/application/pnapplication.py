@@ -58,6 +58,7 @@ class PNApplication(QtCore.QObject):
 
     op_check_update_: bool
     style: bool
+    flLargeMode: Optional[bool]
 
     init_single_fl_large: bool
     show_debug_: bool
@@ -98,6 +99,7 @@ class PNApplication(QtCore.QObject):
         self.init_single_fl_large = False
         self.show_debug_ = True  # FIXME
         self.script_entry_function_ = ""
+        self.flLargeMode = None
 
         self.acl_ = None
         # self.fl_factory_ = FLObjectFactory() # FIXME para un futuro
@@ -754,9 +756,10 @@ class PNApplication(QtCore.QObject):
 
         @return True (Tabla única), False (Múltiples tablas)
         """
-
-        ret = utils.sql_select("flsettings", "valor", "flkey='FLLargeMode'")
-        return False if ret in ["True", True] else True
+        if self.flLargeMode is None:
+            ret = utils.sql_select("flsettings", "valor", "flkey='FLLargeMode'")
+            self.flLargeMode = False if ret in ["True", True] else True
+        return self.flLargeMode
 
     def msgBoxWarning(self, text: str, _gui: Any) -> None:
         """Display warning."""
