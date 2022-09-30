@@ -370,6 +370,10 @@ class SqlInspector(object):
             else:
                 tables_list = list_sql[index_from + 1 :]
 
+            if "group" in tables_list:
+                index_group_by = tables_list.index("group")
+                tables_list = tables_list[:index_group_by]
+
             tablas: List[str] = []
             self._alias = {}
             jump = 0
@@ -377,7 +381,6 @@ class SqlInspector(object):
             prev_ = ""
             last_was_table = False
             for table in tables_list:
-
                 if table == "cast":
                     jump += 3
                     last_was_table = False
@@ -391,33 +394,29 @@ class SqlInspector(object):
                 if table.find(")") > -1:
                     last_was_table = False
                     continue
-                # if next_is_alias:
-                #    alias[t] = next_is_alias
-                #    next_is_alias = None
-                #    prev_ = t
-                #    continue
-
-                # elif t in ("inner", "on"):
-                #    print("Comprobando")
-                #    if prev_ not in tablas:
-                #        alias[prev_] = tablas[:-1]
 
                 elif table == "on":
                     jump = 3
                     prev_ = table
                     last_was_table = False
+                    continue
 
                 elif table in ("left", "join", "right", "inner", "outer"):
                     prev_ = table
                     last_was_table = False
                     continue
 
-                # elif t == "on":
-                # jump = 3
-                #    prev_ = t
-                #    continue
+                elif table in ("-", "+"):
+                    last_was_table = False
+                    continue
+
+                elif table == "interval":
+                    jump = 1
+                    last_was_table = False
+                    continue
+
                 elif table == "as":
-                    #    next_is_alias = True
+
                     last_was_table = True
                     continue
 

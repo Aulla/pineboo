@@ -633,6 +633,27 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
         self.assertEqual(qry.sql_inspector.table_names(), ["crm_contactos", "ss_tratos"])
 
+    def test_interval(self) -> None:
+        """Test interval special word."""
+
+        sql = (
+            "SELECT fam.codfamilia, fam.descripcion, SUM(lf.pvptotal) as facturacion"
+            + " FROM familias fam INNER JOIN articulos a ON fam.codfamilia = a.codfamilia"
+            + " INNER JOIN lineasfacturascli lf ON lf.referencia = a.referencia INNER JOIN"
+            + " facturascli f ON lf.idfactura = f.idfactura AND f.fecha > "
+            + "(current_date - INTERVAL '12 months') GROUP BY fam.codfamilia, fam.descripcion"
+            + " HAVING SUM(lf.pvptotal) > 0 ORDER BY facturacion DESC;"
+        )
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.sql_inspector.set_sql(sql)
+        qry.sql_inspector.resolve()
+        print("*", qry.sql_inspector.table_names())
+        self.assertEqual(
+            qry.sql_inspector.table_names(),
+            ["familias", "articulos", "lineasfacturascli", "facturascli"],
+        )
+
     def test_as_in_select(self) -> None:
         """Test as in select."""
         sql = (
