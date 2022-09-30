@@ -389,6 +389,9 @@ class PNConnectionManager(QtCore.QObject):
                 except exc.InvalidRequestError:
                     if session.transaction is None:
                         is_valid = True
+                except AttributeError:
+                    if session.transaction is None:
+                        is_valid = True
 
             except Exception as error:
                 if raise_error:
