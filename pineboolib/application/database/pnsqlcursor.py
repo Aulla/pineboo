@@ -309,7 +309,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param filter_ String containing the filter in SQL WHERE format (excluding WHERE)
         @param do_refresh By default, refresh the cursor afterwards. Set to False to avoid this.
         """
-
         if self.private_cursor._model:
             self.private_cursor._model.where_filters["main-filter"] = filter_
             if do_refresh:
@@ -2147,7 +2146,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     @decorators.pyqt_slot()
     def select(
-        self, final_filter: str = "", sort: Optional[str] = None
+        self, final_filter: Optional[str] = None, sort: Optional[str] = None
     ) -> bool:  # sort = QtCore.QSqlIndex()
         """
         Execute the filter specified in the cursor and refresh the information of the affected records.
@@ -2173,14 +2172,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         #    else:
         #        finalFilter = _filter
 
-        if (
-            self.private_cursor.cursor_relation_
-            and self.private_cursor.cursor_relation_.modeAccess() == self.Insert
-            and not self.curFilter()
-        ):
-            final_filter = "1 = 0"
-
-        if final_filter:
+        if self.private_cursor.cursor_relation_:
+            if (
+                self.private_cursor.cursor_relation_.modeAccess() == self.Insert
+                and not self.curFilter()
+            ):
+                final_filter = "1 = 0"
+            if final_filter:
+                self.setFilter(final_filter)
+        else:
             self.setFilter(final_filter)
 
         if sort:
