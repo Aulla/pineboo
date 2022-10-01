@@ -62,7 +62,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     parent_view: Optional["fldatatable.FLDataTable"]
     sql_str = ""
     _can_fetch_more_rows: bool
-    _curname: str
+
     _parent: "isqlcursor.ISqlCursor"
     _initialized: Optional[
         bool
@@ -84,13 +84,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     _current_row_index: int
     _tablename: str
     _order: str
-    grid_row_tmp: Dict[int, List[Any]]
 
     # _data_proxy: List[Callable]
     _data_proxy: Optional["ProxyIndex"]
 
-    _last_grid_obj: Any
-    _lost_grid_row: int
+    _grid_obj: Dict[int, Any]
 
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
@@ -156,20 +154,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.sql_str = ""
         self._tablename = ""
         self._order = ""
-        self._curname = ""
 
-        # self.timer = QtCore.QTimer()
-        # self.timer.timeout.connect(self.updateRows)
-        # self.timer.start(1000)
-
-        # self._can_fetch_more_rows = True
         self._disable_refresh = False
         self._initialized = None
-        self.grid_row_tmp = {}
-        # self._data_proxy = []
-        self._data_proxy = None
 
-        # self.refresh()
+        self._data_proxy = None
 
         if self.metadata().isQuery():
             query = self.conn_manager.manager().query(self.metadata().query())
@@ -179,8 +168,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         else:
             self._tablename = self.metadata().name()
 
-        self._last_grid_obj = None
-        self._last_grid_row = -1
+        self._grid_obj = {}
 
     def disable_refresh(self, disable: bool) -> None:
         """
@@ -271,17 +259,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         _type = field.type()
         res_color_function: List[str] = []
 
-        # print("***", self._last_grid_row, row)
-        if self._last_grid_row != row or (
-            self._last_grid_obj is not None and inspect(self._last_grid_obj).expired
-        ):
-            self._last_grid_row = row
-            self._last_grid_obj = self.get_obj_from_row(row)
+        obj_ = self.get_obj_from_row(row)
 
-        result = getattr(self._last_grid_obj, field.name(), None)
+        result = getattr(obj_, field.name(), None)
 
         if _type == "check":
-            primary_key = getattr(self._last_grid_obj, self.metadata().primaryKey())
+            primary_key = getattr(obj_, self.metadata().primaryKey())
             if primary_key not in self._check_column.keys():
                 result = QtWidgets.QCheckBox()
                 self._check_column[primary_key] = result
@@ -667,8 +650,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         ) and self.rowCount():
             return
 
-        self._last_grid_row = -1
-        self._last_grid_obj = None
+        self._grid_obj = {}
         self._parent.clear_buffer()
 
         where_filter = self.buildWhere()
@@ -908,18 +890,22 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             pk_value = self._data_proxy[row]
             session_ = self.session
 
-            query = orm_utils.DynamicFilter(
-                query=session_.query(self._parent._cursor_model),
-                model_class=self._parent._cursor_model,
-            )
-            query.set_filter_condition_from_string(
-                "%s = %s"
-                % (self.metadata().primaryKey(), str(pk_value).replace(" ", "_|_space_|_"))
-            )
-            try:
-                return query.return_query().first()
-            except Exception as error:
-                raise Exception("get_object_from_row %s (%s) : %s" % (row, pk_value, error))
+            if row not in self._grid_obj.keys() or inspect(self._grid_obj[row]).expired:
+
+                query = orm_utils.DynamicFilter(
+                    query=session_.query(self._parent._cursor_model),
+                    model_class=self._parent._cursor_model,
+                )
+                query.set_filter_condition_from_string(
+                    "%s = %s"
+                    % (self.metadata().primaryKey(), str(pk_value).replace(" ", "_|_space_|_"))
+                )
+                try:
+                    self._grid_obj[row] = query.return_query().first()
+                except Exception as error:
+                    raise Exception("get_object_from_row %s (%s) : %s" % (row, pk_value, error))
+
+            return self._grid_obj[row]
 
         return None
 
