@@ -108,6 +108,11 @@ class FormInternalObj(qsa.FormDBWidget):
         self.ui_.findChild(QtWidgets.QWidget, "cb_dbadmin").setChecked(  # type: ignore [attr-defined]
             self.read_local_value("dbadmin_enabled")
         )
+
+        self.ui_.findChild(QtWidgets.QWidget, "cb_preping").setChecked(  # type: ignore [attr-defined]
+            self.read_local_value("preping")
+        )
+
         valor = self.read_local_value("autoComp")
         auto_complete = "Siempre"
         if not valor or valor == "OnDemandF4":
@@ -286,6 +291,9 @@ class FormInternalObj(qsa.FormDBWidget):
         )
         self.write_local_value(
             "dbadmin_enabled", self.ui_.findChild(QtWidgets.QWidget, "cb_dbadmin").isChecked()  # type: ignore [attr-defined]
+        )
+        self.write_local_value(
+            "preping", self.ui_.findChild(QtWidgets.QWidget, "cb_preping").isChecked()  # type: ignore [attr-defined]
         )
 
         valor = self.ui_.findChild(QtWidgets.QWidget, "cbAutoComp").currentText()  # type: ignore [attr-defined]

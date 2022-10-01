@@ -45,6 +45,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
         self._text_like = ""
         self._text_cascade = ""
         self._parse_porc = False
+        self._can_use_preping = False
 
         self._sqlalchemy_name = "sqlite"
 

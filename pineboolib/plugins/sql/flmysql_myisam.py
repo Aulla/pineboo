@@ -39,7 +39,7 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
         self._text_like = " "
         self._create_isolation = False
         self._use_create_table_save_points = False
-        self._queqe_params = {"pool_recycle": 1800, "pool_pre_ping": True}
+        self._queqe_params = {"pool_recycle": 1800}
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"

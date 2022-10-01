@@ -27,13 +27,13 @@
        <item>
         <widget class="QTabWidget" name="tbwLocales">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabControles">
           <attribute name="title">
            <string>Controles</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
             <widget class="QGroupBox" name="gbxFLTable">
              <property name="title">
@@ -243,26 +243,27 @@
              <property name="title">
               <string>Modo de trabajo</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_5">
-              <property name="spacing">
-               <number>2</number>
-              </property>
-              <property name="leftMargin">
-               <number>2</number>
-              </property>
-              <property name="topMargin">
-               <number>2</number>
-              </property>
-              <property name="rightMargin">
-               <number>2</number>
-              </property>
-              <property name="bottomMargin">
-               <number>2</number>
-              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
                <widget class="QCheckBox" name="cb_dbadmin">
                 <property name="text">
                  <string>Usar en modo DBAdmin. Habilita menú de sistema y funciones en la gestión de tablas.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_7">
+             <property name="title">
+              <string>SQL</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QCheckBox" name="cb_preping">
+                <property name="text">
+                 <string>Usar pre ping para conexión segura.</string>
                 </property>
                </widget>
               </item>

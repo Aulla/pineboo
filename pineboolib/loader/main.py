@@ -372,6 +372,9 @@ def exec_main(options: "optparse.Values") -> int:
         application.PROJECT._db_admin_mode = False
         settings.CONFIG.set_value("application/dbadmin_enabled", False)
 
+    if options.enable_preping:
+        settings.CONFIG.set_value("application/preping", True)
+
     if options.main_form:
         settings.CONFIG.set_value("ebcomportamiento/main_form_name", options.main_form)
 

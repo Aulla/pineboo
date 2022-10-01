@@ -138,6 +138,15 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         default=False,
         help="Enables Quick mode",
     )
+
+    parser.add_option(
+        "--preping",
+        action="store_true",
+        dest="enable_preping",
+        default=False,
+        help="Enables SQL connections preping",
+    )
+
     parser.add_option(
         "--no-x",
         action="store_false",

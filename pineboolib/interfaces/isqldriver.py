@@ -11,7 +11,7 @@ from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.parsers.parser_mtd import pnmtdparser
-
+from pineboolib.core import settings
 from pineboolib.application import qsadictmodules
 
 from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
@@ -87,6 +87,7 @@ class ISqlDriver(object):
     _sp_level: int
     _use_altenative_isolation_level: bool
     _use_create_table_save_points: bool
+    _can_use_preping: bool
 
     def __init__(self):
         """Inicialize."""
@@ -119,6 +120,7 @@ class ISqlDriver(object):
         self._sp_level = 0
         self._use_altenative_isolation_level = False
         self._use_create_table_save_points = True
+        self._can_use_preping = True
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -1256,6 +1258,9 @@ class ISqlDriver(object):
 
         for key, value in self._queqe_params.items():
             LOGGER.debug("    * %s = %s", key, value)
+
+        if self._can_use_preping and settings.CONFIG.value("ebcomportamiento/preping", False):
+            self._queqe_params["pool_pre_ping"] = True
 
     def listen_engine(self) -> None:
         """Listen engine events."""
