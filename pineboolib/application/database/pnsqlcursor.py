@@ -309,6 +309,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param filter_ String containing the filter in SQL WHERE format (excluding WHERE)
         @param do_refresh By default, refresh the cursor afterwards. Set to False to avoid this.
         """
+
         if self.private_cursor._model:
             self.private_cursor._model.where_filters["main-filter"] = filter_
             if do_refresh:
@@ -2179,8 +2180,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             final_filter = "1 = 0"
 
-        # if final_filter:
-        self.setFilter(final_filter)
+        if final_filter:
+            self.setFilter(final_filter)
 
         if sort:
             self.private_cursor._model.setSortOrder(sort)
