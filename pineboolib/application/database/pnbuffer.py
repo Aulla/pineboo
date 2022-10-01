@@ -73,7 +73,7 @@ class PNBuffer(object):
 
     def prime_insert(self, row: int = None) -> None:
         """
-        Set the initial values ​​of the buffer fields.
+        Set the initial values of the buffer fields.
 
         @param row = cursor line.
         """

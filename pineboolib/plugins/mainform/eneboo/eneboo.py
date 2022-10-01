@@ -327,10 +327,12 @@ class MainForm(imainwindow.IMainWindow):
 
         elif isinstance(event, AQS.Close):
             if isinstance(obj_, MainForm):
-                self.main_widget.setDisabled(True)
+                if self.main_widget:
+                    self.main_widget.setDisabled(True)
                 ret = self.exit()
                 if not ret:
-                    self.main_widget.setDisabled(False)
+                    if self.main_widget:
+                        self.main_widget.setDisabled(False)
                     event.ignore()
 
                 return True
