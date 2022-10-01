@@ -463,10 +463,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     result = QtGui.QBrush(QtCore.Qt.GlobalColor.red)
 
             elif _type == "check":
-                obj_ = self._check_column[primary_key]
+                obj_ = self._check_column[primary_key]  # type: ignore [assignment]
                 result = (
                     QtGui.QBrush(QtCore.Qt.GlobalColor.green)
-                    if obj_.isChecked()
+                    if obj_.isChecked()  # type: ignore [union-attr]
                     else QtGui.QBrush(QtCore.Qt.GlobalColor.white)
                 )
 
