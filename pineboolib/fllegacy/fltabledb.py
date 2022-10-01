@@ -2853,7 +2853,6 @@ class FLTableDB(QtWidgets.QWidget):
             valid_idx
         )  # posicion en metadata.
 
-
         if colidx is None:
             raise Exception("Unexpected: Column not found")
         field = self.cursor().model().metadata().indexFieldObject(colidx)
