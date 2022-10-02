@@ -465,7 +465,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
         else:
-
             self.private_cursor.buffer_.set_value(field_name, value)
 
         self.bufferChanged.emit(field_name)
@@ -1758,6 +1757,17 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor.timer_.stop()
 
         pos = self.atFrom()
+
+        # ---> SI NO METEMOS ESTO EL AUTOCOMPLETADO EN FIELDS PETA
+        base_filter = self.baseFilter()
+        current_filter = self.filter()
+
+        if base_filter not in current_filter:
+
+            self.setFilter()
+
+        # <---
+
         self.select()
 
         if not self.seek(pos, False, True):
@@ -2156,21 +2166,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return True if ok or False.
         """
-        # _filter = _filter if _filter is not None else self.filter()
+
         if not self.private_cursor.metadata_:
             return False
-
-        # bFilter = self.baseFilter()
-        # finalFilter = bFilter
-        # if _filter:
-        #    if bFilter:
-        #        if _filter not in bFilter:
-        #            finalFilter = "%s AND %s" % (bFilter, _filter)
-        #        else:
-        #            finalFilter = bFilter
-        #
-        #    else:
-        #        finalFilter = _filter
 
         if self.private_cursor.cursor_relation_:
             if (
@@ -2178,16 +2176,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 and not self.curFilter()
             ):
                 final_filter = "1 = 0"
-            if final_filter:
-                self.setFilter(final_filter)
-        else:
-            self.setFilter(final_filter)
+
+        self.private_cursor._model.where_filters["select_filter"] = final_filter
 
         if sort:
             self.private_cursor._model.setSortOrder(sort)
 
         self.private_cursor._model.refresh()
         self.private_cursor._currentregister = -1
+        self.private_cursor._model.where_filters["select_filter"] = ""
 
         if self.modeAccess() == self.Browse and self.private_cursor.cursor_relation_:
             self.private_cursor._currentregister = self.atFrom()

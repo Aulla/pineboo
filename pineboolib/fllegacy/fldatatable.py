@@ -689,7 +689,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         if self.cursor_ is not None:
             fix_column = self.visual_index_to_metadata_index(column)
-            mtdfield = self.visual_index_to_field(fix_column)
+            mtdfield = self.model().metadata().indexFieldObject(fix_column)
             if mtdfield is not None:
                 self.sort_ = "%s %s" % (mtdfield.name(), "ASC" if not order else "DESC")
 
