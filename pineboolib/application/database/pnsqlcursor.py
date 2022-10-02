@@ -2146,7 +2146,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     @decorators.pyqt_slot()
     def select(
-        self, final_filter: Optional[str] = None, sort: Optional[str] = None
+        self, final_filter: str = "", sort: Optional[str] = None
     ) -> bool:  # sort = QtCore.QSqlIndex()
         """
         Execute the filter specified in the cursor and refresh the information of the affected records.
