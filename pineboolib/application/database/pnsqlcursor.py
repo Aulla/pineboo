@@ -2170,6 +2170,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.metadata_:
             return False
 
+        if not self.filter():  # Con esto aplicamos el filtro existente , relaciones ....
+            self.setFilter()
+
         if self.private_cursor.cursor_relation_:
             if (
                 self.private_cursor.cursor_relation_.modeAccess() == self.Insert
