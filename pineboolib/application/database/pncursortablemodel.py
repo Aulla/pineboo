@@ -699,29 +699,31 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 where_filter,
             )
 
-        sql_count = (
-            "SELECT COUNT(%s) FROM " % self.metadata().primaryKey()
-            + sql_query[sql_query.find(" FROM ") + 6 :]
-        )
-
-        if sql_count.find("ORDER BY") > 1:
-            if sql_count.find("WHERE") == -1:
-                sql_count += " WHERE 1 = 1"
-            sql_count = sql_count[: sql_count.find("ORDER BY")]
-
         self._data_proxy = None
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_count = self.session.execute(sql_count)
+        result_query = self.session.execute(sql_query)
+        rows_loaded = result_query.rowcount
 
-        rows_loaded = result_count.fetchone()[0]
+        if rows_loaded == -1:
+            sql_count = (
+                "SELECT COUNT(%s) FROM " % self.metadata().primaryKey()
+                + sql_query[sql_query.find(" FROM ") + 6 :]
+            )
 
-        if rows_loaded:
-            result_query = self.session.execute(sql_query)
+            if sql_count.find("ORDER BY") > 1:
+                if sql_count.find("WHERE") == -1:
+                    sql_count += " WHERE 1 = 1"
+                sql_count = sql_count[: sql_count.find("ORDER BY")]
+
+            result_count = self.session.execute(sql_count)
+            rows_loaded = result_count.fetchone()[0]
+
+        if rows_loaded > 0:
+
             self._data_proxy = ProxyIndex(result_query, rows_loaded)
-            # self._qry_rows_loaded = len(self._data_proxy)
-            # self._data_proxy = [data[0] for data in data_fetched]
+
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
 
