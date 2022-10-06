@@ -1947,16 +1947,17 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def closeCursor(self) -> None:
 
-        self.cursor_.newBuffer.disconnect(self.refresh)
-        self.cursor_.bufferChanged.disconnect(self.refreshQuick)
-        try:
-            self.cursor_.cursorUpdated.disconnect(self.refresh)
-        except Exception:
-            pass
-        cursor_rel = self.cursor_.cursorRelation()
-        if cursor_rel:
-            cursor_rel.newBuffer.disconnect(self.cursor_.refresh)
-            cursor_rel.bufferChanged.disconnect(self.cursor_.refresh)
+        if self.cursor_:
+            self.cursor_.newBuffer.disconnect(self.refresh)
+            self.cursor_.bufferChanged.disconnect(self.refreshQuick)
+            try:
+                self.cursor_.cursorUpdated.disconnect(self.refresh)
+            except Exception:
+                pass
+            cursor_rel = self.cursor_.cursorRelation()
+            if cursor_rel:
+                cursor_rel.newBuffer.disconnect(self.cursor_.refresh)
+                cursor_rel.bufferChanged.disconnect(self.cursor_.refresh)
 
         self._top_widget.formClosed.disconnect(self.closeCursor)
         self._cursor_aux = None
