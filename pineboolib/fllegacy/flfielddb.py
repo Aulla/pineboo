@@ -1946,7 +1946,7 @@ class FLFieldDB(QtWidgets.QWidget):
         # #FIXME
 
     def closeCursor(self) -> None:
-
+        """Close cursor connections."""
         if self.cursor_:
             self.cursor_.newBuffer.disconnect(self.refresh)
             self.cursor_.bufferChanged.disconnect(self.refreshQuick)
