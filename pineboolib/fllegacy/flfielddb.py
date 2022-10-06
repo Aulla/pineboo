@@ -74,9 +74,6 @@ class FLFieldDB(QtWidgets.QWidget):
     ]  # Cursor con los datos de la tabla origen para el componente
     _cursor_init: bool  # Indica que si ya se ha inicializado el cursor
     _cursor_aux_init: bool  # Indica que si ya se ha inicializado el cursor auxiliar
-    _cursor_backup: Optional[
-        "isqlcursor.ISqlCursor"
-    ]  # Backup del cursor por defecto para acceder al modo tabla externa
     _cursor_aux: Optional[
         "isqlcursor.ISqlCursor"
     ]  # Cursor auxiliar de uso interno para almacenar los registros de la tabla relacionada con la de origen
@@ -130,7 +127,6 @@ class FLFieldDB(QtWidgets.QWidget):
         # self.editor_ = QtWidgets.QWidget(parent)
         # self.editor_.hide()
         self.cursor_ = None
-        self._cursor_backup = None
         self._cursor_init = False
         self._cursor_aux_init_ = False
         self._show_alias = True
@@ -278,7 +274,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 stack_info=True,
             )
 
-        self._cursor_backup = None
         self._part_decimal = 0
         self.initCursor()
         if (
@@ -1053,6 +1048,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param field_name Name of a field
         """
+
         if not self.cursor_ or not isinstance(self.cursor_, pnsqlcursor.PNSqlCursor):
             LOGGER.debug("FLField.refresh() Cancelado")
             return
@@ -1762,28 +1758,23 @@ class FLFieldDB(QtWidgets.QWidget):
         if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
+        self._top_widget.formClosed.connect(self.closeCursor)
+
+        cursor_backup = None
         if self._table_name and not self._foreign_field and not self._field_relation:
-            self._cursor_backup = self.cursor_
-            if self.cursor_:
-                self.cursor_ = pnsqlcursor.PNSqlCursor(
-                    self._table_name,
-                    True,
-                    application.PROJECT.conn_manager.useConn("default").connectionName(),
-                    None,
-                    None,
-                    self,
-                )
-            else:
-                if not self._top_widget:
-                    return
-                self.cursor_ = pnsqlcursor.PNSqlCursor(
-                    self._table_name,
-                    True,
-                    application.PROJECT.conn_manager.useConn("default").connectionName(),
-                    None,
-                    None,
-                    self,
-                )
+            cursor_backup = self.cursor_
+            if not self._top_widget:
+                return
+
+            self.cursor_ = pnsqlcursor.PNSqlCursor(
+                self._table_name,
+                True,
+                application.PROJECT.conn_manager.useConn("default").connectionName(),
+                None,
+                None,
+                self,
+            )
+
             self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
             if self._showed:
                 try:
@@ -1793,14 +1784,13 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_.cursorUpdated.connect(self.refresh)
             return
         else:
-            if self._cursor_backup:
+            if cursor_backup:
                 try:
                     if self.cursor_ is not None:
                         self.cursor_.cursorUpdated.disconnect(self.refresh)
                 except Exception:
                     LOGGER.exception("Error al desconectar señal")
-                self.cursor_ = self._cursor_backup
-                self._cursor_backup = None
+                self.cursor_ = cursor_backup
 
         if not self.cursor_:
             return
@@ -1812,6 +1802,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self.cursor_.bufferChanged.disconnect(self.refresh)
                     except Exception:
                         LOGGER.exception("Error al desconectar señal")
+
                 self.cursor_.bufferChanged.connect(self.refresh)
 
             if self._showed:
@@ -1897,7 +1888,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 )
 
         if self._table_name:
-            # self.cursor_ = pnsqlcursor.PNSqlCursor(self._table_name)
+
             self.cursor_ = pnsqlcursor.PNSqlCursor(
                 self._table_name,
                 False,
@@ -1953,6 +1944,24 @@ class FLFieldDB(QtWidgets.QWidget):
         # self.cursor_.append(self.cursor_.db().db().recordInfo(self._table_name).find(self._field_name)) #FIXME
         # self.cursor_.append(self.cursor_.db().db().recordInfo(self._table_name).find(self._field_relation))
         # #FIXME
+
+    def closeCursor(self) -> None:
+
+        self.cursor_.newBuffer.disconnect(self.refresh)
+        self.cursor_.bufferChanged.disconnect(self.refreshQuick)
+        try:
+            self.cursor_.cursorUpdated.disconnect(self.refresh)
+        except Exception:
+            pass
+        cursor_rel = self.cursor_.cursorRelation()
+        if cursor_rel:
+            cursor_rel.newBuffer.disconnect(self.cursor_.refresh)
+            cursor_rel.bufferChanged.disconnect(self.cursor_.refresh)
+
+        self._top_widget.formClosed.disconnect(self.closeCursor)
+        self._cursor_aux = None
+        self.cursor_ = None
+        # TODO: buscar copias de cursor_ y cursor_aux "VIVAS"
 
     def initEditor(self) -> None:
         """
@@ -3416,8 +3425,6 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def setEnabled(self, enable: bool) -> None:
         """Set if the control is enabled."""
-
-        # print("FLFieldDB: %r setEnabled: %r" % (self._field_name, enable))
 
         if hasattr(self, "editor_"):
             if self.cursor_ is None:
