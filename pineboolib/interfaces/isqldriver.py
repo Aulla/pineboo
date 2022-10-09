@@ -807,7 +807,10 @@ class ISqlDriver(object):
                 if new_name in old_field_names:
                     value = old_data[old_field_names.index(new_name)]
                     if value is None:
-                        continue
+                        if not new_field.allowNull():
+                            value = new_field.defaultValue()
+                        else:
+                            continue
                 elif not new_field.allowNull():
                     value = new_field.defaultValue()
                     if value is None:
