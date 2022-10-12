@@ -3,6 +3,7 @@ Module for MYISAM driver.
 """
 
 
+from multiprocessing import managers
 from pineboolib import logging
 from pineboolib.interfaces import isqldriver
 from typing import Any, Optional, List, Dict, Union, TYPE_CHECKING
@@ -39,8 +40,6 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
         self._text_like = " "
         self._create_isolation = False
         self._use_create_table_save_points = False
-        self._queqe_params = {"pool_recycle": 1800}
-
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
         self._sqlalchemy_name = "mysql"
@@ -299,6 +298,14 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
 
         super().get_common_params()
         self._queqe_params["isolation_level"] = "READ COMMITTED"
+
+        if self.pool_enabled():
+            self._queqe_params["pool_recycle"] = 1800
+        else:
+            if "connect_args" not in self._queqe_params.keys():
+                self._queqe_params["connect_args"] = {}
+            if "connect_timeout" not in self._queqe_params["connect_args"].keys():
+                self._queqe_params["connect_args"]["connect_timeout"] = 28800  # 8 horas.
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str

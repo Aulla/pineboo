@@ -582,8 +582,8 @@ class FLManager(QtCore.QObject, IManager):
         within the SQL WHERE closing.
 
         This method takes as parameters the field metadata defined with
-        PNFieldMetaData. In addition to TRUE and FALSE as possible values ​​of a field
-        logical also accepts the values ​​Yes and No (or its translation into the corresponding language).
+        PNFieldMetaData. In addition to TRUE and FALSE as possible values of a field
+        logical also accepts the values Yes and No (or its translation into the corresponding language).
         The dates are adapted to the YYYY-MM-DD form, which is the format recognized by PostgreSQL.
 
         @param fmd_or_type PNFieldMetaData object that describes the metadata for the field

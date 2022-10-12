@@ -663,6 +663,8 @@ class ISqlDriver(object):
                     ret = 5
                 elif db_type == "double" and meta_type != "double":
                     ret = 6
+                elif db_type != "double" and meta_type == "double":
+                    ret = 10
                 elif db_type == "stringlist" and meta_type not in (
                     "stringlist",
                     "pixmap",
@@ -1234,13 +1236,22 @@ class ISqlDriver(object):
                 connection_record,
             )
 
+    def pool_enabled(self) -> bool:
+        """Return if pool is enabled."""
+
+        mng_ = self.db_.connManager()
+        return mng_.limit_connections > 0
+
     def get_common_params(self) -> None:
         """Load common params."""
 
         self._queqe_params["encoding"] = "UTF-8"
+
         mng_ = self.db_.connManager()
-        limit_conn = mng_.limit_connections
-        if limit_conn > 0:
+
+        if self.pool_enabled():
+
+            limit_conn = mng_.limit_connections
             LOGGER.info("SqlAlchemy pool enabled")
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
@@ -1250,9 +1261,14 @@ class ISqlDriver(object):
             if mng_.connections_time_out:
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 
+            if self._can_use_preping and settings.CONFIG.value("ebcomportamiento/preping", False):
+                self._queqe_params["pool_pre_ping"] = True
+
         else:
             LOGGER.debug("SqlAlchemy pool disabled")
             self._queqe_params["poolclass"] = pool.NullPool
+            if mng_.connections_time_out:
+                self._queqe_params["connect_args"] = {"connect_timeout": mng_.connections_time_out}
 
         if application.LOG_SQL:
             self._queqe_params["echo"] = True
@@ -1261,9 +1277,6 @@ class ISqlDriver(object):
 
         for key, value in self._queqe_params.items():
             LOGGER.debug("    * %s = %s", key, value)
-
-        if self._can_use_preping and settings.CONFIG.value("ebcomportamiento/preping", False):
-            self._queqe_params["pool_pre_ping"] = True
 
     def listen_engine(self) -> None:
         """Listen engine events."""
