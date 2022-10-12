@@ -1,9 +1,6 @@
 """
 Module for MYISAM driver.
 """
-
-
-from multiprocessing import managers
 from pineboolib import logging
 from pineboolib.interfaces import isqldriver
 from typing import Any, Optional, List, Dict, Union, TYPE_CHECKING
