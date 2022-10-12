@@ -140,7 +140,7 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
-        "--preping",
+        "--pool-sql-preping",
         action="store_true",
         dest="enable_preping",
         default=False,
