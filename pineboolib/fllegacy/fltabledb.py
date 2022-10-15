@@ -676,6 +676,9 @@ class FLTableDB(QtWidgets.QWidget):
             except Exception:
                 pass
 
+        self._cursor_aux = None
+        self.cursor_ = None
+
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
         Return the cursor used by the component.
