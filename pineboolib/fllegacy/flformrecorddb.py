@@ -496,8 +496,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
             else:
                 if not self.cursor_.rollback():
                     event.ignore()
-                else:
-                    self.cursor_.refresh()
 
             self.setCursor(None)
 
