@@ -892,7 +892,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             pk_value = self._data_proxy[row]
             session_ = self.session
 
-            if row not in self._grid_obj.keys() or inspect(self._grid_obj[row]).expired:
+            if (
+                row not in self._grid_obj.keys()
+                or self._grid_obj[row] is not None
+                and inspect(self._grid_obj[row]).expired
+            ):
 
                 query = orm_utils.DynamicFilter(
                     query=session_.query(self._parent._cursor_model),
