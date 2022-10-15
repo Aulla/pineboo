@@ -226,18 +226,6 @@ class FLDataTable(QtWidgets.QTableView):
                 # self.model().sort(self.header().logicalIndex(0), 0)
                 self.installEventFilter(self)
                 self.model().set_parent_view(self)
-            # if self.cursor_.at() >= 0:
-            #    QtCore.QTimer.singleShot(2000, self.marcaRow) #Por ahora es 3000 para que de tiempo a mostrarse FIXME
-
-    def marcaRow(self, id_pk: Optional[Any]) -> None:
-        """
-        Set a persistent filter that always applies to the cursor before to refresh.
-        """
-        if id_pk is not None and self.numRows():
-            pos = self.model().find_pk_row(id_pk)
-            if pos > -1 and pos != self.cur.currentRegister():
-                self.cur.move(pos)
-            # self.ensureRowSelectedVisible()
 
     def setPersistentFilter(self, p_filter: Optional[str] = None) -> None:
         """Set the persistent filter for this control."""
@@ -733,7 +721,7 @@ class FLDataTable(QtWidgets.QTableView):
 
             self.cursor_.refresh()
             if last_pk is not None:
-                self.marcaRow(last_pk)
+                self.selectRow(self.cur.at())
                 self.cursor_.refreshBuffer()
             self.show()
             self.refreshing_ = False
