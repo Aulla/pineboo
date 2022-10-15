@@ -88,6 +88,7 @@ class ISqlDriver(object):
     _use_altenative_isolation_level: bool
     _use_create_table_save_points: bool
     _can_use_preping: bool
+    _tables_info: Dict[str, Dict[str, Any]]
 
     def __init__(self):
         """Inicialize."""
@@ -121,6 +122,7 @@ class ISqlDriver(object):
         self._use_altenative_isolation_level = False
         self._use_create_table_save_points = True
         self._can_use_preping = True
+        self._tables_info = {}
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""

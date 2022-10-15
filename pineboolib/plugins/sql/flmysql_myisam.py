@@ -60,12 +60,21 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
                 and_name = " AND TABLE_NAME ='%s'" % (table_name) if table_name else ""
 
                 cursor = self.execute_query(
-                    "SELECT TABLE_NAME FROM information_schema.tables where %s%s ORDER BY TABLE_NAME ASC"
+                    "SELECT TABLE_NAME,TABLE_TYPE,ENGINE FROM information_schema.tables where %s%s ORDER BY TABLE_NAME ASC"
                     % (" OR ".join(where), and_name)
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-            table_list = [item[0] for item in result_list]
+            for item in result_list:
+                table_name = item[0]
+                table_list.append(table_name)
+                if table_name not in self._tables_info.keys():
+                    self._tables_info[table_name] = {
+                        "type": item[1],
+                        "engine": item[2],
+                    }
+
+            # table_list = [item[0] for item in result_list]
 
         return table_list
 
@@ -327,19 +336,15 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
     def invalid_engine(self, table_name: str, mute: bool = False) -> bool:
         """Return if table engine is valid."""
 
-        sql_status = "SHOW TABLE STATUS WHERE Name = '%s'" % table_name
-        cursor_status = self.execute_query(sql_status)
-        reg_status = cursor_status.fetchone() if cursor_status else ""
-        if reg_status:
-            engine_name = reg_status[1]
-            if not self._no_inno_db == (engine_name == "MyISAM"):
-                if not mute:
-                    LOGGER.warning(
-                        "The engine of the %s table is of type %s, but the driver uses the %s engine",
-                        table_name,
-                        engine_name,
-                        "MyISAM" if self._no_inno_db else "InnoDB",
-                    )
-                return True
+        engine_name = self._tables_info[table_name]["engine"]
+        if not self._no_inno_db == (engine_name == "MyISAM"):
+            if not mute:
+                LOGGER.warning(
+                    "The engine of the %s table is of type %s, but the driver uses the %s engine",
+                    table_name,
+                    engine_name,
+                    "MyISAM" if self._no_inno_db else "InnoDB",
+                )
+            return True
 
         return False
