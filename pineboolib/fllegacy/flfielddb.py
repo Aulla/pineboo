@@ -1533,7 +1533,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not type_ == "pixmap" and not self.editor_:
             return
-        value = self.cursor_.valueBuffer(self._field_name)
+        value = self.cursor_.valueBuffer(self._field_name, True)
         nulo = self.cursor_.bufferIsNull(self._field_name)
 
         if self._part_decimal < 0:
@@ -1956,8 +1956,15 @@ class FLFieldDB(QtWidgets.QWidget):
                 pass
             cursor_rel = self.cursor_.cursorRelation()
             if cursor_rel:
-                cursor_rel.newBuffer.disconnect(self.cursor_.refresh)
-                cursor_rel.bufferChanged.disconnect(self.cursor_.refresh)
+                try:
+                    cursor_rel.newBuffer.disconnect(self.cursor_.refresh)
+                except Exception:
+                    pass
+
+                try:
+                    cursor_rel.bufferChanged.disconnect(self.cursor_.refresh)
+                except Exception:
+                    pass
 
         self._top_widget.formClosed.disconnect(self.closeCursor)
         self._cursor_aux = None
