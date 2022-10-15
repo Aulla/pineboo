@@ -428,6 +428,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         database = self.db()
         manager = database.connManager().manager()
 
+        if field.type() in ("uint", "int") and value == "":
+            value = None
+
         if field.type() == "pixmap" and value and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
             table_metadata = self.private_cursor.metadata_
@@ -470,7 +473,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.bufferChanged.emit(field_name)
         QtWidgets.QApplication.processEvents()
 
-    def valueBuffer(self, field_name: str) -> Any:
+    def valueBuffer(self, field_name: str, with_not_value: bool = False) -> Any:
         """
         Retrieve a value from a field buffer (self.private_cursor.buffer_).
 
@@ -538,7 +541,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             elif type_ in ("int", "uint"):
                 value = int(value)  # type: ignore [arg-type] # noqa: F821
 
-        else:
+        elif with_not_value == False:
             if type_ in ("string", "stringlist", "date", "timestamp"):
                 value = ""
             elif type_ in ("double", "int", "uint", "serial"):

@@ -404,7 +404,7 @@ class ISqlCursor(QtCore.QObject):
         """Set Value on the cursor buffer."""
         pass  # pragma: no cover
 
-    def valueBuffer(self, field_name: str) -> Any:
+    def valueBuffer(self, field_name: str, with_no_value: bool = False) -> Any:
         """Get value from cursor buffer."""
         return False  # pragma: no cover
 
