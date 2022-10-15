@@ -1248,10 +1248,10 @@ class ISqlDriver(object):
         self._queqe_params["encoding"] = "UTF-8"
 
         mng_ = self.db_.connManager()
+        limit_conn = mng_.limit_connections
 
         if self.pool_enabled():
 
-            limit_conn = mng_.limit_connections
             LOGGER.info("SqlAlchemy pool enabled")
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
