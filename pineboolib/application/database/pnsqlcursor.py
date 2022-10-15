@@ -541,7 +541,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             elif type_ in ("int", "uint"):
                 value = int(value)  # type: ignore [arg-type] # noqa: F821
 
-        elif with_not_value == False:
+        elif with_not_value is False:
             if type_ in ("string", "stringlist", "date", "timestamp"):
                 value = ""
             elif type_ in ("double", "int", "uint", "serial"):

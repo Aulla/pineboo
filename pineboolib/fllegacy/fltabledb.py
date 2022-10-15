@@ -459,7 +459,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.cursor().private_cursor.metadata_:
             return
 
-        self._top_widget.formClosed.connect(self.closeCursor)
+        self._top_widget.formClosed.connect(self.closeCursor)  # type: ignore [attr-defined]
 
         table_metadata: Optional["pntablemetadata.PNTableMetaData"] = self.cursor().metadata()
         if self._sort_field_1 is None:
@@ -658,6 +658,7 @@ class FLTableDB(QtWidgets.QWidget):
             del table_metadata
 
     def closeCursor(self):
+        """Close cursor."""
 
         if self.cursor_:
             try:
@@ -677,7 +678,7 @@ class FLTableDB(QtWidgets.QWidget):
                 pass
 
         self._cursor_aux = None
-        self.cursor_ = None
+        self.cursor_ = None  # type: ignore [assignment]
 
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
