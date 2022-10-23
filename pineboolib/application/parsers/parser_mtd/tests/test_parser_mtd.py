@@ -47,11 +47,18 @@ class TestMtdParserGeneral(unittest.TestCase):
         """Test load model."""
         from pineboolib.qsa import qsa
 
-        flareas_orm = qsa.orm_("flmodules")
-        self.assertTrue(flareas_orm)
-        # session = flareas_orm.__session__
-        # self.assertEqual(session, application.PROJECT.conn_manager.mainConn().session())
-        # self.assertEqual(session.query(flareas_orm).count(), 0)
+        flmodules_orm = qsa.orm_("flmodules")
+        self.assertTrue(flmodules_orm)
+
+    def test_basic_5(self) -> None:
+        """Test regexp."""
+        from pineboolib.qsa import qsa
+
+        test_orm = qsa.orm_("fltest5")
+        self.assertTrue(test_orm)
+        field = test_orm.table_metadata().field("version")
+        self.assertTrue(field)
+        self.assertEqual(field.regExpValidator(), r"^(\d{1,2}(,\d{1,2})*)?$")
 
     @classmethod
     def tearDownClass(cls) -> None:

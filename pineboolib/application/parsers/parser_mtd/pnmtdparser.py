@@ -179,7 +179,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # REGEXP
     if field.regExpValidator():
-        field_data.append("'regexp' : '%s'" % field.regExpValidator())
+        field_data.append("'regexp' : r'%s'" % field.regExpValidator())
 
     rel_list: List[str]
     # RELATIONS 1M

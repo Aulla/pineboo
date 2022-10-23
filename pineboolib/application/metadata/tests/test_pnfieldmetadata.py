@@ -34,7 +34,7 @@ class TestStringField(unittest.TestCase):
                 self.assertEqual(field.visible(), True)
                 self.assertEqual(field.editable(), False)
                 self.assertEqual(field.defaultValue(), "0.0")
-                self.assertEqual(field.regExpValidator(), "[0-9]\\.[0-9]")
+                self.assertEqual(field.regExpValidator(), r"[0-9]\\.[0-9]")
 
                 assign_value_1 = field.formatAssignValue("version", "a.1", False)
                 assign_value_2 = field.formatAssignValue("version", "b.1", True)
@@ -71,7 +71,7 @@ class TestCopyField(unittest.TestCase):
             self.assertEqual(field_2.visible(), True)
             self.assertEqual(field_2.editable(), False)
             self.assertEqual(field_2.defaultValue(), "0.0")
-            self.assertEqual(field_2.regExpValidator(), "[0-9]\\.[0-9]")
+            self.assertEqual(field_2.regExpValidator(), r"[0-9]\\.[0-9]")
 
 
 class TestUintField(unittest.TestCase):

@@ -44,6 +44,16 @@ class Fltest5(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             {"name": "string_timestamp", "alias": "String timestamp", "type": "timestamp"},
             {"name": "uint_field", "alias": "Unsigned int field", "type": "uint"},
             {"name": "my_json", "alias": "json field", "type": "json"},
+            {
+                "name": "version",
+                "alias": "Versión",
+                "type": "string",
+                "length": 3,
+                "regexp": r"^(\d{1,2}(,\d{1,2})*)?$",
+                "null": True,
+                "default": "0.0",
+                "editable": False,
+            },
         ],
     }
 
