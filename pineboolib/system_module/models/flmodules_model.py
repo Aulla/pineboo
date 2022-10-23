@@ -54,7 +54,7 @@ class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
                 "alias": "Versión",
                 "type": "string",
                 "length": 3,
-                "regexp": "[0-9]\\.[0-9]",  # noqa: W605
+                "regexp": r"[0-9]\\.[0-9]",
                 "null": False,
                 "default": "0.0",
                 "editable": False,
