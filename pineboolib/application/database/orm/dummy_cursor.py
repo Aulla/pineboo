@@ -49,7 +49,7 @@ class DummyCursor(object):
         value = (
             self._parent._cached_bufferchanged[field_name]
             if field_name in self._parent._cached_bufferchanged.keys()
-            else getattr(self._parent, field_name)
+            else getattr(self._parent, field_name, None)
         )
         meta_table = self._parent.table_metadata()
         meta_field = meta_table.field(field_name)
