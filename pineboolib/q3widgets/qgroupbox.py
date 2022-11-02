@@ -7,7 +7,7 @@ from pineboolib.core import decorators
 from pineboolib.core import settings
 
 from pineboolib import logging
-from . import qwidget
+from pineboolib.q3widgets import qwidget
 from typing import Any
 
 logger = logging.get_logger(__name__)

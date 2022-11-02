@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt6 import QtWidgets  # type: ignore[import]
-from . import qgroupbox
+from pineboolib.q3widgets import qgroupbox
 
 
 class GroupBox(qgroupbox.QGroupBox):

@@ -41,7 +41,7 @@ if TYPE_CHECKING:
         result,  # noqa: F401
     )  # noqa: F401 # pragma: no cover
 
-    from . import isession  # pragma: no cover
+    from pineboolib.interfaces import isession  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

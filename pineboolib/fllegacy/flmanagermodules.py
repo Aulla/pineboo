@@ -18,9 +18,9 @@ from pineboolib import application
 from pineboolib.application.utils.path import _path
 
 
-from . import flutil
-from . import flformdb
-from . import flformrecorddb
+from pineboolib.fllegacy import flutil
+from pineboolib.fllegacy import flformdb
+from pineboolib.fllegacy import flformrecorddb
 
 from pineboolib import logging
 

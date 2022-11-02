@@ -6,7 +6,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
 
-from .. import pnaccesscontrol
+from pineboolib.application.acls import pnaccesscontrol
 
 
 class TestPNAccessControl(unittest.TestCase):

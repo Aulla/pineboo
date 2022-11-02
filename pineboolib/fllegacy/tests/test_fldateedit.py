@@ -4,7 +4,7 @@ from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 
 import unittest
 
-from .. import fldateedit
+from pineboolib.fllegacy import fldateedit
 from pineboolib.loader.main import init_testing, finish_testing
 
 

@@ -11,9 +11,6 @@ from pineboolib.core.utils import utils_base
 from PyQt6 import QtCore  # type: ignore[import]
 
 
-# from . import pntranslations
-
-
 from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -10,13 +10,13 @@ from pineboolib import application
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.metadata import pntablemetadata
-from . import pnaccesscontrolfactory
+from pineboolib.application.acls import pnaccesscontrolfactory
 
 from pineboolib import logging
 from typing import Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import pnaccesscontrol  # pragma: no cover
+    from pineboolib.application.acls import pnaccesscontrol  # pragma: no cover
     from PyQt6 import QtWidgets  # pragma: no cover
 
 

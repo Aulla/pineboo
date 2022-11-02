@@ -1,3 +1,3 @@
 """dlgconnect package."""
 
-from .dlgconnect import DlgConnect  # noqa: F401
+from pineboolib.loader.dlgconnect.dlgconnect import DlgConnect  # noqa: F401

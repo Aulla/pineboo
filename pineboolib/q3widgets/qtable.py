@@ -5,7 +5,7 @@ from typing import Optional, Any, List, Union, cast
 from PyQt6 import QtWidgets, QtCore, QtGui  # type: ignore[import]
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import format_double
-from . import qwidget
+from pineboolib.q3widgets import qwidget
 
 
 # FIXMEQT6 class Q3TableWidget(QtWidgets.QTableWidget, qwidget.QWidget):

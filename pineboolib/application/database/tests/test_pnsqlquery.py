@@ -4,7 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
 from pineboolib import application
-from . import fixture_path
+from pineboolib.application.database.tests import fixture_path
 
 
 class TestPNSqlQuery1(unittest.TestCase):

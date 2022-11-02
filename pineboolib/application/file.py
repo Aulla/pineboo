@@ -5,7 +5,7 @@ import os
 from pineboolib import logging
 from typing import Optional
 
-from .utils import path
+from pineboolib.application.utils import path
 
 LOGGER = logging.get_logger(__name__)
 

@@ -5,10 +5,10 @@ from pineboolib import interfaces
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
 
-from . import pnrelationmetadata
+from pineboolib.application.metadata import pnrelationmetadata
 
 if TYPE_CHECKING:
-    from . import pntablemetadata  # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

@@ -1,7 +1,7 @@
 """Flex module."""
 
 import ply.lex as lex  # type: ignore
-from . import token_rules
+from pineboolib.application.parsers.parser_qsa import token_rules
 
 from pineboolib import logging
 

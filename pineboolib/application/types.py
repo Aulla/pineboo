@@ -14,7 +14,7 @@ from pineboolib.core import decorators, settings
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
-from .. import logging
+from pineboolib import logging
 
 from typing import Any, Optional, Dict, Union, Generator, List, TYPE_CHECKING
 
@@ -96,7 +96,7 @@ function anon(%s) {
     )
 
     # print("Compilando QS en línea: ", qs_source)
-    from .parsers.parser_qsa import flscriptparse, postparse, pytnyzer
+    from pineboolib.application.parsers.parser_qsa import flscriptparse, postparse, pytnyzer
     from importlib import util
 
     module_name = "anon_%s" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")

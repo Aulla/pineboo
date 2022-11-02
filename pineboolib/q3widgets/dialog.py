@@ -2,9 +2,9 @@
 
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
-from . import qdialog
-from . import qpushbutton
-from . import qtabwidget
+from pineboolib.q3widgets import qdialog
+from pineboolib.q3widgets import qpushbutton
+from pineboolib.q3widgets import qtabwidget
 
 from typing import Optional, Union
 

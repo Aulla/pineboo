@@ -1,5 +1,5 @@
 """Qdataview module."""
-from . import qwidget
+from pineboolib.q3widgets import qwidget
 
 
 class QDataView(qwidget.QWidget):

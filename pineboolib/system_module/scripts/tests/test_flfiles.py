@@ -4,7 +4,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import logging, application
-from . import fixture_path
+from pineboolib.system_module.scripts.tests import fixture_path
 from pineboolib.core.utils import utils_base
 
 import os

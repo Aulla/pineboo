@@ -4,7 +4,7 @@ from typing import List, Callable, TYPE_CHECKING
 from pineboolib.application import connections
 
 if TYPE_CHECKING:
-    from . import basemodel
+    from pineboolib.application.database.orm import basemodel
 
 
 class FakeSignal(object):

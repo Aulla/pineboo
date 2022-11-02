@@ -4,7 +4,7 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
-from . import fixture_path
+from pineboolib.application.database.orm.tests import fixture_path
 from datetime import datetime
 
 

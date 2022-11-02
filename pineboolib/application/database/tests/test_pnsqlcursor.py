@@ -5,7 +5,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
 from pineboolib import application
-from . import fixture_path
+from pineboolib.application.database.tests import fixture_path
 from pineboolib.core.utils import utils_base
 
 LOGGER = logging.get_logger("test")

@@ -12,7 +12,7 @@ import datetime
 from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import basemodel  # pragma: no cover
+    from pineboolib.application.database.orm import basemodel  # pragma: no cover
     from pineboolib.interfaces import iconnection  # pragma: no cover
     from pineboolib.application.database import pnsqlcursor  # noqa: F401 # pragma: no cover
 

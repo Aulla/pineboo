@@ -1,6 +1,6 @@
 """Combobox module."""
 
-from . import qcombobox
+from pineboolib.q3widgets import qcombobox
 
 
 class ComboBox(qcombobox.QComboBox):

@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
-from . import qgroupbox
+from pineboolib.q3widgets import qgroupbox
 
 
 from typing import Callable

@@ -4,9 +4,9 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 
-from .. import qhbuttongroup
-from .. import qvbuttongroup
-from .. import qradiobutton
+from pineboolib.q3widgets import qhbuttongroup
+from pineboolib.q3widgets import qvbuttongroup
+from pineboolib.q3widgets import qradiobutton
 
 
 class TestQRadioButtons(unittest.TestCase):

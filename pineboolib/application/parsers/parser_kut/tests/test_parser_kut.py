@@ -1,7 +1,7 @@
 """Test kugar parser module."""
 
 import unittest
-from . import fixture_path
+from pineboolib.application.parsers.parser_kut.tests import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.core.utils import utils_base
@@ -72,7 +72,7 @@ class TestParser(unittest.TestCase):
 
     def test_parser_tools_1(self) -> None:
         """Test parser tools."""
-        from .. import kparsertools
+        from pineboolib.application.parsers.parser_kut import kparsertools
         from xml.etree import ElementTree as et
         from pineboolib.core.utils.utils_base import load2xml
         from pineboolib.application.database import pnsqlquery, pnsqlcursor
@@ -124,7 +124,7 @@ class TestParser(unittest.TestCase):
 
     def test_parser_tools_2(self) -> None:
         """Test parser tools."""
-        from .. import kparsertools
+        from pineboolib.application.parsers.parser_kut import kparsertools
         from xml.etree import ElementTree as et
         from decimal import Decimal
 

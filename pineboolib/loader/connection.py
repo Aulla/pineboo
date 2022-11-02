@@ -1,7 +1,7 @@
 """Connection Module."""
 
 import optparse
-from . import projectconfig
+from pineboolib.loader import projectconfig
 
 from typing import Optional, TYPE_CHECKING
 

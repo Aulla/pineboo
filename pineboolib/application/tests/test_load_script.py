@@ -2,7 +2,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application import load_script
-from . import fixture_path
+from pineboolib.application.tests import fixture_path
 
 import os
 

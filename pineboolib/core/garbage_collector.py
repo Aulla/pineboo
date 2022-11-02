@@ -3,8 +3,8 @@ Module for garbage collector checks.
 """
 from typing import Any, Callable, List
 
-from .utils import logging
-from . import DISABLE_CHECK_MEMORY_LEAKS
+from pineboolib.core.utils import logging
+from pineboolib.core import DISABLE_CHECK_MEMORY_LEAKS
 
 import weakref
 import threading

@@ -922,7 +922,7 @@ class FLFormDB(QtWidgets.QDialog):
             pass
 
         if ret is not None:
-            from . import flfielddb, fltabledb
+            from pineboolib.fllegacy import flfielddb, fltabledb
 
             if isinstance(ret, (flfielddb.FLFieldDB, fltabledb.FLTableDB)):
                 if ret._loaded is False:

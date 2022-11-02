@@ -10,7 +10,7 @@ from pineboolib.plugins.dgi import dgi_schema
 from typing import Any, Optional, cast, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .dgi_objects import (  # noqa : F401 # pragma: no cover
+    from pineboolib.plugins.dgi.dgi_qt.dgi_objects import (  # noqa : F401 # pragma: no cover
         splash_screen,
         progress_dialog_manager,
     )
@@ -33,7 +33,11 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def extraProjectInit(self):
         """Extra init."""
-        from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
+        from pineboolib.plugins.dgi.dgi_qt.dgi_objects import (
+            splash_screen,
+            progress_dialog_manager,
+            status_help_msg,
+        )
 
         self.splash = splash_screen.SplashScreen()
         self.progress_dialog_manager = progress_dialog_manager.ProgressDialogManager()
@@ -133,7 +137,7 @@ class DgiQt(dgi_schema.DgiSchema):
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""
 
-        from .dgi_objects.dlg_about import about_pineboo
+        from pineboolib.plugins.dgi.dgi_qt.dgi_objects.dlg_about import about_pineboo
 
         about_ = about_pineboo.AboutPineboo()
         about_.show()

@@ -5,7 +5,7 @@ from PyQt6 import QtWidgets  # type: ignore[import]
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
-from .. import settings
+from pineboolib.core import settings
 
 
 class TestSettings(unittest.TestCase):

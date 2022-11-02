@@ -1,7 +1,7 @@
 """Test_flmssql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from .. import flpymssql
+from pineboolib.plugins.sql import flpymssql
 
 
 class TestFLMSSql(unittest.TestCase):

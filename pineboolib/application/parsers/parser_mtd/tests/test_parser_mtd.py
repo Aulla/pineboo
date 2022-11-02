@@ -19,7 +19,7 @@ class TestMtdParserGeneral(unittest.TestCase):
     def test_basic_1(self) -> None:
         """Test ORM parser."""
 
-        from .. import pnmtdparser, pnormmodelsfactory
+        from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
         import os
 
         for mtd_name in application.PROJECT.files.keys():

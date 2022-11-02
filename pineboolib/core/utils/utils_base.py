@@ -8,8 +8,8 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 
 from PyQt6 import QtCore, QtXml, QtWidgets  # type: ignore[import]
 
-from . import logging
-from .. import settings
+from pineboolib.core.utils import logging
+from pineboolib.core import settings
 
 import os
 import re

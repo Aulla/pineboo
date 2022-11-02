@@ -8,7 +8,7 @@ from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings, garbage_collector
 
-from . import pnsqlquery, utils
+from pineboolib.application.database import pnsqlquery, utils
 from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
 from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
@@ -18,8 +18,8 @@ from pineboolib import application
 
 from pineboolib.interfaces import isqlcursor
 
-from . import pnbuffer
-from . import pncursortablemodel
+from pineboolib.application.database import pnbuffer
+from pineboolib.application.database import pncursortablemodel
 
 
 import weakref

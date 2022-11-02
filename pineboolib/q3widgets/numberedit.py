@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from PyQt6 import QtWidgets, QtGui  # type: ignore[import]
-from . import qlineedit, qlabel, qhboxlayout
+from pineboolib.q3widgets import qlineedit, qlabel, qhboxlayout
 
 from typing import Any, SupportsFloat, SupportsInt, Union, cast
 

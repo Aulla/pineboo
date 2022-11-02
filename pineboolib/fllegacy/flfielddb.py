@@ -16,7 +16,7 @@ from pineboolib.q3widgets import qpushbutton, qtextedit, qlineedit, qcombobox
 
 from pineboolib import application, logging
 
-from . import (
+from pineboolib.fllegacy import (
     fllineedit,
     flutil,
     fldateedit,
@@ -232,7 +232,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._cursor_aux = None
 
-        from . import flformdb
+        from pineboolib.fllegacy import flformdb
 
         while not isinstance(parent, flformdb.FLFormDB):
             parent = parent.parentWidget()

@@ -11,7 +11,7 @@ from pineboolib.core.utils import utils_base
 
 from pineboolib.application.database import pnsqlcursor
 
-from . import flformdb
+from pineboolib.fllegacy import flformdb
 
 from typing import Optional, TYPE_CHECKING
 

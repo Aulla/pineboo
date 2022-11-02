@@ -5,8 +5,8 @@ from PyQt6 import QtWidgets  # type: ignore[import]
 from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .qgroupbox import QGroupBox  # noqa: F401 # pragma: no cover
-    from .qwidget import QWidget  # noqa: F401 # pragma: no cover
+    from pineboolib.q3widgets.qgroupbox import QGroupBox  # noqa: F401 # pragma: no cover
+    from pineboolib.q3widgets.qwidget import QWidget  # noqa: F401 # pragma: no cover
 
 
 class QFrame(QtWidgets.QFrame):

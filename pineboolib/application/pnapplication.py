@@ -8,18 +8,21 @@ from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
 
 from pineboolib import application
-from .database import DB_SIGNALS, utils
-from .qsatypes import sysbasetype
-from . import qsadictmodules
+from pineboolib.application.database import DB_SIGNALS, utils
+from pineboolib.application.qsatypes import sysbasetype
+from pineboolib.application import qsadictmodules
 
 import sys
 from typing import Any, Optional, List, TextIO, cast, Union, Dict, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from .database import pnsqlcursor, pnsqlquery  # noqa: F401 # pragma: no cover
-    from .acls import pnaccesscontrollists
-    from .translator import pntranslator
+    from pineboolib.application.database import (
+        pnsqlcursor,
+        pnsqlquery,
+    )  # noqa: F401 # pragma: no cover
+    from pineboolib.application.acls import pnaccesscontrollists
+    from pineboolib.application.translator import pntranslator
 
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
     from PyQt6 import QtXml, QtGui  # noqa: F401 # pragma: no cover
@@ -418,7 +421,7 @@ class PNApplication(QtCore.QObject):
     def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
 
-        from .parsers.parser_mtd import pnormmodelsfactory
+        from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 
         self.db().managerModules().finish()
         self.db().manager().finish()
@@ -931,7 +934,7 @@ class PNApplication(QtCore.QObject):
                 key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
-            from .translator import pntranslator
+            from pineboolib.application.translator import pntranslator
 
             tor = pntranslator.PNTranslator(
                 self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang"
@@ -968,8 +971,6 @@ class PNApplication(QtCore.QObject):
 
     def dialogGetFileImage(self) -> Optional[str]:
         """Get image file name."""
-
-        # from . import flpixmapviewer
 
         file_dialog = QtWidgets.QFileDialog(
             QtWidgets.QApplication.focusWidget(),

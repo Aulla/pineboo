@@ -6,7 +6,7 @@ from pineboolib.core.utils import logging
 from pineboolib.application import types, qsadictmodules, load_script
 from pineboolib import application
 from pineboolib.application.database.orm import dummy_cursor
-from . import pnsqlcursor, pnsqlquery
+from pineboolib.application.database import pnsqlcursor, pnsqlquery
 
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING

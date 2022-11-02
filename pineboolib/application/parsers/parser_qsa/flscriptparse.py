@@ -17,7 +17,7 @@ from pineboolib.application.parsers import parser_qsa
 import ply.yacc as yacc  # type: ignore
 import ply.lex as lex  # type: ignore
 
-from . import token_rules, flex
+from pineboolib.application.parsers.parser_qsa import token_rules, flex
 
 TEMP_DIR = tempfile.gettempdir()
 

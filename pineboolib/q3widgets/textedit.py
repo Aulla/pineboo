@@ -1,5 +1,5 @@
 """Textedit module."""
-from . import qtextedit
+from pineboolib.q3widgets import qtextedit
 
 
 class TextEdit(qtextedit.QTextEdit):

@@ -12,13 +12,13 @@ is stored within. Its composed of a name and description; and they contain code,
 
 from pineboolib import logging
 
-from .utils import path
-from . import moduleactions
+from pineboolib.application.utils import path
+from pineboolib.application import moduleactions
 
 from typing import Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .file import File  # pragma: no cover
+    from pineboolib.application.file import File  # pragma: no cover
     from pineboolib.core.utils.struct import TableStruct  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)

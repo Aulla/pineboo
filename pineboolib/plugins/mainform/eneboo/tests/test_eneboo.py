@@ -7,7 +7,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 
 from pineboolib.core import settings
 from pineboolib import application
-from . import fixture_path
+from pineboolib.plugins.mainform.eneboo.tests import fixture_path
 from pineboolib import logging
 
 from typing import cast

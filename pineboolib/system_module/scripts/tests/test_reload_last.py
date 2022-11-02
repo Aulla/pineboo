@@ -8,7 +8,7 @@ from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
-from . import fixture_path
+from pineboolib.system_module.scripts.tests import fixture_path
 
 
 class TestFLReloadLast(unittest.TestCase):

@@ -4,8 +4,8 @@ import sys
 import traceback
 from typing import Dict, Tuple
 
-from . import logging
-from .version import VersionNumber
+from pineboolib.core.utils import logging
+from pineboolib.core.utils.version import VersionNumber
 
 ModuleName = str
 ModuleVersion = str

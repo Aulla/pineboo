@@ -15,7 +15,7 @@ If it's meant to be changed while running Pineboo, inside QS code, it's a settin
 """
 import json
 import time
-from .utils import logging
+from pineboolib.core.utils import logging
 
 from PyQt6 import QtCore  # type: ignore[import]
 

@@ -5,7 +5,7 @@ from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
 from pineboolib import application
 
-from . import dummy_cursor, dummy_signal
+from pineboolib.application.database.orm import dummy_cursor, dummy_signal
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 

@@ -4,7 +4,7 @@
 from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 from pineboolib import logging
 
-from . import qbuttongroup
+from pineboolib.q3widgets import qbuttongroup
 
 from typing import Optional, cast
 

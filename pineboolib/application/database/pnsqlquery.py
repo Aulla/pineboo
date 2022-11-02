@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from pineboolib.interfaces import isqldriver
     from sqlalchemy.engine import result as result_engine
     from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
-    from . import pngroupbyquery  # noqa: F401 # pragma: no cover
-    from . import pnparameterquery  # noqa: F401 # pragma: no cover
+    from pineboolib.application.database import pngroupbyquery  # noqa: F401 # pragma: no cover
+    from pineboolib.application.database import pnparameterquery  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

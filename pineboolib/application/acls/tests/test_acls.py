@@ -7,7 +7,7 @@ from pineboolib.core import settings
 from pineboolib.core.utils import utils_base
 from pineboolib.application.acls import pnaccesscontrollists
 from pineboolib import application, qsa
-from . import fixture_path
+from pineboolib.application.acls.tests import fixture_path
 
 
 class TestACLS(unittest.TestCase):

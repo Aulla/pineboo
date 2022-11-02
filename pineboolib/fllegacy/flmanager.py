@@ -21,7 +21,7 @@ from pineboolib.application import qsadictmodules
 from pineboolib.interfaces import IManager
 
 from pineboolib import logging, application
-from . import flutil
+from pineboolib.fllegacy import flutil
 
 import copy
 import os

@@ -11,8 +11,8 @@ from pineboolib.core.utils import logging, utils_base
 from sqlalchemy import exc, orm, inspect
 from pineboolib.application.utils import date_conversion, xpm
 
-from .orm import utils as orm_utils
-from . import pnsqlquery
+from pineboolib.application.database.orm import utils as orm_utils
+from pineboolib.application.database import pnsqlquery
 
 
 import itertools
@@ -33,8 +33,8 @@ if TYPE_CHECKING:
         itablemetadata,
     )  # pragma: no cover
     from pineboolib.fllegacy import fldatatable  # pragma: no cover
-    from . import pnconnectionmanager  # pragma: no cover
-    from . import pnbuffer  # pragma: no cover
+    from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
+    from pineboolib.application.database import pnbuffer  # pragma: no cover
 
 DEBUG = False
 CURSOR_COUNT = itertools.count()

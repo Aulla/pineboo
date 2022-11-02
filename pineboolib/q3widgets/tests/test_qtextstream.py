@@ -1,7 +1,7 @@
 """Test_qtextstream module."""
 
 import unittest
-from . import fixture_path
+from pineboolib.q3widgets.tests import fixture_path
 
 import os
 

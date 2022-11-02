@@ -1,7 +1,7 @@
 """Radiobutton module."""
 # -*- coding: utf-8 -*-
 
-from .qradiobutton import QRadioButton
+from pineboolib.q3widgets.qradiobutton import QRadioButton
 
 
 class RadioButton(QRadioButton):

@@ -1,5 +1,5 @@
 """Timeedit module."""
-from . import qtimeedit
+from pineboolib.q3widgets import qtimeedit
 
 
 class TimeEdit(qtimeedit.QTimeEdit):

@@ -4,14 +4,14 @@ ModuleActions module.
 
 from pineboolib.core import exceptions
 from pineboolib.core.utils import utils_base
-from . import xmlaction
+from pineboolib.application import xmlaction
 from pineboolib import application, logging
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
 if TYPE_CHECKING:
-    from . import module
-    from . import projectmodule
+    from pineboolib.application import module
+    from pineboolib.application import projectmodule
 
 LOGGER = logging.get_logger(__name__)
 
@@ -50,7 +50,7 @@ class ModuleActions(object):
     def load(self) -> None:
         """Load module actions into project."""
         # Ojo: Almacena un arbol con los módulos cargados
-        from .qsadictmodules import QSADictModules
+        from pineboolib.application.qsadictmodules import QSADictModules
 
         tree = utils_base.load2xml(self.path)
         self.root = tree.getroot()

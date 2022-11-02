@@ -6,8 +6,6 @@ from pineboolib import application
 
 from pineboolib.core import settings
 
-# from . import fixture_path
-
 
 class TestEnebooGUI(unittest.TestCase):
     """Tes EnebooGUI class."""

@@ -2,7 +2,7 @@
 
 from pineboolib import logging
 
-from . import flpymssql
+from pineboolib.plugins.sql import flpymssql
 
 
 LOGGER = logging.get_logger(__name__)

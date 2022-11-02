@@ -11,7 +11,7 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Optional, Union, cast
 
-from . import aqshttp, aqods
+from pineboolib.fllegacy.aqsobjects import aqshttp, aqods
 
 LOGGER = logging.get_logger(__name__)
 

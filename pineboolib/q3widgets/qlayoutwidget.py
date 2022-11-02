@@ -1,5 +1,5 @@
 """Qlayout module."""
-from . import qwidget
+from pineboolib.q3widgets import qwidget
 
 
 class QLayoutWidget(qwidget.QWidget):

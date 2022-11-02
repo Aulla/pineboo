@@ -5,13 +5,13 @@ from pineboolib.core import decorators, settings
 from pineboolib import application
 from pineboolib.core.utils import utils_base
 from pineboolib.application import qsatypes
-from . import flsqlquery
-from . import flsqlcursor
-from . import flmanagermodules
+from pineboolib.fllegacy import flsqlquery
+from pineboolib.fllegacy import flsqlcursor
+from pineboolib.fllegacy import flmanagermodules
 
 from pdf2image import convert_from_path
 
-from .flreportengine import FLReportEngine
+from pineboolib.fllegacy.flreportengine import FLReportEngine
 from pineboolib import logging
 
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING

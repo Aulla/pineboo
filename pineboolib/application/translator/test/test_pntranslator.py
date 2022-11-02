@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.utils import path
-from .. import pntranslator
+from pineboolib.application.translator import pntranslator
 
 
 class TestPNTranslator(unittest.TestCase):

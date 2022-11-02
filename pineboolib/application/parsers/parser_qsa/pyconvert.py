@@ -13,7 +13,7 @@ from typing import List, Tuple, TypeVar, cast, Dict, Optional
 from xml import etree
 from pineboolib import logging
 from pineboolib.core.utils import struct
-from . import postparse, pytnyzer, USE_THREADS
+from pineboolib.application.parsers.parser_qsa import postparse, pytnyzer, USE_THREADS
 
 LOGGER = logging.get_logger(__name__)
 

@@ -7,20 +7,28 @@ This module provides the different classes and AQS functions to be used in the m
 import sys
 
 # AQSObjects
-from .aqsettings import AQSettings  # noqa: F401
-from .aqsqlquery import AQSqlQuery  # noqa: F401
-from .aqsqlcursor import AQSqlCursor  # noqa: F401
-from .aqutil import AQUtil  # noqa: F401
-from .aqsql import AQSql  # noqa: F401
-from .aqsmtpclient import AQSmtpClient  # noqa: F401
-from .aqs import AQS  # noqa: F401
-from .aqboolflagstate import AQBoolFlagState, AQBoolFlagStateList  # noqa: F401
-from .aqformdb import aq_form_db as AQFormDB  # noqa: F401
-from .aqssproject import AQSSProject  # noqa: F401
-from .aqsbuttongroup import AQSButtonGroup  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsettings import AQSettings  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsqlquery import AQSqlQuery  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsqlcursor import AQSqlCursor  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqutil import AQUtil  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsql import AQSql  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsmtpclient import AQSmtpClient  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqs import AQS  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqboolflagstate import (
+    AQBoolFlagState,
+    AQBoolFlagStateList,
+)  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqformdb import aq_form_db as AQFormDB  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
 
 if not getattr(sys, "frozen", False):  # FIXME: No module named 'xml.sax.expatreader' in deploy
-    from .aqods import AQOdsGenerator, AQOdsSpreadSheet, AQOdsSheet, AQOdsRow  # noqa: F401
-    from .aqods import AQOdsStyle, AQOdsImage  # noqa: F401
-    from .aqods import aq_ods_color as AQOdsColor  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import (
+        AQOdsGenerator,
+        AQOdsSpreadSheet,
+        AQOdsSheet,
+        AQOdsRow,
+    )  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle, AQOdsImage  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import aq_ods_color as AQOdsColor  # noqa: F401

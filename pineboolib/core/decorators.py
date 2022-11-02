@@ -7,7 +7,7 @@ These are mainly intended to tell other devs whether a funcitionality is conside
 import time
 import re
 import functools
-from .utils import logging
+from pineboolib.core.utils import logging
 from PyQt6 import QtCore  # type: ignore
 from typing import Callable, Any, Dict, TypeVar, cast
 

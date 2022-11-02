@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 def show_connection_dialog(app: "QtWidgets.QApplication") -> Optional["ProjectConfig"]:
     """Show the connection dialog, and configure the project accordingly."""
-    from . import dlgconnect
+    from pineboolib.loader import dlgconnect
 
     connection_window = dlgconnect.DlgConnect()
     connection_window.load()

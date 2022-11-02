@@ -8,15 +8,15 @@ from pineboolib import logging
 from pineboolib.core.utils import utils_base, struct
 from pineboolib.core import exceptions, settings, message_manager, decorators
 
-from .database import pnconnectionmanager
-from .database import utils as db_utils
-from .parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
-from .parsers import parser_qsa
-from .utils import path, xpm, flfiles_dir
-from . import qsadictmodules
+from pineboolib.application.database import pnconnectionmanager
+from pineboolib.application.database import utils as db_utils
+from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
+from pineboolib.application.parsers import parser_qsa
+from pineboolib.application.utils import path, xpm, flfiles_dir
+from pineboolib.application import qsadictmodules
 
-from . import module, file as file_module
-from . import connections
+from pineboolib.application import module, file as file_module
+from pineboolib.application import connections
 
 import os
 from typing import List, Optional, Any, Dict, Callable, Union, TYPE_CHECKING
@@ -25,8 +25,8 @@ from pineboolib import application
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
-    from .database import pnconnection  # pragma: no cover
-    from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
+    from pineboolib.application.database import pnconnection  # pragma: no cover
+    from pineboolib.application import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
     from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
     from pineboolib.qsa import formdbwidget
 
@@ -128,7 +128,7 @@ class Project(object):
     def aq_app(self) -> "pnapplication.PNApplication":
         """Retrieve current Qt Application or throw error."""
         if self._aq_app is None:
-            from . import pnapplication
+            from pineboolib.application import pnapplication
 
             self._aq_app = pnapplication.PNApplication()
         return self._aq_app
@@ -414,7 +414,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
-        from .parsers.parser_qsa import postparse
+        from pineboolib.application.parsers.parser_qsa import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -440,7 +440,7 @@ class Project(object):
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
 
-        from .parsers.parser_qsa import pytnyzer, pyconvert
+        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -506,7 +506,7 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-        from . import PINEBOO_VER
+        from pineboolib.application import PINEBOO_VER
 
         return "DBAdmin v%s" % PINEBOO_VER if self._db_admin_mode else "Quick v%s" % PINEBOO_VER
 

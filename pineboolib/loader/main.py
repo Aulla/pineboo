@@ -5,8 +5,8 @@ from pineboolib import application, logging
 
 from pineboolib.core import settings
 
-from . import dgi as dgi_module
-from . import connection
+from pineboolib.loader import dgi as dgi_module
+from pineboolib.loader import connection
 from pineboolib.core.utils import utils_base
 
 import gc
@@ -19,7 +19,7 @@ from typing import List, Type, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from . import projectconfig  # noqa: F401 # pragma: no cover
+    from pineboolib.loader import projectconfig  # noqa: F401 # pragma: no cover
     import optparse  # noqa: F401 # pragma: no cover
     from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
     from types import TracebackType  # pragma: no cover
@@ -71,7 +71,7 @@ def startup(enable_gui: bool = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
     from pineboolib.core.utils import check_dependencies
-    from . import options as options_module
+    from pineboolib.loader import options as options_module
 
     if not check_dependencies.check_dependencies_cli(
         {"ply": "python3-ply", "PyQt6.QtCore": "python3-PyQt6", "Python": "Python"}
@@ -361,7 +361,7 @@ def exec_main(options: "optparse.Values") -> int:
         sys.settrace(utils_base.traceit)  # noqa: DUO111
 
     if options.trace_signals:
-        from .utils import monkey_patch_connect
+        from pineboolib.loader.utils import monkey_patch_connect
 
         monkey_patch_connect()
 
@@ -467,7 +467,7 @@ def exec_main(options: "optparse.Values") -> int:
     )
     application.PROJECT.aq_app.loadTranslations()
 
-    from . import init_project
+    from pineboolib.loader import init_project
 
     ret = init_project.init_project(
         dgi,

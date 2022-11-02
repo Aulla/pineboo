@@ -1,6 +1,6 @@
 """Test_flformsearchdb module."""
 
-from . import fixture_path
+from pineboolib.fllegacy.tests import fixture_path
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing

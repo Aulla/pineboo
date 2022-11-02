@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt6 import QtWidgets  # type: ignore[import]
-from .qwidget import QWidget
+from pineboolib.q3widgets.qwidget import QWidget
 
 
 class CheckBox(QWidget):

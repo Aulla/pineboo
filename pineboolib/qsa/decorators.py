@@ -1,7 +1,7 @@
 """Decorators module."""
 from pineboolib.core.utils import logging, utils_base
 from pineboolib import application
-from . import utils
+from pineboolib.qsa import utils
 
 
 from typing import Callable, Any, TypeVar, cast

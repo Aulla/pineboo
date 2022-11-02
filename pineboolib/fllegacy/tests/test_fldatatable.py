@@ -2,7 +2,7 @@
 
 from pineboolib.fllegacy import fltabledb
 from pineboolib import application
-from . import fixture_path
+from pineboolib.fllegacy.tests import fixture_path
 
 from typing import Any
 

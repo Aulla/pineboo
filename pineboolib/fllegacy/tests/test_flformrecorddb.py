@@ -1,7 +1,7 @@
 """Test_flformrecorddb module."""
 
 from pineboolib import application
-from . import fixture_path
+from pineboolib.fllegacy.tests import fixture_path
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing

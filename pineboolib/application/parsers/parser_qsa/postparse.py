@@ -10,7 +10,7 @@ import importlib
 from xml.etree import ElementTree as ET
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
-from . import pytnyzer, flscriptparse
+from pineboolib.application.parsers.parser_qsa import pytnyzer, flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
 STRICT_MODE = pytnyzer.STRICT_MODE

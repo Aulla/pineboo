@@ -2,7 +2,7 @@
 
 from PyQt6 import QtWidgets  # type: ignore[import]
 
-from . import qdateedit
+from pineboolib.q3widgets import qdateedit
 from pineboolib.application.qsatypes import date as datelib
 from typing import Optional
 

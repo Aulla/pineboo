@@ -2,7 +2,7 @@
 
 from PyQt6 import QtWidgets  # type: ignore[import]
 
-from . import qbuttongroup
+from pineboolib.q3widgets import qbuttongroup
 
 
 class QHButtonGroup(qbuttongroup.QButtonGroup):

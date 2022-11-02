@@ -9,13 +9,13 @@ from pineboolib.core import garbage_collector
 from pineboolib.application.database import pnsqlcursor
 from pineboolib import logging, application
 
-from . import load_script
+from pineboolib.application import load_script
 
 import threading
 from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import moduleactions  # noqa : F401 # pragma: no cover
+    from pineboolib.application import moduleactions  # noqa : F401 # pragma: no cover
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
     from xml.etree import ElementTree as ET  # noqa: F401 # pragma: no cover
     from pineboolib.qsa import formdbwidget  # noqa: F401 # pragma: no cover

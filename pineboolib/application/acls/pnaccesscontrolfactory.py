@@ -8,7 +8,7 @@ Manage ACLs between different application objects.
 from PyQt6 import QtWidgets, QtGui  # type: ignore[import]
 
 from pineboolib.application.metadata import pntablemetadata
-from . import pnaccesscontrol
+from pineboolib.application.acls import pnaccesscontrol
 
 
 from typing import Dict, Union, cast, List

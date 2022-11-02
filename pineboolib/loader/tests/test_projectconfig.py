@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import Mock, patch
 from pineboolib.loader.projectconfig import ProjectConfig, VERSION_1_1, VERSION_1_2
 from pineboolib.loader.projectconfig import PasswordMismatchError
-from . import fixture_read
+from pineboolib.loader.tests import fixture_read
 
 # from unittest.mock import patch, Mock
 

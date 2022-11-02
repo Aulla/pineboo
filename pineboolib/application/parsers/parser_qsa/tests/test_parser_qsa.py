@@ -2,9 +2,9 @@
 Test QS Snippets.
 """
 import unittest
-from ..postparse import pythonify_string as qs2py
-from .. import pytnyzer
-from . import fixture_read, fixture_path
+from pineboolib.application.parsers.parser_qsa.postparse import pythonify_string as qs2py
+from pineboolib.application.parsers.parser_qsa import pytnyzer
+from pineboolib.application.parsers.parser_qsa.tests import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 
 NUMERO_MULTI = 0

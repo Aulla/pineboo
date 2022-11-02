@@ -4,7 +4,7 @@ Application package for resources.
 This package holds all functions and classes that are like side resources.
 """
 
-from .projectmodule import Project
+from pineboolib.application.projectmodule import Project
 from typing import Dict, List, Any
 
 PROJECT = Project()

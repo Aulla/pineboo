@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.qsa import qsa
 from pineboolib.loader.main import init_testing, finish_testing
-from . import fixture_path
+from pineboolib.application.signatures.tests import fixture_path
 import os
 
 

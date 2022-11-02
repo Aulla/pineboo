@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
     from sqlalchemy.engine import base, result  # pragma: no cover
 
-    from . import pnconnectionmanager  # pragma: no cover
+    from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
 
 LOGGER = utils_base.logging.get_logger(__name__)
 

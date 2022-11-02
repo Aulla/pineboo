@@ -551,7 +551,7 @@ class FLDataTable(QtWidgets.QTableView):
         from pineboolib.q3widgets.qwidget import QWidget
         from pineboolib.q3widgets.qvboxlayout import QVBoxLayout
 
-        from .fldatatable import FLDataTable
+        from pineboolib.fllegacy.fldatatable import FLDataTable
 
         popup = QMenu(self)
 

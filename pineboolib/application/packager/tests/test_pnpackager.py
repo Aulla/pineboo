@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.packager import pnpackager
-from . import fixture_path
+from pineboolib.application.packager.tests import fixture_path
 
 
 class TestPNPAckager(unittest.TestCase):

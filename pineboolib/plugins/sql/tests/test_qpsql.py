@@ -1,7 +1,7 @@
 """Test_FLPGSql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from .. import flqpsql
+from pineboolib.plugins.sql import flqpsql
 
 
 class TestFLPGSql(unittest.TestCase):

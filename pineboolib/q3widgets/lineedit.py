@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from PyQt6 import QtWidgets  # type: ignore
-from . import qwidget
+from pineboolib.q3widgets import qwidget
 from typing import Any
 
 

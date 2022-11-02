@@ -8,7 +8,7 @@ from typing import Optional, TYPE_CHECKING
 
 
 from pineboolib.core import settings
-from .preload import preload_actions
+from pineboolib.loader.preload import preload_actions
 
 if TYPE_CHECKING:
     from PyQt6 import QtWidgets  # pragma: no cover

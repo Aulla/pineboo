@@ -4,4 +4,4 @@ Base module for the execution of pineboo.
 
 Library oriented to emulate Eneboo from python.
 """
-from .core.utils import logging  # noqa: F401
+from pineboolib.core.utils import logging  # noqa: F401

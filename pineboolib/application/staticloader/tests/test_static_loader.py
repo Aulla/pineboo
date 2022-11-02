@@ -4,7 +4,7 @@ import unittest
 import os
 from pineboolib.core import settings
 from pineboolib.loader.main import init_testing, finish_testing
-from . import fixture_path
+from pineboolib.application.staticloader.tests import fixture_path
 
 
 class TestStaticLoader(unittest.TestCase):

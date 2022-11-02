@@ -4,10 +4,10 @@ from PyQt6 import QtWidgets  # type: ignore[import]
 from pineboolib.core import decorators
 
 
-from .qframe import QFrame
-from .qgroupbox import QGroupBox
-from .qwidget import QWidget
-from .qiconset import QIconSet
+from pineboolib.q3widgets.qframe import QFrame
+from pineboolib.q3widgets.qgroupbox import QGroupBox
+from pineboolib.q3widgets.qwidget import QWidget
+from pineboolib.q3widgets.qiconset import QIconSet
 
 from typing import Union, Optional
 

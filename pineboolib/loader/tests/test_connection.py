@@ -6,7 +6,7 @@ from pineboolib.loader.projectconfig import ProjectConfig
 from pineboolib.loader.connection import config_dbconn  # , connect_to_db
 from pineboolib.loader.options import parse_options
 
-from . import fixture_path
+from pineboolib.loader.tests import fixture_path
 from typing import TYPE_CHECKING
 
 from unittest.mock import patch, Mock

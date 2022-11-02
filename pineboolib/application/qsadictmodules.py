@@ -5,7 +5,7 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 """
 
 
-from . import xmlaction, proxy, safeqsa
+from pineboolib.application import xmlaction, proxy, safeqsa
 from pineboolib import logging, application
 
 import sqlalchemy
@@ -33,7 +33,7 @@ class QSADictModules:
             if TYPE_CHECKING:
                 qsa_dict_modules_tree: Any = None  # pragma: no cover
             else:
-                from . import modules_tree as qsa_dict_modules_tree
+                from pineboolib.application import modules_tree as qsa_dict_modules_tree
 
             cls._qsa_dict_modules = qsa_dict_modules_tree
         return cls._qsa_dict_modules

@@ -3,8 +3,8 @@ from PyQt6 import QtGui  # type: ignore[import]
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from .. import qtabwidget
-from .. import qwidget
+from pineboolib.q3widgets import qtabwidget
+from pineboolib.q3widgets import qwidget
 
 
 class TestQTabWidget(unittest.TestCase):

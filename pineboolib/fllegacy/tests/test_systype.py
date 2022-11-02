@@ -4,7 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import systype
 from pineboolib import application
-from . import fixture_path
+from pineboolib.fllegacy.tests import fixture_path
 
 
 class TestSysType(unittest.TestCase):

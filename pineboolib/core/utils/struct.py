@@ -8,7 +8,7 @@ Used to avoid creating specific classes for each possible type.
 
 from typing import Any, List, Optional, Dict, Callable
 from xml.etree import ElementTree as ET
-from . import utils_base
+from pineboolib.core.utils import utils_base
 
 
 class Struct(object):

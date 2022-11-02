@@ -2,7 +2,7 @@
 
 from importlib.machinery import ModuleSpec
 from pineboolib.core.utils import logging
-from .utils.path import _path
+from pineboolib.application.utils.path import _path
 
 from typing import Optional, TYPE_CHECKING
 

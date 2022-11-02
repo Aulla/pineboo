@@ -10,7 +10,7 @@ from typing import Any
 
 from pineboolib.core.system import System  # noqa: F401
 
-from .utils import MathClass, NumberAttr, user_id, session  # noqa: F401
+from pineboolib.qsa.utils import MathClass, NumberAttr, user_id, session  # noqa: F401
 from pineboolib import application
 from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
 from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401
@@ -103,8 +103,8 @@ from PyQt6.QtXml import QDomElement as FLDomElement  # noqa: F401
 from PyQt6.QtXml import QDomNode as FLDomNode  # noqa: F401
 from PyQt6.QtXml import QDomNodeList as FLDomNodeList  # noqa: F401
 
-from .formdbwidget import FormDBWidget  # noqa: F401
-from .object_class import ObjectClass  # noqa: F401
+from pineboolib.qsa.formdbwidget import FormDBWidget  # noqa: F401
+from pineboolib.qsa.object_class import ObjectClass  # noqa: F401
 
 from pineboolib.fllegacy.fltable import FLTable  # noqa: F401
 from pineboolib.fllegacy.fllineedit import FLLineEdit  # noqa: F401

@@ -6,9 +6,9 @@ from pineboolib.core.utils import logging, utils_base
 from pineboolib.core import garbage_collector, decorators
 from pineboolib import application
 from pineboolib.interfaces import iconnection
-from . import pnconnection
-from . import pnsqlcursor
-from . import pnsqldriversmanager
+from pineboolib.application.database import pnconnection
+from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.database import pnsqldriversmanager
 
 from sqlalchemy import exc
 import threading

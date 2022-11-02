@@ -17,7 +17,7 @@ from pineboolib import application
 
 from pineboolib import logging
 
-from . import (
+from pineboolib.fllegacy import (
     fldatatable,
     flformsearchdb,
     flutil,
@@ -390,7 +390,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._tab_data.setObjectName("tabTable")
         self._function_get_color = None
 
-        from . import flformdb
+        from pineboolib.fllegacy import flformdb
 
         while not isinstance(self._top_widget, flformdb.FLFormDB):
             self._top_widget = self._top_widget.parentWidget()

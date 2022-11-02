@@ -24,12 +24,12 @@ from pineboolib.application.packager import pnunpacker
 from pineboolib.application.qsatypes import sysbasetype
 
 
-from .aqsobjects import aqsql, aqs
+from pineboolib.fllegacy.aqsobjects import aqsql, aqs
 
-from . import flutil
-from . import flvar
-from . import flfielddb
-from . import fltabledb
+from pineboolib.fllegacy import flutil
+from pineboolib.fllegacy import flvar
+from pineboolib.fllegacy import flfielddb
+from pineboolib.fllegacy import fltabledb
 
 from pineboolib.q3widgets import (
     qdialog,

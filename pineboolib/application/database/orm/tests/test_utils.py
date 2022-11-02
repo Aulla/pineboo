@@ -5,7 +5,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 
-from .. import utils as orm_utils
+from pineboolib.application.database.orm import utils as orm_utils
 
 
 class TestUtils(unittest.TestCase):

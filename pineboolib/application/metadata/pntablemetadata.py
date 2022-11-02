@@ -17,11 +17,11 @@ from pineboolib import logging
 import copy
 
 from typing import Optional, List, Dict, Union, TYPE_CHECKING
-from . import pnfieldmetadata
-from . import pncompoundkeymetadata
+from pineboolib.application.metadata import pnfieldmetadata
+from pineboolib.application.metadata import pncompoundkeymetadata
 
 if TYPE_CHECKING:
-    from . import pnrelationmetadata  # noqa # pragma: no cover
+    from pineboolib.application.metadata import pnrelationmetadata  # noqa # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
