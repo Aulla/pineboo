@@ -29,25 +29,25 @@ from pineboolib.qsa.utils import debug, isnan, replace, length, text  # noqa: F4
 from pineboolib.qsa.utils import format_exc, Sort, splice, typeof_  # noqa: F401
 from pineboolib.qsa.utils import Switch as switch  # noqa: F401
 from pineboolib.qsa.utils import QsaRegExp as qsaRegExp  # noqa: F401
-from pineboolib.qsa.utils import (
+from pineboolib.qsa.utils import (  # noqa: F401
     ws_channel_send,
     thread,
     user_id,
     session_atomic,
     session,
     _super,
-)  # noqa: F401
-from pineboolib.qsa.utils import (
+)
+from pineboolib.qsa.utils import (  # noqa: F401
     thread_session_new,
     thread_session_current,
     thread_session_free,
-)  # noqa: F401
-from pineboolib.qsa.utils import (
+)
+from pineboolib.qsa.utils import (  # noqa: F401
     pool_status,
     set_user_id,
     memory_status,
     qt_translate_noop,
-)  # noqa: F401
+)
 from pineboolib.qsa.utils import ws_channel_send_type, is_valid_session  # noqa: F401
 from pineboolib.qsa.decorators import atomic, serialize  # noqa: F401
 
@@ -56,210 +56,210 @@ from pineboolib.qsa.pncontrolsfactory import from_project, orm_, Application  # 
 
 # QT
 from pineboolib.qsa.pncontrolsfactory import QS_PROJECT, QSA_SYS, MATH, NUMBER_ATT
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QComboBox,
     QTable,
     QLayoutWidget,
     QToolButton,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QTabWidget,
     QLabel,
     QGroupBox,
     QListView,
     QImage,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QTextEdit,
     QLineEdit,
     QDateEdit,
     QTimeEdit,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QCheckBox,
     QWidget,
     QMessageBox,
     QDialog,
     QDateTime,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QVBoxLayout,
     QHBoxLayout,
     QFrame,
     QMainWindow,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QMenu,
     QToolBar,
     QAction,
     QDataView,
     QByteArray,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QMdiArea,
     QEventLoop,
     QActionGroup,
     QInputDialog,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QApplication,
     QStyleFactory,
     QFontDialog,
     QTextStream,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QMdiSubWindow,
     QSizePolicy,
     QProgressDialog,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import QFileDialog, QTreeWidget, QTreeWidgetItem  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QTreeWidgetItemIterator,
     QListWidgetItem,
     QObject,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QListViewWidget,
     QSignalMapper,
     QPainter,
     QBrush,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QKeySequence,
     QIcon,
     QColor,
     QDomDocument,
     QIconSet,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QPushButton,
     QSpinBox,
     QRadioButton,
     QPixmap,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QButtonGroup,
     QToolBox,
     QSize,
     QDockWidget,
     QDir,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QPopupMenu,
     QBuffer,
     QHButtonGroup,
     QVButtonGroup,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     QHttp,
     QHttpResponseHeader,
     QHttpRequestHeader,
-)  # noqa: F401
+)
 
 # FL
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLDomDocument,
     FLDomElement,
     FLDomNode,
     FLFastCgi,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLDomNodeList,
     FLLineEdit,
     FLTimeEdit,
     FLDateEdit,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import FLPixmapView, FLDataTable, FLCheckBox  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLTextEditOutput,
     FLSpinBox,
     FLTableDB,
     FLFieldDB,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import FLFormDB, FLFormRecordDB, FLFormSearchDB  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLDoubleValidator,
     FLIntValidator,
     FLUIntValidator,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLCodBar,
     FLWidget,
     FLWorkSpace,
     FLPosPrinter,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLSqlQuery,
     FLSqlCursor,
     FLNetwork,
     FLSerialPort,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLApplication,
     FLVar,
     FLSmtpClient,
     FLTable,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FLListViewItem,
     FLReportViewer,
     FLUtil,
     FLSettings,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import FLScriptEditor, FLReportEngine  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import FLJasperEngine, FLJasperViewer  # noqa: F401
 
 # QSA
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     FileDialog,
     Color,
     Label,
     Line,
     CheckBox,
     Dialog,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     ComboBox,
     TextEdit,
     LineEdit,
     MessageBox,
     RadioButton,
-)  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+)
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     GroupBox,
     SpinBox,
     NumberEdit,
     DateEdit,
     TimeEdit,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import Picture, Rect, Size, Pixmap, Font  # noqa: F401
 
 
 # AQS
 from pineboolib.qsa.pncontrolsfactory import AQS, AQUnpacker, AQSettings, AQSqlQuery  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import AQSqlCursor, AQUtil, AQSql, AQSmtpClient  # noqa: F401
-from pineboolib.qsa.pncontrolsfactory import (
+from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
     AQSignalMapper,
     AQSSProject,
     AQObjectQueryList,
-)  # noqa: F401
+)
 from pineboolib.qsa.pncontrolsfactory import AQSButtonGroup  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 
 if not __is_deployed():
     # FIXME: No module named 'xml.sax.expatreader' in deploy
-    from pineboolib.qsa.pncontrolsfactory import (
+    from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
         AQOdsGenerator,
         AQOdsSpreadSheet,
         AQOdsSheet,
-    )  # noqa: F401
-    from pineboolib.qsa.pncontrolsfactory import (
+    )
+    from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
         AQOdsRow,
         AQOdsColor,
         AQOdsStyle,
         AQOdsImage,
-    )  # noqa: F401
+    )
 
 from pineboolib.qsa.pncontrolsfactory import AQBoolFlagState, AQBoolFlagStateList  # noqa: F401
 

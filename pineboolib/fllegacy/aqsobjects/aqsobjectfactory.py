@@ -14,21 +14,21 @@ from pineboolib.fllegacy.aqsobjects.aqutil import AQUtil  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsql import AQSql  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsmtpclient import AQSmtpClient  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqs import AQS  # noqa: F401
-from pineboolib.fllegacy.aqsobjects.aqboolflagstate import (
+from pineboolib.fllegacy.aqsobjects.aqboolflagstate import (  # noqa: F401
     AQBoolFlagState,
     AQBoolFlagStateList,
-)  # noqa: F401
+)
 from pineboolib.fllegacy.aqsobjects.aqformdb import aq_form_db as AQFormDB  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
 
 if not getattr(sys, "frozen", False):  # FIXME: No module named 'xml.sax.expatreader' in deploy
-    from pineboolib.fllegacy.aqsobjects.aqods import (
+    from pineboolib.fllegacy.aqsobjects.aqods import (  # noqa: F401
         AQOdsGenerator,
         AQOdsSpreadSheet,
         AQOdsSheet,
         AQOdsRow,
-    )  # noqa: F401
+    )
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle, AQOdsImage  # noqa: F401
     from pineboolib.fllegacy.aqsobjects.aqods import aq_ods_color as AQOdsColor  # noqa: F401
