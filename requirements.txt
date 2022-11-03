@@ -1,4 +1,4 @@
-alembic==1.8.1
+alembic>=1.7.7
 black==22.6.0
 clipboard==0.0.4
 coloredlogs==14.0
@@ -33,8 +33,8 @@ xades==0.2.1
 xmlsig==0.1.7
 Pillow==8.2.0
 PyYAML==5.3.1
-PyQt6==6.3.1
-PyQt6-Qt6==6.3.1
-PyQt6-sip
+PyQt6>=6.4.0
+PyQt6-Qt6>=6.4.0
+PyQt6-sip>=13.2.1
 
 
