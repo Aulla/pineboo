@@ -1,4 +1,4 @@
-alembic>=1.7.7
+alembic>=1.7.7 # 1.8.8
 black==22.6.0
 clipboard==0.0.4
 coloredlogs==14.0
@@ -7,7 +7,7 @@ fernet==1.0.1
 fpdf2==2.4.2
 flake8==3.9.0
 flup==1.0.3
-# fonttools>=4.33.3 para letras estiradas en kut...
+fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
 lxml==4.7.1
 ninja==1.10.0.post1
@@ -35,6 +35,6 @@ Pillow==8.2.0
 PyYAML==5.3.1
 PyQt6>=6.4.0
 PyQt6-Qt6>=6.4.0
-PyQt6-sip>=13.2.1
+PyQt6-sip>=13.2.1 # 13.4.0
 
 
