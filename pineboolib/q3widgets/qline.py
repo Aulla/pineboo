@@ -22,7 +22,7 @@ class QLine(QtWidgets.QFrame):
 
         return self._object_name
 
-    def setObjectName(self, name: str) -> None:
+    def setObjectName(self, name: str) -> None:  # type: ignore [override]
         """Set object name."""
 
         self._object_name = name

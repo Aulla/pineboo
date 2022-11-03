@@ -44,10 +44,10 @@ class FLSettings(object):
     def writeEntry(self, key: str, value: Any) -> None:
         """Set a value."""
 
-        self._settings.setValue(key, value)
+        self._settings.setValue(key, value)  # type: ignore [has-type]
 
     def writeEntryList(self, key: str, value: List[str]) -> None:
         """Set a value list."""
         # FIXME: This function flattens the array when saving in some cases. Should always save an array.
 
-        self._settings.setValue(key, ",".join(value))
+        self._settings.setValue(key, ",".join(value))  # type: ignore [has-type]

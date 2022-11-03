@@ -70,7 +70,9 @@ class PinebooSettings(QtCore.QSettings):
 
         return value
 
-    def value(self, key: str, def_value: Any = None, type: Type = None) -> Any:
+    def value(  # type: ignore [override]
+        self, key: str, def_value: Any = None, type: Type = None
+    ) -> Any:
         """Get a value from INI for the specified key."""
         curtime = time.time()
         cached_value = self.cache.get(key, None)
@@ -113,7 +115,7 @@ class PinebooSettings(QtCore.QSettings):
         self.cache[key] = (curtime, value)
         return super().setValue(key, self.dump_value(value))
 
-    setValue = set_value
+    setValue = set_value  # type: ignore [assignment]
 
 
 CONFIG = PinebooSettings("Config")

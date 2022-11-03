@@ -778,9 +778,9 @@ class FLManagerModules(object):
         if self.sha_local_ is None:
             raise ValueError("sha_local_ is empty!")
 
-        settings.SETTINGS.setValue("Modules/activeIdModule/%s" % id_db, self.active_id_module_)
-        settings.SETTINGS.setValue("Modules/activeIdArea/%s" % id_db, self.active_id_area_)
-        settings.SETTINGS.setValue("Modules/shaLocal/%s" % id_db, self.sha_local_)
+        settings.SETTINGS.setValue("Modules/activeIdModule/%s" % id_db, self.active_id_module_)  # type: ignore [has-type]
+        settings.SETTINGS.setValue("Modules/activeIdArea/%s" % id_db, self.active_id_area_)  # type: ignore [has-type]
+        settings.SETTINGS.setValue("Modules/shaLocal/%s" % id_db, self.sha_local_)  # type: ignore [has-type]
 
     def readState(self) -> None:
         """
