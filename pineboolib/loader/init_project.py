@@ -42,6 +42,11 @@ def init_project(
         LOGGER.info("Finished preloading")
         return 0
 
+    if "plus_sys" in project.actions.keys():
+        project.call("formplus_sys.main", [], None, False)
+        if options.quit_after_call:
+            return 0
+
     call_function = settings.SETTINGS.value("application/callFunction", None)
     if options.call_function:
         call_function = options.call_function
@@ -58,11 +63,6 @@ def init_project(
             if not application.DEVELOPER_MODE:
                 raise error
 
-        if options.quit_after_call:
-            return 0
-
-    if "plus_sys" in project.actions.keys():
-        project.call("formplus_sys.main", [], None, False)
         if options.quit_after_call:
             return 0
 
