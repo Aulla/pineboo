@@ -68,7 +68,7 @@ class TestOrm(unittest.TestCase):
         )  # Introduce el nuevo registro en la BD. A partir de ahora los cambios posteriores se guardarán en la BD.
         # res_1 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
         # self.assertFalse(res_1.returns_rows)
-        session_.flush()  # Aplica el cambio en la BD.
+        session_.flush([obj_])  # Aplica el cambio en la BD.
         res_2 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
         self.assertTrue(res_2.returns_rows)
 

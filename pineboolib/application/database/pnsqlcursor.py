@@ -3106,7 +3106,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 raise Exception("Buffer is not set. Cannot update")
 
-            self.db().session().flush()
+            self.db().session().flush([self.private_cursor.buffer_.current_object()])
             update_successful = True
 
             if notify:
