@@ -813,7 +813,7 @@ class BaseModel(object):
         mode = 3
         if self in session.deleted:
             mode = 2  # delete
-        elif self in session.dirty or self.changes():
+        elif self in session.dirty:
             mode = 1  # edit
         elif self._new_object:
             mode = 0  # insert

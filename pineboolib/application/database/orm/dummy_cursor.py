@@ -116,8 +116,9 @@ class DummyCursor(object):
             elif type_ == "time":
                 if not isinstance(value, datetime.time):
                     value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
-
+        print("dummy_cursor.setValueBuffer", field_name, value)
         setattr(self._parent, field_name, value)
+        print(self._parent.changes(), self._parent.session.dirty)
 
     def setValueBufferCopy(self, field_name: str, value: Any) -> Any:
         """Set field value."""
