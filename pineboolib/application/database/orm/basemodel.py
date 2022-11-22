@@ -359,7 +359,7 @@ class BaseModel(object):
                     self._session.delete(self)
 
             try:
-                self._session.flush()
+                self._session.flush([self])
             except Exception as error:
                 self._error_manager("_flush", error)
 
