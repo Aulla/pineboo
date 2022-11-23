@@ -2541,23 +2541,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     return False
 
-        # primary_key = self.private_cursor.metadata_.primaryKey()
         updated = 0
-        use_nested = False
-        # savePoint = None
-
-        if not self.transactionLevel():
-
-            self.db().transaction()
-            if application.SHOW_NESTED_WARNING:
-                LOGGER.warning(
-                    "NESTED STARTED: %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
-                    self.curName().upper(),
-                    commit_buffer_session,
-                    commit_buffer_session.transaction.parent,
-                    commit_buffer_session.transaction,
-                )
-            use_nested = True
 
         if self.modeAccess() == self.Insert:
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
@@ -2726,18 +2710,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif self.modeAccess() == self.Insert:
             self.setModeAccess(self.Edit)
 
-        if updated or use_nested:
-            # Para cuando usamos npsqlcursors solos!
-            if use_nested:
+        if updated:
+            if not self.transactionLevel():
                 pk_value = self.buffer().value(self.primaryKey())
-                if not self.commit():
-                    LOGGER.warning(
-                        "CommitBuffer cancelado. db().commitTransaction devolvió False.",
-                        stack_info=True,
-                    )
-                    self.db().rollback()
-                    return False
-
                 if self.metadata().isQuery():
                     self.model().refresh()
                 elif not self.model().updateCacheData(updated):
@@ -2751,26 +2726,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if pk_row > -1:
                     self.move(pk_row)
                     self.refreshBuffer()
-
-                if application.SHOW_NESTED_WARNING:
-                    LOGGER.warning(
-                        "ENDING NESTED : %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
-                        self.curName().upper(),
-                        commit_buffer_session,
-                        commit_buffer_session.transaction.parent,
-                        commit_buffer_session.transaction,
-                    )
-                self.db().commit()
-
-                if application.SHOW_NESTED_WARNING:
-                    LOGGER.warning(
-                        "RESULT NESTED : %s, CURRENT : %s",
-                        self.curName().upper(),
-                        commit_buffer_session.transaction,
-                    )
-
-            # if self.transactionLevel() == 0:
-            #    self.db().commit()
 
             if field_name_check and self.private_cursor.buffer_:
                 self.private_cursor.buffer_.set_generated(field_name_check, True)
