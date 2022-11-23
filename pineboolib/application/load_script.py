@@ -133,7 +133,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             )
             if not application.PROJECT.parse_script_list([cached_script_path_qs]):
                 if not os.path.exists(script_path_py):
-                    raise Exception("The file %s doesn't created\n" % script_path_py)
+                    raise Exception("El fichero %s no se ha podido crear\n" % script_path_py)
 
         try:
             script_loaded = _load(script_name, script_path_py, False)
