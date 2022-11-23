@@ -43,7 +43,11 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     init_logging(True)
     init_cli(catch_ctrl_c=False)
 
-    LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
+    LOGGER.info(
+        pyfiglet.figlet_format(
+            "\nPINEBOO %s " % application.PROJECT.load_version(), font="starwars"
+        )
+    )
 
     debug_level = 200
     if application.DEVELOPER_MODE:
