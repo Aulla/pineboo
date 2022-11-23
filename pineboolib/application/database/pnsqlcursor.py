@@ -2474,8 +2474,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return False
 
-        commit_buffer_session = self.db().session()
-
         if not self.checkIntegrity():
             LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
             return False

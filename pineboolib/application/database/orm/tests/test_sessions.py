@@ -4,8 +4,6 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
-from pineboolib.application.database.orm.tests import fixture_path
-from datetime import datetime
 
 
 class TestSessions(unittest.TestCase):
@@ -65,7 +63,7 @@ class TestSessions(unittest.TestCase):
         cursor3.select("id=%s" % (numero))
         cursor3.first()
         cursor3.refreshBuffer()
-        self.assertTrue(cursor3.valueBuffer("bool_field") == False)
+        self.assertTrue(cursor3.valueBuffer("bool_field") is False)
         cursor.db().commit()
 
     @classmethod
