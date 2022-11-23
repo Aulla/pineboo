@@ -443,9 +443,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def transaction(self) -> bool:
         """Create a transaction."""
-
         try:
+
             session_ = self.session()
+
             if not session_.transaction:
                 LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
                 session_.begin()

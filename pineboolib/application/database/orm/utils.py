@@ -9,6 +9,7 @@ import sqlalchemy
 if TYPE_CHECKING:
     from sqlalchemy.ext import declarative  # pragma: no cover
     from sqlalchemy.orm import query  # pragma: no cover
+    from sqlalchemy.orm import Session
 
 
 class OrmManager(object):
@@ -259,3 +260,8 @@ class DynamicFilter(object):
         """Return query object."""
 
         return self.filter_query(self.query_, self.filter_condition)
+
+
+def do_flush(session: "Session", model_obj: Any) -> None:
+    """Flush object on a session."""
+    session.flush([model_obj])

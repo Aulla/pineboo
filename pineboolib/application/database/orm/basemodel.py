@@ -3,6 +3,7 @@
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
+from pineboolib.application.database.orm.utils import do_flush
 from pineboolib import application
 
 from pineboolib.application.database.orm import dummy_cursor, dummy_signal
@@ -359,7 +360,7 @@ class BaseModel(object):
                     self._session.delete(self)
 
             try:
-                self._session.flush([self])
+                do_flush(self._session, self)
             except Exception as error:
                 self._error_manager("_flush", error)
 

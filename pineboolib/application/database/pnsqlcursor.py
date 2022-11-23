@@ -9,6 +9,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings, garbage_collector
 
 from pineboolib.application.database import pnsqlquery, utils
+from pineboolib.application.database.orm.utils import do_flush
 from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
 from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
@@ -2465,7 +2466,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param check_locks True to check block risks for this table and the current record
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
-
         if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
             LOGGER.warning(
                 "CommitBuffer cancelado. No hay buffer o metadata. buffer:%s, metadata:%s",
@@ -2528,7 +2528,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ]
 
         module_script = action.load_master_widget()
-
         module_iface: Any = getattr(module_script, "iface", None)
         if self.modeAccess() != PNSqlCursor.Browse and function_before_commit:
             # BEFORE_COMMIT
@@ -2627,7 +2626,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             #    self.buffer().prime_delete()
 
             field_list = self.metadata().fieldList()
-
             for field in field_list:
 
                 field_name = field.name()
@@ -2687,7 +2685,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         return False
 
             updated = 3
-
         if updated and self.lastError():
             LOGGER.warning("CommitBuffer cancelado. Error encontrado: %s.", self.lastError())
             return False
@@ -2734,7 +2731,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor._buffer_copy.set_generated(field_name_check, True)
 
             self.setFilter("")
-            # self.clearMapCalcFields()
 
             if emite:
                 self.cursorUpdated.emit()
@@ -3061,7 +3057,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 raise Exception("Buffer is not set. Cannot update")
 
-            self.db().session().flush([self.private_cursor.buffer_.current_object()])
+            do_flush(self.db().session(), self.private_cursor.buffer_.current_object())
             update_successful = True
 
             if notify:
