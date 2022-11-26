@@ -72,7 +72,7 @@ class TestInsertData(unittest.TestCase):
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
         self.assertTrue(cursor.valueBuffer("empty_relation") == "")
-        self.assertTrue(cursor.buffer().value("empty_relation") is None)
+        self.assertTrue(cursor.buffer().value("empty_relation", True) is None)
         self.assertTrue(cursor.commitBuffer())
         obj = qsa.orm.fltest.get(cursor.valueBuffer("id"))
         self.assertTrue(obj)

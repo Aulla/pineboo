@@ -5,6 +5,7 @@ Collect information from the query, such as field tables, lines, etc ...
 
 from pineboolib import application, logging
 from pineboolib.application import types
+from pineboolib.application.database import utils
 
 import datetime
 import re
@@ -495,21 +496,7 @@ class SqlInspector(object):
             if mtd is not None:
                 type_ = mtd.type()
 
-        ret_: Any = None
-        if type_ in ("double", "int", "uint", "serial"):
-            ret_ = 0
-        elif type_ in ("string", "stringlist", "pixmap", "date", "timestamp"):
-            ret_ = ""
-        elif type_ in ("unlock", "bool"):
-            ret_ = False
-        elif type_ == "time":
-            ret_ = "00:00:00"
-        elif type_ == "bytearray":
-            ret_ = bytearray()
-        elif type_ == "json":
-            ret_ = {}
-
-        return ret_
+        return utils.resolve_empty_qsa_value(type_)
 
     def resolve_value(self, pos: int, value: Any, raw: bool = False) -> Any:
         """
@@ -518,29 +505,18 @@ class SqlInspector(object):
         @param pos. index postion.
         """
 
+        ret_: Any = None
+        type_ = "double"
+
         if not self.mtd_fields():
-            if isinstance(value, datetime.time):
-                value = str(value)[0:8]
-            elif isinstance(value, datetime.timedelta):
-                days, seconds = value.days, value.seconds
-                hours = days * 24 + seconds // 3600
-                minutes = (seconds % 3600) // 60
-                seconds = seconds % 60
-                value = "%s:%s:%s" % (
-                    hours,
-                    minutes if len(str(minutes)) > 1 else "0%s" % minutes,
-                    seconds if len(str(seconds)) > 1 else "0%s" % seconds,
-                )
+            if isinstance(value, datetime.timedelta):
+                type_ = "timestamp"
+                ret_ = utils.resolve_qsa_value(type_, value)
+            elif isinstance(value, datetime.time):
+                type_ = "time"
+                ret_ = utils.resolve_qsa_value(type_, value)
 
-                value = str(value)
-                if value.find(".") > -1:
-                    value = value[0 : value.find(".")]
-                elif value.find("+") > -1:
-                    value = value[0 : value.find("+")]
-
-            return value
         else:
-            type_ = "double"
             field_metadata = None
             if pos not in self._mtd_fields.keys():
                 if pos not in self._field_list.values():
@@ -553,18 +529,7 @@ class SqlInspector(object):
                 if field_metadata is not None:
                     type_ = field_metadata.type()
 
-        ret_: Any = value
-        if type_ in ("string", "stringlist", "timestamp", "json"):
-            pass
-        elif type_ == "double":
-            try:
-                ret_ = float(ret_)
-            except Exception as error:
-                LOGGER.warning(str(error))
-
-        elif type_ in ("int", "uint", "serial"):
-            ret_ = int(ret_)
-        elif type_ == "pixmap":
+        if type_ == "pixmap":
 
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
@@ -578,38 +543,11 @@ class SqlInspector(object):
             if raw or not application.PROJECT.conn_manager.manager().isSystemTable(
                 table_metadata.name()
             ):
-                ret_ = application.PROJECT.conn_manager.manager().fetchLargeValue(ret_)
-        elif type_ == "date":
-
-            ret_ = types.Date(str(ret_))
-        elif type_ == "time":
-
-            if isinstance(ret_, datetime.timedelta):
-                days, seconds = ret_.days, ret_.seconds
-                hours = days * 24 + seconds // 3600
-                minutes = (seconds % 3600) // 60
-                seconds = seconds % 60
-                ret_ = "%s:%s:%s" % (
-                    hours,
-                    minutes if len(str(minutes)) > 1 else "0%s" % minutes,
-                    seconds if len(str(seconds)) > 1 else "0%s" % seconds,
-                )
-
-            ret_ = str(ret_)
-            if ret_.find(".") > -1:
-                ret_ = ret_[0 : ret_.find(".")]
-            elif ret_.find("+") > -1:
-                ret_ = ret_[0 : ret_.find("+")]
-
-        elif type_ in ("unlock", "bool"):
-            ret_ = types.boolean(ret_)
-        elif type_ == "bytearray":
-            ret_ = bytearray(ret_)
-        else:
-            try:
-                ret_ = float(ret_)
-            except Exception:
-                LOGGER.warning("Unknown type %s, value %s" % (type_, ret_))
+                ret_ = application.PROJECT.conn_manager.manager().fetchLargeValue(value)
+            else:
+                ret_ = value
+        elif ret_ is None:
+            ret_ = utils.resolve_qsa_value(type_, value)
 
         return ret_
 

@@ -10,7 +10,6 @@ from pineboolib.core import decorators, settings, garbage_collector
 
 from pineboolib.application.database import pnsqlquery, utils
 from pineboolib.application.database.orm.utils import do_flush
-from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
 from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 from pineboolib.application.acls import pnaccesscontrolfactory
@@ -474,7 +473,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.bufferChanged.emit(field_name)
         QtWidgets.QApplication.processEvents()
 
-    def valueBuffer(self, field_name: str, with_not_value: bool = False) -> Any:
+    def valueBuffer(self, field_name: str, return_none: bool = False) -> Any:
         """
         Retrieve a value from a field buffer (self.private_cursor.buffer_).
 
@@ -496,7 +495,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.warning("valueBuffer(): No existe el campo %s:%s.", self._name, field_name)
             return None
 
-        value = self.buffer().value(field_name)
+        value = self.buffer().value(field_name, return_none)
 
         if (
             field_metadata.outTransaction()
@@ -518,45 +517,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if qry.next():
                 value = qry.value(0)
 
-        type_ = field_metadata.type()
-
-        if value:
-
-            if type_ == "date":
-                if isinstance(value, datetime.date):
-                    value = types.Date(value.strftime("%Y-%m-%d"))
-            elif type_ == "time":
-                if isinstance(value, datetime.time):
-                    value = value.strftime("%H:%M:%S")
-
-            elif type_ == "pixmap":
-                v_large = (
-                    xpm.cache_xpm(str(value))
-                    if self.private_cursor._is_system_table
-                    else self.db().connManager().manager().fetchLargeValue(str(value))
-                )
-
-                value = v_large if v_large else value
-            elif type_ == "double":
-                value = float(value)  # type: ignore [arg-type] # noqa: F821
-            elif type_ in ("int", "uint"):
-                value = int(value)  # type: ignore [arg-type] # noqa: F821
-
-        elif with_not_value is False:
-            if type_ in ("string", "stringlist", "date", "timestamp"):
-                value = ""
-            elif type_ in ("double", "int", "uint", "serial"):
-                value = 0
-            elif type_ == "json":
-                value = {}
-
         return value
 
     def fetchLargeValue(self, value: str) -> Optional[str]:
         """Retrieve large value from database."""
         return self.db().connManager().manager().fetchLargeValue(value)
 
-    def valueBufferCopy(self, field_name: str) -> Any:
+    def valueBufferCopy(self, field_name: str, return_none: bool = False) -> Any:
         """
         Retrieve original value for a field before it was changed.
 
@@ -574,33 +541,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return None
 
-        value = self.bufferCopy().value(field_name)
-        type_ = field_metadata.type()
-
-        if value:
-
-            if type_ == "date":
-                if isinstance(value, datetime.date):
-                    value = types.Date(value.strftime("%Y-%m-%d"))
-            elif type_ == "time":
-                if isinstance(value, datetime.time):
-                    value = value.strftime("%H:%M:%S")
-
-            elif type_ == "pixmap":
-                v_large = (
-                    xpm.cache_xpm(str(value))
-                    if self.private_cursor._is_system_table
-                    else self.db().connManager().manager().fetchLargeValue(str(value))
-                )
-
-                value = v_large if v_large else value
-        else:
-            if type_ in ("string", "stringlist", "date", "timestamp"):
-                value = ""
-            elif type_ in ("double", "int", "uint"):
-                value = 0
-            elif type_ == "json":
-                value = {}
+        value = self.bufferCopy().value(field_name, return_none)
 
         return value
 

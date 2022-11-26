@@ -8,6 +8,8 @@ from pineboolib.loader.main import init_cli
 from pineboolib.core import settings
 from pineboolib.application import types
 
+import datetime
+
 
 init_cli()  # FIXME: This should be avoided
 
@@ -258,6 +260,20 @@ class TestDate(unittest.TestCase):
         self.assertEqual(date_.getDay(), 25)
         self.assertEqual(date_.getMonth(), 2)
         self.assertEqual(date_.getYear(), 2001)
+
+    def test_basic2(self) -> None:
+        today = datetime.date.today()
+        date_ = types.Date(today)
+        self.assertEqual(date_.getDay(), today.day)
+        self.assertEqual(date_.getMonth(), today.month)
+        self.assertEqual(date_.getYear(), today.year)
+
+        other = datetime.datetime.strptime("2001-01-01", "%Y-%m-%d")
+
+        date_ = types.Date(other)
+        self.assertEqual(date_.getDay(), other.day)
+        self.assertEqual(date_.getMonth(), other.month)
+        self.assertEqual(date_.getYear(), other.year)
 
 
 class TestString(unittest.TestCase):

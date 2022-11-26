@@ -6,8 +6,10 @@ Manage buffers used by PNSqlCursor.
 Buffers are the data records pointed to by a PNSqlCursor.
 """
 from pineboolib.application import types
+from pineboolib.application.database import utils as utils_database
 from pineboolib import logging
 from pineboolib.core.utils import utils_base
+from pineboolib.application.utils import xpm
 
 import datetime
 import sqlalchemy
@@ -96,7 +98,7 @@ class PNBuffer(object):
         """
         setattr(self._orm_obj, name, None)
 
-    def value(self, field_name: str) -> "TVALUES":
+    def value(self, field_name: str, return_none: bool = False) -> "TVALUES":
         """
         Return the value of a field.
 
@@ -112,36 +114,34 @@ class PNBuffer(object):
 
             value = getattr(self._orm_obj, field_name, None)
 
-            if value is not None:
-                metadata = self._cursor.metadata().field(field_name)
-                if metadata is not None:
-                    type_ = metadata.type()
-                    if type_ == "date":
-                        if not isinstance(value, str):
-                            value = value.strftime(  # type: ignore [union-attr] # noqa: F821
-                                "%Y-%m-%d"
-                            )
+        metadata = self._cursor.metadata().field(field_name)
 
-                    elif type_ == "time":
-                        if not isinstance(value, str):
-                            value = value.strftime(  # type: ignore [union-attr] # noqa: F821
-                                "%H:%M:%S"
-                            )
+        if metadata is not None:
+            type_ = metadata.type()
+
+            if value is not None:
+                if type_ == "pixmap":
+                    v_large = (
+                        xpm.cache_xpm(str(value))
+                        if self._cursor.private_cursor._is_system_table
+                        else self._cursor.db().connManager().manager().fetchLargeValue(str(value))
+                    )
+
+                    value = v_large if v_large else value
+                else:
+                    value = utils_database.resolve_qsa_value(type_, value)
+            elif return_none is False:
+                value = utils_database.resolve_empty_qsa_value(type_)
 
         return value
 
     def set_value(self, field_name: str, value: "TVALUES") -> bool:
         """Set values to cache_buffer."""
 
-        if field_name in self._cursor.metadata().fieldNames():
-            meta_field = self._cursor.metadata().field(field_name)
-            if meta_field is not None and meta_field.type() == "bool":
-                if isinstance(value, str):
-                    value = utils_base.text2bool(value)
-            self._cache_buffer[field_name] = value
-        else:
+        if field_name not in self._cursor.metadata().fieldNames():
             return False
 
+        self._cache_buffer[field_name] = value
         return True
 
     def apply_buffer(self) -> bool:
@@ -150,10 +150,24 @@ class PNBuffer(object):
 
         for field_name in self._cache_buffer.keys():
             value: Any = self._cache_buffer[field_name]
-            meta_field = self._cursor.metadata().field(field_name)
+            ret_ = self.set_value_to_objet(field_name, value)
+            if not ret_:
+                break
 
-            if value is not None and meta_field is not None:
-                type_ = meta_field.type()
+        return ret_
+
+    def set_value_to_objet(self, field_name: str, value: "TVALUES") -> bool:
+        """
+        Set the value of a field.
+
+        @param name = Field name.
+        @param value = new value.
+        @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
+        """
+        if value is not None:
+            metadata = self._cursor.metadata().field(field_name)
+            if metadata is not None:
+                type_ = metadata.type()
 
                 if type_ == "double":
                     if isinstance(value, str) and value == "":
@@ -170,39 +184,22 @@ class PNBuffer(object):
                 elif type_ in ("boolean", "unlock"):
                     value = utils_base.text2bool(str(value))
 
-            ret_ = self.set_value_to_objet(field_name, value)
-            if not ret_:
-                break
+                if value in ["", "NULL"]:
+                    if isinstance(value, str) and value == "NULL":
+                        value = None
+                else:
+                    if type_ == "date":
+                        value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+                    elif type_ == "timestamp":
+                        value = datetime.datetime.strptime(str(value)[0:19], "%Y-%m-%d %H:%M:%S")
+                    elif type_ == "time":
+                        value = str(value)
+                        if value.find("T") > -1:
+                            value = value[value.find("T") + 1 :]
 
-        return ret_
-
-    def set_value_to_objet(self, field_name: str, value: "TVALUES") -> bool:
-        """
-        Set the value of a field.
-
-        @param name = Field name.
-        @param value = new value.
-        @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
-        """
-
-        if value not in [None, "", "NULL"]:
-            metadata = self._cursor.metadata().field(field_name)
-            if metadata is not None:
-                type_ = metadata.type()
-                if type_ == "date":
-                    value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
-                elif type_ == "timestamp":
-                    value = datetime.datetime.strptime(str(value)[0:19], "%Y-%m-%d %H:%M:%S")
-                elif type_ == "time":
-                    value = str(value)
-                    if value.find("T") > -1:
-                        value = value[value.find("T") + 1 :]
-
-                    value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
-                elif type_ in ["bool", "unlock"]:
-                    value = True if value in [True, 1, "1", "true"] else False
-        elif isinstance(value, str) and value == "NULL":
-            value = None
+                        value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
+                    elif type_ in ["bool", "unlock"]:
+                        value = True if value in [True, 1, "1", "true"] else False
 
         try:
             setattr(self._orm_obj, field_name, value)
@@ -235,7 +232,7 @@ class PNBuffer(object):
     def is_null(self, field_name: str) -> bool:
         """Return if a field is null."""
 
-        return self.value(field_name) is None
+        return self.value(field_name, True) is None
 
     def set_generated(self, field_name: str, status: bool):
         """Mark a field as generated."""

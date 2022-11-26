@@ -412,7 +412,7 @@ class ISqlCursor(QtCore.QObject):
         """Fetch from fllarge."""
         pass  # pragma: no cover
 
-    def valueBufferCopy(self, field_name) -> Any:
+    def valueBufferCopy(self, field_name: str, with_no_value: bool = False) -> Any:
         """Get original value on buffer."""
         pass  # pragma: no cover
 

@@ -7,7 +7,9 @@ from pineboolib.application import types, qsadictmodules, load_script
 from pineboolib import application
 from pineboolib.application.database.orm import dummy_cursor
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
+from pineboolib.core.utils import utils_base
 
+import datetime
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
@@ -408,3 +410,86 @@ class ClassManager(object):
     def classes(self) -> List[str]:
         """Return available models list."""
         return list(application.FILE_CLASSES.keys())
+
+
+def resolve_empty_qsa_value(type_: str = "double") -> Any:
+    """Return empty values."""
+    result: Any = None
+
+    if type_ in ("double", "int", "uint", "serial"):
+        result = 0
+    elif type_ in ("string", "stringlist", "pixmap", "date", "timestamp"):
+        result = ""
+    elif type_ in ("unlock", "bool"):
+        result = False
+    elif type_ == "time":
+        result = "00:00:00"
+    elif type_ == "bytearray":
+        result = bytearray()
+    elif type_ == "json":
+        result = {}
+
+    return result
+
+
+def resolve_qsa_value(type_: str, value: Any) -> Any:
+    """Return formateed value."""
+
+    result: Any = value
+
+    if type_ in ("string", "stringlist"):
+        result = value
+    elif type_ == "double":
+        try:
+            result = float(value)
+        except Exception as error:
+            LOGGER.warning(str(error))
+
+    elif type_ in ("int", "uint", "serial"):
+        result = int(value)  # type: ignore [arg-type] # noqa: F821
+
+    elif type_ == "date":
+        if not isinstance(value, types.Date):
+            result = types.Date(value)
+    elif type_ == "time":
+        if not isinstance(result, str):
+            result = value.strftime("%H:%M:%S")
+
+        if result.find(".") > -1:
+            result = result[0 : result.find(".")]
+
+    elif type_ in ("unlock", "bool"):
+        if isinstance(value, str):
+            result = utils_base.text2bool(value)
+        else:
+            result = types.boolean(value)
+    elif type_ == "bytearray":
+        result = bytearray(value)
+    elif type_ == "timestamp":
+        if isinstance(value, datetime.datetime):
+            value = value.strftime("%Y-%m-%d %H:%M:%S")
+        elif not isinstance(value, str):
+            days, seconds = value.days, value.seconds
+            hours = days * 24 + seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+            value = "%s:%s:%s" % (
+                hours,
+                minutes if len(str(minutes)) > 1 else "0%s" % minutes,
+                seconds if len(str(seconds)) > 1 else "0%s" % seconds,
+            )
+
+            value = str(value)
+        if value.find(".") > -1:
+            value = value[0 : value.find(".")]
+        elif value.find("+") > -1:
+            value = value[0 : value.find("+")]
+        result = value
+
+    else:
+        try:
+            result = float(value)
+        except Exception:
+            LOGGER.warning("Unknown type %s, value %s" % (type_, value))
+
+    return result

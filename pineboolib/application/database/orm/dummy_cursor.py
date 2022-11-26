@@ -5,6 +5,7 @@ from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata, pnaction
 from pineboolib.application import types
 from pineboolib.application.qsatypes import date
+from pineboolib.application.database import utils
 from pineboolib import application
 import datetime
 
@@ -43,7 +44,7 @@ class DummyCursor(object):
             else self._parent._current_mode
         )
 
-    def valueBuffer(self, field_name: str) -> Any:
+    def valueBuffer(self, field_name: str, return_none: bool = False) -> Any:
         """Return field value."""
 
         value = (
@@ -59,19 +60,15 @@ class DummyCursor(object):
                 % (field_name, meta_table.name())
             )
         else:
-
             type_ = meta_field.type()  # type: ignore [union-attr]
-
-            if type_ == "date":
-                if isinstance(value, datetime.date):
-                    value = types.Date(value.strftime("%Y-%m-%d"))
-            elif type_ == "time":
-                if isinstance(value, datetime.time):
-                    value = value.strftime("%H:%M:%S")
+            if value:
+                value = utils.resolve_qsa_value(type_, value)
+            elif not return_none:
+                value = utils.resolve_empty_qsa_value(type_)
 
         return value
 
-    def valueBufferCopy(self, field_name: str) -> Any:
+    def valueBufferCopy(self, field_name: str, return_none: bool = False) -> Any:
         """Return field value copy."""
 
         value = getattr(self._parent.copy(), field_name)
@@ -84,15 +81,11 @@ class DummyCursor(object):
                 % (field_name, meta_table.name())
             )
         else:
-
             type_ = meta_field.type()  # type: ignore [union-attr]
-
-            if type_ == "date":
-                if isinstance(value, datetime.date):
-                    value = types.Date(value.strftime("%Y-%m-%d"))
-            elif type_ == "time":
-                if isinstance(value, datetime.time):
-                    value = value.strftime("%H:%M:%S")
+            if value:
+                value = utils.resolve_qsa_value(type_, value)
+            elif not return_none:
+                value = utils.resolve_empty_qsa_value(type_)
 
         return value
 

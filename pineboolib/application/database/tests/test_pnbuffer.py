@@ -54,10 +54,10 @@ class TestPNBuffer(unittest.TestCase):
         if buffer_ is not None:
             buffer_.prime_update()
 
-            self.assertEqual(buffer_.value("date_field"), "2019-01-01")
+            self.assertEqual(buffer_.value("date_field"), "2019-01-01T00:00:00")
             self.assertEqual(buffer_.value("time_field"), "01:01:01")
 
-        self.assertEqual(cursor.valueBuffer("date_field"), "2019-01-01")
+        self.assertEqual(cursor.valueBuffer("date_field"), "2019-01-01T00:00:00")
 
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect("date_field, time_field")
@@ -96,7 +96,7 @@ class TestPNBuffer(unittest.TestCase):
 
             self.assertEqual(buffer_.value("string_field"), "Campo texto 1")
             self.assertEqual(buffer_.value("double_field"), 1.01)
-            self.assertEqual(buffer_.value("date_field"), "2019-01-01")
+            self.assertEqual(buffer_.value("date_field"), "2019-01-01T00:00:00")
             self.assertEqual(buffer_.value("time_field"), "01:01:01")
             self.assertEqual(buffer_.value("bool_field"), False)
 
@@ -123,16 +123,19 @@ class TestPNBuffer(unittest.TestCase):
         cursor_1.setModeAccess(cursor_1.Insert)
         cursor_1.refreshBuffer()
         self.assertFalse(cursor_1.isNull("id"))
-        self.assertEqual(cursor_1.buffer().value("uint_field"), None)
+        self.assertEqual(cursor_1.buffer().value("uint_field"), 0)
+        self.assertEqual(cursor_1.buffer().value("uint_field", True), None)
         self.assertTrue(cursor_1.isNull("string_field"))
         self.assertFalse(cursor_1.isNull("double_field"))  # default 0
 
         cursor_1.setNull("double_field")
-        self.assertEqual(cursor_1.buffer().value("double_field"), None)
+        self.assertEqual(cursor_1.buffer().value("double_field"), 0)
+        self.assertEqual(cursor_1.buffer().value("double_field", True), None)
         self.assertTrue(cursor_1.isNull("double_field"))
 
         self.assertEqual(cursor_1.valueBuffer("uint_field"), 0)
-        self.assertEqual(cursor_1.buffer().value("uint_field"), None)
+        self.assertEqual(cursor_1.buffer().value("uint_field"), 0)
+        self.assertEqual(cursor_1.buffer().value("uint_field", True), None)
 
         cursor_2 = pnsqlcursor.PNSqlCursor("fltest5")
         cursor_2.setModeAccess(cursor_2.Insert)
@@ -140,7 +143,8 @@ class TestPNBuffer(unittest.TestCase):
         self.assertTrue(cursor_2.isNull("unit_field"))
         self.assertTrue(cursor_2.isNull("uint_field"))
         self.assertEqual(cursor_2.valueBuffer("uint_field"), 0)
-        self.assertEqual(cursor_2.buffer().value("uint_field"), None)
+        self.assertEqual(cursor_2.buffer().value("uint_field", True), None)
+        self.assertEqual(cursor_2.buffer().value("uint_field"), 0)
 
     @classmethod
     def tearDownClass(cls) -> None:

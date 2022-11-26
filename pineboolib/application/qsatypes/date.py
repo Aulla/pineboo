@@ -15,7 +15,9 @@ class Date(object):
     date_: "QtCore.QDate"
     time_: "QtCore.QTime"
 
-    def __init__(self, *args: Union["Date", QtCore.QDate, str, QtCore.QTime, int]) -> None:
+    def __init__(
+        self, *args: Union["Date", "QtCore.QDate", str, "QtCore.QTime", int, "datetime.date"]
+    ) -> None:
         """Create new Date object."""
         super(Date, self).__init__()
         if not args:
@@ -27,6 +29,7 @@ class Date(object):
             if not isinstance(format_, str):
                 raise ValueError("format must be string")
             self.time_ = QtCore.QTime(0, 0)
+
             if isinstance(date_, str):
                 if len(date_) == 10:
                     tmp = date_.split("-")
@@ -52,6 +55,9 @@ class Date(object):
                 date_time.setMSecsSinceEpoch(int(date_))
                 self.date_ = date_time.date()
                 self.time_ = date_time.time()
+            elif isinstance(date_, (datetime.date)):
+                date_ = date_.strftime("%Y-%m-%d")
+                self.date_ = QtCore.QDate.fromString(date_, format_)
             else:
                 raise ValueError("Unexpected type %s" % type(date_))
 
