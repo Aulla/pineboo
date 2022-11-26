@@ -173,12 +173,12 @@ class PNBuffer(object):
                     if isinstance(value, str) and value == "":
                         value = None
                     else:
-                        value = float(value)
+                        value = float(value)  # type: ignore [arg-type]
                 elif type_ in ("int", "uint", "serial"):
                     if isinstance(value, str) and value == "":
                         value = None
                     else:
-                        value = int(value)
+                        value = int(value)  # type: ignore [arg-type]
                 elif type_ in ("string", "pixmap", "stringlist", "counter"):
                     value = str(value)
                 elif type_ in ("boolean", "unlock"):

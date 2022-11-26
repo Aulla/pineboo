@@ -2,8 +2,6 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.fllegacy import systype
-from pineboolib import application
 from pineboolib.qsa import qsa
 
 

@@ -4,7 +4,6 @@ Collect information from the query, such as field tables, lines, etc ...
 
 
 from pineboolib import application, logging
-from pineboolib.application import types
 from pineboolib.application.database import utils
 
 import datetime

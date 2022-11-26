@@ -3,7 +3,6 @@
 
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata, pnaction
-from pineboolib.application import types
 from pineboolib.application.qsatypes import date
 from pineboolib.application.database import utils
 from pineboolib import application

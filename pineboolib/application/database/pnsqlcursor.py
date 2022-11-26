@@ -10,7 +10,7 @@ from pineboolib.core import decorators, settings, garbage_collector
 
 from pineboolib.application.database import pnsqlquery, utils
 from pineboolib.application.database.orm.utils import do_flush
-from pineboolib.application import types, qsadictmodules
+from pineboolib.application import qsadictmodules
 from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 from pineboolib.application.acls import pnaccesscontrolfactory
 
