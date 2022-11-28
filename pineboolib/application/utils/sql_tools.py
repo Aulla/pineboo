@@ -506,7 +506,7 @@ class SqlInspector(object):
 
         ret_: Any = None
         type_ = "double"
-
+        field_metadata = None
         if not self.mtd_fields():
             if isinstance(value, datetime.timedelta):
                 type_ = "timestamp"
@@ -514,9 +514,12 @@ class SqlInspector(object):
             elif isinstance(value, datetime.time):
                 type_ = "time"
                 ret_ = utils.resolve_qsa_value(type_, value)
-
+            elif isinstance(value, datetime.date):
+                type_ = "date"
+                ret_ = utils.resolve_qsa_value(type_, value)
+            else:
+                return value
         else:
-            field_metadata = None
             if pos not in self._mtd_fields.keys():
                 if pos not in self._field_list.values():
                     LOGGER.warning(
