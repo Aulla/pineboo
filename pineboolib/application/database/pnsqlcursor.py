@@ -3089,9 +3089,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return self.private_cursor.id_
 
     def doCommitBuffer(self, emite=True) -> bool:
-        """Lanza llamada sengun proceda el deletateCommit o commitBuffer del cursorRelation."""
+        """Lanza llamada sengun proceda el delegateCommit o commitBuffer del cursorRelation."""
 
-        result = True
+        result: Any = True
         if self.useDelegateCommit():
             label_ = "FLSqlCursor::doCommitBuffer ( %s ): " % (self.metadata().name())
             id_mod = self.db().managerModules().idModuleOfFile("%s.mtd" % self.metadata().name())
