@@ -36,6 +36,8 @@ class TestSignatures(unittest.TestCase):
         self.assertTrue(obj_.save_file(dest_file))
         self.assertTrue(obj_.get_qr())
 
+        os.remove(dest_file)
+
     def test_xml_digest(self) -> None:
         """Test xml_digest."""
 
