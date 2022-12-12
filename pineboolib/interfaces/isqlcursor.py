@@ -328,6 +328,9 @@ class ISqlCursor(QtCore.QObject):
 
     _cursor_model: "sqlalchemy.ext.declarative.api.DeclarativeMeta"
 
+    _is_delegate_commit: bool
+    _last_delegate_commit_result: bool
+
     def __init__(
         self,
         name: Optional[str] = None,
@@ -749,5 +752,20 @@ class ISqlCursor(QtCore.QObject):
 
     def bufferIsNull(self, field_name: str) -> bool:
         """Return if buffer is null."""
+
+        return False
+
+    def doCommitBuffer(self, emite: bool = True) -> bool:
+        """Lanza llamada sengun proceda el deletateCommit o commitBuffer del cursorRelation."""
+
+        return False
+
+    def doCommit(self) -> bool:
+        """Lanza commit del cursor o reposiciona el cusor, sengun proceda."""
+
+        return False
+
+    def useDelegateCommit(self) -> bool:
+        """Retorna si se cumplen las condiciones para usar delegateCommit."""
 
         return False

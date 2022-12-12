@@ -491,11 +491,14 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 print("ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.")
 
             if self.accepted_:
-                if self.cursor_.commit():
+                if not self.cursor_.doCommit():
+                    return
+                if not self.cursor_.useDelegateCommit():
                     self.afterCommitTransaction()
             else:
-                if not self.cursor_.rollback():
-                    event.ignore()
+                if not self.cursor_.useDelegateCommit():
+                    if not self.cursor_.rollback():
+                        event.ignore()
 
             self.setCursor(None)
 
@@ -649,7 +652,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if self.cursor_.checkIntegrity():
             self.acceptedForm()
             self.cursor_.setActivatedCheckIntegrity(False)
-            if not self.cursor_.commitBuffer():
+            if not self.cursor_.doCommitBuffer():
                 self.accepting = False
                 return
             else:
@@ -684,9 +687,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if self.cursor_.checkIntegrity():
             self.acceptedForm()
             self.cursor_.setActivatedCheckIntegrity(False)
-            if self.cursor_.commitBuffer():
+            if self.cursor_.doCommitBuffer():
                 self.cursor_.setActivatedCheckIntegrity(True)
-                self.cursor_.commit()
+                self.cursor_.doCommit()
                 self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Insert)
                 self.accepted_ = False
                 caption = None
@@ -694,7 +697,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     caption = self._action.name()
                 if not caption:
                     caption = self.cursor_.metadata().alias()
-                self.cursor_.transaction()
+                if not self.cursor_.useDelegateCommit():
+                    self.cursor_.transaction()
                 self.setCaptionWidget(caption)
                 if self._init_focus_widget:
                     self._init_focus_widget.setFocus()
@@ -724,7 +728,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer(False):
+                if self.cursor_.doCommitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
                     # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
@@ -746,7 +750,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer(False):
+                if self.cursor_.doCommitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
                     # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
@@ -772,7 +776,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer(False):
+                if self.cursor_.doCommitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
                     # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
@@ -801,7 +805,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer(False):
+                if self.cursor_.doCommitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
                     # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
@@ -836,8 +840,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 cur.model().refresh()
 
             if cur.modeAccess() in (cur.Insert, cur.Edit, cur.Browse):
-                cur.transaction()
-                self._init_translation_level = cur.transactionLevel()
+                if cur.useDelegateCommit():
+                    cur.transaction()
+                    self._init_translation_level = cur.transactionLevel()
 
             if cur.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
                 self._show_accept_continue = True

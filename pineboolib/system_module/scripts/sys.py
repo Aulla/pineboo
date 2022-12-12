@@ -120,3 +120,8 @@ class FormInternalObj(qsa.FormDBWidget):
         """Retrun description string."""
 
         return "Área de prueba T."
+
+    def delegateCommit(cursor) -> bool:
+        """Return default delegateCommit."""
+
+        return qsa.from_project("formHTTP").iface.saveCursor(cursor)

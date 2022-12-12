@@ -206,6 +206,10 @@ class FLDataTable(QtWidgets.QTableView):
                 if not self.cursor_:
                     raise Exception("cursor_ is empty!")
 
+                self.cursor_._is_delegate_commit = settings.CONFIG.value(
+                    "application/delegateCommit", False
+                )
+
                 self.setFLReadOnly(self.readonly_)
                 self.setEditOnly(self.editonly_)
                 self.setInsertOnly(self.insertonly_)

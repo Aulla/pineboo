@@ -69,6 +69,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         super().__init__(
             name, conn_or_autopopulate, connection_name_or_db, cursor_relation, relation_mtd, parent
         )
+        self._is_delegate_commit = False
+        self._last_delegate_commit_result = False
         # LOGGER.warning("CURSOR! %s", name)
         if not name:
             LOGGER.warning(
@@ -793,15 +795,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 ],
             )
             if res != QtWidgets.QMessageBox.StandardButton.No:
+                if not self.useDelegateCommit():
+                    self.transaction()
 
-                if self.transaction():
-                    if not self.refreshBuffer():
-                        self.commit()
+                if not self.refreshBuffer():
+                    if not self.useDelegateCommit():
+                        self.doCommit()
 
-                    elif not self.commitBuffer():
+                elif not self.doCommitBuffer():
+                    if not self.useDelegateCommit():
                         self.rollback()
-                    else:
-                        self.commit()
+                else:
+                    self.doCommit()
 
         elif not self._action:
             LOGGER.warning(
@@ -2713,7 +2718,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if active_widget and active_widget_enabled:
                     active_widget.setEnabled(False)
 
-                if not cursor_relation.commitBuffer():
+                if not cursor_relation.doCommitBuffer():
                     self.private_cursor.mode_access_ = self.Browse
                     result = False
                 else:
@@ -3082,6 +3087,41 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         return self.private_cursor.id_
+
+    def doCommitBuffer(self, emite=True) -> bool:
+        """Lanza llamada sengun proceda el deletateCommit o commitBuffer del cursorRelation."""
+
+        result = True
+        if self.useDelegateCommit():
+            label_ = "FLSqlCursor::doCommitBuffer ( %s ): " % (self.metadata().name())
+            id_mod = self.db().managerModules().idModuleOfFile("%s.mtd" % self.metadata().name())
+            fun_name = "%s.delegateCommit" % (id_mod if id_mod else "sys")
+            result = application.PROJECT.call(fun_name, [self])
+            LOGGER.info("%s%s (cursor) retorna %s" % (label_, fun_name, result))
+            self._last_delegate_commit_result = result
+            if result and emite:
+                self.cursorUpdated.emit()
+                self.bufferCommited.emit()
+        else:
+            result = self.commitBuffer(emite)
+
+        return result
+
+    def doCommit(self) -> bool:
+        """Lanza commit del cursor o reposiciona el cusor, sengun proceda."""
+
+        if self.useDelegateCommit():
+            self.setModeAccess(self.Browse)
+            return self._last_delegate_commit_result
+
+        return self.commit()
+
+    def useDelegateCommit(self) -> bool:
+        """Retorna si se cumplen las condiciones para usar delegateCommit."""
+
+        return self._is_delegate_commit and not self.db().manager().isSystemTable(
+            self.metadata().name()
+        )
 
 
 class PNCursorPrivate(isqlcursor.ICursorPrivate):
