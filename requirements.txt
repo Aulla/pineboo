@@ -9,7 +9,7 @@ flake8==3.9.0
 flup==1.0.3
 fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
-lxml==4.7.1
+lxml==4.9.1
 ninja==1.10.0.post1
 odfpy
 pdf2image==1.14.0
