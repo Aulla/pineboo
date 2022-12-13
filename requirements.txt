@@ -24,7 +24,7 @@ pympler
 python-barcode
 python-daemon
 qrcode[pil]
-sqlalchemy==1.4.39
+sqlalchemy==1.4.45
 sqlparse==0.3.1
 twine==3.1.1
 uharfbuzz>=0.25.0
