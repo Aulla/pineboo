@@ -377,6 +377,7 @@ def process_file_class(file_obj: "file_app.File") -> None:
     """Process file class."""
     file_ = open(file_obj.path(), "r", encoding="UTF-8", errors="replace")
     text_ = file_.read()
+    file_.close()
     class_name = ""
     if text_.find("public_class =") > -1:
         class_name = text_[text_.find("public_class =") + 15 :].split(" ")[0][1:-1]
