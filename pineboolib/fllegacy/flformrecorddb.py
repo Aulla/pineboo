@@ -474,24 +474,24 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     return
 
         if self.cursor_:
-
-            try:
-                levels = self.cursor_.transactionLevel() - self._init_translation_level
-                if levels > 0:
-                    self.cursor_.rollbackOpened(
-                        levels,
-                        "Se han detectado transacciones no finalizadas en la última operación.\n"
-                        "Se van a cancelar las transacciones pendientes.\n"
-                        "Los últimos datos introducidos no han sido guardados, por favor\n"
-                        "revise sus últimas acciones y repita las operaciones que no\n"
-                        "se han guardado.\n"
-                        "FLFormRecordDB::closeEvent: %s %s" % (levels, self.name()),
+            if not self.cursor_.useDelegateCommit():
+                try:
+                    levels = self.cursor_.transactionLevel() - self._init_translation_level
+                    if levels > 0:
+                        self.cursor_.rollbackOpened(
+                            levels,
+                            "Se han detectado transacciones no finalizadas en la última operación.\n"
+                            "Se van a cancelar las transacciones pendientes.\n"
+                            "Los últimos datos introducidos no han sido guardados, por favor\n"
+                            "revise sus últimas acciones y repita las operaciones que no\n"
+                            "se han guardado.\n"
+                            "FLFormRecordDB::closeEvent: %s %s" % (levels, self.name()),
+                        )
+                except Exception as error:
+                    print(
+                        "ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.error: %s"
+                        % (str(error))
                     )
-            except Exception as error:
-                print(
-                    "ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.error: %s"
-                    % (str(error))
-                )
 
             if self.accepted_:
                 if not self.cursor_.doCommit():
