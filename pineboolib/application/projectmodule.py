@@ -539,7 +539,14 @@ class Project(object):
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
         for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
+
+                if "tests" in root:
+                    continue
+
                 if is_library and nombre.endswith("ui"):
+                    continue
+
+                if nombre.endswith("__.py") or nombre.endswith(".src"):
                     continue
 
                 if root.find("modulos") == -1:
