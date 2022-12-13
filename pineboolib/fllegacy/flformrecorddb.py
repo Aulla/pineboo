@@ -487,8 +487,11 @@ class FLFormRecordDB(flformdb.FLFormDB):
                         "se han guardado.\n"
                         "FLFormRecordDB::closeEvent: %s %s" % (levels, self.name()),
                     )
-            except Exception:
-                print("ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.")
+            except Exception as error:
+                print(
+                    "ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.error: %s"
+                    % (str(error))
+                )
 
             if self.accepted_:
                 if not self.cursor_.doCommit():
@@ -840,7 +843,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 cur.model().refresh()
 
             if cur.modeAccess() in (cur.Insert, cur.Edit, cur.Browse):
-                if cur.useDelegateCommit():
+                if not cur.useDelegateCommit():
                     cur.transaction()
                     self._init_translation_level = cur.transactionLevel()
 
