@@ -2715,7 +2715,9 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
     ASTPython.debug_file = open(debugname, "w", encoding="UTF-8") if debugname else None
     parser = ET.XMLParser(encoding="UTF-8")
     try:
-        ast_tree = ET.parse(open(filename, "r", encoding="UTF-8", errors="replace"), parser)
+        file_ = open(filename, "r", encoding="UTF-8", errors="replace")
+        ast_tree = ET.parse(file_, parser)
+        file_.close()
     except Exception:
         print("filename:", filename)
         raise
@@ -2758,6 +2760,7 @@ def pythonize2(root_ast: ET.Element, known_refs: Dict[str, Tuple[str, str]] = {}
     file_ = StringIO()
     write_python_file(file_, root_ast, import_refs=known_refs_found)
     unformatted_code = file_.getvalue()
+    file_.close()
     if unformatted_code and black:
         try:
             new_code = black.format_file_contents(unformatted_code, fast=True, mode=BLACK_FILEMODE)

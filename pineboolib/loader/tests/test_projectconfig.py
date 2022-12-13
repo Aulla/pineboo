@@ -34,11 +34,17 @@ class TestProjectConfig(unittest.TestCase):
             )
             cfg.SAVE_VERSION = VERSION_1_1
             cfg.save_projectxml(False)
-            self.assertEqual(open(cfg.filename).read(), project_test1)
+            file1_ = open(cfg.filename)
+            data1_ = file1_.read()
+            file1_.close()
+            self.assertEqual(data1_, project_test1)
             cfg2 = ProjectConfig(load_xml=cfg.filename)
             cfg2.SAVE_VERSION = cfg2.version
             cfg2.save_projectxml(True)
-            self.assertEqual(open(cfg2.filename).read(), project_test1)
+            file2_ = open(cfg2.filename)
+            data2_ = file2_.read()
+            file2_.close()
+            self.assertEqual(data2_, project_test1)
 
     @patch("time.time")
     @patch("os.urandom")
@@ -64,7 +70,10 @@ class TestProjectConfig(unittest.TestCase):
             )
             cfg.SAVE_VERSION = VERSION_1_1
             cfg.save_projectxml(False)
-            self.assertEqual(open(cfg.filename).read(), project_test2)
+            file0_ = open(cfg.filename)
+            data0_ = file0_.read()
+            file0_.close()
+            self.assertEqual(data0_, project_test2)
 
             with self.assertRaises(PasswordMismatchError):
                 ProjectConfig(load_xml=cfg.filename, project_password="wrongpassword")
@@ -72,13 +81,19 @@ class TestProjectConfig(unittest.TestCase):
             cfg2 = ProjectConfig(load_xml=cfg.filename, project_password="myhardtoguesspassword")
             cfg2.SAVE_VERSION = cfg2.version
             cfg2.save_projectxml(True)
-            self.assertEqual(open(cfg2.filename).read(), project_test2)
+            file1_ = open(cfg2.filename)
+            data1_ = file1_.read()
+            file1_.close()
+            self.assertEqual(data1_, project_test2)
 
             # Verify Version 1.2
             cfg2.SAVE_VERSION = VERSION_1_2
             cfg2.save_projectxml(True)
+            file2_ = open(cfg2.filename)
+            data2_ = file2_.read()
+            file2_.close()
             # print(open(cfg2.filename).read())
-            self.assertEqual(open(cfg2.filename).read(), project_test3)
+            self.assertEqual(data2_, project_test3)
 
             with self.assertRaises(PasswordMismatchError):
                 ProjectConfig(load_xml=cfg2.filename, project_password="wrongpassword")
@@ -86,4 +101,7 @@ class TestProjectConfig(unittest.TestCase):
             cfg3 = ProjectConfig(load_xml=cfg2.filename, project_password="myhardtoguesspassword")
             cfg3.SAVE_VERSION = VERSION_1_2
             cfg3.save_projectxml(True)
-            self.assertEqual(open(cfg3.filename).read(), project_test3)
+            file3_ = open(cfg3.filename)
+            data3_ = file3_.read()
+            file3_.close()
+            self.assertEqual(data3_, project_test3)

@@ -122,10 +122,10 @@ class PNPackager(object):
             for modulefolder in module_folder_list:
                 if not os.path.exists(os.path.join(modulefolder, module)):
                     continue
-
-                for line_iso in open(
+                file_ = open(
                     os.path.abspath(os.path.join(modulefolder, module)), encoding="ISO-8859-15"
-                ):
+                )
+                for line_iso in file_.readlines():
                     line_unicode = line_iso
                     line = line_unicode
                     if line.find("<MODULE>") != -1:
@@ -134,6 +134,7 @@ class PNPackager(object):
                         modlines.append(line)
                     if line.find("</MODULE>") != -1:
                         inittag = False
+                file_.close()
                 break
 
         data = """<!DOCTYPE modules_def>
@@ -182,7 +183,9 @@ class PNPackager(object):
 
                 file_basename = os.path.basename(filename)
                 filepath = os.path.join(fpath, filename)
-                data_ = open(filepath, "br").read()
+                fil_ = open(filepath, "br")
+                data_ = fil_.read()
+                fil_.close()
                 sha1text = hashlib.new("sha1", data_).hexdigest().upper()
                 # sha1text = hashlib.sha1(open(filepath).read()).hexdigest()
                 # sha1text = sha1text.upper()
@@ -255,7 +258,10 @@ class PNPackager(object):
             for filepath in self._file_list:
                 sys.stdout.write(".")
                 sys.stdout.flush()
-                stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())  # type: ignore [call-overload]
+                fil_ = open(filepath, "rb")
+                data_bytes = fil_.read()
+                fil_.close()
+                stream.writeBytes(QtCore.qCompress(data_bytes).data())  # type: ignore [call-overload]
 
         except Exception as exception:
             self._addError("pack (add files)", str(exception))

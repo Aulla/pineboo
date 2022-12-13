@@ -984,7 +984,9 @@ def execute(options: Any, args: List[str]) -> None:
                 "Parsing File: %-35s . . . .        (%.1f%%)" % (bname, 100.0 * (nf_ + 1.0) / nfs)
             )
             try:
-                filecontent = open(filename, "r", encoding="latin-1").read()
+                file_ = open(filename, "r", encoding="latin-1")
+                filecontent = file_.read()
+                file_.close()
             except Exception:
                 LOGGER.exception("Error: No se pudo abrir fichero %s", filename)
                 continue

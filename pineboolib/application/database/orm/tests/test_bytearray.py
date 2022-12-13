@@ -23,7 +23,9 @@ class TestByteArray(unittest.TestCase):
         session = qsa.thread_session_new()
         session.begin()
         obj = qsa.orm.flupdates()
-        obj.auxbin = open(image_path, "rb").read()
+        file_ = open(image_path, "rb")
+        obj.auxbin = file_.read()
+        file_.close()
         obj.fecha = datetime.now().date()
         obj.hora = datetime.now().time()
         obj.nombre = "prueba"
@@ -43,6 +45,10 @@ class TestByteArray(unittest.TestCase):
         session.begin()
         image_path = fixture_path("tux.png")
 
+        file_ = open(image_path, "rb")
+        data = file_.read()
+        file_.close()
+
         self.assertTrue(
             util.sqlInsert(
                 "flupdates",
@@ -54,7 +60,7 @@ class TestByteArray(unittest.TestCase):
                     "",
                     "",
                     "",
-                    open(image_path, "rb").read(),
+                    data,
                 ],
             )
         )

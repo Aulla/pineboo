@@ -73,6 +73,7 @@ def qt_translate_noop(string: str, path: str, mod: str) -> str:
 
     fichero = open(nombre_fichero, "r", encoding="ISO-8859-15")
     file_data = fichero.read()
+    fichero.close()
     xml_translations = QtXml.QDomDocument()
     if xml_translations.setContent(file_data):
         node_mess = xml_translations.elementsByTagName("message")

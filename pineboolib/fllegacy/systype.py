@@ -231,10 +231,11 @@ class SysType(sysbasetype.SysBaseType):
         """Execute a QS file."""
 
         try:
-            with open(qsa_file, "r") as file_:
-                fun = types.function("exec_qsa", file_.read())
-                file_.close()
-                return fun(args)
+            file_ = open(qsa_file, "r")
+            data = file_.read()
+            file_.close()
+            fun = types.function("exec_qsa", data)
+            return fun(args)
         except Exception:
             error = traceback.format_exc()
             LOGGER.warning(error)

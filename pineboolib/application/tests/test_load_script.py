@@ -31,6 +31,7 @@ class TestLoadScript(unittest.TestCase):
 
         f1_ = open(file_path, "rb")
         data = f1_.read()
+        f1_.close()
         self.assertNotEqual(data.decode(), "")
 
     def test_basic2(self) -> None:

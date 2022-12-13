@@ -329,6 +329,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         self.assertTrue(os.path.exists(simple_qs_py_path))
         file_ = open(simple_qs_py_path, "r", encoding="utf-8")
         simple_qs_py = file_.read()
+        file_.close()
 
         # Delete version translator tag.
         pos_ini = simple_qs_py.find("# Translated with pineboolib ")
@@ -370,6 +371,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         file_ = open(qs_py_path, "r", encoding="utf-8")
         qs_py = file_.read()
+        file_.close()
         self.assertTrue(qs_py.find("TYPE_INT_") > -1)
         self.assertTrue(qs_py.find("TYPE_UINT_") == -1)
 
@@ -398,6 +400,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         file_ = open(qs_py_path, "r", encoding="utf-8")
         qs_py = file_.read()
+        file_.close()
         self.assertTrue(qs_py.find("TYPE_INT_") > -1)
         self.assertTrue(qs_py.find("TYPE_UINT_") > -1)
 
