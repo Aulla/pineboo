@@ -195,6 +195,7 @@ def _build_static_flag(flag: str, script: str, static: str) -> None:
 
     file_ = open(flag, "wb")
     file_.write(my_data)
+    file_.close()
 
 
 def _remove(file_name: str) -> None:

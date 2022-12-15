@@ -2726,26 +2726,31 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
     file_ = open(destfilename, "w", encoding="UTF-8")
     write_python_file(file_, ast)
     file_.close()
+    new_code = pathlib.Path(destfilename).read_text(encoding="UTF-8")
     if black:
         try:
             new_code = black.format_file_contents(
-                pathlib.Path(destfilename).read_text(encoding="UTF-8"),
+                new_code,
                 fast=True,
                 mode=BLACK_FILEMODE,
             )
         except black.NothingChanged:
-            # The file we saved earlier is already good.
-            return
+            pass
 
         file_ = open(destfilename, "w", encoding="UTF-8")
         file_.write(new_code)
         file_.close()
+
+    # if ASTPython.debug_file:
+    #    ASTPython.debug_file.close()
 
 
 def pythonize2(root_ast: ET.Element, known_refs: Dict[str, Tuple[str, str]] = {}) -> str:
     """Convert AST into Python. Faster version of pythonize as does not read/save XML."""
     from io import StringIO
 
+    if ASTPython.debug_file:
+        ASTPython.debug_file.close()
     ASTPython.debug_file = None
     ident: ET.Element
     ident_set = set()

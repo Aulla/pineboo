@@ -849,8 +849,9 @@ def pythonify(filelist: List[str], arguments: List[str] = []) -> None:
 
 def pythonify2(filename: str, known_refs: Dict[str, Tuple[str, str]] = {}) -> str:
     """Convert File to Python. Faster version as does not write to disk. Avoids re-parsing XML."""
-
-    filecontent = open(filename, "r", encoding="latin-1").read()
+    file_ = open(filename, "r", encoding="latin-1")
+    filecontent = file_.read()
+    file_.close()
     ast = common_parse(filecontent)
     return pytnyzer.pythonize2(ast, known_refs)
 
@@ -1023,8 +1024,9 @@ def execute(options: Any, args: List[str]) -> None:
                 destname = filename + ".xml"
 
             xml_str = minidom.parseString(ET.tostring(ast)).toprettyxml(indent="   ")
-            with open(destname, "w", encoding="UTF-8") as file_:
-                file_.write(xml_str)
+            file_ = open(destname, "w", encoding="UTF-8")
+            file_.write(xml_str)
+            file_.close()
 
 
 if __name__ == "__main__":
