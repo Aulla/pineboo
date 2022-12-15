@@ -67,7 +67,7 @@ setuptools.setup(
     },
     install_requires=required,
     keywords="erp pineboo eneboo accounting sales warehouse",
-    python_requires=">=3.6.9",
+    python_requires=">=3.7",
     entry_points={
         "console_scripts": [
             "pineboo-parse=pineboolib.application.parsers.parser_qsa.postparse:main",
@@ -79,14 +79,15 @@ setuptools.setup(
         ]
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 1 - RC",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Environment :: X11 Applications :: Qt",
         "Topic :: Office/Business :: Financial :: Accounting",
         "Typing :: Typed",
