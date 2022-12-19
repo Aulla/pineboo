@@ -79,7 +79,7 @@ setuptools.setup(
         ]
     },
     classifiers=[
-        "Development Status :: 1 - RC",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
