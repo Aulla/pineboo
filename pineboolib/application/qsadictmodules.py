@@ -52,7 +52,7 @@ class QSADictModules:
         return ret_
 
     @classmethod
-    def orm_(cls, action_name: str = "") -> Any:
+    def orm_(cls, action_name: str = "", show_error: bool = True) -> Any:
         """Return orm instance."""
 
         table_name = (
@@ -70,7 +70,8 @@ class QSADictModules:
 
                 return orm
             else:
-                LOGGER.error("Model %s not found!", table_name, stack_info=True)
+                if show_error:
+                    LOGGER.error("Model %s not found!", table_name, stack_info=True)
 
         return None
 

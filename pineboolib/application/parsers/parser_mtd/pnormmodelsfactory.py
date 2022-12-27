@@ -104,9 +104,9 @@ def save_model(path_, name: str) -> bool:
             if pending_relation():
                 PENDING_RELATIONS.remove(pending_relation)
 
-                LOGGER.debug(
+                LOGGER.info(
                     "Relaciones pendientes de %s , generadas al cargar %s"
-                    % (pending_relation.__class__, name)
+                    % (pending_relation.__module__, name)
                 )
                 del pending_relation
 
