@@ -10,6 +10,7 @@ flup==1.0.3
 fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
 lxml==4.9.1
+marshmallow>=3.19.0
 ninja==1.10.0.post1
 odfpy
 pdf2image==1.14.0
