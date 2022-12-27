@@ -51,6 +51,7 @@ if TYPE_CHECKING:
 
 LOGGER = logging.get_logger(__name__)
 PROCESSED: List[str] = []
+PENDING_RELATIONS = []
 
 
 def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> bool:
@@ -94,6 +95,16 @@ def save_model(path_, name: str) -> bool:
 
         if name not in PROCESSED:
             PROCESSED.append(name)
+
+        func_ = getattr(model_class, "pending_relationships", None)
+        if func_:
+            PENDING_RELATIONS.append(func_)
+
+        for pending_relation in PENDING_RELATIONS:
+            if pending_relation():
+                PENDING_RELATIONS.remove(pending_relation)
+                del pending_relation
+                LOGGER.warning("Relación Generada al cargar %s" % (name))
 
         return True
 
