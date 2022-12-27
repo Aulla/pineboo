@@ -101,7 +101,7 @@ def save_model(path_, name: str) -> bool:
             PENDING_RELATIONS.append(func_)
 
         for pending_relation in PENDING_RELATIONS:
-            if pending_relation():
+            if pending_relation(pending_relation.__class__):
                 PENDING_RELATIONS.remove(pending_relation)
                 del pending_relation
                 LOGGER.warning("Relación Generada al cargar %s" % (name))
