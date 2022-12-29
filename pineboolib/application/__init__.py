@@ -33,3 +33,4 @@ PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
 USE_ALTER_TABLE_LEGACY: bool = True
 PERSISTENT: Dict[str, Any] = {}
 USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
+TESTING_MODE: bool = False  # True when testing_mode else False

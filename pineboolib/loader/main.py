@@ -276,7 +276,7 @@ def init_testing(level: int = 1000) -> None:
 
         application.PROJECT.init_dgi(dgi)
 
-    setattr(application, "TESTING_MODE", True)
+    application.TESTING_MODE = True
     application.PROJECT.aq_app._inicializing = False
     conn = connection.connect_to_db(connection.IN_MEMORY_SQLITE_CONN)
 
