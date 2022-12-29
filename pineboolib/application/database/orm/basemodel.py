@@ -340,7 +340,7 @@ class BaseModel(object):
                                             "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
                                         )
 
-    def _flush(self) -> None:
+    def _flush(self, all_objects: bool = False) -> None:
         """Flush data."""
 
         if self._session is None:
@@ -360,7 +360,7 @@ class BaseModel(object):
                     self._session.delete(self)
 
             try:
-                do_flush(self._session, self)
+                do_flush(self._session, self, all_objects)
             except Exception as error:
                 self._error_manager("_flush", error)
 
@@ -559,7 +559,7 @@ class BaseModel(object):
 
             setattr(self, name, default_value)
 
-    def save(self) -> bool:
+    def save(self, all_objects: bool = False) -> bool:
         """Flush instance to current session."""
 
         if not hasattr(self, "_session"):
@@ -580,7 +580,7 @@ class BaseModel(object):
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
 
-                self._flush()
+                self._flush(all_objects)
 
             self.update_copy()
 

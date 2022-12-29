@@ -262,6 +262,9 @@ class DynamicFilter(object):
         return self.filter_query(self.query_, self.filter_condition)
 
 
-def do_flush(session: "Session", model_obj: Any) -> None:
+def do_flush(session: "Session", model_obj: Any, all_objects: bool = False) -> None:
     """Flush object on a session."""
-    session.flush([model_obj])
+    if all_objects:
+        session.flush()
+    else:
+        session.flush([model_obj])
