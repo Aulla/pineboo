@@ -5,8 +5,6 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 
-from sqlalchemy import orm
-
 
 class TestBaseModel(unittest.TestCase):
     """TestBaseModel Class."""
@@ -309,18 +307,6 @@ class TestBaseModel(unittest.TestCase):
         areas_class = qsa.orm_("flareas")
         modules_class = qsa.orm_("flmodules")
 
-        # modules_class.parent = orm.relationship(
-        #    areas_class,
-        #    primaryjoin=(modules_class.idarea == areas_class.idarea),
-        #    foreign_keys=[areas_class.idarea],
-        # )
-
-        areas_class.children = orm.relationship(
-            modules_class,
-            primaryjoin=(areas_class.idarea == modules_class.idarea),
-            foreign_keys=[modules_class.idarea],
-            cascade="delete,delete-orphan",  # "all, delete-orphan"
-        )
         current_session = qsa.thread_session_current()
         if current_session:
 

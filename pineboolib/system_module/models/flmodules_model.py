@@ -3,8 +3,10 @@
 """Flmodules_model module."""
 
 import sqlalchemy  # type: ignore [import] # noqa: F821
-
+from pineboolib.application import TESTING_MODE
 from pineboolib.application.database.orm import basemodel
+from sqlalchemy.orm import relationship, foreign
+from pineboolib.qsa import qsa
 
 
 class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
@@ -74,5 +76,21 @@ class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     version = sqlalchemy.Column("version", sqlalchemy.String(3))
     icono = sqlalchemy.Column("icono", sqlalchemy.String)
 
+    # <--- Fields ---
 
-# <--- Fields ---
+    @classmethod
+    def pending_relationships(cls):
+        """Pending relationships."""
+        if not TESTING_MODE:
+            return True
+
+        areas_class = qsa.orm_("flareas", False)
+        if areas_class:
+            areas_class.children = relationship(
+                cls,
+                primaryjoin=areas_class.idarea == foreign(cls.idarea),
+                cascade="save-update, merge, delete, delete-orphan",
+            )
+            return True
+
+        return False
