@@ -85,7 +85,7 @@ class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             return True
 
         areas_class = qsa.orm_("flareas", False)
-        if areas_class:
+        if areas_class and not hasattr(areas_class, "children"):
             areas_class.children = relationship(
                 cls,
                 primaryjoin=areas_class.idarea == foreign(cls.idarea),
