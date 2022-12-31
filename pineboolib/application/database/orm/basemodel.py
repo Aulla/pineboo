@@ -363,36 +363,19 @@ class BaseModel(object):
                         self._session.delete(self)
 
             if not only or "flush" in only:
-                for relation in relations:
-                    list_objects = getattr(self, relation, [])
-                    for list_object in list_objects:
-                        list_object._flush(
-                            only=["before_flush", "check_integrity", "delete_cascade"]
-                        )
                 try:
-
-                    flush_objects = [self]
-                    for relation in relations:
-                        list_objects = getattr(self, relation, [])
-                        for list_object in list_objects:
-                            flush_objects.append(list_object)
-
-                    do_flush(self._session, flush_objects)
-
-
-
+                    do_flush(self._session, self)
                 except Exception as error:
                     self._error_manager("_flush", error)
 
-                for relation in relations:
-                    list_objects = getattr(self, relation, [])
-                    for list_object in list_objects:
-                        list_object._flush(only=["after_flush"])
-
             if not only or "after_flush" in only:
                 self._after_flush()
-            # else:
-            #    self._current_mode = 3  # edit
+
+            for relation in relations:
+                list_objects = getattr(self, relation, [])
+                for list_object in list_objects:
+                    list_object._flush(only)
+
         self._current_mode = None
 
     def _before_flush(self) -> None:
