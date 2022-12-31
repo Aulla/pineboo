@@ -370,12 +370,16 @@ class BaseModel(object):
                             only=["before_flush", "check_integrity", "delete_cascade"]
                         )
                 try:
-                    do_flush(self._session, self)
 
+                    flush_objects = [self]
                     for relation in relations:
                         list_objects = getattr(self, relation, [])
                         for list_object in list_objects:
-                            list_object._flush(only=["flush"])
+                            flush_objects.append(list_object)
+
+                    do_flush(self._session, flush_objects)
+
+
 
                 except Exception as error:
                     self._error_manager("_flush", error)

@@ -267,4 +267,4 @@ def do_flush(session: "Session", model_obj: Any, all_objects: bool = False) -> N
     if all_objects:
         session.flush()
     else:
-        session.flush([model_obj])
+        session.flush(model_obj if isinstance(model_obj, list) else [model_obj])
