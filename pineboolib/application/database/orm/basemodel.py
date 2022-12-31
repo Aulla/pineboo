@@ -340,31 +340,53 @@ class BaseModel(object):
                                             "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
                                         )
 
-    def _flush(self, all_objects: bool = False) -> None:
+    def _flush(self, relations: List[str] = [], only: List[str] = []) -> None:
         """Flush data."""
 
         if self._session is None:
             self._error_manager("_flush", "_session is empty")
         else:
             self._current_mode = self.mode_access
-            self._before_flush()
+            if not only or "before_flush" in only:
+                self._before_flush()
 
-            self._check_integrity()
+            if not only or "check_integrity" in only:
+                self._check_integrity()
 
-            if self._current_mode == 2:  # delete
-                self._delete_cascade()
+            if not only or "delete_cascade" in only:
+                if self._current_mode == 2:  # delete
+                    self._delete_cascade()
 
-                if (
-                    self not in self._session.deleted
-                ):  # hay que hacerlo aquí, despues de before_* , porque si nó, cualquier session.flush borraria el padre.
-                    self._session.delete(self)
+                    if (
+                        self not in self._session.deleted
+                    ):  # hay que hacerlo aquí, despues de before_* , porque si nó, cualquier session.flush borraria el padre.
+                        self._session.delete(self)
 
-            try:
-                do_flush(self._session, self, all_objects)
-            except Exception as error:
-                self._error_manager("_flush", error)
+            if not only or "flush" in only:
+                for relation in relations:
+                    list_objects = getattr(self, relation, [])
+                    for list_object in list_objects:
+                        list_object._flush(
+                            only=["before_flush", "check_integrity", "delete_cascade"]
+                        )
+                try:
+                    do_flush(self._session, self)
 
-            self._after_flush()
+                    for relation in relations:
+                        list_objects = getattr(self, relation, [])
+                        for list_object in list_objects:
+                            list_object._flush(only=["flush"])
+
+                except Exception as error:
+                    self._error_manager("_flush", error)
+
+                for relation in relations:
+                    list_objects = getattr(self, relation, [])
+                    for list_object in list_objects:
+                        list_object._flush(only=["after_flush"])
+
+            if not only or "after_flush" in only:
+                self._after_flush()
             # else:
             #    self._current_mode = 3  # edit
         self._current_mode = None
@@ -559,7 +581,7 @@ class BaseModel(object):
 
             setattr(self, name, default_value)
 
-    def save(self, all_objects: bool = False) -> bool:
+    def save(self, relations: List[str] = []) -> bool:
         """Flush instance to current session."""
 
         if not hasattr(self, "_session"):
@@ -580,7 +602,7 @@ class BaseModel(object):
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
 
-                self._flush(all_objects)
+                self._flush(relations)
 
             self.update_copy()
 
