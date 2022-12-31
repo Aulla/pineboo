@@ -374,7 +374,7 @@ class BaseModel(object):
             for relation in relations:
                 list_objects = getattr(self, relation, [])
                 for list_object in list_objects:
-                    list_object._flush(only)
+                    list_object._flush(only=only)
 
         self._current_mode = None
 
