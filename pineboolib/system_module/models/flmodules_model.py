@@ -7,6 +7,7 @@ from pineboolib.application import TESTING_MODE
 from pineboolib.application.database.orm import basemodel
 from sqlalchemy.orm import relationship, foreign
 from pineboolib.qsa import qsa
+from typing import Optional
 
 
 class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
@@ -94,3 +95,11 @@ class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             return True
 
         return False
+
+    def before_flush(self) -> Optional[bool]:
+        """Before flush."""
+        if TESTING_MODE:
+            if self.idmodulo == "T2M1_1":
+                raise Exception("before_flush_called!")
+
+        return True
