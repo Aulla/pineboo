@@ -4,12 +4,16 @@ from typing import List, Any, TYPE_CHECKING
 
 
 from pineboolib.application import qsadictmodules
+from pineboolib.core.utils import logging
 import sqlalchemy
 
 if TYPE_CHECKING:
     from sqlalchemy.ext import declarative  # pragma: no cover
     from sqlalchemy.orm import query  # pragma: no cover
     from sqlalchemy.orm import Session
+
+
+LOGGER = logging.get_logger(__name__)
 
 
 class OrmManager(object):
@@ -262,9 +266,23 @@ class DynamicFilter(object):
         return self.filter_query(self.query_, self.filter_condition)
 
 
-def do_flush(session: "Session", model_obj: Any, all_objects: bool = False) -> None:
+def do_flush(session: "Session", obj_list: List[Any]) -> None:
     """Flush object on a session."""
-    if all_objects:
-        session.flush()
-    else:
-        session.flush(model_obj if isinstance(model_obj, list) else [model_obj])
+
+    before_len = len(session.dirty) + len(session.new) + len(session.deleted)
+    changed_len = len(
+        [
+            obj_
+            for obj_ in obj_list
+            if obj_ in session.dirty or obj_ in session.deleted or obj_ in session.new
+        ]
+    )
+    expected_len = before_len - changed_len
+    session.flush(obj_list)
+    after_len = len(session.dirty) + len(session.new) + len(session.deleted)
+
+    if after_len != expected_len:
+        raise Exception(
+            "La cantidad restante (%s) al realizar do_flush es diferente a la esperada (%s)"
+            % (after_len, expected_len)
+        )

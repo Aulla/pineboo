@@ -340,18 +340,21 @@ class BaseModel(object):
                                             "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
                                         )
 
-    def _flush(self, relations: List[str] = [], only: List[str] = []) -> None:
+    def _flush(
+        self, relations: List[str] = [], only: List[str] = [], ignore_foreignkey: bool = False
+    ) -> None:
         """Flush data."""
 
         if self._session is None:
             self._error_manager("_flush", "_session is empty")
         else:
+
             self._current_mode = self.mode_access
             if not only or "before_flush" in only:
                 self._before_flush()
 
             if not only or "check_integrity" in only:
-                self._check_integrity()
+                self._check_integrity(ignore_foreignkey=ignore_foreignkey)
 
             if not only or "delete_cascade" in only:
                 if self._current_mode == 2:  # delete
@@ -363,19 +366,36 @@ class BaseModel(object):
                         self._session.delete(self)
 
             if not only or "flush" in only:
+                for relation in relations:
+                    list_objects = getattr(self, relation, [])
+
+                    for list_object in list_objects:
+                        list_object._flush(
+                            only=["before_flush", "check_integrity", "delete_cascade"],
+                            ignore_foreignkey=True,
+                        )
                 try:
-                    do_flush(self._session, self)
+
+                    flush_objects = [self]
+                    for relation in relations:
+                        list_objects = getattr(self, relation, [])
+                        for list_object in list_objects:
+                            flush_objects.append(list_object)
+
+                    do_flush(self._session, flush_objects)
+
                 except Exception as error:
                     self._error_manager("_flush", error)
 
+                for relation in relations:
+                    list_objects = getattr(self, relation, [])
+                    for list_object in list_objects:
+                        list_object._flush(only=["after_flush"])
+
             if not only or "after_flush" in only:
                 self._after_flush()
-
-            for relation in relations:
-                list_objects = getattr(self, relation, [])
-                for list_object in list_objects:
-                    list_object._flush(only=only)
-
+            # else:
+            #    self._current_mode = 3  # edit
         self._current_mode = None
 
     def _before_flush(self) -> None:
@@ -383,13 +403,11 @@ class BaseModel(object):
 
         try:
             mode = self._current_mode
-
             func_ = getattr(self.module_iface, self._before_commit_function, None)
             if func_ is not None:
                 value = func_(self._cursor)
                 if value and not isinstance(value, bool) or value is False:
                     self._error_manager("beforeCommit", "%s return False" % func_)
-
         except Exception as error:
             self._error_manager("_before_flush", error)
 
@@ -596,7 +614,7 @@ class BaseModel(object):
             return True
         return False
 
-    def _check_integrity(self) -> bool:
+    def _check_integrity(self, ignore_foreignkey: bool = False) -> bool:
         """Check data integrity."""
 
         mode = self.mode_access
@@ -694,7 +712,11 @@ class BaseModel(object):
                             setattr(self, field_name, None)
                             value = None
 
-                        if qry_data is None and (not field.allowNull() or value):
+                        if (
+                            qry_data is None
+                            and (not field.allowNull() or value)
+                            and not ignore_foreignkey
+                        ):
 
                             self._error_manager(
                                 "_check_integrity",

@@ -66,6 +66,92 @@ class TestSessions(unittest.TestCase):
         self.assertTrue(cursor3.valueBuffer("bool_field") is False)
         cursor.db().commit()
 
+    def test_relation_session_flush(self):
+
+        class_area = qsa.orm_("flareas", False)
+        class_modulo = qsa.orm_("flmodules", False)
+
+        self.assertFalse(class_area is None)
+        self.assertFalse(class_modulo is None)
+
+        obj_area = class_area()
+        obj_area.bloqueo = False
+        obj_area.idarea = "TS"
+        obj_area.descripcion = "Area de pruebas de pendingRelationships"
+        obj_area.save()
+
+        session = obj_area._session
+
+        obj_modulo_1 = class_modulo()
+        obj_modulo_1.bloqueo = False
+        obj_modulo_1.idmodulo = "M1"
+        obj_modulo_1.idarea = obj_area.idarea
+        obj_modulo_1.descripcion = "Modulo de pruebas 1 de pendingrelationships"
+        obj_modulo_1.version = "0.1"
+        obj_modulo_1.save()
+
+        obj_modulo_2 = class_modulo()
+        obj_modulo_2.bloqueo = False
+        obj_modulo_2.idmodulo = "M2"
+        obj_modulo_2.idarea = obj_area.idarea
+        obj_modulo_2.descripcion = "Modulo de pruebas 2 de pendingrelationships"
+        obj_modulo_2.version = "0.1"
+        session.add(obj_modulo_2)
+
+        self.assertTrue(obj_modulo_2 in session.new)
+        self.assertTrue(len(session.dirty) == 0)
+
+        obj_area.descripcion = "Area altered!"
+        self.assertTrue(len(session.dirty) == 1)
+
+        obj_modulo_1.descripcion = "."
+        self.assertTrue(len(session.dirty) == 2)
+
+        obj_modulo_2.save()
+
+        self.assertTrue(len(session.dirty) == 2)
+
+    def test_session_flush(self):
+
+        class_area = qsa.orm_("flareas", False)
+
+        self.assertFalse(class_area is None)
+
+        obj_area_1 = class_area()
+        session = obj_area_1._session
+        obj_area_1.bloqueo = False
+        obj_area_1.idarea = "TS11"
+        obj_area_1.descripcion = "."
+        obj_area_1.save()
+        self.assertFalse(obj_area_1 in session.dirty)
+        obj_area_1.descripcion = "1"
+        self.assertTrue(obj_area_1 in session.dirty)
+
+        obj_area_2 = class_area()
+        obj_area_2.bloqueo = False
+        obj_area_2.idarea = "TS12"
+        obj_area_2.descripcion = "."
+        session.add(obj_area_2)
+        self.assertTrue(obj_area_2 in session.new)
+        obj_area_2.save()
+
+        obj_area_3 = class_area()
+        obj_area_3.bloqueo = False
+        obj_area_3.idarea = "TS13"
+        obj_area_3.descripcion = "."
+        session.add(obj_area_3)
+
+        self.assertTrue(obj_area_3 in session.new)
+        obj_area_1.descripcion = ".."
+        obj_area_2.descripcion = ".."
+
+        self.assertTrue(obj_area_1 in session.dirty)
+        self.assertTrue(obj_area_2 in session.dirty)
+
+        obj_area_3.save()
+        self.assertTrue(obj_area_1 in session.dirty)
+        self.assertTrue(obj_area_2 in session.dirty)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
