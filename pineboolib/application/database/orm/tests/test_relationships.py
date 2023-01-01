@@ -80,7 +80,9 @@ class TestRelationships(unittest.TestCase):
         obj_modulo_1.version = "0.1"
         obj_modulo_1.save()
 
-        self.assertTrue(obj_modulo_1 in obj_area.children)
+        obj_area.save()
+
+        self.assertTrue(obj_modulo_1 in obj_area.children, "hijos: %s" % obj_area.children)
 
         obj_modulo_1.idmodulo = "T2M1_1"
         with self.assertRaises(Exception):

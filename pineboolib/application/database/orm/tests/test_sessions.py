@@ -126,6 +126,7 @@ class TestSessions(unittest.TestCase):
         self.assertFalse(obj_area_1 in session.dirty)
         obj_area_1.descripcion = "1"
         self.assertTrue(obj_area_1 in session.dirty)
+        obj_area_1.save()
 
         obj_area_2 = class_area()
         obj_area_2.bloqueo = False
@@ -140,6 +141,12 @@ class TestSessions(unittest.TestCase):
         obj_area_3.idarea = "TS13"
         obj_area_3.descripcion = "."
         session.add(obj_area_3)
+
+        obj_area_4 = class_area()
+        obj_area_4.bloqueo = False
+        obj_area_4.idarea = "TS14"
+        obj_area_4.descripcion = "."
+        session.add(obj_area_4)
 
         self.assertTrue(obj_area_3 in session.new)
         obj_area_1.descripcion = ".."

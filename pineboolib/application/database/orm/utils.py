@@ -270,6 +270,7 @@ def do_flush(session: "Session", obj_list: List[Any]) -> None:
     """Flush object on a session."""
 
     before_len = len(session.dirty) + len(session.new) + len(session.deleted)
+    dirty_before = [obj for obj in session.dirty if obj not in obj_list]
     changed_len = len(
         [
             obj_
@@ -278,11 +279,39 @@ def do_flush(session: "Session", obj_list: List[Any]) -> None:
         ]
     )
     expected_len = before_len - changed_len
-    session.flush(obj_list)
+    # Si realizamos flush , y no hay transacción, autocomit creará una transacción y borrará todo le que existe en dirty!
+    # print("Haciendo do_flush!", session, obj_list, session.transaction)
+
+    if dirty_before:
+        session.autocommit = False
+
+    for obj in obj_list:
+        if obj in dirty_before:
+            dirty_before.remove(obj)
+
+        # print("*", obj, before_len, dirty_before, session.dirty)
+
+        session.flush([obj])
+
+    # print("**", session.dirty)
+    if (
+        not dirty_before
+    ):  # Entoendo que no hay mas registro en dirti que pueda fastidiarle el autocommit!
+        session.autocommit = True
+
     after_len = len(session.dirty) + len(session.new) + len(session.deleted)
 
     if after_len != expected_len:
+        # for obj in dirty_before:
+        #    session.
         raise Exception(
-            "La cantidad restante (%s) al realizar do_flush es diferente a la esperada (%s)"
-            % (after_len, expected_len)
+            "La cantidad restante (%s) al realizar do_flush es diferente a la esperada (%s):\nnew: %s, dirty: %s, deleted: %s, before: %s"
+            % (
+                after_len,
+                expected_len,
+                session.new,
+                session.dirty,
+                session.deleted,
+                dirty_before,
+            )
         )
