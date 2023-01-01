@@ -304,10 +304,10 @@ def do_flush(session: "Session", obj_list: List[Any]) -> None:
 
     if after_len != expected_len:
         raise Exception(
-            "La cantidad de instancias restantes (%s) al realizar do_flush es diferente a la esperada (%s):\nInstancias pendientes de flush en session actual: nuevas: %s, modificadas: %s (previas: %s), borradas: %s"
+            "La cantidad de instancias restantes (%s) al realizar do_flush es diferente a la esperada (%s): "
+            % (after_len, expected_len)
+            + "\nInstancias pendientes de flush en session actual: nuevas: %s, modificadas: %s (previas: %s), borradas: %s"
             % (
-                after_len,
-                expected_len,
                 session.new,
                 session.dirty,
                 dirty_before,
