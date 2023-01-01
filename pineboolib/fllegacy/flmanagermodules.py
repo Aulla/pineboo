@@ -136,7 +136,7 @@ class FLManagerModules(object):
                         num_folders += 1 if self.addFolder(dir_path.path_, event_handler) else 0
 
             if num_folders > 0:
-                event_handler.on_any_event = self.static_db_info_.msg_static_changed
+                event_handler.on_any_event = self.static_db_info_.msg_static_changed  # type: ignore [assignment]
 
                 self._file_watcher.start()
                 LOGGER.warning("STATIC LOAD IS WORKING")
