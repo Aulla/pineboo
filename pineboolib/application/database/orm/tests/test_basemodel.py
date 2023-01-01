@@ -122,9 +122,7 @@ class TestBaseModel(unittest.TestCase):
         obj_2 = qsa.orm_("flareas")()
         obj_2.idarea = "F"
         obj_2.descripcion = "Area"
-        obj_2.session.begin()
         self.assertTrue(obj_2.save())
-        obj_2.session.commit()
 
         self.assertTrue(obj_.relationM1("idarea"))
         self.assertEqual(obj_.get_transaction_level(), -1)
