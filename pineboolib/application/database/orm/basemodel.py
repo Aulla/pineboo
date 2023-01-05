@@ -58,6 +58,10 @@ class BaseModel(object):
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
+        cls._from_query_init(target)
+
+    @classmethod
+    def _from_query_init(cls, target):
         target._session = inspect(target).session
         target._action = None
 
@@ -117,6 +121,14 @@ class BaseModel(object):
         # setattr(new_session, "_conn_name", conn_name)
         return new_session
 
+    def load_action(self) -> None:
+        """Load action."""
+
+        self._action = application.PROJECT.actions[self.__tablename__]
+        if self._action is not None:
+            if self._action._record_script and not self._action._record_widget:
+                self._action.load_record_widget()
+
     def _common_init(self) -> None:
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal(self)  # pylint: disable=invalid-name
@@ -124,10 +136,14 @@ class BaseModel(object):
         self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():
-            self._action = application.PROJECT.actions[self.__tablename__]
-            if self._action is not None:
-                if self._action._record_script and not self._action._record_widget:
-                    self._action.load_record_widget()
+            self.load_action()
+
+        # else:
+        #    self._error_manager(
+        #        "_common_init",
+        #        "%s no se encuentra en %s"
+        #        % (self.__tablename__, application.PROJECT.actions.keys()),
+        #    )
 
         self._deny_buffer_changed = []
 
@@ -949,10 +965,18 @@ class BaseModel(object):
 
     def get_module_iface(self) -> Optional[types.ModuleType]:
         """Return module iface."""
+        if not hasattr(
+            self, "_action"
+        ):  # Puede ocurrir por ejemplo en resultado de consulta de delete cascade
+            self._from_query_init(self)
+
         action = self._action
         if action is not None:
             module_action = None
-            if action._mod is not None and action._mod.module_name in application.PROJECT.actions:
+            if (
+                action._mod is not None
+                and action._mod.module_name in application.PROJECT.actions.keys()
+            ):
                 module_action = application.PROJECT.actions[action._mod.module_name]
 
                 if module_action is not None:
@@ -961,6 +985,7 @@ class BaseModel(object):
                         module_script = (
                             module_action.load_master_widget()  # type: ignore [unreachable] # noqa: F821
                         )
+
                     return getattr(module_script, "iface", module_script)
 
         return None
