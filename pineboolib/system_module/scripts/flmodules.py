@@ -128,6 +128,8 @@ class FormInternalObj(qsa.FormDBWidget):
         if log is None:
             raise Exception("log is empty!.")
 
+        extension = extension.replace("*", "")
+
         settings = qsa.FLSettings()
         parse_modules_on_load = settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False)
         for root, dirs, files in os.walk(directorio):
@@ -142,10 +144,10 @@ class FormInternalObj(qsa.FormDBWidget):
                         file_py_path_ = "%s.py" % path_
                         if os.path.exists(file_py_path_):
                             os.remove(file_py_path_)
-                        if path_.endswith(".qs"):
-                            postparse.pythonify([path_])
+
+                        postparse.pythonify([path_])
                         if os.path.exists(file_py_path_):
-                            value_py = qsa.File(file_py_path_).read()
+                            value_py = qsa.File(file_py_path_, "UTF-8").read()
                             if not isinstance(value_py, str):
                                 raise Exception("value_py must be string not bytes.")
 
