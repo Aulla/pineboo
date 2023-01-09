@@ -1485,7 +1485,7 @@ class FLTableDB(QtWidgets.QWidget):
     def currentRow(self) -> int:
         """Return current row index."""
 
-        return self.cursor().at()
+        return self.cursor().at() if self.cursor() else -1
 
     def refreshTabData(self) -> None:
         """
