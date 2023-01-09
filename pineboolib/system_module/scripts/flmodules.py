@@ -207,7 +207,7 @@ class FormInternalObj(qsa.FormDBWidget):
         dialog.cancelButtonText = qsa.util.translate(
             "scripts", "No, no acepto este acuerdo de licencia."
         )
-        return dialog.exec()
+        return True if dialog.exec() else False
 
     def load_from_disk(self, directorio: str, check_license: bool) -> None:
         """Load a folder from file system."""
