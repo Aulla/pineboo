@@ -123,40 +123,47 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def load_files(self, directorio: str, extension: str) -> None:
         """Load files into database."""
-        dir = qsa.Dir(directorio)
-        ficheros = dir.entryList(extension, qsa.Dir.Files)
+
         log = self.child("log")
         if log is None:
             raise Exception("log is empty!.")
+
         settings = qsa.FLSettings()
-        for fichero in ficheros:
-            path_ = qsa.Dir.cleanDirPath(qsa.ustr(directorio, "/", fichero))
-            if settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False):
-                file_py_path_ = "%s.py" % path_
-                if os.path.exists(file_py_path_):
-                    os.remove(file_py_path_)
-                if path_.endswith(".qs"):
-                    postparse.pythonify([path_])
-                if os.path.exists(file_py_path_):
-                    value_py = qsa.File(file_py_path_).read()
-                    if not isinstance(value_py, str):
-                        raise Exception("value_py must be string not bytes.")
+        parse_modules_on_load = settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False)
+        for root, dirs, files in os.walk(directorio):
+            # print("*", root, dirs, files)
+            for name in files:
+                if name.endswith(extension):
+                    if name.startswith("test_"):
+                        continue
+                    path_ = os.path.join(root, name)
 
-                    self.load_file_to_db("%s.py" % fichero[-3], value_py, log, directorio)
+                    if parse_modules_on_load and name.endswith(".qs"):
+                        file_py_path_ = "%s.py" % path_
+                        if os.path.exists(file_py_path_):
+                            os.remove(file_py_path_)
+                        if path_.endswith(".qs"):
+                            postparse.pythonify([path_])
+                        if os.path.exists(file_py_path_):
+                            value_py = qsa.File(file_py_path_).read()
+                            if not isinstance(value_py, str):
+                                raise Exception("value_py must be string not bytes.")
 
-            encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
-            try:
-                value = qsa.File(path_, encode).read()
-            except UnicodeDecodeError:
-                LOGGER.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
-                encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
-                value = qsa.File(path_, encode).read()
+                            self.load_file_to_db("%s.py" % name[-3], value_py, log, directorio)
 
-            if not isinstance(value, str):
-                raise Exception("value must be string not bytes.")
+                    encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
+                    try:
+                        value = qsa.File(path_, encode).read()
+                    except UnicodeDecodeError:
+                        LOGGER.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
+                        encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
+                        value = qsa.File(path_, encode).read()
 
-            self.load_file_to_db(fichero, value, log, directorio)
-            # qsa.sys.processEvents()
+                    if not isinstance(value, str):
+                        raise Exception("value must be string not bytes.")
+
+                    self.load_file_to_db(name, value, log, directorio)
+                    # qsa.sys.processEvents()
 
     def load_button_clicked(self) -> None:
         """Load a directory from file system."""
@@ -200,10 +207,7 @@ class FormInternalObj(qsa.FormDBWidget):
         dialog.cancelButtonText = qsa.util.translate(
             "scripts", "No, no acepto este acuerdo de licencia."
         )
-        if dialog.exec():
-            return True
-        else:
-            return False
+        return dialog.exec()
 
     def load_from_disk(self, directorio: str, check_license: bool) -> None:
         """Load a folder from file system."""
@@ -233,20 +237,24 @@ class FormInternalObj(qsa.FormDBWidget):
 
                 log.text = ""
                 self.setDisabled(True)
-                self.load_files(qsa.ustr(directorio, "/"), "*.xml")
-                self.load_files(qsa.ustr(directorio, "/"), "*.mod")
-                self.load_files(qsa.ustr(directorio, "/"), "*.xpm")
-                self.load_files(qsa.ustr(directorio, "/"), "*.signatures")
-                self.load_files(qsa.ustr(directorio, "/"), "*.certificates")
-                self.load_files(qsa.ustr(directorio, "/"), "*.checksum")
-                self.load_files(qsa.ustr(directorio, "/forms/"), "*.ui")
-                self.load_files(qsa.ustr(directorio, "/tables/"), "*.mtd")
-                self.load_files(qsa.ustr(directorio, "/scripts/"), "*.qs")
-                self.load_files(qsa.ustr(directorio, "/scripts/"), "*.py")
-                self.load_files(qsa.ustr(directorio, "/queries/"), "*.qry")
-                self.load_files(qsa.ustr(directorio, "/reports/"), "*.kut")
-                self.load_files(qsa.ustr(directorio, "/reports/"), "*.ar")
-                self.load_files(qsa.ustr(directorio, "/translations/"), "*.ts")
+
+                extensiones = [
+                    "xml",
+                    "mod",
+                    "signatures",
+                    "certificates",
+                    "checksum",
+                    "ui",
+                    "mtd",
+                    "qs",
+                    "py",
+                    "qry",
+                    "kut",
+                    "ar",
+                    "ts",
+                ]
+                for extension in extensiones:
+                    self.load_files(directorio, ".%s" % extension)
 
                 log.append(qsa.util.translate("scripts", "* Carga finalizada."))
                 self.setDisabled(False)
