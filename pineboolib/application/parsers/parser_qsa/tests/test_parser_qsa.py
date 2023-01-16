@@ -1,13 +1,19 @@
 """
 Test QS Snippets.
 """
+from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
+
 import unittest
 from pineboolib.application.parsers.parser_qsa.postparse import pythonify_string as qs2py
 from pineboolib.application.parsers.parser_qsa import pytnyzer
 from pineboolib.application.parsers.parser_qsa.tests import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 
-NUMERO_MULTI = 0
+from pineboolib.core.utils import utils_base
+from pineboolib.application.parsers import parser_qsa
+
+import os
+import shutil
 
 
 class TestParser(unittest.TestCase):
@@ -262,8 +268,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def test_pyconvert(self) -> None:
         """Test pyconvert."""
         from pineboolib import application
-        import os
-        import shutil
 
         path = fixture_path("flfacturac.qs")
         tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "temp_qs.qs")
@@ -283,24 +287,15 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def test_pyconvert_multi(self) -> None:
         """Test pyconvert simultaneously."""
 
-        from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
-
-        global NUMERO_MULTI
-
         timer = QtCore.QTimer
-        timer.singleShot(0, self.convert)
         timer.singleShot(0, self.convert)
         timer.singleShot(0, self.convert)
         QtWidgets.QApplication.processEvents()
 
     def convert(self) -> None:
         """Convert a file."""
-        global NUMERO_MULTI
-        from pineboolib import application
-        import os
-        import shutil
 
-        NUMERO_MULTI += 1
+        from pineboolib import application
 
         path = fixture_path("flfacturac.qs")
         tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "multi.qs")
@@ -313,8 +308,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         """Test conveting fixture lib_str."""
 
         from pineboolib import application
-        import os
-        import shutil
 
         self.maxDiff = None
         simple_qs_path = fixture_path("simple.qs")
@@ -345,10 +338,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def test_ignore_no_python_flag_disabled(self) -> None:
         """Test no python flag."""
         from pineboolib import application
-        from pineboolib.core.utils import utils_base
-        from pineboolib.application.parsers import parser_qsa
-        import os
-        import shutil
 
         utils_base.FORCE_DESKTOP = False
 
@@ -378,10 +367,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def test_ignore_no_python_flag_enabled(self) -> None:
         """Test no python flag."""
         from pineboolib import application
-        from pineboolib.core.utils import utils_base
-        from pineboolib.application.parsers import parser_qsa
-        import os
-        import shutil
 
         utils_base.FORCE_DESKTOP = False
         parser_qsa.IGNORE_NO_PYTHON_TAGS = True

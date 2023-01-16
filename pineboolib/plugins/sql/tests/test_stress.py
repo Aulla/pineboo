@@ -49,7 +49,7 @@ class TestStress(unittest.TestCase):
         while cursor.prev():
             steps -= 1
 
-        self.assertEqual(steps, cursor.at())
+        self.assertEqual(steps, cursor.currentRegister())
 
     def test_basic_21(self) -> None:
         """Test basic 21."""
