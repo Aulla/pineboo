@@ -5,7 +5,7 @@ from pineboolib.qsa import qsa
 
 from pineboolib.application.parsers.parser_qsa import postparse
 import os
-
+import pathlib
 from typing import TYPE_CHECKING
 
 
@@ -134,10 +134,12 @@ class FormInternalObj(qsa.FormDBWidget):
         parse_modules_on_load = settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False)
         for root, dirs, files in os.walk(directorio):
             # print("*", root, dirs, files)
+            root_dirs_list = pathlib.Path(root)
             for name in files:
                 if name.endswith(extension):
-                    if name.startswith("test_"):
+                    if "test" in root_dirs_list.parts or name.startswith("test_"):
                         continue
+
                     path_ = os.path.join(root, name)
 
                     if parse_modules_on_load and name.endswith(".qs"):
