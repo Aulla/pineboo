@@ -2348,7 +2348,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 continue
             old_data[item.name()] = value
 
-        self.insertRecord()
+        self.insertRecord(False)
 
         for item in field_list:
             if item.isPrimaryKey() or self.metadata().fieldListOfCompoundKey(item.name()):
