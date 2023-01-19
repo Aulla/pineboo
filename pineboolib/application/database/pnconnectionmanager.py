@@ -325,11 +325,15 @@ class PNConnectionManager(QtCore.QObject):
             if conn_ident.find("|") > -1:
                 thread_id = conn_ident.split("|")[0]
                 if (
-                    thread_id not in alived_threads  # si no es un hilo existente
-                    or not self.connections_dict[conn_ident]._is_open  # si esta cerrada
-                    and self.connections_dict[conn_ident].conn is not None  # si no esta incializada
-                ):
-                    self.removeConn(conn_ident)
+                    conn_ident in self.connections_dict.keys()
+                ):  # recompruebo porque puede no existir ya.
+                    if (
+                        thread_id not in alived_threads  # si no es un hilo existente
+                        or not self.connections_dict[conn_ident]._is_open  # si esta cerrada
+                        and self.connections_dict[conn_ident].conn
+                        is not None  # si no esta incializada
+                    ):
+                        self.removeConn(conn_ident)
 
     def set_max_connections_limit(self, limit: int) -> None:
         """Set maximum connections limit."""
