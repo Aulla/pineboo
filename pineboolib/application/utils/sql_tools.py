@@ -319,7 +319,7 @@ class SqlInspector(object):
 
                     else:
                         segmento = field[field.find(")") :]
-                        print("*", composed_field, field, inicio_parentesis)
+                        # print("*", composed_field, field, inicio_parentesis)
                         composed_field[inicio_parentesis[-1]].append(field)
                         while segmento.find(")") > -1 and not field.find("(") > -1:
                             if len(inicio_parentesis) == 1:
@@ -348,8 +348,13 @@ class SqlInspector(object):
             old_list = list(new_fields_list)
             new_fields_list = []
             expect_alias = False
-            for field_name in old_list:
+            for pos, field_name in enumerate(old_list):
                 num = len(new_fields_list)
+
+                if pos > 1 and old_list[pos - 1] == "on" and old_list[pos - 2] == "distinct":
+                    new_fields_list = new_fields_list[: num - 2]
+                    continue
+
                 if field_name == "as":
                     expect_alias = True
                     continue

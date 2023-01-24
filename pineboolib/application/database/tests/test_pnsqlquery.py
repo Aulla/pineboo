@@ -686,6 +686,25 @@ class TestPNSqlQuery2(unittest.TestCase):
         qry.sql_inspector.resolve()
         self.assertEqual(qry.sql_inspector.field_list(), {"idpedido": 0, "cobros": 1, "ventas": 2})
 
+    def test_distinct_on(self) -> None:
+        """Test as in select."""
+        sql = (
+            "select distinct on (l.referencia) l.referencia,p.fecha,(l.cantidad - l.totalenalbaran)"
+            + " from pedidosprov p inner join lineaspedidosprov l on p.idpedido = l.idpedido where"
+            + " p.codproveedor = '000802' and p.codalmacen = 'alm' and l.referencia in "
+            + "('00608004','00608005','00609100','00609300','00614003','00614004','00622001'"
+            + ",'00622003','00622107','00627900','01809001') and p.servido <> 'sí' and"
+            + " l.cantidad > l.totalenalbaran order by l.referencia, p.fecha"
+        )
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.sql_inspector.set_sql(sql)
+        qry.sql_inspector.resolve()
+        self.assertEqual(
+            qry.sql_inspector.field_list(),
+            {"l.referencia": 0, "p.fecha": 1, "(l.cantidad - l.totalenalbaran)": 2},
+        )
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
