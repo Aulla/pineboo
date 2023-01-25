@@ -2,7 +2,9 @@
 
 import os
 import hashlib
+import pathlib
 from typing import List
+
 
 from PyQt6 import QtXml  # type: ignore[import]
 from pineboolib.core.utils import logging, utils_base
@@ -120,7 +122,15 @@ class FlFiles(object):
         """Process folder files."""
 
         for root, subdirs, files in os.walk(root_folder):
+
+            root_dirs_list = pathlib.Path(root)
+
             for file_name in files:
+
+                if "test" in root_dirs_list.parts or file_name.startswith("test_"):
+                    LOGGER.info("FLFILES_DIR: ignoring test %s" % os.path.join(root, file_name))
+                    continue
+
                 if file_name.endswith((".pyc")):
                     continue
 
@@ -142,8 +152,8 @@ class FlFiles(object):
                     except Exception as error:
                         LOGGER.error("Error processing %s:%s", file_name, str(error))
                         return
-                # else:
-                #    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
+                else:
+                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
