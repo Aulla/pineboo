@@ -180,7 +180,7 @@ class Array(object):
         """
         Iterate through values.
         """
-        for value in self._dict.values():
+        for value in list(self._dict.values()):
             yield value
 
     def __setitem__(self, key: Union[str, int], value: Any) -> None:
