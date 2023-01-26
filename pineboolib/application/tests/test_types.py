@@ -91,7 +91,6 @@ class TestFunction(unittest.TestCase):
 
         result = fun_([data])
         self.assertEqual(result, 30)
-        self.assertTrue(False)
 
 
 class TestObject(unittest.TestCase):
