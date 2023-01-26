@@ -53,6 +53,46 @@ class TestFunction(unittest.TestCase):
         fun_ = types.function("x", source)
         self.assertEqual(fun_(1), 2)
 
+    def test_extended(self) -> None:
+        """Extended testing."""
+
+        qsa_src = [
+            "/* Parámetros del objeto o que pueden ser usados en la fórmula:",
+            "* o.DS: Días de servicio",
+            "* o.T1: Ventas en el trimestre T1",
+            "* o.T2: Ventas en el trimestre T2",
+            "* o.T3: Ventas en el trimestre T3",
+            "* o.T4: Ventas en el trimestre T4",
+            "* o.SA: Stock actual",
+            "* o.RS: Stock reservado",
+            "* o.PR: Stock pendiente de recibir",
+            "* o.SS: Stock de seguridad",
+            "*/",
+            "o = arguments[0]; /// NO BORRES ESTAS LINEAS",
+            "for (d in o) {",
+            "o[d] = parseFloat(o[d]);",
+            "}",
+            "//////////////////////////////////////////////////",
+            "consumoMensual = (parseFloat(o.T1) + parseFloat(o.T2)) / 2;",
+            "numeroMeses = o.DS/30;",
+            "aPedir = consumoMensual * numeroMeses - parseFloat(o.SA) + parseFloat(o.RS) - parseFloat(o.PR);",
+            "if (aPedir < 0) {",
+            "aPedir=0;",
+            "}",
+            "aPedir = Math.ceil(aPedir);",
+            "return aPedir;",
+        ]
+
+        fun_ = types.function("arguments", "\n".join(qsa_src))
+        data = types.Array()
+        data.T1 = 100
+        data.T2 = 200
+        data.DS = 6
+
+        result = fun_([data])
+        self.assertEqual(result, 30)
+        self.assertTrue(False)
+
 
 class TestObject(unittest.TestCase):
     """Test object."""
