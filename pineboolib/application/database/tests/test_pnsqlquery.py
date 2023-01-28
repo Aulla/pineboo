@@ -687,7 +687,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(qry.sql_inspector.field_list(), {"idpedido": 0, "cobros": 1, "ventas": 2})
 
     def test_distinct_on(self) -> None:
-        """Test as in select."""
+        """Test distinct in select."""
         sql = (
             "select distinct on (l.referencia) l.referencia,p.fecha,(l.cantidad - l.totalenalbaran)"
             + " from pedidosprov p inner join lineaspedidosprov l on p.idpedido = l.idpedido where"
@@ -703,6 +703,22 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(
             qry.sql_inspector.field_list(),
             {"l.referencia": 0, "p.fecha": 1, "(l.cantidad - l.totalenalbaran)": 2},
+        )
+
+    def test_resolve_fields(self) -> None:
+        """Test resolve fields."""
+
+        qry = pnsqlquery.PNSqlQuery()
+        por_dto = 10
+        qry.setSelect("SUM((pvptotal * iva * (100 - %s)) / 100 / 100), iva" % (por_dto))
+        qry.setFrom("lineasalbaranescli")
+        qry.setWhere("1=1")
+
+        qry.sql_inspector.set_sql(qry.sql())
+        qry.sql_inspector.resolve()
+        self.assertEqual(
+            qry.sql_inspector.field_list(),
+            {"sum((pvptotal * iva * (100 - 10)) / 100 / 100)": 0, "iva": 1},
         )
 
     @classmethod
