@@ -319,7 +319,6 @@ class SqlInspector(object):
 
                     else:
                         segmento = field[field.find(")") :]
-                        # print("*", composed_field, field, inicio_parentesis)
                         composed_field[inicio_parentesis[-1]].append(field)
                         while segmento.find(")") > -1 and not field.find("(") > -1:
                             if len(inicio_parentesis) == 1:
