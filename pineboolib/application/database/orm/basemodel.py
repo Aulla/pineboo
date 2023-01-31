@@ -1,5 +1,6 @@
 """Basemodel module."""
 
+from pineboolib.core import decorators
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
@@ -86,9 +87,7 @@ class BaseModel(object):
             conn_manager = application.PROJECT.conn_manager
             if "conn_name" in kwargs.keys():
                 conn_name = kwargs["conn_name"]
-
             target._session = conn_manager.useConn(conn_name).session()
-
         if target._session is None:
             target._error_manager(
                 "_qsa_init",
@@ -516,11 +515,19 @@ class BaseModel(object):
     @classmethod
     def get(cls, pk_value: str, session: Union[str, "orm.Session"] = "default") -> Any:
         """Return instance selected by pk."""
-        qry = cls.query(session)
-        ret_ = qry.get(pk_value) if qry is not None else None
-        return ret_
+        # qry = cls.query(session)
+        # ret_ = qry.get(pk_value) if qry is not None else None
+
+        session_ = (
+            application.PROJECT.conn_manager.useConn(session).session()
+            if isinstance(session, str)
+            else session
+        )
+
+        return session_.get(cls, pk_value) if session_ else None
 
     @classmethod
+    @decorators.deprecated
     def query(
         cls, session_or_name: Union[str, "orm.Session"] = "default"
     ) -> Optional["orm.query.Query"]:
@@ -815,10 +822,20 @@ class BaseModel(object):
         """Return current transaction level."""
 
         ret_ = -1
-        parent_transaction = self._session.in_transaction() if self._session else None
-        while parent_transaction:
+        current_transaction = None
+        if self._session:
+            if self._session.in_nested_transaction():
+                current_transaction = self._session.get_nested_transaction()
+            elif self._session.in_transaction():
+                current_transaction = self._session.get_transaction()
+
+        while True:
+            if current_transaction is None:
+                break
+
             ret_ += 1
-            parent_transaction = parent_transaction.parent
+
+            current_transaction = current_transaction.parent
 
         return ret_
 
