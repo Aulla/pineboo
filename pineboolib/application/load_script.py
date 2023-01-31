@@ -12,7 +12,7 @@ from pineboolib import application
 
 import xml.etree.ElementTree as ET
 from importlib import util
-from sqlalchemy.ext import declarative
+from sqlalchemy import orm
 from sqlalchemy import exc
 
 import shutil
@@ -228,7 +228,7 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
         if module_class:
             module_class.__metaclass__ = "Base"
             try:
-                model_class = type(class_name, (module_class, declarative.declarative_base()), {})
+                model_class = type(class_name, (module_class, orm.declarative_base()), {})
             except exc.ArgumentError:
                 LOGGER.warning(
                     "Error in %s model. Please check columns and make sure exists a primaryKey column"

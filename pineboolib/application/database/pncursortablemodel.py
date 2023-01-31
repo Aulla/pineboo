@@ -8,7 +8,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging, utils_base
 
-from sqlalchemy import exc, orm, inspect
+from sqlalchemy import exc, orm, inspect, text
 from pineboolib.application.utils import date_conversion, xpm
 
 from pineboolib.application.database.orm import utils as orm_utils
@@ -703,7 +703,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_query = self.session.execute(sql_query)
+        result_query = self.session.execute(text(sql_query))
         rows_loaded = result_query.rowcount
 
         if rows_loaded == -1:
@@ -717,7 +717,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     sql_count += " WHERE 1 = 1"
                 sql_count = sql_count[: sql_count.find("ORDER BY")]
 
-            result_count = self.session.execute(sql_count)
+            result_count = self.session.execute(text(sql_count))
             rows_loaded = result_count.fetchone()[0]
 
         if rows_loaded > 0:
@@ -782,7 +782,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             sql_query += " AND" if sql_query.find("WHERE") > -1 else " WHERE"
             sql_query += extra_where
 
-        result = self.session.execute(sql_query)
+        result = self.session.execute(text(sql_query))
         new_data = result.fetchone()
 
         if new_data is None and mode in [1, 2]:  # mode 3 allways returns None

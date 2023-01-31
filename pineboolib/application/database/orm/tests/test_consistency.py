@@ -89,17 +89,17 @@ class TestConsistency(unittest.TestCase):
 
         conn_ = qsa.aqApp.db().useConn("default")
         session = conn_.session()
-        self.assertTrue(session.transaction is None)
+        self.assertTrue(not session.in_transaction())
         conn_.transaction()
-        self.assertTrue(session.transaction is not None)
-        id_ = session.transaction
+        self.assertTrue(session.in_transaction())
+        id_ = session.in_transaction()
         conn_.transaction()
-        self.assertNotEqual(id_, session.transaction)
+        self.assertNotEqual(id_, session.in_transaction())
         self.assertTrue(id_ is not None)
         conn_.rollback()
-        self.assertEqual(id_, session.transaction)
+        self.assertEqual(id_, session.in_transaction())
         conn_.rollback()
-        self.assertTrue(session.transaction is None)
+        self.assertTrue(not session.in_transaction())
 
     @classmethod
     def tearDownClass(cls) -> None:

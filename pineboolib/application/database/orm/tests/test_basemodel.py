@@ -290,10 +290,10 @@ class TestBaseModel(unittest.TestCase):
         obj2_.idmodulo = "mr1"
         self.assertTrue(obj2_.save())
         self.assertEqual(session, obj2_.session)
-        session.begin_nested() if session.transaction else session.begin()
+        session.begin_nested() if session.in_transaction() else session.begin()
 
         obj2_.session.commit()
-        session.begin_nested() if session.transaction else session.begin()
+        session.begin_nested() if session.in_transaction() else session.begin()
         self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
         self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2].idmodulo, obj2_.idmodulo)
         self.assertTrue(obj_.delete())
@@ -308,7 +308,7 @@ class TestBaseModel(unittest.TestCase):
 
         current_session = qsa.thread_session_current()
         if current_session:
-            if not current_session.transaction:
+            if not current_session.in_transaction():
                 current_session.begin()
 
             obj_areas = areas_class()

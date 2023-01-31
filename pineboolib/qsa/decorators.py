@@ -43,12 +43,12 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":
                             "New atomic session : %s, connection : %s, transaction: %s",
                             new_session,
                             conn_name,
-                            new_session.transaction,
+                            new_session.in_transaction(),
                         )
 
                         try:
                             result_ = fun_(*args, **kwargs)
-                            if new_session.transaction is None:
+                            if not new_session.in_transaction():
                                 LOGGER.warning(
                                     "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nmodule:%s\nfunction:%s\n",
                                     fun_.__module__,

@@ -15,6 +15,8 @@ from pineboolib.application import types
 from pineboolib.core import decorators, translate, settings
 from pineboolib import logging, application
 
+from sqlalchemy import text
+
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
 
@@ -742,7 +744,7 @@ class FLUtil(object):
         else:
             sql = "UPDATE flsettings SET valor = '%s' WHERE %s" % (value, where)
         try:
-            session_.execute(sql)
+            session_.execute(text(sql))
 
         except Exception:
             LOGGER.exception("writeDBSettingEntry: Error al ejecutar SQL: %s", sql)

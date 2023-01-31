@@ -391,10 +391,10 @@ class PNConnectionManager(QtCore.QObject):
                     if not session.connection().closed:
                         is_valid = True
                 except exc.InvalidRequestError:
-                    if session.transaction is None:
+                    if not session.in_transaction():
                         is_valid = True
                 except AttributeError:
-                    if session.transaction is None:
+                    if not session.in_transaction():
                         is_valid = True
 
             except Exception as error:
@@ -417,10 +417,10 @@ class PNConnectionManager(QtCore.QObject):
                     LOGGER.warning(
                         "AUTO RELOAD: bad connection detected. Reloading users connections"
                     )
-                    if session.transaction is not None:
+                    if session.in_transaction():
                         LOGGER.warning(
                             "AUTO RELOAD: bad session %s is currently in transacction. Aborted",
-                            session.transaction,
+                            session.in_transaction(),
                         )
 
                     self.reinit_user_connections()

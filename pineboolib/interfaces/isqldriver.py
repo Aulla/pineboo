@@ -194,13 +194,13 @@ class ISqlDriver(object):
                             try:
                                 if self._create_isolation:
                                     tmp_conn.connection.set_isolation_level(0)
-                                tmp_conn.execute("CREATE DATABASE %s" % db_name)
+                                tmp_conn.execute(text("CREATE DATABASE %s" % db_name))
                                 if self._create_isolation:
                                     tmp_conn.connection.set_isolation_level(1)
                             except Exception as error:
                                 self.set_last_error(str(error), "LOGGIN")
 
-                                tmp_conn.execute("ROLLBACK")
+                                tmp_conn.execute(text("ROLLBACK"))
                                 tmp_conn.close()
                                 return False
 
@@ -262,6 +262,9 @@ class ISqlDriver(object):
                     str_conn += self._extra_alternative
 
                 self.get_common_params()
+                if "encoding" in self._queqe_params.keys():
+                    LOGGER.warning("no! %s" % self._queqe_params)
+
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 if self._use_altenative_isolation_level:
                     event.listen(self._engine, "connect", self.do_connect)
@@ -323,7 +326,7 @@ class ISqlDriver(object):
             session_class = sessionmaker(
                 bind=self.connection().execution_options(autocommit=True),
                 autoflush=False,
-                autocommit=True,
+                # autocommit=True,
             )
 
             new_session = session_class()
@@ -881,7 +884,7 @@ class ISqlDriver(object):
                     result_ = (  # Esto es necesario para no obtener error en la consulta con los bytearray
                         session_.connection()
                         .execution_options(autocommit=True)
-                        .execute("""%s""" % query)
+                        .execute(text("""%s""" % query))
                     )
                 else:
                     result_ = session_.execute(text("""%s""" % query))
@@ -969,7 +972,7 @@ class ISqlDriver(object):
 
             if sql:
                 try:
-                    session_.connection().execute(sql)
+                    session_.connection().execute(text(sql))
                 except Exception as error:
                     LOGGER.error("insertMulti: %s", str(error))
                     return False
@@ -1247,7 +1250,7 @@ class ISqlDriver(object):
     def get_common_params(self) -> None:
         """Load common params."""
 
-        self._queqe_params["encoding"] = "UTF-8"
+        # self._queqe_params["encoding"] = "UTF-8"
 
         mng_ = self.db_.connManager()
         limit_conn = mng_.limit_connections

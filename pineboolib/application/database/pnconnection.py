@@ -446,8 +446,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
 
             session_ = self.session()
-
-            if not session_.transaction:
+            if not session_.in_transaction():
                 LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
                 session_.begin()
             else:

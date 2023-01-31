@@ -13,7 +13,7 @@ import os
 
 
 from typing import Optional, Any, List, Dict, TYPE_CHECKING
-from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event, text  # type: ignore [import] # noqa: F821, F401
 
 
 if TYPE_CHECKING:
@@ -309,8 +309,8 @@ class FLSQLITE(isqldriver.ISqlDriver):
         if not getattr(self, "_connection", None) or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect().execution_options(autocommit=True)
-                self._connection.execute("PRAGMA journal_mode=WAL")
-                self._connection.execute("PRAGMA synchronous=NORMAL")
+                self._connection.execute(text("PRAGMA journal_mode=WAL"))
+                self._connection.execute(text("PRAGMA synchronous=NORMAL"))
 
                 event.listen(self._engine, "close", self.close_emited)
             else:

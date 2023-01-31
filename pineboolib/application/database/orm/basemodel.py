@@ -305,7 +305,7 @@ class BaseModel(object):
         """Flush instance to current session."""
 
         if self._session:
-            # if not self._session.transaction:
+            # if not self._session.in_transaction():
             #    self._session.begin()
             # else:
             #    self._session.begin_nested()
@@ -815,7 +815,7 @@ class BaseModel(object):
         """Return current transaction level."""
 
         ret_ = -1
-        parent_transaction = self._session.transaction if self._session else None
+        parent_transaction = self._session.in_transaction() if self._session else None
         while parent_transaction:
             ret_ += 1
             parent_transaction = parent_transaction.parent

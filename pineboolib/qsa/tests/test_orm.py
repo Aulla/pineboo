@@ -7,6 +7,8 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 from pineboolib.application.database.orm.utils import do_flush
 
+from sqlalchemy import text
+
 
 class TestOrm(unittest.TestCase):
     """Test Orm."""
@@ -70,7 +72,7 @@ class TestOrm(unittest.TestCase):
         # res_1 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
         # self.assertFalse(res_1.returns_rows)
         do_flush(session_, [obj_])  # Aplica el cambio en la BD.
-        res_2 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
+        res_2 = session_.execute(text("SELECT idarea FROM flareas WHERE idarea = 'A'"))
         self.assertTrue(res_2.returns_rows)
 
         obj2_ = session_.query(class_).get("A")  # Recupera el registro de la BD
