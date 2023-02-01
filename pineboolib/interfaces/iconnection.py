@@ -100,7 +100,7 @@ class IConnection:
 
     #    return IApiCursor()
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Return base connection."""
 
         pass  # pragma: no cover

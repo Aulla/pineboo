@@ -94,10 +94,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Get the current connection name for this cursor."""
         return self._name
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Return base connection."""
 
-        return self.driver().connection()
+        return self.driver().connection(reload)
 
     def isOpen(self) -> bool:
         """Indicate if a connection is open."""
@@ -447,7 +447,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             session_ = self.session()
             if not session_.in_transaction():
-                LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
                 session_.begin()
             else:
                 session_.begin_nested()
@@ -464,7 +463,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
 
             session_ = self.session()
-            session_.commit()
+            current_transaction = (
+                session_.get_nested_transaction()
+                if session_.in_nested_transaction()
+                else session_.get_transaction()
+            )
+            current_transaction.commit()
 
             return True
         except Exception as error:
@@ -477,7 +481,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Roll back a transaction."""
         try:
             session_ = self.session()
-            session_.rollback()
+            current_transaction = (
+                session_.get_nested_transaction()
+                if session_.in_nested_transaction()
+                else session_.get_transaction()
+            )
+            current_transaction.rollback()
             return True
         except Exception as error:
             self._last_error = "No se pudo deshacer la transacción: %s" % str(error)

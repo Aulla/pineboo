@@ -108,26 +108,52 @@ class TestBaseModel(unittest.TestCase):
         session = qsa.thread_session_current()
         qsa.thread_session_free()
         new_session = qsa.thread_session_new()
+
+        self.assertFalse(session.in_transaction())
+        self.assertFalse(new_session.in_transaction())
         self.assertNotEqual(session, new_session)
+
         obj_ = qsa.orm_("flmodules")()
+
+        self.assertEqual(
+            obj_.session,
+            new_session,
+            "obj.session:%s, new:%s, old:%s" % (obj_.session, new_session, session),
+        )
+        self.assertEqual(obj_.get_transaction_level(), -1)
+
         obj_.idmodulo = "mod2"
         obj_.idarea = "F"
         with self.assertRaises(Exception):
             obj_.save()
 
+        self.assertEqual(obj_.get_transaction_level(), -1)
+
         obj_.descripcion = "PRUEBA"
         with self.assertRaises(Exception):
             obj_.save()
 
-        obj_2 = qsa.orm_("flareas")()
-        obj_2.idarea = "F"
-        obj_2.descripcion = "Area"
-        self.assertTrue(obj_2.save())
-
-        self.assertTrue(obj_.relationM1("idarea"))
         self.assertEqual(obj_.get_transaction_level(), -1)
 
+        obj_2 = qsa.orm_("flareas")()
+
+        self.assertEqual(obj_2.get_transaction_level(), -1)
+
+        obj_2.idarea = "F"
+        obj_2.descripcion = "Area"
+
+        self.assertEqual(obj_2.get_transaction_level(), -1)
+        self.assertTrue(obj_2.save())
+        self.assertEqual(obj_2.get_transaction_level(), -1)
+
+        obj_.session.begin()
+        self.assertTrue(obj_.relationM1("idarea"))
+        self.assertEqual(obj_.transaction_level, 0)
+
         self.assertTrue(obj_.save())
+        obj_.session.commit()
+        self.assertEqual(obj_.transaction_level, -1)
+
         self.assertEqual(qsa.FLUtil().sqlSelect("flmodules", "idmodulo", "idarea='F'"), "mod2")
         obj_3 = qsa.orm_("flmodules")()
         obj_3.idmodulo = "mod1"
@@ -212,7 +238,7 @@ class TestBaseModel(unittest.TestCase):
         obj_2.idarea = "F"
         obj_2.descripcion = "relation_m1"
         self.assertTrue(obj_2.save())
-        obj_ = obj_class.query(obj_2.session).get("F")
+        obj_ = obj_class.get("F")
         self.assertTrue(obj_)
         # obj_2.session.commit()
         relations_dict = obj_.relation1M("idarea")
@@ -343,12 +369,18 @@ class TestBaseModel(unittest.TestCase):
 
             # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
             #    self.assertTrue(child.delete())
-            obj_areas.session.begin()
+            cur_session = (
+                obj_areas.session.begin_nested()
+                if obj_areas.session.in_transaction()
+                else obj_areas.session.begin()
+            )
+
             self.assertTrue(obj_areas.delete())
-            obj_areas.session.commit()
+            cur_session.commit()
             self.assertEqual(
                 len(modules_class.query().filter(modules_class.idarea == "I").all()), 0
             )
+            obj_areas.session.commit()
 
     @classmethod
     def tearDownClass(cls) -> None:

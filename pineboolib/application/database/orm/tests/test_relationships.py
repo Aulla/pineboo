@@ -22,11 +22,18 @@ class TestRelationships(unittest.TestCase):
         self.assertFalse(class_area is None)
         self.assertFalse(class_modulo is None)
 
+        qsa.thread_session_free()
+        session = qsa.thread_session_new()
+
+        session.begin()
+
         obj_area = class_area()
         obj_area.bloqueo = False
         obj_area.idarea = "T"
         obj_area.descripcion = "Area de pruebas de pendingRelationships"
         obj_area.save()
+        self.assertEqual(obj_area.transaction_level, 0)
+        # self.assertEqual(len(obj_area.children), 0, "no son cero => %s" % obj_area.children)
 
         obj_modulo_1 = class_modulo()
         obj_modulo_1.bloqueo = False
@@ -44,9 +51,13 @@ class TestRelationships(unittest.TestCase):
         obj_modulo_1.version = "0.1"
         obj_modulo_1.save()
 
-        self.assertTrue(hasattr(obj_area, "children"))
+        obj_area = class_area.get("T")
 
+        self.assertTrue(hasattr(obj_area, "children"))
+        self.assertEqual(obj_area.transaction_level, 0)
         self.assertEqual(len(obj_area.children), 2, "no son dos => %s" % obj_area.children)
+
+        session.commit()
 
     def test_children_before_after_commit(self):
 
@@ -56,21 +67,31 @@ class TestRelationships(unittest.TestCase):
         self.assertFalse(class_area is None)
         self.assertFalse(class_modulo is None)
 
+        qsa.thread_session_free()
+        session = qsa.thread_session_new()
+
+        session.begin()
+
         obj_area = class_area()
         obj_area.bloqueo = False
         obj_area.idarea = "T1"
         obj_area.descripcion = "Area de pruebas de pendingRelationships"
-        obj_area.save()
+        self.assertTrue(obj_area.save())
 
-        self.assertTrue(not obj_area.children)
+        self.assertEqual(obj_area.transaction_level, 0)
+
+        # self.assertTrue(not obj_area.children)
 
         obj_modulo_1 = class_modulo()
+        self.assertEqual(obj_modulo_1.transaction_level, 0)
+        self.assertEqual(obj_modulo_1.session, obj_area.session)
+
         obj_modulo_1.bloqueo = False
         obj_modulo_1.idmodulo = "T2M1"
         obj_modulo_1.idarea = obj_area.idarea
         obj_modulo_1.descripcion = "Modulo de pruebas 1 de T1"
         obj_modulo_1.version = "0.1"
-        obj_modulo_1.save()
+        self.assertTrue(obj_modulo_1.save())
 
         obj_modulo_1 = class_modulo()
         obj_modulo_1.bloqueo = False
@@ -78,9 +99,12 @@ class TestRelationships(unittest.TestCase):
         obj_modulo_1.idarea = obj_area.idarea
         obj_modulo_1.descripcion = "Modulo de pruebas 2 de T1"
         obj_modulo_1.version = "0.1"
-        obj_modulo_1.save()
+        self.assertTrue(obj_modulo_1.save())
+        # obj_area.save()
 
-        obj_area.save()
+        # current_session = qsa.thread_session_current()
+        # self.asserTrue(session.get_transaction())
+        # self.assertEqual(current_session.get_transaction(), session.get_transaction())
 
         self.assertTrue(obj_modulo_1 in obj_area.children, "hijos: %s" % obj_area.children)
 
@@ -96,6 +120,8 @@ class TestRelationships(unittest.TestCase):
         self.assertEqual(
             obj_modulo_1.idmodulo, qsa.util.sqlSelect("flmodules", "idmodulo", "idmodulo='T2M1_2'")
         )
+
+        session.commit()
 
     @classmethod
     def tearDownClass(cls) -> None:

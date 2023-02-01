@@ -75,7 +75,7 @@ class TestOrm(unittest.TestCase):
         res_2 = session_.execute(text("SELECT idarea FROM flareas WHERE idarea = 'A'"))
         self.assertTrue(res_2.returns_rows)
 
-        obj2_ = session_.query(class_).get("A")  # Recupera el registro de la BD
+        obj2_ = session_.get(class_, "A")  # Recupera el registro de la BD
 
         self.assertEqual(obj_, obj2_)
         session_.rollback()
@@ -97,14 +97,15 @@ class TestOrm(unittest.TestCase):
         session_.commit()  # Se cierra la sesión (Transacción)
 
         session_2 = qsa.session()
-        obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
+        obj2_ = session_2.get(class_, "A")  # Recupera el registro de la BD
         self.assertTrue(obj2_)
+        session_2.commit()  # Esto es porque la query anterior ha creado una trasacción
         session_2.begin()
         session_2.delete(obj2_)
         session_2.commit()
 
         session_3 = qsa.session()
-        obj3_ = session_3.query(class_).get("A")  # Recupera el registro de la BD
+        obj3_ = session_3.get(class_, "A")  # Recupera el registro de la BD
         self.assertFalse(obj3_)
 
     def test_modify_data(self) -> None:
@@ -124,13 +125,13 @@ class TestOrm(unittest.TestCase):
         session_.commit()
         session_2 = qsa.session()
         session_2.begin()
-        obj2_ = session_2.query(class_).get("B")  # Recupera el registro de la BD
+        obj2_ = session_2.get(class_, "B")  # Recupera el registro de la BD
         self.assertEqual(obj2_.descripcion, "Area B")
         obj2_.descripcion = "Area B modificada"
         session_2.commit()  # Guarda el cambio permanentemente.
 
         session_3 = qsa.session()
-        obj3_ = session_3.query(class_).get("B")
+        obj3_ = session_3.get(class_, "B")
         self.assertEqual(obj3_.descripcion, "Area B modificada")
         qsa.thread_session_free()
 
@@ -173,16 +174,16 @@ class TestOrm(unittest.TestCase):
         session_.begin()
         session_.add(obj_)
 
-        session_.begin_nested()  # Save point
+        nested = session_.begin_nested()  # Save point
 
         obj_.descripcion = "Descripción Nueva"
 
-        obj2_ = session_.query(class_).get("C")
+        obj2_ = session_.get(class_, "C")
 
         self.assertEqual(obj_.descripcion, "Descripción Nueva")
         self.assertEqual(obj2_.descripcion, "Descripción Nueva")
 
-        session_.rollback()  # rollback save_point
+        nested.rollback()  # rollback save_point
 
         self.assertEqual(obj_.descripcion, "Descripción C")
 

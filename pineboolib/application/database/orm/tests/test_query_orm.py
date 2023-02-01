@@ -35,7 +35,7 @@ class TestQueryOrm(unittest.TestCase):
 
     def test_delete(self) -> None:
         """Test delete with children."""
-
+        qsa.thread_session_free()
         session = qsa.thread_session_new()
         session.begin()
         class_area = qsa.orm_("fltest4")
@@ -59,9 +59,9 @@ class TestQueryOrm(unittest.TestCase):
         self.assertTrue(child_2.save())
         child_2.session.commit()
 
-        self.assertEqual(len(class_child.query().all()), 2)
+        self.assertEqual(len(class_child.query().all()), 2)  # implica begin
 
-        # session.commit()
+        session.commit()
         session.begin()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()
@@ -80,7 +80,7 @@ class TestQueryOrm(unittest.TestCase):
 
     def test_delete2(self) -> None:
         """Test delete with children."""
-
+        qsa.thread_session_free()
         session = qsa.thread_session_new()
         session.begin()
         class_area = qsa.orm_("fltest4")
@@ -104,9 +104,9 @@ class TestQueryOrm(unittest.TestCase):
         self.assertTrue(child_2.save())
         child_2.session.commit()
 
-        self.assertEqual(len(class_child.query().all()), 2)
+        self.assertEqual(len(class_child.query().all()), 2)  # implica session.begin
 
-        # session.commit()
+        session.commit()
         session.begin()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()

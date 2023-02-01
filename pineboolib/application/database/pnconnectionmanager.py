@@ -388,7 +388,7 @@ class PNConnectionManager(QtCore.QObject):
         if session is not None:
             try:
                 try:
-                    if not session.connection().closed:
+                    if not self.useConn(session._conn_name).connection(False).closed:
                         is_valid = True
                 except exc.InvalidRequestError:
                     if not session.in_transaction():

@@ -970,9 +970,11 @@ class TestAfterCommit(unittest.TestCase):
 
         application.VIRTUAL_DB = True
         init_testing()
-        session = qsa.session()
-        session.rollback()
-        session.connection().close()
+
+        # session = qsa.session()
+        # session.rollback()
+        # session.commit()
+        # session.connection().close()
 
     def test_basic_1(self) -> None:
         """Test sys.afertCommit_flfiles is called"""

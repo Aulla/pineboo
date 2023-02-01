@@ -303,10 +303,10 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         return True
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Retrun connection."""
 
-        if not getattr(self, "_connection", None) or self._connection.closed:
+        if reload and not getattr(self, "_connection", None) or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect().execution_options(autocommit=True)
                 self._connection.execute(text("PRAGMA journal_mode=WAL"))

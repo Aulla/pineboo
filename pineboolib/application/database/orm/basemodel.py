@@ -56,6 +56,7 @@ class BaseModel(object):
     serial: bool = True
     counter: bool = False
     no_init: bool = False
+    _use_own_transaction = False
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -132,6 +133,7 @@ class BaseModel(object):
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal(self)  # pylint: disable=invalid-name
         self._force_mode = None
+        self._use_own_transaction = False
         self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():
@@ -618,7 +620,6 @@ class BaseModel(object):
             )
 
         else:
-
             if self._session is None:
                 self._error_manager("save", "_session is empty!")
             elif self.mode_access == 2:
@@ -627,6 +628,9 @@ class BaseModel(object):
                 )
             else:
 
+                if not self._session.in_transaction():
+                    self._use_own_transaction = True
+
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
 
@@ -634,6 +638,9 @@ class BaseModel(object):
 
             self.update_copy()
 
+            if self._use_own_transaction:
+                self._use_own_transaction = False
+                self._session.commit()
             return True
         return False
 
@@ -648,7 +655,6 @@ class BaseModel(object):
 
             for field in table_meta.fieldList():
                 field_name = field.name()
-
                 if mode < 2:  # 0 insert,1 edit
                     # not Null fields.
                     if not field.allowNull():
@@ -658,18 +664,21 @@ class BaseModel(object):
                                 "_check_integrity",
                                 "INTEGRITY::Field %s.%s need a value"
                                 % (table_meta.name(), field_name),
+                                self,
                             )
                         elif field.type() == "date" and not isinstance(value, datetime.date):
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Type Error %s.%s -> Value must be a datetime.date type, but found %s type"
                                 % (table_meta.name(), field_name, type(value)),
+                                self,
                             )
                         elif field.type() == "time" and not isinstance(value, datetime.time):
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Type Error %s.%s -> Value must be a datetime.time type, but found %s type"
                                 % (table_meta.name(), field_name, type(value)),
+                                self,
                             )
 
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
@@ -703,6 +712,7 @@ class BaseModel(object):
                                     value,
                                     " Use None instead of False" if not value else "",
                                 ),
+                                self,
                             )
 
                         qry_data = None
@@ -719,6 +729,7 @@ class BaseModel(object):
                                 "_check_integrity",
                                 "INTEGRITY::Field relation %s.%s -> %s"
                                 % (table_meta.name(), field_name, error),
+                                self,
                             )
                         # qry_data = (
                         #    foreign_class_.query(self._session)
@@ -752,6 +763,7 @@ class BaseModel(object):
                                     value,
                                     type(value),
                                 ),
+                                self,
                             )
 
                     elif not field.allowNull():
@@ -764,6 +776,7 @@ class BaseModel(object):
                                 relation_m1.foreignTable(),
                                 relation_m1.foreignField(),
                             ),
+                            self,
                         )
 
         return True
@@ -771,6 +784,7 @@ class BaseModel(object):
     def relationM1(self, field_name: str = "") -> Optional[Callable]:
         """Return relationM1 object if exists."""
 
+        ret_ = None
         if field_name:
             meta = self.table_metadata().field(field_name)
             if meta is not None:
@@ -781,14 +795,15 @@ class BaseModel(object):
                     )
                     if foreign_table_class is not None:
                         foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
-                        return (
+
+                        ret_ = (
                             self._session.query(  # type: ignore [union-attr] # noqa: F821
                                 foreign_table_class
                             )
                             .filter(foreign_field_obj == getattr(self, field_name))
                             .first()
                         )
-        return None
+        return ret_
 
     def relation1M(self, field_name: str = "") -> Dict[str, List[Callable]]:
         """Return relationed instances."""
@@ -963,7 +978,7 @@ class BaseModel(object):
                 del target._cached_bufferchanged[event.key]
 
     @classmethod
-    def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
+    def _error_manager(cls, text: str, error: Union[Exception, str], obj: object = None) -> None:
         """Return custom error message."""
 
         exception_: Any = None
@@ -976,6 +991,11 @@ class BaseModel(object):
             error_info = sys.exc_info()
             exception_ = error_info[0]
             error_message = str(error_info[1])
+
+        if obj:
+            if obj._use_own_transaction:
+                obj._use_own_transaction = False
+                obj._session.rollback()
 
         LOGGER.error("%s.%s:: %s", cls.__name__, text, error_message, stack_info=False)
         raise exception_(error_message)

@@ -91,15 +91,17 @@ class TestConsistency(unittest.TestCase):
         session = conn_.session()
         self.assertTrue(not session.in_transaction())
         conn_.transaction()
-        self.assertTrue(session.in_transaction())
-        id_ = session.in_transaction()
+        self.assertTrue(session.in_transaction() and not session.in_nested_transaction())
+        id_ = session.get_transaction()
         conn_.transaction()
-        self.assertNotEqual(id_, session.in_transaction())
-        self.assertTrue(id_ is not None)
-        conn_.rollback()
-        self.assertEqual(id_, session.in_transaction())
+        nested_ = session.get_nested_transaction()
+        self.assertNotEqual(id_, nested_)
+        self.assertTrue(id_ is not None and nested_ is not None)
+        nested_.rollback()
+        self.assertEqual(id_, session.get_transaction())
         conn_.rollback()
         self.assertTrue(not session.in_transaction())
+        session.rollback()
 
     @classmethod
     def tearDownClass(cls) -> None:

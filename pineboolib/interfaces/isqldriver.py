@@ -336,12 +336,13 @@ class ISqlDriver(object):
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
+        new_session.commit()
         return new_session
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Return a cursor connection."""
 
-        if self._connection is None or self._connection.closed:
+        if reload and self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
                 if application.SHOW_CONNECTION_EVENTS:
@@ -1251,6 +1252,8 @@ class ISqlDriver(object):
         """Load common params."""
 
         # self._queqe_params["encoding"] = "UTF-8"
+        self._queqe_params["future"] = True
+        # self._queqe_params["isolation_level"] = "AUTOCOMMIT"
 
         mng_ = self.db_.connManager()
         limit_conn = mng_.limit_connections
