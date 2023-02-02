@@ -568,7 +568,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     #    return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry) -> Optional["result.ResultProxy"]:
+    def execute_query(self, qry) -> Optional["result.Result"]:
         """Execute a query in a database cursor."""
 
         return self.driver().execute_query(qry)

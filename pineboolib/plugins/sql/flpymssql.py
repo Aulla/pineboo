@@ -266,7 +266,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
-    ) -> Optional["result.ResultProxy"]:
+    ) -> Optional["result.Result"]:
         """Set a refresh query for database."""
 
         if not self.is_open():

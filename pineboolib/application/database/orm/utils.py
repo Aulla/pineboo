@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext import declarative  # pragma: no cover
     from sqlalchemy.orm import query  # pragma: no cover
     from sqlalchemy.orm import Session
+    from sqlalchemy import engine
 
 
 LOGGER = logging.get_logger(__name__)
@@ -38,14 +39,14 @@ class DynamicFilter(object):
     """DynamicFilter class."""
 
     query_: "query.Query"
-    model_class: "declarative.DeclarativeMeta"
+    model_class: "engine.CursorResult"
     filter_condition: List[List[str]]
     order_by: List[List[str]]
 
     def __init__(
         self,
         query: "query.Query",
-        model_class: "declarative.DeclarativeMeta",
+        model_class: "engine.CursorResult",
         filter_condition: List[List[str]] = [],
     ):
         """Initialize."""

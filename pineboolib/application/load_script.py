@@ -22,7 +22,6 @@ import os
 if TYPE_CHECKING:
     from pineboolib.qsa import formdbwidget  # pragma: no cover
     from pineboolib.application import xmlaction  # pragma: no cover
-    from sqlalchemy.ext.declarative import api  # noqa: F401 # pragma: no cover
     from types import ModuleType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)

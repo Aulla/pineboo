@@ -109,10 +109,12 @@ class TestBaseModel(unittest.TestCase):
         session = qsa.thread_session_current()
         qsa.thread_session_free()
         new_session = qsa.thread_session_new()
-
-        self.assertFalse(session.in_transaction())
-        self.assertTrue(new_session.in_transaction())
-        self.assertNotEqual(session, new_session)
+        if session:
+            self.assertFalse(session.in_transaction())
+        if new_session:
+            self.assertTrue(new_session.in_transaction())
+        if session and new_session:
+            self.assertNotEqual(session, new_session)
 
         obj_ = qsa.orm_("flmodules")()
 

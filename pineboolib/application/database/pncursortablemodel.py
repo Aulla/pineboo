@@ -704,7 +704,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # print("QUERY", sql_query)
         result_query = self.session.execute(text(sql_query))
-        rows_loaded = result_query.rowcount
+        rows_loaded = result_query.rowcount  # type: ignore [attr-defined]
 
         if rows_loaded == -1:
             sql_count = (
@@ -718,7 +718,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 sql_count = sql_count[: sql_count.find("ORDER BY")]
 
             result_count = self.session.execute(text(sql_count))
-            rows_loaded = result_count.fetchone()[0]
+            rows_loaded = result_count.fetchone()[0]  # type: ignore [index]
 
         if rows_loaded > 0:
 
@@ -793,7 +793,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             LOGGER.debug("data_proxy is empty!")
             return True
         elif (
-            mode == 1 and new_data[0] in self._data_proxy._cached_data
+            mode == 1 and new_data[0] in self._data_proxy._cached_data  # type: ignore [index]
         ):  # if exists dont need Insert.
             return True
 
@@ -873,7 +873,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
 
         elif mode == 2:  # Edit.
-            self._data_proxy.update_pk(pk_value, new_data[0])
+            self._data_proxy.update_pk(pk_value, new_data[0])  # type: ignore [index]
 
             return True
 

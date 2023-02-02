@@ -37,9 +37,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnfieldmetadata
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
-        result,  # noqa: F401
-    )  # noqa: F401 # pragma: no cover
+    from sqlalchemy import engine  # noqa: F401 # pragma: no cover
 
     from pineboolib.interfaces import isession  # pragma: no cover
 
@@ -63,7 +61,7 @@ class ISqlDriver(object):
     mobile_: bool
     pure_python_: bool
     default_port: int
-    cursor_proxy: Dict[str, "result.ResultProxy"]
+    cursor_proxy: Dict[str, "engine.CursorResult"]  # type: ignore [name-defined]
     open_: bool
     desktop_file: bool
     _true: Union[str, bool]
@@ -337,7 +335,7 @@ class ISqlDriver(object):
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        return new_session
+        return new_session  # type: ignore [return-value]
 
     def connection(self, reload=True) -> "base.Connection":
         """Return a cursor connection."""
@@ -870,7 +868,7 @@ class ISqlDriver(object):
     #    """Return if use a file like database."""
     #    return self.desktop_file
 
-    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["engine.CursorResult"]:  # type: ignore [name-defined]
         """Excecute a query and return result."""
 
         if not self.is_open():
@@ -888,7 +886,7 @@ class ISqlDriver(object):
                         .execute(text("""%s""" % query))
                     )
                 else:
-                    result_ = session_.execute(text("""%s""" % query))
+                    result_ = session_.execute(text("""%s""" % query))  # type: ignore [assignment]
             except sqlalchemy.exc.DBAPIError as error:
                 LOGGER.warning(
                     "Se ha producido un error DBAPI con la consulta %s. Ejecutando rollback necesario",

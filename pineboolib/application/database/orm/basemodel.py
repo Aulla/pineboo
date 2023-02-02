@@ -546,7 +546,9 @@ class BaseModel(object):
                 ret_ = session_.query(cls)
 
         if ret_ is None:
-            LOGGER.warning("query: Invalid session %s ", session_or_name)
+            LOGGER.warning(  # type: ignore [unreachable]
+                "query: Invalid session %s " % session_or_name
+            )
 
         return ret_
 

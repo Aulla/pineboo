@@ -84,7 +84,7 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
         flfiles_class = qsa.from_project("flfiles_orm")
         flserial_class = qsa.from_project("flserial_orm")
 
-        value = self.sha
+        value: str = str(self.sha)
         util = qsa.FLUtil()
         result_query = session.query(flfiles_class).all()
         value_tmp = ""

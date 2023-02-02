@@ -99,7 +99,9 @@ class TestConsistency(unittest.TestCase):
         nested_ = session.get_nested_transaction()
         self.assertNotEqual(id_, nested_)
         self.assertTrue(id_ is not None and nested_ is not None)
-        nested_.rollback()
+        if nested_:
+            nested_.rollback()
+
         self.assertEqual(id_, session.get_transaction())
         conn_.rollback()
         self.assertTrue(not session.in_transaction())
