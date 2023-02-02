@@ -43,7 +43,7 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":
                             "New atomic session : %s, connection : %s, transaction: %s",
                             new_session,
                             conn_name,
-                            new_session.in_transaction(),
+                            new_session.get_transaction(),
                         )
 
                         try:

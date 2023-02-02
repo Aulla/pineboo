@@ -96,6 +96,7 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
 
         # session_dbaux = qsa.session("dbaux")
         session_dbaux = qsa.session()
+        session_dbaux.begin()
         data_query = session_dbaux.query(flserial_class)
 
         if data_query.count():
@@ -105,5 +106,6 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             obj_flserial = flserial_class()
             obj_flserial.sha = value
             session_dbaux.add(obj_flserial)
+        session_dbaux.commit()
 
         return True

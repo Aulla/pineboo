@@ -25,7 +25,7 @@ class TestRelationships(unittest.TestCase):
         qsa.thread_session_free()
         session = qsa.thread_session_new()
 
-        session.begin()
+        # nest = session.begin_nested()
 
         obj_area = class_area()
         obj_area.bloqueo = False
@@ -70,7 +70,7 @@ class TestRelationships(unittest.TestCase):
         qsa.thread_session_free()
         session = qsa.thread_session_new()
 
-        session.begin()
+        # session.begin()
 
         obj_area = class_area()
         obj_area.bloqueo = False

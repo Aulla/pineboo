@@ -326,17 +326,17 @@ class ISqlDriver(object):
             session_class = sessionmaker(
                 bind=self.connection().execution_options(autocommit=True),
                 autoflush=False,
+                autobegin=False
                 # autocommit=True,
             )
 
             new_session = session_class()
-            if new_session.connection().connection is not None:
+            if self.connection(False).connection is not None:
                 break
             else:
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        new_session.commit()
         return new_session
 
     def connection(self, reload=True) -> "base.Connection":
@@ -746,9 +746,9 @@ class ISqlDriver(object):
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
+        query_db = query.db()
 
-        session_ = query.db().session()
-        query.db().transaction()
+        query_db.transaction()
 
         if new_metadata.isQuery():
             if table_name in self.tables("Views"):
@@ -762,23 +762,23 @@ class ISqlDriver(object):
                     "El metadata indica erroneamente, que %s es una tabla. Proceso cancelado.",
                     table_name,
                 )
-                session_.rollback()
+                query_db.rollback()
                 return False
 
             if not self.remove_index(new_metadata, query):
-                session_.rollback()
+                query_db.rollback()
                 return False
 
             if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-                session_.rollback()
+                query_db.rollback()
                 return False
 
         if not self.db_.createTable(new_metadata):
-            session_.rollback()
+            query_db.rollback()
             return False
 
         if new_metadata.isQuery():
-            session_.commit()
+            query_db.commit()
             return True
 
         cur = query.db().execute_query(
@@ -808,7 +808,7 @@ class ISqlDriver(object):
                     LOGGER.warning(
                         "Field %s not found un metadata %s" % (new_name, new_metadata.name())
                     )
-                    session_.rollback()
+                    query_db.rollback()
 
                     return False
                 value = None
@@ -837,11 +837,11 @@ class ISqlDriver(object):
         util.setLabelText(util.translate("application", "Regenerando datos"))
         result_insert_multi = True
         if not self.insertMulti(table_name, list_records):
-            session_.rollback()
+            query_db.rollback()
             result_insert_multi = False
         else:
 
-            session_.commit()
+            query_db.commit()
 
             if new_metadata.name() not in self.tables("Views"):
                 query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))

@@ -21,7 +21,7 @@ class TestByteArray(unittest.TestCase):
 
         image_path = fixture_path("tux.png")
         session = qsa.thread_session_new()
-        session.begin()
+        nest = session.begin_nested()
         obj = qsa.orm.flupdates()
         file_ = open(image_path, "rb")
         obj.auxbin = file_.read()
@@ -34,7 +34,7 @@ class TestByteArray(unittest.TestCase):
 
         obj.shaglobal = ""
         obj.save()
-        session.commit()
+        nest.commit()
         qsa.thread_session_free()
 
     def test_basic2(self) -> None:

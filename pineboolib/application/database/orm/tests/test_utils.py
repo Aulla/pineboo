@@ -32,6 +32,7 @@ class TestUtils(unittest.TestCase):
         """Test dynamic filter."""
 
         session_ = qsa.session()
+        session_.begin()
         self.assertTrue(session_)
         model_class = qsa.orm_("flareas")
 

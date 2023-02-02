@@ -46,6 +46,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
         self._text_cascade = ""
         self._parse_porc = False
         self._can_use_preping = False
+        self._only_main_conn = False
 
         self._sqlalchemy_name = "sqlite"
 
@@ -61,7 +62,9 @@ class FLSQLITE(isqldriver.ISqlDriver):
             conn_driver = main_conn.driver()
             if self.db_filename == conn_driver.db_filename:
                 self._engine = conn_driver._engine
-                self._connection = conn_driver._connection
+                self._connection = (
+                    conn_driver._connection if self._only_main_conn else conn_driver.connection()
+                )
                 return self._connection
 
         if conn_ is None:

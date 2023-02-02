@@ -159,6 +159,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if not returned_session:
             raise ValueError("Invalid session!")
 
+        if not returned_session.in_transaction():  # Simula autocommit
+            if application.LOG_SQL:
+                LOGGER.warning(
+                    "Iniciando transaccion en conn %s: %s" % (self._name, returned_session)
+                )
+            returned_session.begin()
+
         return returned_session
 
     def engine(self) -> "base.Engine":
@@ -268,13 +275,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def doTransaction(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        if settings.CONFIG.value("application/isDebuggerMode", False):
-            text_ = (
-                "Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)
-                if self._transaction_level
-                else "Iniciando Transacción... %s" % self._transaction_level
-            )
-            application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
+        if application.LOG_SQL:
+            if settings.CONFIG.value("application/isDebuggerMode", False):
+                conn = self.driver().connection(False)
+                text_ = (
+                    "Creando punto de salvaguarda %s(%s):%s"
+                    % (self._name, conn, self._transaction_level)
+                    if self._transaction_level
+                    else "Iniciando Transacción... %s(%s)" % (self._transaction_level, conn)
+                )
+                application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         # LOGGER.warning(
         #    "Creando transaccion/savePoint número:%s, cursor:%s, tabla:%s",
@@ -338,16 +348,18 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self._transaction_level -= 1
         else:
             return True
+        if application.LOG_SQL:
+            conn = self.driver().connection(False)
+            if self._transaction_level:
+                text_ = "Restaurando punto de salvaguarda %s(%s):%s..." % (
+                    self._name,
+                    conn,
+                    self._transaction_level,
+                )
+            else:
+                text_ = "Deshaciendo Transacción... %s(%s)" % (self._transaction_level, conn)
 
-        if self._transaction_level:
-            text_ = "Restaurando punto de salvaguarda %s:%s..." % (
-                self._name,
-                self._transaction_level,
-            )
-        else:
-            text_ = "Deshaciendo Transacción... %s" % self._transaction_level
-
-        application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
+            application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         # LOGGER.warning(
         #    "Desaciendo transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
@@ -400,15 +412,18 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             return True
 
-        if self._transaction_level:
-            text_ = "Liberando punto de salvaguarda %s:%s..." % (
-                self._name,
-                self._transaction_level,
-            )
-        else:
-            text_ = "Terminando Transacción... %s" % self._transaction_level
+        if application.LOG_SQL:
+            conn = self.driver().connection(False)
+            if self._transaction_level:
+                text_ = "Liberando punto de salvaguarda %s(%s):%s..." % (
+                    self._name,
+                    conn,
+                    self._transaction_level,
+                )
+            else:
+                text_ = "Terminando Transacción... %s(%s)" % (self._transaction_level, conn)
 
-        application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
+            application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         # LOGGER.warning(
         #    "Aceptando transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
@@ -450,6 +465,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 session_.begin()
             else:
                 session_.begin_nested()
+
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
@@ -461,14 +477,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Release a transaction."""
 
         try:
-
             session_ = self.session()
-            current_transaction = (
-                session_.get_nested_transaction()
-                if session_.in_nested_transaction()
-                else session_.get_transaction()
-            )
-            current_transaction.commit()
+            nested_transaction = session_.get_nested_transaction()
+
+            if nested_transaction:
+                nested_transaction.commit()
+
+            if (
+                session_.in_transaction() and not session_.in_nested_transaction()
+            ) and not session_ is self._session_atomic:  # Simula autocommit
+                session_.commit()
 
             return True
         except Exception as error:
@@ -481,12 +499,18 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Roll back a transaction."""
         try:
             session_ = self.session()
-            current_transaction = (
-                session_.get_nested_transaction()
-                if session_.in_nested_transaction()
-                else session_.get_transaction()
-            )
-            current_transaction.rollback()
+            nested_transaction = session_.get_nested_transaction()
+
+            if nested_transaction:
+                nested_transaction.rollback()
+
+            if (
+                session_.in_transaction()
+                and not session_.in_nested_transaction()
+                and not session_ is self._session_atomic  # Simula autocommit
+            ):
+                session_.rollback()
+
             return True
         except Exception as error:
             self._last_error = "No se pudo deshacer la transacción: %s" % str(error)

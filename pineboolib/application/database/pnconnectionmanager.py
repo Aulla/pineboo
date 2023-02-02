@@ -10,7 +10,7 @@ from pineboolib.application.database import pnconnection
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.database import pnsqldriversmanager
 
-from sqlalchemy import exc
+from sqlalchemy import exc, text
 import threading
 
 from typing import Dict, Union, List, Optional, TYPE_CHECKING
@@ -276,7 +276,7 @@ class PNConnectionManager(QtCore.QObject):
             else conn_or_session
         )
         try:
-            session.execute("SELECT 1").fetchone()
+            session.execute(text("SELECT 1")).fetchone()
             result = hasattr(session, "commit")
         except Exception as error:
             session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821

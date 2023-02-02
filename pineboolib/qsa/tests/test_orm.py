@@ -97,6 +97,7 @@ class TestOrm(unittest.TestCase):
         session_.commit()  # Se cierra la sesión (Transacción)
 
         session_2 = qsa.session()
+        session_2.begin()
         obj2_ = session_2.get(class_, "A")  # Recupera el registro de la BD
         self.assertTrue(obj2_)
         session_2.commit()  # Esto es porque la query anterior ha creado una trasacción
@@ -105,6 +106,7 @@ class TestOrm(unittest.TestCase):
         session_2.commit()
 
         session_3 = qsa.session()
+        session_3.begin()
         obj3_ = session_3.get(class_, "A")  # Recupera el registro de la BD
         self.assertFalse(obj3_)
 
@@ -119,10 +121,10 @@ class TestOrm(unittest.TestCase):
         setattr(obj_, "bloqueo", True)
         setattr(obj_, "idarea", "B")
         setattr(obj_, "descripcion", "Area B")
-        session_.begin()
+        nest = session_.begin_nested()
         self.assertTrue(obj_.save())
         # session_.add(obj_)  # Introduce el nuevo registro en la BD
-        session_.commit()
+        nest.commit()
         session_2 = qsa.session()
         session_2.begin()
         obj2_ = session_2.get(class_, "B")  # Recupera el registro de la BD
@@ -131,6 +133,7 @@ class TestOrm(unittest.TestCase):
         session_2.commit()  # Guarda el cambio permanentemente.
 
         session_3 = qsa.session()
+        session_3.begin()
         obj3_ = session_3.get(class_, "B")
         self.assertEqual(obj3_.descripcion, "Area B modificada")
         qsa.thread_session_free()
@@ -171,7 +174,7 @@ class TestOrm(unittest.TestCase):
         obj_.idarea = "C"
         obj_.descripcion = "Descripción C"
         obj_.bloqueo = True
-        session_.begin()
+        nest = session_.begin_nested()
         session_.add(obj_)
 
         nested = session_.begin_nested()  # Save point
@@ -187,7 +190,7 @@ class TestOrm(unittest.TestCase):
 
         self.assertEqual(obj_.descripcion, "Descripción C")
 
-        session_.rollback()  # rollback transaccion
+        nest.rollback()  # rollback transaccion
         qsa.thread_session_free()
 
     @classmethod

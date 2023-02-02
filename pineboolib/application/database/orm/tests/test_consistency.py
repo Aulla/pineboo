@@ -47,7 +47,6 @@ class TestConsistency(unittest.TestCase):
         self.assertTrue(atomica())
         session = qsa.session_atomic()
         self.assertTrue(session)
-
         class_ = qsa.orm.fltest
         obj_1 = class_()
         self.assertFalse(obj_1.string_field)
@@ -89,9 +88,12 @@ class TestConsistency(unittest.TestCase):
 
         conn_ = qsa.aqApp.db().useConn("default")
         session = conn_.session()
+        session.commit()
         self.assertTrue(not session.in_transaction())
         conn_.transaction()
-        self.assertTrue(session.in_transaction() and not session.in_nested_transaction())
+        self.assertTrue(
+            session.in_transaction() and session.in_nested_transaction()
+        )  # esta en nested por el autocommit que la levantado una transaccion
         id_ = session.get_transaction()
         conn_.transaction()
         nested_ = session.get_nested_transaction()

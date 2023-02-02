@@ -56,7 +56,6 @@ class BaseModel(object):
     serial: bool = True
     counter: bool = False
     no_init: bool = False
-    _use_own_transaction = False
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -133,7 +132,6 @@ class BaseModel(object):
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal(self)  # pylint: disable=invalid-name
         self._force_mode = None
-        self._use_own_transaction = False
         self._cached_bufferchanged = {}
 
         if self.__tablename__ in application.PROJECT.actions.keys():
@@ -628,19 +626,12 @@ class BaseModel(object):
                 )
             else:
 
-                if not self._session.in_transaction():
-                    self._use_own_transaction = True
-
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
 
                 self._flush(relations)
 
             self.update_copy()
-
-            if self._use_own_transaction:
-                self._use_own_transaction = False
-                self._session.commit()
             return True
         return False
 
@@ -991,11 +982,6 @@ class BaseModel(object):
             error_info = sys.exc_info()
             exception_ = error_info[0]
             error_message = str(error_info[1])
-
-        if obj:
-            if obj._use_own_transaction:
-                obj._use_own_transaction = False
-                obj._session.rollback()
 
         LOGGER.error("%s.%s:: %s", cls.__name__, text, error_message, stack_info=False)
         raise exception_(error_message)
