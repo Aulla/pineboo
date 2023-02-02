@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnfieldmetadata
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
-    from sqlalchemy import engine  # noqa: F401 # pragma: no cover
+    from sqlalchemy import engine as sql_engine  # noqa: F401 # pragma: no cover
 
     from pineboolib.interfaces import isession  # pragma: no cover
 
@@ -61,7 +61,7 @@ class ISqlDriver(object):
     mobile_: bool
     pure_python_: bool
     default_port: int
-    cursor_proxy: Dict[str, "engine.CursorResult"]  # type: ignore [name-defined]
+    cursor_proxy: Dict[str, "sql_engine.CursorResult"]  # type: ignore [name-defined]
     open_: bool
     desktop_file: bool
     _true: Union[str, bool]
@@ -868,7 +868,7 @@ class ISqlDriver(object):
     #    """Return if use a file like database."""
     #    return self.desktop_file
 
-    def execute_query(self, query: str) -> Optional["engine.CursorResult"]:  # type: ignore [name-defined]
+    def execute_query(self, query: str) -> Optional["sql_engine.CursorResult"]:  # type: ignore [name-defined]
         """Excecute a query and return result."""
 
         if not self.is_open():

@@ -45,7 +45,7 @@ class TestFlFiles(unittest.TestCase):
         """Test basic 2."""
         from pineboolib.qsa import qsa
 
-        current = qsa.thread_session_current()
+        qsa.thread_session_current()
 
         qsa.thread_session_free()
         session = qsa.thread_session_new()

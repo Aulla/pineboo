@@ -8,7 +8,6 @@ from pineboolib.core.utils import logging
 import sqlalchemy
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext import declarative  # pragma: no cover
     from sqlalchemy.orm import query  # pragma: no cover
     from sqlalchemy.orm import Session
     from sqlalchemy import engine

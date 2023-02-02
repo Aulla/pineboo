@@ -966,7 +966,6 @@ class TestAfterCommit(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        from pineboolib.qsa import qsa
 
         application.VIRTUAL_DB = True
         init_testing()

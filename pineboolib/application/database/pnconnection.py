@@ -485,7 +485,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             if (
                 session_.in_transaction() and not session_.in_nested_transaction()
-            ) and not session_ is self._session_atomic:  # Simula autocommit
+            ) and session_ is not self._session_atomic:  # Simula autocommit
                 session_.commit()
 
             return True
@@ -507,7 +507,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             if (
                 session_.in_transaction()
                 and not session_.in_nested_transaction()
-                and not session_ is self._session_atomic  # Simula autocommit
+                and session_ is not self._session_atomic  # Simula autocommit
             ):
                 session_.rollback()
 
