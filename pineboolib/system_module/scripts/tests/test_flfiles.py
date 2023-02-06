@@ -51,8 +51,8 @@ class TestFlFiles(unittest.TestCase):
         session = qsa.thread_session_new()
 
         self.assertTrue(session.in_transaction())
-
-        nest = session.begin_nested()
+        self.assertFalse(session.in_nested_transaction())
+        # nest = session.begin_nested()
         file_class = qsa.orm_("flfiles")
         self.assertTrue(file_class)
         obj_ = file_class()
@@ -60,7 +60,10 @@ class TestFlFiles(unittest.TestCase):
         obj_.idmodulo = "flfactppal"
         obj_.sha = ""
         self.assertTrue(obj_.save())
-        nest.commit()
+        self.assertTrue(session.in_transaction())
+        # self.assertTrue(session.in_nested_transaction())
+        # self.assertEqual(session.get_nested_transaction(), nest)
+        # nest.commit()
 
     @classmethod
     def tearDownClass(cls) -> None:
