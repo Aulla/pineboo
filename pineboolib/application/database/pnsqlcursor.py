@@ -3092,16 +3092,34 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Lanza llamada sengun proceda el delegateCommit o commitBuffer del cursorRelation."""
 
         result: Any = True
+        meta_ = self.metadata()
         if self.useDelegateCommit():
-            label_ = "FLSqlCursor::doCommitBuffer ( %s ): " % (self.metadata().name())
-            id_mod = self.db().managerModules().idModuleOfFile("%s.mtd" % self.metadata().name())
+            label_ = "FLSqlCursor::doCommitBuffer ( %s ): " % (meta_.name())
+            id_mod = self.db().managerModules().idModuleOfFile("%s.mtd" % meta_.name())
             fun_name = "%s.delegateCommit" % (id_mod if id_mod else "sys")
             result = application.PROJECT.call(fun_name, [self])
             LOGGER.info("%s%s (cursor) retorna %s" % (label_, fun_name, result))
             self._last_delegate_commit_result = result
-            if result and emite:
-                self.cursorUpdated.emit()
-                self.bufferCommited.emit()
+            if result:
+
+                pk_name_ = meta_.primaryKey()
+                pk_where_ = (
+                    self.db()
+                    .manager()
+                    .formatAssignValue(meta_.field(pk_name_), self.valueBuffer(pk_name_))
+                )
+                current_persistent_filter_ = self.private_cursor._persistent_filter if self.private_cursor._persistent_filter else ""
+                if pk_where_ not in current_persistent_filter_:
+                    self.private_cursor._persistent_filter = (
+                        pk_where_
+                        if not current_persistent_filter_
+                        else "%s or %s" % (current_persistent_filter_, pk_where_)
+                    )
+
+                if emite:
+
+                    self.cursorUpdated.emit()
+                    self.bufferCommited.emit()
         else:
             result = self.commitBuffer(emite)
 
