@@ -60,7 +60,7 @@ class TestFlModules(unittest.TestCase):
             qsa.sys.disableObj(qsa.from_project("formRecordflmodules").form, "toolButtonEdit")
         )
 
-        cursor_form.commit()
+        cursor_form.commitBuffer()
 
         self.assertTrue(
             qsa.sys.setObjText(

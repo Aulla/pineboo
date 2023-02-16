@@ -81,6 +81,7 @@ class TestBaseModel(unittest.TestCase):
 
         class_fltest = qsa.orm_("fltest")
         session = qsa.session()
+        session.begin()
         obj_ = class_fltest.get(1, session)
         self.assertTrue(obj_)
 
@@ -108,8 +109,22 @@ class TestBaseModel(unittest.TestCase):
         session = qsa.thread_session_current()
         qsa.thread_session_free()
         new_session = qsa.thread_session_new()
-        self.assertNotEqual(session, new_session)
+        if session:
+            self.assertFalse(session.in_transaction())
+        if new_session:
+            self.assertTrue(new_session.in_transaction())
+        if session and new_session:
+            self.assertNotEqual(session, new_session)
+
         obj_ = qsa.orm_("flmodules")()
+
+        self.assertEqual(
+            obj_.session,
+            new_session,
+            "obj.session:%s, new:%s, old:%s" % (obj_.session, new_session, session),
+        )
+        self.assertEqual(obj_.get_transaction_level(), 0)
+
         obj_.idmodulo = "mod2"
         obj_.idarea = "F"
         with self.assertRaises(Exception):
@@ -120,14 +135,22 @@ class TestBaseModel(unittest.TestCase):
             obj_.save()
 
         obj_2 = qsa.orm_("flareas")()
+
         obj_2.idarea = "F"
         obj_2.descripcion = "Area"
         self.assertTrue(obj_2.save())
-
+        obj_.session.commit()
+        self.assertEqual(obj_.transaction_level, -1)
+        obj_.session.begin()
+        self.assertEqual(obj_.transaction_level, 0)
+        nest = obj_.session.begin_nested()
         self.assertTrue(obj_.relationM1("idarea"))
-        self.assertEqual(obj_.get_transaction_level(), -1)
+        self.assertEqual(obj_.transaction_level, 1)
 
         self.assertTrue(obj_.save())
+        nest.commit()
+        self.assertEqual(obj_.transaction_level, 0)
+
         self.assertEqual(qsa.FLUtil().sqlSelect("flmodules", "idmodulo", "idarea='F'"), "mod2")
         obj_3 = qsa.orm_("flmodules")()
         obj_3.idmodulo = "mod1"
@@ -212,7 +235,7 @@ class TestBaseModel(unittest.TestCase):
         obj_2.idarea = "F"
         obj_2.descripcion = "relation_m1"
         self.assertTrue(obj_2.save())
-        obj_ = obj_class.query(obj_2.session).get("F")
+        obj_ = obj_class.get("F")
         self.assertTrue(obj_)
         # obj_2.session.commit()
         relations_dict = obj_.relation1M("idarea")
@@ -290,14 +313,14 @@ class TestBaseModel(unittest.TestCase):
         obj2_.idmodulo = "mr1"
         self.assertTrue(obj2_.save())
         self.assertEqual(session, obj2_.session)
-        session.begin_nested() if session.transaction else session.begin()
+        nest = session.begin_nested() if session.in_transaction() else session.begin()
 
-        obj2_.session.commit()
-        session.begin_nested() if session.transaction else session.begin()
+        nest.commit()
+        nest = session.begin_nested() if session.in_transaction() else session.begin()
         self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
         self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2].idmodulo, obj2_.idmodulo)
         self.assertTrue(obj_.delete())
-        obj_.session.commit()
+        nest = obj_.session.commit()
         # self.assertFalse(obj_.relation1M("idarea")["flmodules_idarea"])
 
     def test_z_real_relation(self) -> None:
@@ -308,7 +331,7 @@ class TestBaseModel(unittest.TestCase):
 
         current_session = qsa.thread_session_current()
         if current_session:
-            if not current_session.transaction:
+            if not current_session.in_transaction():
                 current_session.begin()
 
             obj_areas = areas_class()
@@ -327,12 +350,12 @@ class TestBaseModel(unittest.TestCase):
             obj_modules_2.descripcion = "modulo 2"
             obj_modules_2.idmodulo = "M2"
 
-            current_session.begin()
+            nest = current_session.begin_nested()
 
             self.assertTrue(obj_modules_1.save())
             self.assertTrue(obj_modules_2.save())
 
-            obj_modules_1.session.commit()
+            nest.commit()
 
             # self.assertEqual(obj_modules_1.parent[0], obj_areas)
             # self.assertEqual(obj_modules_2.parent[0], obj_areas)
@@ -343,12 +366,18 @@ class TestBaseModel(unittest.TestCase):
 
             # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
             #    self.assertTrue(child.delete())
-            obj_areas.session.begin()
+            cur_session = (
+                obj_areas.session.begin_nested()
+                if obj_areas.session.in_transaction()
+                else obj_areas.session.begin()
+            )
+
             self.assertTrue(obj_areas.delete())
-            obj_areas.session.commit()
+            cur_session.commit()
             self.assertEqual(
                 len(modules_class.query().filter(modules_class.idarea == "I").all()), 0
             )
+            obj_areas.session.commit()
 
     @classmethod
     def tearDownClass(cls) -> None:

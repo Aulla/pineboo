@@ -109,8 +109,8 @@ class PNSqlQuery(object):
     _is_active: bool
     _field_name_to_pos_dict: Optional[Dict[str, int]]
     _sql_inspector: "sql_tools.SqlInspector"
-    _row: Optional["result_engine.RowProxy"]
-    _datos: List["result_engine.RowProxy"]
+    _row: Optional["result_engine.Row"]
+    _datos: List["result_engine.Row"]
     _posicion: int
     _last_query: str
     private_query: "PNSqlQueryPrivate"
@@ -211,7 +211,7 @@ class PNSqlQuery(object):
         )  # type: ignore [misc] # noqa: F821, F401
         result = self.db().execute_query(sql)
         try:
-            self._datos = result.fetchall() if result and result.returns_rows else []
+            self._datos = result.all() if result and result.returns_rows else []  # type: ignore [attr-defined]
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []

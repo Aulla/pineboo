@@ -100,7 +100,7 @@ class IConnection:
 
     #    return IApiCursor()
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Return base connection."""
 
         pass  # pragma: no cover
@@ -285,7 +285,7 @@ class IConnection:
 
     #    return ""  # pragma: no cover
 
-    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["result.Result"]:
         """Execute a query in a database cursor."""
 
         return None  # pragma: no cover

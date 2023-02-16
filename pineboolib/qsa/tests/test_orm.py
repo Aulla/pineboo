@@ -7,6 +7,8 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 from pineboolib.application.database.orm.utils import do_flush
 
+from sqlalchemy import text
+
 
 class TestOrm(unittest.TestCase):
     """Test Orm."""
@@ -70,10 +72,10 @@ class TestOrm(unittest.TestCase):
         # res_1 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
         # self.assertFalse(res_1.returns_rows)
         do_flush(session_, [obj_])  # Aplica el cambio en la BD.
-        res_2 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
-        self.assertTrue(res_2.returns_rows)
+        res_2 = session_.execute(text("SELECT idarea FROM flareas WHERE idarea = 'A'"))
+        self.assertTrue(res_2.returns_rows)  # type: ignore [attr-defined]
 
-        obj2_ = session_.query(class_).get("A")  # Recupera el registro de la BD
+        obj2_ = session_.get(class_, "A")  # Recupera el registro de la BD
 
         self.assertEqual(obj_, obj2_)
         session_.rollback()
@@ -95,14 +97,17 @@ class TestOrm(unittest.TestCase):
         session_.commit()  # Se cierra la sesión (Transacción)
 
         session_2 = qsa.session()
-        obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
+        session_2.begin()
+        obj2_ = session_2.get(class_, "A")  # Recupera el registro de la BD
         self.assertTrue(obj2_)
+        session_2.commit()  # Esto es porque la query anterior ha creado una trasacción
         session_2.begin()
         session_2.delete(obj2_)
         session_2.commit()
 
         session_3 = qsa.session()
-        obj3_ = session_3.query(class_).get("A")  # Recupera el registro de la BD
+        session_3.begin()
+        obj3_ = session_3.get(class_, "A")  # Recupera el registro de la BD
         self.assertFalse(obj3_)
 
     def test_modify_data(self) -> None:
@@ -116,20 +121,21 @@ class TestOrm(unittest.TestCase):
         setattr(obj_, "bloqueo", True)
         setattr(obj_, "idarea", "B")
         setattr(obj_, "descripcion", "Area B")
-        session_.begin()
+        nest = session_.begin_nested()
         self.assertTrue(obj_.save())
         # session_.add(obj_)  # Introduce el nuevo registro en la BD
-        session_.commit()
+        nest.commit()
         session_2 = qsa.session()
         session_2.begin()
-        obj2_ = session_2.query(class_).get("B")  # Recupera el registro de la BD
-        self.assertEqual(obj2_.descripcion, "Area B")
-        obj2_.descripcion = "Area B modificada"
+        obj2_ = session_2.get(class_, "B")  # Recupera el registro de la BD
+        self.assertEqual(obj2_.descripcion, "Area B")  # type: ignore [union-attr]
+        obj2_.descripcion = "Area B modificada"  # type: ignore [union-attr]
         session_2.commit()  # Guarda el cambio permanentemente.
 
         session_3 = qsa.session()
-        obj3_ = session_3.query(class_).get("B")
-        self.assertEqual(obj3_.descripcion, "Area B modificada")
+        session_3.begin()
+        obj3_ = session_3.get(class_, "B")
+        self.assertEqual(obj3_.descripcion, "Area B modificada")  # type: ignore [union-attr]
         qsa.thread_session_free()
 
     def test_legacy_metadata(self) -> None:
@@ -168,23 +174,23 @@ class TestOrm(unittest.TestCase):
         obj_.idarea = "C"
         obj_.descripcion = "Descripción C"
         obj_.bloqueo = True
-        session_.begin()
+        nest = session_.begin_nested()
         session_.add(obj_)
 
-        session_.begin_nested()  # Save point
+        nested = session_.begin_nested()  # Save point
 
         obj_.descripcion = "Descripción Nueva"
 
-        obj2_ = session_.query(class_).get("C")
+        obj2_ = session_.get(class_, "C")
 
         self.assertEqual(obj_.descripcion, "Descripción Nueva")
-        self.assertEqual(obj2_.descripcion, "Descripción Nueva")
+        self.assertEqual(obj2_.descripcion, "Descripción Nueva")  # type: ignore [union-attr]
 
-        session_.rollback()  # rollback save_point
+        nested.rollback()  # rollback save_point
 
         self.assertEqual(obj_.descripcion, "Descripción C")
 
-        session_.rollback()  # rollback transaccion
+        nest.rollback()  # rollback transaccion
         qsa.thread_session_free()
 
     @classmethod

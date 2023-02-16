@@ -9,6 +9,7 @@ from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
 from pineboolib.interfaces import isqldriver
+from sqlalchemy import text
 
 
 from typing import Optional, Union, List, Any, Dict, TYPE_CHECKING
@@ -50,7 +51,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         self._queqe_params["connect_args"] = {"autocommit": True}
         conn_ = self.getConn("master", host, port, usern, passw_)
         del self._queqe_params["connect_args"]
-        # conn_.execute("set transaction isolation level read uncommitted;")
+        # conn_.execute(text("set transaction isolation level read uncommitted;"))
         return conn_
 
     # def session(self) -> "isession.PinebooSession":
@@ -265,7 +266,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
-    ) -> Optional["result.ResultProxy"]:
+    ) -> Optional["result.Result"]:
         """Set a refresh query for database."""
 
         if not self.is_open():
@@ -278,8 +279,8 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
             where,
         )
         try:
-            conn_db.execute(sql)
-            conn_db.execute("OPEN %s" % curname)
+            conn_db.execute(text(sql))
+            conn_db.execute(text("OPEN %s" % curname))
         except Exception as error:
             LOGGER.error("refreshQuery: %s", error)
             LOGGER.info("SQL: %s", sql)
@@ -295,12 +296,12 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
         try:
             sql_exists = "SELECT CURSOR_STATUS('global','%s')" % cursor_name
-            cursor.execute(sql_exists)
+            cursor.execute(text(sql_exists))
 
             if cursor.fetchone()[0] < 1:
                 return
 
-            cursor.execute("CLOSE %s" % cursor_name)
+            cursor.execute(text("CLOSE %s" % cursor_name))
         except Exception as exception:
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)

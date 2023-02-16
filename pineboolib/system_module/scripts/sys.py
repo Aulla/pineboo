@@ -86,12 +86,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
             _qry = qsa.FLSqlQuery()
 
-            if _qry.exec_("SELECT sha FROM flfiles"):
-                if _qry.size():
-                    util = qsa.FLUtil()
-                    value = ""
-                    while _qry.next():
-                        value = util.sha1("%s%s" % (value, _qry.value(0)))
+            if _qry.exec_("SELECT sha FROM flfiles") and _qry.size():
+                value = ""
+                while _qry.next():
+                    value = qsa.util.sha1("%s%s" % (value, _qry.value(0)))
 
             _cur_serial = qsa.FLSqlCursor("flserial", "dbaux")
             _cur_serial.select()

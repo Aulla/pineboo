@@ -32,6 +32,7 @@ class TestUtils(unittest.TestCase):
         """Test dynamic filter."""
 
         session_ = qsa.session()
+        session_.begin()
         self.assertTrue(session_)
         model_class = qsa.orm_("flareas")
 
@@ -49,7 +50,9 @@ class TestUtils(unittest.TestCase):
         )
         ret_ = query.return_query().first()
         self.assertEqual(query.order_by, [["idarea", "desc"]])
-        self.assertEqual(ret_.idarea, "ir")
+        self.assertTrue(ret_)
+        if ret_:
+            self.assertEqual(ret_.idarea, "ir")
 
     @classmethod
     def tearDownClass(cls) -> None:

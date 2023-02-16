@@ -37,9 +37,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnfieldmetadata
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
-        result,  # noqa: F401
-    )  # noqa: F401 # pragma: no cover
+    from sqlalchemy import engine as sql_engine  # noqa: F401 # pragma: no cover
 
     from pineboolib.interfaces import isession  # pragma: no cover
 
@@ -63,7 +61,7 @@ class ISqlDriver(object):
     mobile_: bool
     pure_python_: bool
     default_port: int
-    cursor_proxy: Dict[str, "result.ResultProxy"]
+    cursor_proxy: Dict[str, "sql_engine.CursorResult"]  # type: ignore [name-defined]
     open_: bool
     desktop_file: bool
     _true: Union[str, bool]
@@ -194,13 +192,13 @@ class ISqlDriver(object):
                             try:
                                 if self._create_isolation:
                                     tmp_conn.connection.set_isolation_level(0)
-                                tmp_conn.execute("CREATE DATABASE %s" % db_name)
+                                tmp_conn.execute(text("CREATE DATABASE %s" % db_name))
                                 if self._create_isolation:
                                     tmp_conn.connection.set_isolation_level(1)
                             except Exception as error:
                                 self.set_last_error(str(error), "LOGGIN")
 
-                                tmp_conn.execute("ROLLBACK")
+                                tmp_conn.execute(text("ROLLBACK"))
                                 tmp_conn.close()
                                 return False
 
@@ -262,6 +260,9 @@ class ISqlDriver(object):
                     str_conn += self._extra_alternative
 
                 self.get_common_params()
+                if "encoding" in self._queqe_params.keys():
+                    LOGGER.warning("no! %s" % self._queqe_params)
+
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 if self._use_altenative_isolation_level:
                     event.listen(self._engine, "connect", self.do_connect)
@@ -323,22 +324,23 @@ class ISqlDriver(object):
             session_class = sessionmaker(
                 bind=self.connection().execution_options(autocommit=True),
                 autoflush=False,
-                autocommit=True,
+                autobegin=False
+                # autocommit=True,
             )
 
             new_session = session_class()
-            if new_session.connection().connection is not None:
+            if self.connection(False).connection is not None:
                 break
             else:
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        return new_session
+        return new_session  # type: ignore [return-value]
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Return a cursor connection."""
 
-        if self._connection is None or self._connection.closed:
+        if reload and self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
                 if application.SHOW_CONNECTION_EVENTS:
@@ -742,9 +744,9 @@ class ISqlDriver(object):
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
+        query_db = query.db()
 
-        session_ = query.db().session()
-        query.db().transaction()
+        query_db.transaction()
 
         if new_metadata.isQuery():
             if table_name in self.tables("Views"):
@@ -758,23 +760,23 @@ class ISqlDriver(object):
                     "El metadata indica erroneamente, que %s es una tabla. Proceso cancelado.",
                     table_name,
                 )
-                session_.rollback()
+                query_db.rollback()
                 return False
 
             if not self.remove_index(new_metadata, query):
-                session_.rollback()
+                query_db.rollback()
                 return False
 
             if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-                session_.rollback()
+                query_db.rollback()
                 return False
 
         if not self.db_.createTable(new_metadata):
-            session_.rollback()
+            query_db.rollback()
             return False
 
         if new_metadata.isQuery():
-            session_.commit()
+            query_db.commit()
             return True
 
         cur = query.db().execute_query(
@@ -804,7 +806,7 @@ class ISqlDriver(object):
                     LOGGER.warning(
                         "Field %s not found un metadata %s" % (new_name, new_metadata.name())
                     )
-                    session_.rollback()
+                    query_db.rollback()
 
                     return False
                 value = None
@@ -833,11 +835,11 @@ class ISqlDriver(object):
         util.setLabelText(util.translate("application", "Regenerando datos"))
         result_insert_multi = True
         if not self.insertMulti(table_name, list_records):
-            session_.rollback()
+            query_db.rollback()
             result_insert_multi = False
         else:
 
-            session_.commit()
+            query_db.commit()
 
             if new_metadata.name() not in self.tables("Views"):
                 query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
@@ -866,7 +868,7 @@ class ISqlDriver(object):
     #    """Return if use a file like database."""
     #    return self.desktop_file
 
-    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["sql_engine.CursorResult"]:  # type: ignore [name-defined]
         """Excecute a query and return result."""
 
         if not self.is_open():
@@ -881,10 +883,10 @@ class ISqlDriver(object):
                     result_ = (  # Esto es necesario para no obtener error en la consulta con los bytearray
                         session_.connection()
                         .execution_options(autocommit=True)
-                        .execute("""%s""" % query)
+                        .execute(text("""%s""" % query))
                     )
                 else:
-                    result_ = session_.execute(text("""%s""" % query))
+                    result_ = session_.execute(text("""%s""" % query))  # type: ignore [assignment]
             except sqlalchemy.exc.DBAPIError as error:
                 LOGGER.warning(
                     "Se ha producido un error DBAPI con la consulta %s. Ejecutando rollback necesario",
@@ -969,7 +971,7 @@ class ISqlDriver(object):
 
             if sql:
                 try:
-                    session_.connection().execute(sql)
+                    session_.connection().execute(text(sql))
                 except Exception as error:
                     LOGGER.error("insertMulti: %s", str(error))
                     return False
@@ -1247,7 +1249,9 @@ class ISqlDriver(object):
     def get_common_params(self) -> None:
         """Load common params."""
 
-        self._queqe_params["encoding"] = "UTF-8"
+        # self._queqe_params["encoding"] = "UTF-8"
+        self._queqe_params["future"] = True
+        # self._queqe_params["isolation_level"] = "AUTOCOMMIT"
 
         mng_ = self.db_.connManager()
         limit_conn = mng_.limit_connections

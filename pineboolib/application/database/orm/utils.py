@@ -8,9 +8,9 @@ from pineboolib.core.utils import logging
 import sqlalchemy
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext import declarative  # pragma: no cover
     from sqlalchemy.orm import query  # pragma: no cover
     from sqlalchemy.orm import Session
+    from sqlalchemy import engine
 
 
 LOGGER = logging.get_logger(__name__)
@@ -38,14 +38,14 @@ class DynamicFilter(object):
     """DynamicFilter class."""
 
     query_: "query.Query"
-    model_class: "declarative.DeclarativeMeta"
+    model_class: "engine.CursorResult"
     filter_condition: List[List[str]]
     order_by: List[List[str]]
 
     def __init__(
         self,
         query: "query.Query",
-        model_class: "declarative.DeclarativeMeta",
+        model_class: "engine.CursorResult",
         filter_condition: List[List[str]] = [],
     ):
         """Initialize."""
@@ -281,24 +281,13 @@ def do_flush(session: "Session", obj_list: List[Any]) -> None:
 
     if changed_len != len(obj_list):
         LOGGER.warning(
-            "Las siguientes instancias hacen save sin estar modificadas: %s"
-            % [obj for obj in obj_list if obj not in session_objs]
+            "Las siguientes instancias hacen save sin estar modificadas: %s, modificadas:%s"
+            % ([obj for obj in obj_list if obj not in session_objs], session_objs)
         )
 
     # Explicación. Si realizamos flush , y no hay transacción, autocommit creará una transacción y borrará todo le que existe en dirty!
-    need_revert_autocommit = False
-    if (
-        dirty_before and session.autocommit
-    ):  # Si hay objetos en dirty que no hacen flush ahora y está activado autocommit, autocommit a False.
-        session.autocommit = False
-        need_revert_autocommit = True
 
     session.flush(obj_list)
-
-    if (
-        not dirty_before
-    ) and need_revert_autocommit:  # Entiendo que no hay mas registro en dirty que pueda fastidiarle el autocommit y este estaba activo
-        session.autocommit = True
 
     after_len = len(session.dirty) + len(session.new) + len(session.deleted)
 

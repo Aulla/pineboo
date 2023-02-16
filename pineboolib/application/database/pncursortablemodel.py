@@ -8,7 +8,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging, utils_base
 
-from sqlalchemy import exc, orm, inspect
+from sqlalchemy import exc, orm, inspect, text
 from pineboolib.application.utils import date_conversion, xpm
 
 from pineboolib.application.database.orm import utils as orm_utils
@@ -703,8 +703,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_query = self.session.execute(sql_query)
-        rows_loaded = result_query.rowcount
+        result_query = self.session.execute(text(sql_query))
+        rows_loaded = result_query.rowcount  # type: ignore [attr-defined]
 
         if rows_loaded == -1:
             sql_count = (
@@ -717,8 +717,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     sql_count += " WHERE 1 = 1"
                 sql_count = sql_count[: sql_count.find("ORDER BY")]
 
-            result_count = self.session.execute(sql_count)
-            rows_loaded = result_count.fetchone()[0]
+            result_count = self.session.execute(text(sql_count))
+            rows_loaded = result_count.fetchone()[0]  # type: ignore [index]
 
         if rows_loaded > 0:
 
@@ -782,7 +782,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             sql_query += " AND" if sql_query.find("WHERE") > -1 else " WHERE"
             sql_query += extra_where
 
-        result = self.session.execute(sql_query)
+        result = self.session.execute(text(sql_query))
         new_data = result.fetchone()
 
         if new_data is None and mode in [1, 2]:  # mode 3 allways returns None
@@ -793,7 +793,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             LOGGER.debug("data_proxy is empty!")
             return True
         elif (
-            mode == 1 and new_data[0] in self._data_proxy._cached_data
+            mode == 1 and new_data[0] in self._data_proxy._cached_data  # type: ignore [index]
         ):  # if exists dont need Insert.
             return True
 
@@ -873,7 +873,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
 
         elif mode == 2:  # Edit.
-            self._data_proxy.update_pk(pk_value, new_data[0])
+            self._data_proxy.update_pk(pk_value, new_data[0])  # type: ignore [index]
 
             return True
 

@@ -21,7 +21,7 @@ class TestQueryOrm(unittest.TestCase):
         """Test session query."""
 
         session = qsa.session()
-        session.begin()
+        session.begin_nested()
         class_area = qsa.orm_("fltest4")
         obj_area = class_area()
         session.close()
@@ -35,9 +35,9 @@ class TestQueryOrm(unittest.TestCase):
 
     def test_delete(self) -> None:
         """Test delete with children."""
-
+        qsa.thread_session_free()
         session = qsa.thread_session_new()
-        session.begin()
+        nest = session.begin_nested()
         class_area = qsa.orm_("fltest4")
         obj_area = class_area()
 
@@ -54,15 +54,14 @@ class TestQueryOrm(unittest.TestCase):
         child_1.idarea = "E"
         child_2.idarea = "E"
         self.assertTrue(child_1.save())
-        child_1.session.commit()
-        session.begin()
+        nest.commit()
+        nest = session.begin_nested()
         self.assertTrue(child_2.save())
-        child_2.session.commit()
+        nest.commit()
 
-        self.assertEqual(len(class_child.query().all()), 2)
+        self.assertEqual(len(class_child.query().all()), 2)  # implica begin
 
-        # session.commit()
-        session.begin()
+        nest = session.begin_nested()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()
         # new_obj = class_area.get("E")
@@ -71,7 +70,7 @@ class TestQueryOrm(unittest.TestCase):
         for obj in lista:
             obj.delete()
 
-        session.commit()
+        nest.commit()
         # session.commit()
         self.assertEqual(len(class_child.query().all()), 0)
 
@@ -80,9 +79,9 @@ class TestQueryOrm(unittest.TestCase):
 
     def test_delete2(self) -> None:
         """Test delete with children."""
-
+        qsa.thread_session_free()
         session = qsa.thread_session_new()
-        session.begin()
+        nest = session.begin_nested()
         class_area = qsa.orm_("fltest4")
         obj_area = class_area()
 
@@ -99,15 +98,13 @@ class TestQueryOrm(unittest.TestCase):
         child_1.idarea = "E"
         child_2.idarea = "E"
         self.assertTrue(child_1.save())
-        child_1.session.commit()
-        session.begin()
+        nest.commit()
+        nest = session.begin_nested()
         self.assertTrue(child_2.save())
-        child_2.session.commit()
+        nest.commit()
 
-        self.assertEqual(len(class_child.query().all()), 2)
-
-        # session.commit()
-        session.begin()
+        self.assertEqual(len(class_child.query().all()), 2)  # implica session.begin
+        nest = session.begin_nested()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()
         # new_obj = class_area.get("E")
@@ -117,7 +114,7 @@ class TestQueryOrm(unittest.TestCase):
             self.assertTrue(class_area.query().filter(class_area.idarea == obj.idarea).first())
             obj.delete()
 
-        session.commit()
+        nest.commit()
         # session.commit()
         self.assertEqual(len(class_child.query().all()), 0)
 

@@ -47,7 +47,6 @@ class TestConsistency(unittest.TestCase):
         self.assertTrue(atomica())
         session = qsa.session_atomic()
         self.assertTrue(session)
-
         class_ = qsa.orm.fltest
         obj_1 = class_()
         self.assertFalse(obj_1.string_field)
@@ -89,17 +88,24 @@ class TestConsistency(unittest.TestCase):
 
         conn_ = qsa.aqApp.db().useConn("default")
         session = conn_.session()
-        self.assertTrue(session.transaction is None)
+        session.commit()
+        self.assertTrue(not session.in_transaction())
         conn_.transaction()
-        self.assertTrue(session.transaction is not None)
-        id_ = session.transaction
+        self.assertTrue(
+            session.in_transaction() and session.in_nested_transaction()
+        )  # esta en nested por el autocommit que la levantado una transaccion
+        id_ = session.get_transaction()
         conn_.transaction()
-        self.assertNotEqual(id_, session.transaction)
-        self.assertTrue(id_ is not None)
+        nested_ = session.get_nested_transaction()
+        self.assertNotEqual(id_, nested_)
+        self.assertTrue(id_ is not None and nested_ is not None)
+        if nested_:
+            nested_.rollback()
+
+        self.assertEqual(id_, session.get_transaction())
         conn_.rollback()
-        self.assertEqual(id_, session.transaction)
-        conn_.rollback()
-        self.assertTrue(session.transaction is None)
+        self.assertTrue(not session.in_transaction())
+        session.rollback()
 
     @classmethod
     def tearDownClass(cls) -> None:

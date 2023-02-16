@@ -46,7 +46,7 @@ class TestThreadSession(unittest.TestCase):
             time.sleep(0.1)
 
         for session in SESSION_LIST:
-            self.assertFalse(session.transaction)  # type: ignore [union-attr] # noqa: F821
+            self.assertFalse(session.in_transaction())  # type: ignore [union-attr] # noqa: F821
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -62,9 +62,9 @@ def massive(value: int):
         "____inicio",
         value,
         qsa.session_atomic(),  # type: ignore [union-attr] # noqa: F821
-        qsa.session_atomic().transaction,  # type: ignore [union-attr] # noqa: F821
+        qsa.session_atomic().in_transaction(),  # type: ignore [union-attr] # noqa: F821
     )
-    if not qsa.session_atomic().transaction:  # type: ignore [union-attr] # noqa: F821
+    if not qsa.session_atomic().in_transaction():  # type: ignore [union-attr] # noqa: F821
         raise Exception("Transaction is empty!")
 
     SESSION_LIST.append(qsa.session_atomic())

@@ -84,7 +84,7 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
         flfiles_class = qsa.from_project("flfiles_orm")
         flserial_class = qsa.from_project("flserial_orm")
 
-        value = self.sha
+        value: str = str(self.sha)
         util = qsa.FLUtil()
         result_query = session.query(flfiles_class).all()
         value_tmp = ""
@@ -95,7 +95,8 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             value = value_tmp
 
         # session_dbaux = qsa.session("dbaux")
-        session_dbaux = qsa.session()
+        session_dbaux = qsa.session("default", True)
+        nest = session_dbaux.begin_nested()
         data_query = session_dbaux.query(flserial_class)
 
         if data_query.count():
@@ -105,5 +106,6 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             obj_flserial = flserial_class()
             obj_flserial.sha = value
             session_dbaux.add(obj_flserial)
+        nest.commit()
 
         return True

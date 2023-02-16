@@ -22,7 +22,6 @@ if TYPE_CHECKING:
         pnaction,
     )
     from pineboolib.interfaces import iconnection  # pragma: no cover
-    import sqlalchemy  # type: ignore [import] # noqa: F821 # pragma: no cover
 
 
 class ICursorPrivate(QtCore.QObject):
@@ -326,7 +325,7 @@ class ISqlCursor(QtCore.QObject):
     transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionRollback: QtCore.pyqtSignal = QtCore.pyqtSignal()
 
-    _cursor_model: "sqlalchemy.ext.declarative.api.DeclarativeMeta"
+    _cursor_model: Any
 
     _is_delegate_commit: bool
     _last_delegate_commit_result: bool

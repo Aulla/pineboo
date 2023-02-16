@@ -13,7 +13,7 @@ import os
 
 
 from typing import Optional, Any, List, Dict, TYPE_CHECKING
-from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event, text  # type: ignore [import] # noqa: F821, F401
 
 
 if TYPE_CHECKING:
@@ -46,6 +46,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
         self._text_cascade = ""
         self._parse_porc = False
         self._can_use_preping = False
+        self._only_main_conn = False
 
         self._sqlalchemy_name = "sqlite"
 
@@ -61,7 +62,9 @@ class FLSQLITE(isqldriver.ISqlDriver):
             conn_driver = main_conn.driver()
             if self.db_filename == conn_driver.db_filename:
                 self._engine = conn_driver._engine
-                self._connection = conn_driver._connection
+                self._connection = (
+                    conn_driver._connection if self._only_main_conn else conn_driver.connection()
+                )
                 return self._connection
 
         if conn_ is None:
@@ -303,14 +306,14 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         return True
 
-    def connection(self) -> "base.Connection":
+    def connection(self, reload=True) -> "base.Connection":
         """Retrun connection."""
 
-        if not getattr(self, "_connection", None) or self._connection.closed:
+        if reload and not getattr(self, "_connection", None) or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect().execution_options(autocommit=True)
-                self._connection.execute("PRAGMA journal_mode=WAL")
-                self._connection.execute("PRAGMA synchronous=NORMAL")
+                self._connection.execute(text("PRAGMA journal_mode=WAL"))
+                self._connection.execute(text("PRAGMA synchronous=NORMAL"))
 
                 event.listen(self._engine, "close", self.close_emited)
             else:

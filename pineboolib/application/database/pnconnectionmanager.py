@@ -10,7 +10,7 @@ from pineboolib.application.database import pnconnection
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.database import pnsqldriversmanager
 
-from sqlalchemy import exc
+from sqlalchemy import exc, text
 import threading
 
 from typing import Dict, Union, List, Optional, TYPE_CHECKING
@@ -276,7 +276,7 @@ class PNConnectionManager(QtCore.QObject):
             else conn_or_session
         )
         try:
-            session.execute("SELECT 1").fetchone()
+            session.execute(text("SELECT 1")).fetchone()
             result = hasattr(session, "commit")
         except Exception as error:
             session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821
@@ -388,13 +388,13 @@ class PNConnectionManager(QtCore.QObject):
         if session is not None:
             try:
                 try:
-                    if not session.connection().closed:
+                    if not self.useConn(session._conn_name).connection(False).closed:
                         is_valid = True
                 except exc.InvalidRequestError:
-                    if session.transaction is None:
+                    if not session.in_transaction():
                         is_valid = True
                 except AttributeError:
-                    if session.transaction is None:
+                    if not session.in_transaction():
                         is_valid = True
 
             except Exception as error:
@@ -417,10 +417,10 @@ class PNConnectionManager(QtCore.QObject):
                     LOGGER.warning(
                         "AUTO RELOAD: bad connection detected. Reloading users connections"
                     )
-                    if session.transaction is not None:
+                    if session.in_transaction():
                         LOGGER.warning(
                             "AUTO RELOAD: bad session %s is currently in transacction. Aborted",
-                            session.transaction,
+                            session.in_transaction(),
                         )
 
                     self.reinit_user_connections()
