@@ -3108,7 +3108,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     .manager()
                     .formatAssignValue(meta_.field(pk_name_), self.valueBuffer(pk_name_))
                 )
-                current_persistent_filter_ = self.private_cursor._persistent_filter if self.private_cursor._persistent_filter else ""
+                current_persistent_filter_ = (
+                    self.private_cursor._persistent_filter
+                    if self.private_cursor._persistent_filter
+                    else ""
+                )
                 if pk_where_ not in current_persistent_filter_:
                     self.private_cursor._persistent_filter = (
                         pk_where_
