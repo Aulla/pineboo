@@ -485,8 +485,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 nested_transaction.commit()
 
             if (
-                session_.in_transaction() and not session_.in_nested_transaction()
-            ) and session_ is not self._session_atomic:  # Simula autocommit
+                (session_.in_transaction() and not session_.in_nested_transaction())
+                and session_ is not self._session_atomic
+                and not self._transaction_level
+            ):  # Simula autocommit
                 session_.commit()
 
             return True
@@ -508,7 +510,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             if (
                 session_.in_transaction()
                 and not session_.in_nested_transaction()
-                and session_ is not self._session_atomic  # Simula autocommit
+                and session_ is not self._session_atomic
+                and not self._transaction_level  # Simula autocommit
             ):
                 session_.rollback()
 
