@@ -286,6 +286,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 )
                 application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
+        self.session()  # Fuerza a crear una transacción si no existe...
         # LOGGER.warning(
         #    "Creando transaccion/savePoint número:%s, cursor:%s, tabla:%s",
         #    self._transaction_level,
