@@ -485,7 +485,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             session_ = self.session()
             nested_transaction = session_.get_nested_transaction()
 
-            if nested_transaction:
+            if nested_transaction and nested_transaction.is_valid:
                 nested_transaction.commit()
 
             if (
@@ -509,7 +509,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             session_ = self.session()
             nested_transaction = session_.get_nested_transaction()
 
-            if nested_transaction:
+            if nested_transaction and nested_transaction.is_valid:
                 nested_transaction.rollback()
 
             if not only_nested and (
