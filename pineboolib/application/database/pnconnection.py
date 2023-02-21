@@ -330,6 +330,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             cancel = True
 
+        only_nested = True if self._transaction_level else False
+
         if self._transaction_level:
             if cur.private_cursor._transactions_opened:
                 trans = cur.private_cursor._transactions_opened.pop()
@@ -366,7 +368,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         #    "Desaciendo transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
         # )
 
-        if not self.rollback():
+        if not self.rollback(only_nested):
             return False
 
         cur.setModeAccess(cur.Browse)
@@ -390,6 +392,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not notify:
             cur.autoCommit.emit()
+
+        only_nested = True if self._transaction_level else False
 
         if self._transaction_level:
             if cur.private_cursor._transactions_opened:
@@ -430,7 +434,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         #    "Aceptando transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
         # )
 
-        if not self.commit():
+        if not self.commit(only_nested):
             return False
 
         if not self._transaction_level:
@@ -474,7 +478,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return False
 
-    def commit(self) -> bool:
+    def commit(self, only_nested: bool = False) -> bool:
         """Release a transaction."""
 
         try:
@@ -485,7 +489,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 nested_transaction.commit()
 
             if (
-                (session_.in_transaction() and not session_.in_nested_transaction())
+                not only_nested
+                and (session_.in_transaction() and not session_.in_nested_transaction())
                 and session_ is not self._session_atomic
                 and not self._transaction_level
             ):  # Simula autocommit
@@ -498,7 +503,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return False
 
-    def rollback(self) -> bool:
+    def rollback(self, only_nested: bool = False) -> bool:
         """Roll back a transaction."""
         try:
             session_ = self.session()
@@ -507,7 +512,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             if nested_transaction:
                 nested_transaction.rollback()
 
-            if (
+            if not only_nested and (
                 session_.in_transaction()
                 and not session_.in_nested_transaction()
                 and session_ is not self._session_atomic

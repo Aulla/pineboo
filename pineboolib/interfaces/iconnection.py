@@ -215,7 +215,7 @@ class IConnection:
 
         return False  # pragma: no cover
 
-    def commit(self) -> bool:
+    def commit(self, only_nested: bool = False) -> bool:
         """Send the commit order to the database."""
 
         return True  # pragma: no cover
@@ -250,7 +250,7 @@ class IConnection:
 
         return True  # pragma: no cover
 
-    def rollback(self) -> bool:
+    def rollback(self, only_nested: bool = False) -> bool:
         """Roll back a transaction/savepoint."""
 
         return True  # pragma: no cover
