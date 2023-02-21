@@ -37,6 +37,7 @@ class BaseModel(object):
     """Base Model class."""
 
     __tablename__: str = ""
+    __mapper_args__: Dict[str, Any] = {"confirm_deleted_rows": False}
 
     _session: Optional["orm.session.Session"]
     _buffer_copy: "Copy"
