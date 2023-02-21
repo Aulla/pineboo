@@ -2,6 +2,7 @@ bandit
 coverage==6.0b1
 defusedxml
 flup
+lxml-stubs
 mccabe
 mypy==0.780
 mypy-extensions==0.4.3
