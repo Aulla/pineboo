@@ -18,7 +18,7 @@ LOGGER = logging.get_logger(__name__)
 class XmlDigest:
     """XmlDigest class."""
 
-    _root: "etree"
+    _root: "etree._Element"
     _pass: str
     _policy_list: List[str]
     _cert_path: str
@@ -31,7 +31,7 @@ class XmlDigest:
     _use_algorithm: str
 
     def __init__(
-        self, file_path_or_xml: Union[str, "etree.Element"], cert_path: str, pwsd_: str = ""
+        self, file_path_or_xml: Union[str, "etree._Element"], cert_path: str, pwsd_: str = ""
     ) -> None:
         """Initialize."""
 
@@ -215,7 +215,7 @@ class XmlDigest:
             LOGGER.warning("signature not loaded!")
             return False
 
-        self._root.append(self._signature)
+        self._root.append(self._signature)  # type: ignore[arg-type]
 
         try:
             if self._policy is None:
@@ -243,7 +243,7 @@ class XmlDigest:
         self._is_signed = True
         return True
 
-    def signature_value(self) -> str:
+    def signature_value(self) -> Optional[str]:
         """Return SisgnatureValue field value."""
 
         if not self._is_signed:
