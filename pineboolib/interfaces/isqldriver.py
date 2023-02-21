@@ -431,19 +431,12 @@ class ISqlDriver(object):
         flseq_max = 0
         res_ = 0
         sql = "SELECT MAX(%s) FROM %s WHERE 1=1" % (field_name, table_name)
-        session_ = self.db_.session()
-
-        nested_ = session_.begin_nested()
-
         cur = self.execute_query(sql)
         if cur is not None:
             value = cur.fetchone()
 
             if value is not None:
                 table_max = value[0] or 0
-
-        if nested_.is_active:
-            nested_.rollback()
 
         sql = "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
         cur = self.execute_query(sql)
