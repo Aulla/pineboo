@@ -560,7 +560,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 return False
 
         if use_save_points:
-            self.commit()
+            self.commit(True)
         return True
 
     def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
