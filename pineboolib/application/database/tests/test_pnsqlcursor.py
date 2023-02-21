@@ -1125,3 +1125,34 @@ class TestCorruption(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
+
+
+class TestTransactionLevel(unittest.TestCase):
+    """TestInsertData Class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic_1(self) -> None:
+        """Insert data into a database."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        session = cursor.db().session()
+        self.assertTrue(session.in_transaction())
+        self.assertFalse(session.in_nested_transaction())
+        self.assertEqual(cursor.transactionLevel(), 0)
+        cursor.transaction()
+        self.assertTrue(session.in_transaction())
+        self.assertTrue(session.in_nested_transaction())
+        self.assertEqual(cursor.transactionLevel(), 1)
+        cursor.rollback()
+        self.assertTrue(session.in_transaction())
+        self.assertFalse(session.in_nested_transaction())
+        self.assertEqual(cursor.transactionLevel(), 0)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
