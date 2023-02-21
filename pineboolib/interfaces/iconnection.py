@@ -71,7 +71,7 @@ class IConnection:
 
         return self  # pragma: no cover
 
-    def session(self) -> "isession.PinebooSession":
+    def session(self, raise_error: bool = True) -> "isession.PinebooSession":
         """
         Sqlalchemy session.
 
