@@ -49,12 +49,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
         )
     )
 
-    debug_level = 200
     if application.DEVELOPER_MODE:
         LOGGER.warning("Developer mode activated")
-        debug_level = 1000
-
-    application.PROJECT.setDebugLevel(debug_level)
 
     application.PROJECT.set_app(qapp)
     dgi = dgi_module.load_dgi("qt", None)
@@ -251,7 +247,7 @@ def setup_gui(app: "QtWidgets.QApplication") -> None:
     app.setFont(font)
 
 
-def init_testing(level: int = 1000) -> None:
+def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
@@ -269,7 +265,7 @@ def init_testing(level: int = 1000) -> None:
 
         LOGGER.info("PINEBOO TESTING %s.", application.PINEBOO_VER)
         # application.PROJECT.load_version()
-        application.PROJECT.setDebugLevel(level)
+
         application.PROJECT.set_app(qapp)
 
         dgi = dgi_module.load_dgi("qt", None)
@@ -333,10 +329,6 @@ def exec_main(options: "optparse.Values") -> int:
     """
 
     init_cli()
-
-    # TODO: Refactorizar función en otras más pequeñas
-
-    application.PROJECT.setDebugLevel(options.debug_level)
 
     # application.PROJECT.options = options
 

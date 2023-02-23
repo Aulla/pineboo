@@ -228,15 +228,6 @@ class Project(object):
 
             db_utils.process_file_class(self.files[key])
 
-    def setDebugLevel(self, level: int) -> None:
-        """
-        Set debug level for application.
-
-        @param q Número con el nivel espeficicado
-        ***DEPRECATED***
-        """
-        self.debug_level = level
-
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
 
