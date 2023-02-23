@@ -4,7 +4,7 @@ from pineboolib.fllegacy import fltabledb
 from pineboolib import application
 from pineboolib.fllegacy.tests import fixture_path
 
-from typing import Any
+from typing import Any, Optional
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
@@ -35,9 +35,12 @@ class TestFLTableDB(unittest.TestCase):
         if form is None:
             self.assertTrue(form)
             return
-        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        fltable: Optional["fltabledb.FLTableDB"] = form.findChild(
+            fltabledb.FLTableDB, "tableDBRecords"
+        )
         self.assertTrue(fltable)
-        fltable.exportToOds()
+        if fltable:
+            fltable.exportToOds()
 
     def test_export_to_ods_2(self) -> None:
         """Test export to ods."""
