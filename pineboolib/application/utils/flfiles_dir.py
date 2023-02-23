@@ -153,7 +153,12 @@ class FlFiles(object):
                         LOGGER.error("Error processing %s:%s", file_name, str(error))
                         return
                 else:
-                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
+                    if str(file_name).endswith(
+                        (".xml", ".py", ".qs", ".mtd", ".qry", ".ui", ".mod")
+                    ):
+                        LOGGER.warning(
+                            "FLFILES_DIR: file %s already loaded, ignoring..." % file_name
+                        )
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
