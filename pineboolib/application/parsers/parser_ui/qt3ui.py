@@ -29,16 +29,6 @@ ROOT = None
 LOGGER = logging.get_logger(__name__)
 
 
-class Options:
-    """
-    Store module options.
-
-    ***DEPRECATED***
-    """
-
-    DEBUG_LEVEL = 100
-
-
 # TODO: Refactorizar este fichero como una clase. ICONS es la lista de iconos
 #      para un solo formulario. Debe existir una clase LoadUI y que ICONS sea
 #      una variable de ésta. Para cada nuevo formulario se debería instanciar
@@ -732,12 +722,12 @@ class LoadWidget:
                     else:
                         lay.addWidget(new_widget)
                 else:
-                    if Options.DEBUG_LEVEL > 50:
-                        LOGGER.warning(
-                            "qt3ui: Unknown container widget xml tag",
-                            self.widget.__class__,
-                            repr(item.tag),
-                        )
+
+                    LOGGER.warning(
+                        "qt3ui: Unknown container widget xml tag",
+                        self.widget.__class__,
+                        repr(item.tag),
+                    )
                 unbold_fonts.append(cast(QtWidgets.QWidget, new_widget))
                 continue
 
@@ -905,10 +895,6 @@ class LoadWidget:
                 value,
                 ET.tostring(xmlprop).replace(b" ", b"").replace(b"\n", b""),
             )
-            # if Options.DEBUG_LEVEL > 50:
-            #    print(e, repr(value))
-            # if Options.DEBUG_LEVEL > 50:
-            #    print(etree.ET.tostring(xmlprop))
 
     def process_action(self, xmlaction: ET.Element, tool_bar: QtWidgets.QToolBar):
         """
@@ -1287,5 +1273,4 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
 
         return QtCore.QDate(year_, month_, day_)
 
-    if Options.DEBUG_LEVEL > 50:
-        LOGGER.warning("qt3ui: Unknown variant: %s --> %s ", repr(widget), ET.tostring(variant))
+    LOGGER.warning("qt3ui: Unknown variant: %s --> %s ", repr(widget), ET.tostring(variant))

@@ -209,6 +209,6 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         options.preload = True
 
     options.loglevel = 30 + (options.quiet - options.verbose) * 5
-    options.debug_level = 200  # 50 - (options.quiet - options.verbose) * 25
+    # options.debug_level = 200  # 50 - (options.quiet - options.verbose) * 25
 
     return options
