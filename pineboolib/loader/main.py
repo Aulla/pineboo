@@ -283,6 +283,16 @@ def init_testing(level: int = 1000) -> None:
     if not application.PROJECT.init_conn(connection=conn):
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
+    # Si hay un dump para cargar se carga y así agilizamos inicialización de módulos!
+    file_name = os.path.join(application.PROJECT.tmpdir, "cache", "temp_dump.sql")
+    LOGGER.warning("Fichero %s encontrado. Cargando DUMP" % file_name)
+    if os.path.exists(file_name):
+        drv = application.PROJECT.conn_manager.default().driver()
+        con = drv.connection().connection
+        cur = con.cursor()
+        with open(file_name, "r") as file_:
+            cur.executescript(file_.read())
+
     # application.PROJECT.no_python_cache = False
     _initialize_data()
 
