@@ -268,8 +268,7 @@ def init_testing(file_path: str = "") -> None:
         init_cli(catch_ctrl_c=False)
 
         LOGGER.info("PINEBOO TESTING %s.", application.PINEBOO_VER)
-        # application.PROJECT.load_version()
-        application.PROJECT.setDebugLevel(level)
+
         application.PROJECT.set_app(qapp)
 
         dgi = dgi_module.load_dgi("qt", None)
