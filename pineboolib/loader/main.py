@@ -247,7 +247,7 @@ def setup_gui(app: "QtWidgets.QApplication") -> None:
     app.setFont(font)
 
 
-def init_testing() -> None:
+def init_testing(file_path: str = "") -> None:
     """Initialize Pineboo for testing purposes."""
     settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
@@ -280,14 +280,15 @@ def init_testing() -> None:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     # Si hay un dump para cargar se carga y así agilizamos inicialización de módulos!
-    file_name = os.path.join(application.PROJECT.tmpdir, "cache", "temp_dump.sql")
-    LOGGER.warning("Fichero %s encontrado. Cargando DUMP" % file_name)
-    if os.path.exists(file_name):
-        drv = application.PROJECT.conn_manager.default().driver()
-        con = drv.connection().connection
-        cur = con.cursor()
-        with open(file_name, "r") as file_:
-            cur.executescript(file_.read())
+    if file_path:
+        LOGGER.warning("Buscando fichero DUMP %s." % file_path)
+        if os.path.exists(file_path):
+            LOGGER.warning("Cargando DUMP.")
+            drv = application.PROJECT.conn_manager.default().driver()
+            db_api_con = drv.connection().connection
+            db_api_cursor = db_api_con.cursor()
+            with open(file_path, "r") as file_:
+                db_api_cursor.executescript(file_.read())
 
     # application.PROJECT.no_python_cache = False
     _initialize_data()
