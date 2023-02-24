@@ -76,7 +76,10 @@ class ModuleActions(object):
             if name in ("unnamed", ""):
                 continue
 
-            if QSADictModules.save_action_for_mainform(action_xml):
+            if (
+                QSADictModules.save_action_for_mainform(action_xml)
+                or name not in self.project.actions.keys()
+            ):
                 self.project.actions[
                     name
                 ] = action_xml  # FIXME: Actions should be loaded to their parent, not the singleton
