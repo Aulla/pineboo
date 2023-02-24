@@ -2827,7 +2827,7 @@ class FLTableDB(QtWidgets.QWidget):
             QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
         )
         ods_gen.generateOds(file_name)
-        if not application.PROJECT.debug_level == 1000:  # test
+        if not application.TESTING_MODE:  # test
             sysbasetype.SysBaseType.openUrl(file_name)
 
         QtWidgets.QApplication.restoreOverrideCursor()
