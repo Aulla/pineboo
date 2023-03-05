@@ -2412,8 +2412,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param check_locks True to check block risks for this table and the current record
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
+        log_func = LOGGER.error if utils_base.is_library() else LOGGER.warning
+
         if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
-            LOGGER.warning(
+            log_func(
                 "CommitBuffer cancelado. No hay buffer o metadata. buffer:%s, metadata:%s",
                 self.private_cursor.buffer_,
                 self.private_cursor.metadata_,
@@ -2421,10 +2423,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return False
 
         if not self.checkIntegrity():
-            if utils_base.is_library():
-                LOGGER.error("CommitBuffer cancelado. Problema de integridad.")
-            else:
-                LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
+            log_func("CommitBuffer cancelado. Problema de integridad.")
             return False
 
         field_name_check = None
@@ -2482,9 +2481,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.warning(
-                        "CommitBuffer cancelado. %s devolvió False.", function_before_commit
-                    )
+                    log_func("CommitBuffer cancelado. %s devolvió False.", function_before_commit)
                     return False
 
         updated = 0
@@ -2506,15 +2503,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
             if not self.buffer().apply_buffer():
-                LOGGER.warning(
-                    "CommitBuffer en Insert cancelado. Fallo al aplicar el buffer al objeto"
-                )
+                log_func("CommitBuffer en Insert cancelado. Fallo al aplicar el buffer al objeto")
                 return False
 
             if not self.model().insert_current_buffer():
-                LOGGER.warning(
-                    "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
-                )
+                log_func("CommitBuffer cancelado. model().insert_current_buffer() devolvió False.")
                 return False
 
             updated = 1
@@ -2531,13 +2524,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if self.isModifiedBuffer():
 
                 if not self.buffer().apply_buffer():
-                    LOGGER.warning(
-                        "CommitBuffer en Edit cancelado. Fallo al aplicar el buffer al objeto"
-                    )
+                    log_func("CommitBuffer en Edit cancelado. Fallo al aplicar el buffer al objeto")
                     return False
 
                 if not self.update(False):
-                    LOGGER.warning("CommitBuffer cancelado. no se ha podido hacer update.")
+                    log_func("CommitBuffer cancelado. no se ha podido hacer update.")
                     return False
 
                 self.setNotGenerateds()
@@ -2557,15 +2548,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = func_(self)
 
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.info(
+                    log_func(
                         "CommitBuffer cancelado. %s devolvió False.", function_record_del_before
                     )
                     return False
 
             if not self.buffer().apply_buffer():
-                LOGGER.warning(
-                    "CommitBuffer en Delete cancelado. Fallo al aplicar el buffer al objeto"
-                )
+                log_func("CommitBuffer en Delete cancelado. Fallo al aplicar el buffer al objeto")
                 return False
 
             # if not self.private_cursor.buffer_:
@@ -2609,13 +2598,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             cursor.setModeAccess(self.Del)
                             cursor.refreshBuffer()
                             if not cursor.commitBuffer(False):
-                                LOGGER.warning("CommitBuffer cancelado. delC devolvió False.")
+                                log_func("CommitBuffer cancelado. delC devolvió False.")
                                 return False
 
             if not self.model().delete_current_buffer():
-                LOGGER.warning(
-                    "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
-                )
+                log_func("CommitBuffer cancelado. model().insert_current_buffer() devolvió False.")
                 return False
 
             if function_record_del_after:
@@ -2626,14 +2613,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     value = func_(self)
 
                     if value and not isinstance(value, bool) or value is False:
-                        LOGGER.warning(
+                        log_func(
                             "CommitBuffer cancelado. %s devolvió False.", function_record_del_after
                         )
                         return False
 
             updated = 3
         if updated and self.lastError():
-            LOGGER.warning("CommitBuffer cancelado. Error encontrado: %s.", self.lastError())
+            log_func("CommitBuffer cancelado. Error encontrado: %s.", self.lastError())
             return False
 
         if self.modeAccess() != self.Browse and function_after_commit:
@@ -2643,9 +2630,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.warning(
-                        "CommitBuffer cancelado. %s devolvió False.", function_after_commit
-                    )
+                    log_func("CommitBuffer cancelado. %s devolvió False.", function_after_commit)
                     return False
 
         if self.modeAccess() in (self.Del, self.Edit):
