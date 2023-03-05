@@ -5,7 +5,7 @@ Module for PNSqlCursor class.
 
 from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.core import decorators, settings, garbage_collector
 
 from pineboolib.application.database import pnsqlquery, utils
@@ -2423,7 +2423,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return False
 
         if not self.checkIntegrity():
-            LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
+            if utils_base.is_library():
+                LOGGER.error("CommitBuffer cancelado. Problema de integridad.")
+            else:
+                LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
             return False
 
         field_name_check = None
