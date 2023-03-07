@@ -171,6 +171,21 @@ class TestPNConnection(unittest.TestCase):
         application.PROJECT.conn_manager.reinit_user_connections()
         self.assertTrue(application.PROJECT.conn_manager.default().isOpen())
 
+    @classmethod
+    def tearDown(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
+class TestPNConnectionIsolation(unittest.TestCase):
+    """TestPNConnectionIsolation Class."""
+
+    @classmethod
+    def setUp(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        # application.LOG_SQL = True
+        init_testing()
+
     def test_isolation_sessions(self) -> None:
         """Test isolated sessions."""
 
@@ -179,7 +194,62 @@ class TestPNConnection(unittest.TestCase):
         db_aux = conn_manager.dbAux()
         self.assertNotEqual(default.session(), db_aux.session())
 
+    def test_transactions(self) -> None:
+        """Test transactions effects."""
+
+        cursor_default = pnsqlcursor.PNSqlCursor("fltest5", "default")
+        cursor_default.transaction()
+        self.assertEqual(cursor_default.transactionLevel(), 1)
+        cursor_dbaux = pnsqlcursor.PNSqlCursor("fltest5", "dbaux")
+        self.assertEqual(cursor_dbaux.transactionLevel(), 0)
+        cursor_dbaux.transaction()
+        self.assertEqual(cursor_dbaux.transactionLevel(), 1)
+        cursor_dbaux.commit()
+        self.assertEqual(cursor_dbaux.transactionLevel(), 0)
+        self.assertEqual(cursor_default.transactionLevel(), 1)
+        cursor_default.transaction()
+        self.assertEqual(cursor_default.transactionLevel(), 2)
+        cursor_default.commit()
+        self.assertEqual(cursor_default.transactionLevel(), 1)
+        cursor_default.commit()
+        self.assertEqual(cursor_default.transactionLevel(), 0)
+
+    def test_out_transactions(self) -> None:
+        """Test out_transactions effects."""
+
+        cursor_aux = pnsqlcursor.PNSqlCursor("fltest5", "dbAux")
+        cursor_aux.transaction()  # aux 1
+        cursor_aux.setModeAccess(cursor_aux.Insert)
+        cursor_aux.refreshBuffer()
+
+        cursor_aux.transaction()  # aux 2
+        default_conn = application.PROJECT.conn_manager.default()
+        default_conn.transaction()  # default 1
+
+        self.assertEqual(cursor_aux.transactionLevel(), 2)
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest3")
+        cursor.transaction()  # default 2
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.select()
+        self.assertEqual(cursor.size(), 1)
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Edit)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bool_field", True)
+
+        self.assertEqual(cursor_aux.transactionLevel(), 2)
+
+        cursor_aux.commit()  # aux 2
+
+        self.assertTrue(cursor.commitBuffer())
+        cursor_aux.commit()  # aux 1
+        self.assertEqual(cursor_aux.transactionLevel(), 0)
+
     @classmethod
     def tearDown(cls) -> None:
         """Ensure test clear all data."""
+        # application.LOG_SQL = False
         finish_testing()

@@ -289,7 +289,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             application.PROJECT.aq_app.emitTransactionBegin(cursor)
 
         self._transaction_level += 1
-        cursor.private_cursor._transactions_opened.insert(0, self._transaction_level)
+        cursor.private_cursor._transactions_opened.append(self._transaction_level)
         return True
 
     def transactionLevel(self) -> int:
@@ -321,7 +321,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if self._transaction_level:
             if cur.private_cursor._transactions_opened:
-                trans = cur.private_cursor._transactions_opened.pop(0)
+                trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction_level:
                     LOGGER.warning(
                         "FLSqlDatabase: El cursor %s va a deshacer la transacción %s pero la última que inició es la %s",
@@ -380,7 +380,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if self._transaction_level:
             if cur.private_cursor._transactions_opened:
-                trans = cur.private_cursor._transactions_opened.pop(0)
+                trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction_level:
                     LOGGER.warning(
                         "El cursor %s va a terminar la transacción %s pero la última que inició es la %s",

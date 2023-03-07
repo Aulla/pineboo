@@ -42,6 +42,7 @@ class Fltest3(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
                 "type": "bool",
                 "null": False,
                 "default": False,
+                "outtransaction": True,
             },
         ],
     }
