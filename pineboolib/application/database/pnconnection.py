@@ -300,7 +300,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             application.PROJECT.aq_app.emitTransactionBegin(cursor)
 
         self._transaction_level += 1
-        cursor.private_cursor._transactions_opened.insert(0, self._transaction_level)
+        cursor.private_cursor._transactions_opened.append(self._transaction_level)
         return True
 
     def transactionLevel(self) -> int:
