@@ -424,7 +424,7 @@ class ISqlDriver(object):
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
-        self.db_.transaction()
+
         table_max = 0
         flseq_max = 0
         res_ = 0
@@ -464,9 +464,6 @@ class ISqlDriver(object):
 
         if str_qry:
             self.execute_query(str_qry)
-
-        if not self._last_error:
-            self.db_.commit()
 
         return res_
 
