@@ -454,16 +454,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if primary_key:
                 primary_key_value = self.private_cursor.buffer_.value(primary_key)
-                qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-                qry.exec_(
-                    "UPDATE %s SET %s = %s WHERE %s;"
-                    % (
-                        mtd.name(),
-                        field_name,
-                        manager.formatValue(field.type(), value),
-                        manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
-                    )
+                sql = "UPDATE %s SET %s = %s WHERE %s;" % (
+                    mtd.name(),
+                    field_name,
+                    manager.formatValue(field.type(), value),
+                    manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
                 )
+                conn_aux = self.db().connManager().dbAux()
+                conn_aux.session().execute(sql)
+
             else:
                 LOGGER.warning(
                     "FLSqlCursor : No se puede actualizar el campo fuera de transaccion, porque no existe clave primaria"
