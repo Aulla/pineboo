@@ -98,6 +98,8 @@ class BaseModel(object):
 
         target._new_object = True
         target.counter = False
+        target.no_init = False
+        target.serial = True
 
         if "serial" in kwargs:
             target.serial = kwargs["serial"]
