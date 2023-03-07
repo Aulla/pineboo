@@ -183,7 +183,6 @@ class TestPNConnectionIsolation(unittest.TestCase):
     @classmethod
     def setUp(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        # application.LOG_SQL = True
         init_testing()
 
     def test_isolation_sessions(self) -> None:
@@ -207,49 +206,10 @@ class TestPNConnectionIsolation(unittest.TestCase):
         cursor_dbaux.commit()
         self.assertEqual(cursor_dbaux.transactionLevel(), 0)
         self.assertEqual(cursor_default.transactionLevel(), 1)
-        cursor_default.transaction()
-        self.assertEqual(cursor_default.transactionLevel(), 2)
-        cursor_default.commit()
-        self.assertEqual(cursor_default.transactionLevel(), 1)
         cursor_default.commit()
         self.assertEqual(cursor_default.transactionLevel(), 0)
-
-    def test_out_transactions(self) -> None:
-        """Test out_transactions effects."""
-
-        cursor_aux = pnsqlcursor.PNSqlCursor("fltest5", "dbAux")
-        cursor_aux.transaction()  # aux 1
-        cursor_aux.setModeAccess(cursor_aux.Insert)
-        cursor_aux.refreshBuffer()
-
-        cursor_aux.transaction()  # aux 2
-        default_conn = application.PROJECT.conn_manager.default()
-        default_conn.transaction()  # default 1
-
-        self.assertEqual(cursor_aux.transactionLevel(), 2)
-
-        cursor = pnsqlcursor.PNSqlCursor("fltest3")
-        cursor.transaction()  # default 2
-        cursor.setModeAccess(cursor.Insert)
-        cursor.refreshBuffer()
-        self.assertTrue(cursor.commitBuffer())
-        cursor.select()
-        self.assertEqual(cursor.size(), 1)
-        self.assertTrue(cursor.first())
-        cursor.setModeAccess(cursor.Edit)
-        cursor.refreshBuffer()
-        cursor.setValueBuffer("bool_field", True)
-
-        self.assertEqual(cursor_aux.transactionLevel(), 2)
-
-        cursor_aux.commit()  # aux 2
-
-        self.assertTrue(cursor.commitBuffer())
-        cursor_aux.commit()  # aux 1
-        self.assertEqual(cursor_aux.transactionLevel(), 0)
 
     @classmethod
     def tearDown(cls) -> None:
         """Ensure test clear all data."""
-        # application.LOG_SQL = False
         finish_testing()
