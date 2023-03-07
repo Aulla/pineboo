@@ -272,7 +272,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             text_ = (
                 "Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)
                 if self._transaction_level
-                else "Iniciando Transacción... %s" % self._transaction_level
+                else "Iniciando Transacción... %s:%s" % (self._name, self._transaction_level)
             )
             application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
@@ -345,7 +345,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 self._transaction_level,
             )
         else:
-            text_ = "Deshaciendo Transacción... %s" % self._transaction_level
+            text_ = "Deshaciendo Transacción... %s:%s" % (self._name, self._transaction_level)
 
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
@@ -406,7 +406,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 self._transaction_level,
             )
         else:
-            text_ = "Terminando Transacción... %s" % self._transaction_level
+            text_ = "Terminando Transacción... %s:%s" % (self._name, self._transaction_level)
 
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
@@ -447,8 +447,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             session_ = self.session()
 
-            if not session_.transaction:
-                LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
+            if not session_.in_transaction():
+                LOGGER.debug(
+                    "%s: ISOLATION LEVEL %s"
+                    % (self._name, session_.connection().get_isolation_level())
+                )
                 session_.begin()
             else:
                 session_.begin_nested()
@@ -465,7 +468,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
 
             session_ = self.session()
-            session_.commit()
+            trans_ = (
+                session_.get_nested_transaction()
+                if session_.in_nested_transaction()
+                else session_.get_transaction()
+            )
+
+            trans_.commit()
 
             return True
         except Exception as error:
@@ -476,9 +485,17 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollback(self) -> bool:
         """Roll back a transaction."""
+
         try:
+
             session_ = self.session()
-            session_.rollback()
+            trans_ = (
+                session_.get_nested_transaction()
+                if session_.in_nested_transaction()
+                else session_.get_transaction()
+            )
+            trans_.rollback()
+
             return True
         except Exception as error:
             self._last_error = "No se pudo deshacer la transacción: %s" % str(error)
