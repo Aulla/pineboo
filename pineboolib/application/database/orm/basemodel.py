@@ -1,5 +1,6 @@
 """Basemodel module."""
 
+from pineboolib.core import decorators
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
@@ -36,6 +37,7 @@ class BaseModel(object):
     """Base Model class."""
 
     __tablename__: str = ""
+    __mapper_args__: Dict[str, Any] = {"confirm_deleted_rows": False}
 
     _session: Optional["orm.session.Session"]
     _buffer_copy: "Copy"
@@ -86,9 +88,7 @@ class BaseModel(object):
             conn_manager = application.PROJECT.conn_manager
             if "conn_name" in kwargs.keys():
                 conn_name = kwargs["conn_name"]
-
             target._session = conn_manager.useConn(conn_name).session()
-
         if target._session is None:
             target._error_manager(
                 "_qsa_init",
@@ -98,6 +98,8 @@ class BaseModel(object):
 
         target._new_object = True
         target.counter = False
+        target.no_init = False
+        target.serial = True
 
         if "serial" in kwargs:
             target.serial = kwargs["serial"]
@@ -305,7 +307,7 @@ class BaseModel(object):
         """Flush instance to current session."""
 
         if self._session:
-            # if not self._session.transaction:
+            # if not self._session.in_transaction():
             #    self._session.begin()
             # else:
             #    self._session.begin_nested()
@@ -516,11 +518,19 @@ class BaseModel(object):
     @classmethod
     def get(cls, pk_value: str, session: Union[str, "orm.Session"] = "default") -> Any:
         """Return instance selected by pk."""
-        qry = cls.query(session)
-        ret_ = qry.get(pk_value) if qry is not None else None
-        return ret_
+        # qry = cls.query(session)
+        # ret_ = qry.get(pk_value) if qry is not None else None
+
+        session_ = (
+            application.PROJECT.conn_manager.useConn(session).session()
+            if isinstance(session, str)
+            else session
+        )
+
+        return session_.get(cls, pk_value) if session_ else None
 
     @classmethod
+    @decorators.deprecated
     def query(
         cls, session_or_name: Union[str, "orm.Session"] = "default"
     ) -> Optional["orm.query.Query"]:
@@ -539,7 +549,9 @@ class BaseModel(object):
                 ret_ = session_.query(cls)
 
         if ret_ is None:
-            LOGGER.warning("query: Invalid session %s ", session_or_name)
+            LOGGER.warning(  # type: ignore [unreachable]
+                "query: Invalid session %s " % session_or_name
+            )
 
         return ret_
 
@@ -611,7 +623,6 @@ class BaseModel(object):
             )
 
         else:
-
             if self._session is None:
                 self._error_manager("save", "_session is empty!")
             elif self.mode_access == 2:
@@ -626,7 +637,6 @@ class BaseModel(object):
                 self._flush(relations)
 
             self.update_copy()
-
             return True
         return False
 
@@ -641,7 +651,6 @@ class BaseModel(object):
 
             for field in table_meta.fieldList():
                 field_name = field.name()
-
                 if mode < 2:  # 0 insert,1 edit
                     # not Null fields.
                     if not field.allowNull():
@@ -651,18 +660,21 @@ class BaseModel(object):
                                 "_check_integrity",
                                 "INTEGRITY::Field %s.%s need a value"
                                 % (table_meta.name(), field_name),
+                                self,
                             )
                         elif field.type() == "date" and not isinstance(value, datetime.date):
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Type Error %s.%s -> Value must be a datetime.date type, but found %s type"
                                 % (table_meta.name(), field_name, type(value)),
+                                self,
                             )
                         elif field.type() == "time" and not isinstance(value, datetime.time):
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Type Error %s.%s -> Value must be a datetime.time type, but found %s type"
                                 % (table_meta.name(), field_name, type(value)),
+                                self,
                             )
 
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
@@ -696,6 +708,7 @@ class BaseModel(object):
                                     value,
                                     " Use None instead of False" if not value else "",
                                 ),
+                                self,
                             )
 
                         qry_data = None
@@ -712,6 +725,7 @@ class BaseModel(object):
                                 "_check_integrity",
                                 "INTEGRITY::Field relation %s.%s -> %s"
                                 % (table_meta.name(), field_name, error),
+                                self,
                             )
                         # qry_data = (
                         #    foreign_class_.query(self._session)
@@ -745,6 +759,7 @@ class BaseModel(object):
                                     value,
                                     type(value),
                                 ),
+                                self,
                             )
 
                     elif not field.allowNull():
@@ -757,6 +772,7 @@ class BaseModel(object):
                                 relation_m1.foreignTable(),
                                 relation_m1.foreignField(),
                             ),
+                            self,
                         )
 
         return True
@@ -764,6 +780,7 @@ class BaseModel(object):
     def relationM1(self, field_name: str = "") -> Optional[Callable]:
         """Return relationM1 object if exists."""
 
+        ret_ = None
         if field_name:
             meta = self.table_metadata().field(field_name)
             if meta is not None:
@@ -774,14 +791,15 @@ class BaseModel(object):
                     )
                     if foreign_table_class is not None:
                         foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
-                        return (
+
+                        ret_ = (
                             self._session.query(  # type: ignore [union-attr] # noqa: F821
                                 foreign_table_class
                             )
                             .filter(foreign_field_obj == getattr(self, field_name))
                             .first()
                         )
-        return None
+        return ret_
 
     def relation1M(self, field_name: str = "") -> Dict[str, List[Callable]]:
         """Return relationed instances."""
@@ -815,10 +833,20 @@ class BaseModel(object):
         """Return current transaction level."""
 
         ret_ = -1
-        parent_transaction = self._session.transaction if self._session else None
-        while parent_transaction:
+        current_transaction = None
+        if self._session:
+            if self._session.in_nested_transaction():
+                current_transaction = self._session.get_nested_transaction()
+            elif self._session.in_transaction():
+                current_transaction = self._session.get_transaction()
+
+        while True:
+            if current_transaction is None:
+                break
+
             ret_ += 1
-            parent_transaction = parent_transaction.parent
+
+            current_transaction = current_transaction.parent
 
         return ret_
 
@@ -946,7 +974,7 @@ class BaseModel(object):
                 del target._cached_bufferchanged[event.key]
 
     @classmethod
-    def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
+    def _error_manager(cls, text: str, error: Union[Exception, str], obj: object = None) -> None:
         """Return custom error message."""
 
         exception_: Any = None
