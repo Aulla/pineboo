@@ -441,7 +441,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if (
             field.outTransaction()
-            and self.db()._name not in ["dbAux"]
+            and database._name.lower() not in ["dbaux", "aux"]
             and self.modeAccess() != self.Insert
         ):
             primary_key = mtd.primaryKey()
