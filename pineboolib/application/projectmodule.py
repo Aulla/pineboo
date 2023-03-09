@@ -658,7 +658,9 @@ class Project(object):
 
             fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
             file_name = path._dir("cache", fileobj.filekey)
-            if not os.path.exists(file_name):  # Borra
+            if not os.path.isfile(file_name) or not os.path.getsize(
+                file_name
+            ):  # Borra si no existe el fichero o está vacio.
                 if os.path.exists(fileobjdir):
                     utils_base.empty_dir(fileobjdir)
                 else:
