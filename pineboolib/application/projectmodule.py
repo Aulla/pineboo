@@ -685,7 +685,7 @@ class Project(object):
                     if result_content is not None:
                         contenido_content = result_content[
                             0
-                        ]  # Recogemos verdadero contenido_content. cuando usamos flfiles. más rpapido conexiones lentas.
+                        ]  # Recogemos verdadero contenido_content. cuando usamos flfiles. más rápido conexiones lentas.
                 else:
                     contenido_content = contenido_or_bloqueo
 
