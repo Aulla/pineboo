@@ -1775,7 +1775,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         if not self.private_cursor.metadata_ or not self._action:
-            raise Exception("Not initialized")
+            raise Exception("PNSqlCursor::refreshBuffer Metadata not initialized")
 
         # if (
         #    isinstance(self.sender(), QtCore.QTimer)
