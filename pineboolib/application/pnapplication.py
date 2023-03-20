@@ -12,7 +12,7 @@ from pineboolib.application.database import DB_SIGNALS, utils
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application import qsadictmodules
 
-import sys
+import sys, os
 from typing import Any, Optional, List, TextIO, cast, Union, Dict, TYPE_CHECKING
 
 
@@ -958,8 +958,8 @@ class PNApplication(QtCore.QObject):
 
     def applicationDirPath(self) -> str:
         """Return application dir path."""
-
-        return application.PROJECT.app.applicationDirPath()
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        # return application.PROJECT.app.applicationDirPath()
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""
