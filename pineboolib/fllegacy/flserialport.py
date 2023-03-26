@@ -1,7 +1,13 @@
 """Flserial por module."""
 
-from PyQt6 import QtCore, QtSerialPort  # type: ignore[import]
+from PyQt6 import QtCore
 from pineboolib.core import decorators
+import typing
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt6 import QtSerialPort
 
 
 class BaudRateType(object):
