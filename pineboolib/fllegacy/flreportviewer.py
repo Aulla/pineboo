@@ -272,7 +272,7 @@ class FLReportViewer(QtWidgets.QWidget):
     ) -> bool:
         """Render report."""
         if self._report_engine is None:
-            LOGGER.warning("report_engine is mepty!")
+            LOGGER.warning("report_engine is empty!")
             return False
 
         flags = [self.Append, self.Display]
@@ -291,7 +291,11 @@ class FLReportViewer(QtWidgets.QWidget):
                 flags.append(append_or_flags[2])  # page_break
 
         result = self._report_engine.renderReport(init_row, init_col, flags)
-        self.report_ = self._report_engine._parser._document.pages
+        self.report_ = (
+            self._report_engine._parser._document.pages
+            if self._report_engine._parser._document
+            else []
+        )
         return result
 
     def renderReport2(
@@ -684,7 +688,9 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
             image_qt = ImageQt(image)
             width_ = 780
             height_ = 591
-            scaled_size = QtCore.QSize(width_ * self._scale_factor, height_ * self._scale_factor)
+            scaled_size = QtCore.QSize(
+                int(width_ * self._scale_factor), int(height_ * self._scale_factor)
+            )
             scaled = image_qt.scaled(
                 scaled_size,
                 QtCore.Qt.AspectRatioMode.KeepAspectRatio,
