@@ -87,7 +87,7 @@ class FLManagerModules(object):
     Informacion para la carga estatica desde el disco local
     """
     static_db_info_: "pnmodulesstaticloader.AQStaticBdInfo"
-    _file_watcher: "observers.Observer"
+    _file_watcher: "observers.polling.PollingObserver"
     root_dir_: str
     scripts_dir_: str
     tables_dir_: str
@@ -117,7 +117,7 @@ class FLManagerModules(object):
         """Run common init."""
 
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
-        self._file_watcher = observers.Observer()
+        self._file_watcher = observers.Observer()  # type: ignore [assignment]
         flfiles_folder = application.PROJECT.USE_FLFILES_FOLDER
 
         if self.static_db_info_.enabled_ or flfiles_folder:

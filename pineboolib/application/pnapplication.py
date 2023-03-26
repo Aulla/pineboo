@@ -12,7 +12,8 @@ from pineboolib.application.database import DB_SIGNALS, utils
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application import qsadictmodules
 
-import sys, os
+import sys
+import os
 from typing import Any, Optional, List, TextIO, cast, Union, Dict, TYPE_CHECKING
 
 

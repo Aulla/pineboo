@@ -2,7 +2,6 @@
 
 from PyQt6 import QtCore
 from pineboolib.core import decorators
-import typing
 
 from typing import TYPE_CHECKING
 
