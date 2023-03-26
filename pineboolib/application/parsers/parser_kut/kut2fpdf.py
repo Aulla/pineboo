@@ -512,7 +512,7 @@ class Kut2FPDF(object):
         blue = 0 if not color else int(color.split(",")[2])
 
         style = int(xml.get("Style") or "0")
-        width = int(xml.get("Width") or "0")
+        width = int(xml.get("Width") or "0") * 2
         pos_x1 = self.calculateLeftStart(xml.get("X1") or "0")
         pos_x1 = self.calculateWidth(pos_x1, 0, False)
         pos_x2 = self.calculateLeftStart(xml.get("X2") or "0")
@@ -528,14 +528,13 @@ class Kut2FPDF(object):
         self._document.set_line_width(self._parser_tools.ratio_correction_h(width))
         self._document.set_draw_color(red, green, blue)
         dash_length = 1
-        space_length = 1
+        space_length = 0
         if style == 2:
             dash_length = 20
             space_length = 20
         elif style == 3:
             dash_length = 10
             space_length = 10
-
         self._document.dashed_line(pos_x1, pos_y1, pos_x2, pos_y2, dash_length, space_length)
         # else:
         #    self._document.line(X1, Y1, X2, Y2)
@@ -767,11 +766,8 @@ class Kut2FPDF(object):
         # font_name, font_size, font_style
         font_style = ""
         font_size = int(xml.get("FontSize") or "0")
-        font_name_orig = (
-            (xml.get("FontFamily") or "").lower()
-            if xml.get("FontFamily") is not None
-            else "helvetica"
-        )
+        font_name_orig = str(xml.get("FontFamily") or "helvetica").lower()
+
         font_name = font_name_orig
 
         font_w = int(xml.get("FontWeight") or "50")
@@ -940,6 +936,7 @@ class Kut2FPDF(object):
                     orig_x,
                     orig_y,
                 )"""
+
             self._document.text(pos_x, pos_y, actual_text)
             result_section_size += start_section_size
 

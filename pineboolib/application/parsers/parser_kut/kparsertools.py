@@ -123,7 +123,6 @@ class KParserTools(object):
         @param data. XML data line related.
         @return calculated value.
         """
-
         precision = 0
         type_ = None
         date_format_num = None
@@ -134,7 +133,8 @@ class KParserTools(object):
             date_format_num = xml.get("DateFormat")
 
         if data_type in (0, 1) and data is not None:  # str
-            value = data.get(value)
+            # value = data.get(value)
+            pass
 
         elif data_type == 2:  # float
 
