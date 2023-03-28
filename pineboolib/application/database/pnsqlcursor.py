@@ -71,6 +71,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         )
         self._is_delegate_commit = False
         self._last_delegate_commit_result = False
+        self._persistent_filter_deletegate = None
         # LOGGER.warning("CURSOR! %s", name)
         if not name:
             LOGGER.warning(
@@ -2252,6 +2253,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             final_filter += " OR " + self.private_cursor._persistent_filter
 
+        if (
+            self._persistent_filter_deletegate
+            and self._persistent_filter_deletegate not in final_filter
+        ):
+            final_filter += " OR " + self._persistent_filter_deletegate
+
         self.private_cursor._model.where_filters["filter"] = final_filter
 
     @decorators.pyqt_slot()
@@ -3097,21 +3104,32 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     .manager()
                     .formatAssignValue(meta_.field(pk_name_), self.valueBuffer(pk_name_))
                 )
-                current_persistent_filter_ = (
-                    self.private_cursor._persistent_filter
-                    if self.private_cursor._persistent_filter
-                    else ""
-                )
-                if pk_where_ not in current_persistent_filter_:
-                    self.private_cursor._persistent_filter = (
-                        pk_where_
-                        if not current_persistent_filter_
-                        else "%s or %s" % (current_persistent_filter_, pk_where_)
+
+                self.setPersistentFilterDelegate(pk_where_)
+                cursor_relation = self.private_cursor.cursor_relation_
+                if cursor_relation:
+                    meta_relation = cursor_relation.metadata()
+                    pk_name_relation = meta_relation.primaryKey()
+                    pk_where_relation = (
+                        cursor_relation.db()
+                        .manager()
+                        .formatAssignValue(
+                            meta_relation.field(pk_name_relation),
+                            self.valueBuffer(pk_name_relation),
+                        )
                     )
+                    cursor_relation.setPersistentFilterDelegate(pk_where_relation)
 
                 if emite:
+                    emite_cursor_updated = True
+                    if (
+                        self.private_cursor.mode_access_ == self.Edit
+                        and not self.isModifiedBuffer()
+                    ):
+                        emite_cursor_updated = False
 
-                    self.cursorUpdated.emit()
+                    if emite_cursor_updated:
+                        self.cursorUpdated.emit()
                     self.bufferCommited.emit()
         else:
             result = self.commitBuffer(emite)
@@ -3133,6 +3151,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return self._is_delegate_commit and not self.db().manager().isSystemTable(
             self.metadata().name()
         )
+
+    def setPersistentFilterDelegate(self, filter: str) -> None:
+        """Añade a persistent filter datos de delegate."""
+
+        if not self._persistent_filter_deletegate:
+            self._persistent_filter_deletegate = filter
+
+        self.setFilter("")
+
+    def restorePersistentFilterBeforeDelegate(self):
+        """Restaura persistent filter despues de hacer commit."""
+
+        self._persistent_filter_deletegate = None
+        if self.private_cursor.cursor_relation_:
+            self.private_cursor.cursor_relation_.restorePersistentFilterBeforeDelegate()
 
 
 class PNCursorPrivate(isqlcursor.ICursorPrivate):

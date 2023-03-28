@@ -330,6 +330,7 @@ class ISqlCursor(QtCore.QObject):
 
     _is_delegate_commit: bool
     _last_delegate_commit_result: bool
+    _persistent_filter_deletegate: Optional[str]
 
     def __init__(
         self,
@@ -769,3 +770,13 @@ class ISqlCursor(QtCore.QObject):
         """Retorna si se cumplen las condiciones para usar delegateCommit."""
 
         return False
+
+    def setPersistentFilterDelegate(self, filter: str) -> None:
+        """Añade a persistent filter datos de delegate."""
+
+        pass
+
+    def restorePersistentFilterBeforeDelegate(self):
+        """Restaura persistent filter despues de hacer commit."""
+
+        pass

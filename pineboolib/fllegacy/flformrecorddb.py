@@ -492,6 +492,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                         "ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.error: %s"
                         % (str(error))
                     )
+            self.cursor_.restorePersistentFilterBeforeDelegate()
 
             if self.accepted_:
                 if not self.cursor_.doCommit():
