@@ -109,7 +109,10 @@ class TestParser(unittest.TestCase):
         item_1.set("Precision", "2")
         self.assertEqual(parser_tools.calculated("11.22", 2, item_1), ret_)
         self.assertEqual(parser_tools.calculated("2019-01-31T00:01:02", 3), "31-01-2019")
-        self.assertEqual(parser_tools.calculated("codpais", 1, None, child), "ES")
+        self.assertEqual(
+            parser_tools.calculated(child.get("codpais"), 1, None, child),
+            "ES",
+        )
 
         cur = pnsqlcursor.PNSqlCursor("paises")
         cur.select("1=1")
