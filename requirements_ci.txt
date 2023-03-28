@@ -9,7 +9,6 @@ mypy-extensions==0.4.3
 pydocstyle
 pylint
 pylint-json2html==0.3.0
-pyroma
 pytest
 pytest-cov==2.12.1
 setuptools
@@ -20,6 +19,5 @@ sphinx-autodoc-typehints==1.12.0
 sphinx-rtd-theme==0.5.2
 sqlalchemy2-stubs
 testresources
-twine
 wheel
 xmljson
