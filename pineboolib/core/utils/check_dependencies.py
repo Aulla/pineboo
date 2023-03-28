@@ -19,11 +19,11 @@ LOGGER = logging.get_logger(__name__)
 DEPENDENCIES_CHECKED: Dict["ModuleName", "ModuleVersion"] = {}
 
 MINIMUM_VERSION = {
-    "Python": "3.6",
-    "ply": "3.9",
-    "Pillow": "5.1.0",
-    "fpdf": "1.7.3",
-    "PyQt6": "5.11",
+    "Python": "3.7",
+    "ply": "3.11",
+    "Pillow": "9.4.0",
+    "fpdf2": "2.4.2",
+    "PyQt6": "6.2.3",
 }
 PYTHON_INCLUDED_BATTERIES = {"Python", "sqlite3"}
 

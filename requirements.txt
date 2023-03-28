@@ -32,7 +32,7 @@ uharfbuzz>=0.25.0
 watchdog>=0.10.2
 xades==0.2.1
 xmlsig==0.1.7
-Pillow==8.2.0
+Pillow==9.4.0
 PyYAML==5.3.1
 PyQt6>=6.2.3 # 6.4.0
 PyQt6-Qt6>=6.2.3 # 6.4.0
