@@ -2598,8 +2598,6 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
     sourceclasses = ET.Element("Source")
     add_form_internal_object = False
     for cls_ in ast.findall("Class"):
-        # LOGGER.warning("Element %s type(%s)", cls, type(cls_))
-        # cls_.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
         sourceclasses.append(cast(ET.Element, cls_))
         if cls_.get("name") == "ifaceCtx":
             add_form_internal_object = True
@@ -2613,6 +2611,8 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
         constructor = ET.SubElement(mainsource, "Function", name="_class_init")
         # args = etree.SubElement(constructor, "Arguments")
         csource = ET.SubElement(constructor, "Source")
+    else:
+        csource = mainsource = ET.SubElement(sourceclasses, "Source")
 
     for child in ast:
         if child.tag != "Function":
