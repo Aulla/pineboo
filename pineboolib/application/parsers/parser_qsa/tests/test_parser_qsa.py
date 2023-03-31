@@ -395,6 +395,9 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         """Test conveting fixture require.qs"""
         self.maxDiff = None
         require_qs = fixture_read("require.qs")
+
+        old_tags = parser_qsa.IGNORE_NO_PYTHON_TAGS
+        old_desktop = utils_base.FORCE_DESKTOP
         parser_qsa.IGNORE_NO_PYTHON_TAGS = False
         utils_base.FORCE_DESKTOP = False
         require_qs_py = qs2py(require_qs)
@@ -404,7 +407,8 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         pos_ini = require_qs_py.find("# Translated with pineboolib ")
         pos_fin = require_qs_py[pos_ini:].find("\n")
         require_qs_py = require_qs_py.replace(require_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
-
+        parser_qsa.IGNORE_NO_PYTHON_TAGS = old_tags
+        utils_base.FORCE_DESKTOP = old_desktop
         self.assertEqual(require_qs_py, require_py)
 
     @classmethod
