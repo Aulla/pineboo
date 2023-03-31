@@ -2596,19 +2596,23 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
     yield "line", ""
 
     sourceclasses = ET.Element("Source")
+    add_form_internal_object = False
     for cls_ in ast.findall("Class"):
         # LOGGER.warning("Element %s type(%s)", cls, type(cls_))
         # cls_.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
         sourceclasses.append(cast(ET.Element, cls_))
+        if cls_.get("name") == "ifaceCtx":
+            add_form_internal_object = True
 
-    mainclass = ET.SubElement(
-        sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"
-    )
-    mainsource = ET.SubElement(mainclass, "Source")
+    if add_form_internal_object:
+        mainclass = ET.SubElement(
+            sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"
+        )
+        mainsource = ET.SubElement(mainclass, "Source")
 
-    constructor = ET.SubElement(mainsource, "Function", name="_class_init")
-    # args = etree.SubElement(constructor, "Arguments")
-    csource = ET.SubElement(constructor, "Source")
+        constructor = ET.SubElement(mainsource, "Function", name="_class_init")
+        # args = etree.SubElement(constructor, "Arguments")
+        csource = ET.SubElement(constructor, "Source")
 
     for child in ast:
         if child.tag != "Function":
