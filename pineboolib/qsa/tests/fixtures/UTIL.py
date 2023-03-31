@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Translated with pineboolib 1.0.2.52
-from typing import TYPE_CHECKING, Any, Union
+from typing import Any
 from pineboolib.qsa.qsa import *  # noqa: F403
 from pineboolib.qsa import qsa
 from pineboolib.application.utils import modules
@@ -607,6 +607,6 @@ class FormInternalObj(qsa.FormDBWidget):
             table, field, qsa.ustr(where, " ORDER BY ", field, " DESC")
         )
         nextValue: Any = (
-            qsa.Math.round(qsa.parseFloat((0 if (maxValue == False) else maxValue))) + 1
+            qsa.Math.round(qsa.parseFloat((0 if (maxValue is False) else maxValue))) + 1
         )
         return qsa.from_project("formSTR").padStart(qsa.parseString(nextValue), fieldLength, "0")

@@ -1,3 +1,5 @@
+"""Modules module."""
+
 from PyQt6 import QtCore
 
 from pineboolib.core import settings

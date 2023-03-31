@@ -70,7 +70,7 @@ def clean_no_python_never(data: str) -> str:
 
 
 def clean_no_python_tags(data: str) -> str:
-    """Remove no_python tags"""
+    """Remove no_python tags."""
 
     data = clean_no_python_never(data)
     if utils_base.is_library() and not parser_qsa.IGNORE_NO_PYTHON_TAGS:

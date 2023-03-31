@@ -10,13 +10,13 @@ import collections
 from PyQt6 import QtCore  # type: ignore [import]
 
 from pineboolib.core.utils import utils_base
-from pineboolib.core import decorators, settings
+from pineboolib.core import decorators
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
 from pineboolib.application.utils import modules
 from pineboolib import logging
 
-from typing import Any, Optional, Dict, Union, Generator, List, TYPE_CHECKING
+from typing import Any, Optional, Dict, Union, Generator, List
 
 
 LOGGER = logging.get_logger(__name__)
