@@ -1,3 +1,5 @@
+"""Util module."""
+
 # -*- coding: utf-8 -*-
 # Translated with pineboolib 1.0.2.52
 from typing import Any
@@ -11,14 +13,19 @@ import os
 
 # /** @class_declaration ifaceCtx */
 class ifaceCtx(qsa.ObjectClass):
+    """ifaceCtx class."""
+
     ctx: Any = None
 
     def __init__(self, context):
+        """Just a comment."""
         self.ctx = context
 
 
 # /** @class_declaration FormInternalObj */
 class FormInternalObj(qsa.FormDBWidget):
+    """FormInternalObj class."""
+
     codePath_: Any = None
     dependencies_: Any = None
     cacheClases_ = {}
@@ -29,16 +36,19 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition FormInternalObj */
     def _class_init(self):
+        """Just a comment."""
         self.iface = ifaceCtx(self)
 
     # /** @class_definition getDependencies */
     def getDependencies(self):
+        """Just a comment."""
         if not self.dependencies_:
             self.dependencies_ = self.buildDependencies()
         return self.dependencies_
 
     # /** @class_definition buildDependencies */
     def buildDependencies(self):
+        """Just a comment."""
         return qsa.AttributeDict(
             {
                 "test": (os.path.join(os.path.dirname(__file__), "test_require.qs")),
@@ -47,6 +57,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition getCodePath */
     def getCodePath(self):
+        """Just a comment."""
         qsa.debug("getCodePath")
         path: Any = qsa.AQUtil.readSettingEntry(qsa.ustr("application/codepath/", qsa.sys.nameBD()))
         qsa.debug(qsa.ustr("getCodePath path ", path))
@@ -55,6 +66,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition loadScript */
     def loadScript(self, path):
+        """Just a comment."""
         codigo: Any = None
 
         codigo = qsa.FileStatic.read(path)
@@ -74,7 +86,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition require */
     def require_(self, class_name):
-
+        """Just a comment."""
         if class_name in self.cacheClases_.keys():
             return self.cacheClases_[class_name]
         path: Any = self.getDependencies()[class_name]
@@ -90,7 +102,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return self.cacheClases_[class_name]
 
     def loadModule(self, data: str) -> Any:
-
+        """Just a comment."""
         list_data = data.split("\n")
         class_name = list_data[len(list_data) - 1]
         new_data = "\n".join(list_data[:-1])
@@ -101,6 +113,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaRegistroEnTransaccion */
     def copiaRegistroEnTransaccion(self, curOrigen, paramCopia, curDestino, curPadreDestino):
+        """Just a comment."""
         oParam: Any = qsa.AttributeDict(
             {
                 "curOrigen": (curOrigen),
@@ -116,6 +129,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition delegateCommitActivo */
     def delegateCommitActivo(self):
+        """Just a comment."""
         _i = qsa.from_project("formUTIL")
         if not _i.delegateCommitActivo_:
             _i.delegateCommitActivo_ = (
@@ -127,6 +141,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition jsonToString */
     def jsonToString(self, o):
+        """Just a comment."""
         _i: Any = qsa.from_project("formUTIL")
         s: Any = None
         tipo: Any = qsa.typeof_(o)
@@ -188,6 +203,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition nameUser */
     def nameUser(self):
+        """Just a comment."""
         if qsa.parseString(qsa.sys.interactiveGUI()) == "Pinebooapi":
             return qsa.from_project("formAPI").user_id()
         else:
@@ -195,6 +211,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaRegistro */
     def copiaRegistro(self, oParam):
+        """Just a comment."""
         curOrigen: Any = oParam["curOrigen"]
         paramCopia: Any = oParam["paramCopia"]
         curDestino: Any = False
@@ -215,6 +232,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaCamposRegistro */
     def copiaCamposRegistro(self, curOrigen, paramCopia, curDestino, curPadreDestino):
+        """Just a comment."""
         oCampos: Any = paramCopia["campos"]
         campoPadre: Any = False
         campoHijo: Any = False
@@ -269,6 +287,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaCampoRegistro */
     def copiaCampoRegistro(self, curOrigen, curDestino, campo, paramCopiaCampo):
+        """Just a comment."""
         accionCopia: Any = paramCopiaCampo["accion"]
         if accionCopia == "copy":
             if curOrigen.isNull(campo):
@@ -312,6 +331,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaRegistrosHijos */
     def copiaRegistrosHijos(self, curOrigen, curDestino, paramCopia):
+        """Just a comment."""
         oHijos: Any = None
         if hasattr(paramCopia, "hijos") or "hijos" in paramCopia:
             oHijos = paramCopia["hijos"]
@@ -326,6 +346,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition copiaRegistrosHijo */
     def copiaRegistrosHijo(self, curOrigen, curDestino, oHijo):
+        """Just a comment."""
         tablaHijo: Any = oHijo["tabla"]
         campoPadre: Any = oHijo["campopadre"]
         campoHijo: Any = oHijo["campohijo"]
@@ -354,6 +375,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition convierteStringHexEnFicheroBin */
     def convierteStringHexEnFicheroBin(self, stringHex, rutaFichero):
+        """Just a comment."""
         baS: Any = qsa.QByteArray(qsa.length(stringHex))
         j: Any = 0
         while_pass = True
@@ -378,6 +400,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition guardaByteArrayEnFichero */
     def guardaByteArrayEnFichero(self, ba, rutaFichero):
+        """Just a comment."""
         file: Any = qsa.File(rutaFichero)
         file.open(qsa.FileStatic.WriteOnly)
         j: Any = 0
@@ -401,6 +424,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition dameTextoMes */
     def dameTextoMes(self, mesNumero, abreviado):
+        """Just a comment."""
         if not mesNumero or mesNumero == "":
             return ""
         if qsa.length(qsa.parseString(mesNumero)) == 1:
@@ -470,6 +494,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition redondea */
     def redondea(self, v, tabla, campo):
+        """Just a comment."""
         clave: Any = qsa.ustr(tabla, "_", campo)
         decimales: Any = None
         if not self.cacheDecimales_:
@@ -510,6 +535,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition redondeaDecimales */
     def redondeaDecimales(self, v, decimales):
+        """Just a comment."""
         potencia10: Any = qsa.Math.pow(10, decimales)
         res: Any = v * potencia10
         if res > 0:
@@ -537,6 +563,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition anyoBisiesto */
     def anyoBisiesto(self, anyo):
+        """Just a comment."""
         res: Any = None
         res = False
         if (anyo % 4) == 0:
@@ -550,6 +577,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition gestionIntervalo */
     def gestionIntervalo(self, cursor, fN, aCampos):
+        """Just a comment."""
         if qsa.from_project("formUTIL").bloqueoIntervalo_:
             return
         desde: Any = 0
@@ -578,6 +606,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition revisarIntervalo */
     def revisarIntervalo(self, cursor, aCampos):
+        """Just a comment."""
         desde: Any = 0
         hasta: Any = 1
         codIntervalo: Any = 2
@@ -594,12 +623,14 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition validaDUA */
     def validaDUA(self, valor):
+        """Just a comment."""
         if valor != "" and qsa.length(valor) != 18:
             return False
         return True
 
     # /** @class_definition nextCounter */
     def nextCounter(self, field, table):
+        """Just a comment."""
         fieldMetadata: Any = qsa.from_project("formMETA").getFieldMetadata(table, field)
         fieldLength: Any = qsa.length(fieldMetadata)
         where: Any = qsa.ustr("LENGTH(", field, ") = ", fieldLength)
