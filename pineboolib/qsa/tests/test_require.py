@@ -4,7 +4,7 @@ from pineboolib.qsa import qsa
 from pineboolib.application import qsadictmodules
 from pineboolib.application.parsers.parser_qsa import pytnyzer
 from importlib import util
-from pineboolib.qsa.tests import fixture_read, fixture_path
+from pineboolib.qsa.tests import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 
 import unittest
@@ -22,9 +22,9 @@ class TestRequire(unittest.TestCase):
         spec = util.spec_from_file_location("UTIL", util_path)
         if spec and spec.loader is not None:
             module_instance = util.module_from_spec(spec)
-            spec.loader.exec_module(module_instance)
+            spec.loader.exec_module(module_instance)  # type: ignore [attr-defined]
 
-        qsadictmodules.QSADictModules.set_qsa_tree("formUTIL", module_instance)
+            qsadictmodules.QSADictModules.set_qsa_tree("formUTIL", module_instance)  # type: ignore [arg-type]
 
     def test_basic_1(self) -> None:
         """Require test."""
