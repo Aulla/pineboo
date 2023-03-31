@@ -80,8 +80,9 @@ def function(*args: str) -> Any:
     # asumir que es una funcion anónima, tal que:
     #  -> function($args) { source }
     # compilar la funcion y devolver el puntero
-    arguments = args[: len(args) - 1]
-    source = args[len(args) - 1]
+    source_pos = len(args) - 1
+    arguments = args[:source_pos]
+    source = args[source_pos]
     qs_source = """
 
 function anon(%s) {
@@ -92,9 +93,8 @@ function anon(%s) {
     )
 
     module = modules.text_to_module(qs_source)
-    forminternalobj = getattr(module, "FormInternalObj", None)
 
-    return getattr(forminternalobj(), "anon", None)
+    return module.anon
 
 
 def object_(value: Optional[Dict[str, Any]] = None) -> "utils_base.StructMyDict":
