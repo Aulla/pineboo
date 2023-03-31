@@ -69,6 +69,16 @@ def clean_no_python_never(data: str) -> str:
     )
 
 
+def clean_no_python_tags(data: str) -> str:
+    """Remove no_python tags"""
+
+    data = clean_no_python_never(data)
+    if utils_base.is_library() and not parser_qsa.IGNORE_NO_PYTHON_TAGS:
+        data = clean_no_python(data)
+
+    return data
+
+
 def cnvrt(val: str) -> str:
     """Convert special XML characters into XML entities."""
     val = str(val)
@@ -840,9 +850,8 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     global SEEN_TOKENS
 
     if clean:
-        data = clean_no_python_never(data)
-        if utils_base.is_library() and not parser_qsa.IGNORE_NO_PYTHON_TAGS:
-            data = clean_no_python(data)
+        data = clean_no_python_tags(data)
+
     SEEN_TOKENS[:] = []
     parser.error = 0
     INPUT_DATA = data

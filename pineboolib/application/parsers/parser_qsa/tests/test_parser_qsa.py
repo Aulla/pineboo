@@ -389,6 +389,24 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         self.assertTrue(qs_py.find("TYPE_INT_") > -1)
         self.assertTrue(qs_py.find("TYPE_UINT_") > -1)
 
+    def test_require(self) -> None:
+        """Test replace."""
+
+        """Test conveting fixture require.qs"""
+        self.maxDiff = None
+        require_qs = fixture_read("require.qs")
+        parser_qsa.IGNORE_NO_PYTHON_TAGS = False
+        utils_base.FORCE_DESKTOP = False
+        require_qs_py = qs2py(require_qs)
+        require_py = fixture_read("require.python")
+
+        # Delete version translator tag.
+        pos_ini = require_qs_py.find("# Translated with pineboolib ")
+        pos_fin = require_qs_py[pos_ini:].find("\n")
+        require_qs_py = require_qs_py.replace(require_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
+
+        self.assertEqual(require_qs_py, require_py)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

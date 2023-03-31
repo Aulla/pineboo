@@ -13,13 +13,11 @@ from pineboolib.core.utils import utils_base
 from pineboolib.core import decorators, settings
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
-
+from pineboolib.application.utils import modules
 from pineboolib import logging
 
 from typing import Any, Optional, Dict, Union, Generator, List, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from importlib.machinery import ModuleSpec
 
 LOGGER = logging.get_logger(__name__)
 
@@ -78,8 +76,6 @@ def function(*args: str) -> Any:
     Parses it to Python and return the pointer to the function.
     """
 
-    import sys as python_sys
-
     # Leer código QS embebido en Source
     # asumir que es una funcion anónima, tal que:
     #  -> function($args) { source }
@@ -95,42 +91,9 @@ function anon(%s) {
         source,
     )
 
-    # print("Compilando QS en línea: ", qs_source)
-    from pineboolib.application.parsers.parser_qsa import flscriptparse, postparse, pytnyzer
-    from importlib import util
-
-    module_name = "anon_%s" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")
-
-    prog = flscriptparse.parse(qs_source)
-    if prog is None:
-        raise ValueError("Failed to convert to Python")
-    tree_data = flscriptparse.calctree(prog, alias_mode=0)
-    ast = postparse.post_parse(tree_data)
-    dest_filename = "%s/%s.py" % (
-        settings.CONFIG.value("ebcomportamiento/temp_dir"),
-        module_name,
-    )
-    # f1 = io.StringIO()
-    if os.path.exists(dest_filename):
-        os.remove(dest_filename)
-
-    file_ = open(dest_filename, "w", encoding="UTF-8")
-
-    pytnyzer.write_python_file(file_, ast)
-    file_.close()
-    module = None
-    module_path = "tempdata.%s" % (module_name)
-
-    spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_path, dest_filename)
-    if spec and spec.loader is not None:
-        module = util.module_from_spec(spec)
-        python_sys.modules[spec.name] = module
-        spec.loader.exec_module(module)  # type: ignore [attr-defined]
-    else:
-        raise Exception("Module named %s can't be loaded from %s" % (module_path, dest_filename))
-
+    module = modules.text_to_module(qs_source)
     forminternalobj = getattr(module, "FormInternalObj", None)
-    # os.remove(dest_filename)
+
     return getattr(forminternalobj(), "anon", None)
 
 

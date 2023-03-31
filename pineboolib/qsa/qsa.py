@@ -272,6 +272,7 @@ from pineboolib.qsa.pncontrolsfactory import ORM_MANAGER as orm  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import CLASS_MANAGER as class_  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import XmlDigest, PdfDigest  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import PdfQr  # noqa: F401
+from pineboolib.qsa.pncontrolsfactory import require  # noqa: F401
 
 QSProject = QS_PROJECT
 sys = QSA_SYS

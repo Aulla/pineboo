@@ -730,3 +730,12 @@ def qt_translate_noop(string: str, path: str, mod: str) -> str:
     """Return a translation."""
 
     return utils_base.qt_translate_noop(string, path, mod)
+
+
+def require(name: str) -> Any:
+    """Return require."""
+    print("***", name)
+    module_ = qsadictmodules.from_project("formUTIL").FormInternalObj()
+    print("****", module_)
+
+    return module_.require_(name)
