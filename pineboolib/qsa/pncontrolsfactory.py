@@ -10,7 +10,7 @@ from typing import Any
 
 from pineboolib.core.system import System  # noqa: F401
 
-from pineboolib.qsa.utils import MathClass, NumberAttr, user_id, session  # noqa: F401
+from pineboolib.qsa.utils import MathClass, NumberAttr, user_id, session, require  # noqa: F401
 from pineboolib import application
 from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
 from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401

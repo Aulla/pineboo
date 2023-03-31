@@ -1,0 +1,51 @@
+# /** @class_declaration interna */
+class interna(qsa.ObjectClass):
+    ctx: "FormInternalObj"
+
+    def __init__(self, context):
+        self.ctx = context
+
+
+# /** @class_declaration oficial */
+class oficial(interna):
+    def __init__(self, context):
+        super().__init__(context)
+
+    def pbnGenerarPedido_clicked(self):
+        return self.ctx.oficial_pbnGenerarPedido_clicked()
+
+
+# /** @class_declaration head */
+class head(oficial):
+    def __init__(self, context):
+        super().__init__(context)
+
+
+# /** @class_declaration ifaceCtx */
+class ifaceCtx(head):
+    def __init__(self, context):
+        super().__init__(context)
+
+
+iface = ifaceCtx(self)
+
+
+def oficial_pbnGenerarPedido_clicked(self):
+    test = qsa.require("TestCondicionesCompraArticuloQsaRepository")
+    test.run()
+    return
+    _i: Any = self.iface
+    cursor: Any = self.cursor()
+    if not cursor.valueBuffer("editable"):
+        qsa.MessageBox.warning(
+            qsa.sys.translate("El presupuesto ya está aprobado"), qsa.MessageBox.Ok, qsa.MessageBox.NoButton
+        )
+        self.iface.procesarEstado()
+        return
+    _i.pbnGPedido.setEnabled(False)
+    idPedido: Any = _i.generarPedidoTrans(cursor)
+    if idPedido:
+        codPedido: Any = qsa.AQUtil.sqlSelect("pedidoscli", "codigo", qsa.ustr("idpedido = ", idPedido))
+        _i.mostrarMensajePedido(codPedido)
+    _i.tdbRecords.refresh()
+    _i.procesarEstado()

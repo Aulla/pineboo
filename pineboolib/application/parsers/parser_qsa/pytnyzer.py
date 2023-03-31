@@ -261,6 +261,7 @@ QSA_KNOWN_ATTRS = {
     "ustr1",
     "util",
     "weakref",
+    "require",
 }
 
 DISALLOW_CONVERSION_FOR_NONSTRICT = {"connect", "disconnect", "form"}

@@ -13,6 +13,7 @@ from pineboolib import logging
 from pineboolib.application.parsers.parser_qsa import pytnyzer, flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
+
 STRICT_MODE = pytnyzer.STRICT_MODE
 importlib.reload(pytnyzer)
 pytnyzer.STRICT_MODE = STRICT_MODE
@@ -862,6 +863,8 @@ def pythonify_string(
     parser_template: str = "expression_template",
 ) -> str:
     """Convert QS string to Python. For unit-testing, only evaluates expressions."""
+
+    qs_code = flscriptparse.clean_no_python_tags(qs_code)
 
     ast = common_parse(qs_code)
     ast.set("parser-template", parser_template)  # type: ignore [attr-defined] # noqa: F821
