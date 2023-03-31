@@ -1,7 +1,8 @@
 """Test require module."""
 
 from pineboolib.qsa import qsa
-from pineboolib.application import qsadictmodules, load_script
+from pineboolib.application import qsadictmodules
+from pineboolib.application.parsers.parser_qsa import pytnyzer
 from importlib import util
 from pineboolib.qsa.tests import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
@@ -16,7 +17,7 @@ class TestRequire(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
-
+        pytnyzer.STRICT_MODE = True
         util_path = fixture_path("UTIL.py")
         spec = util.spec_from_file_location("UTIL", util_path)
         if spec and spec.loader is not None:
@@ -25,11 +26,17 @@ class TestRequire(unittest.TestCase):
 
         qsadictmodules.QSADictModules.set_qsa_tree("formUTIL", module_instance)
 
-    def test_basic(self) -> None:
+    def test_basic_1(self) -> None:
         """Require test."""
 
         req = qsa.require("test")
         self.assertTrue(hasattr(req, "get"))
+
+        instance_ = req(None)
+        instance_.push("1")
+        instance_.push("2")
+        self.assertTrue(instance_.at(0), "1")
+        self.assertTrue(instance_.at(1), "2")
 
     @classmethod
     def tearDownClass(cls) -> None:
