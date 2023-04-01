@@ -2630,8 +2630,6 @@ def pythonize2(root_ast: ET.Element, known_refs: Dict[str, Tuple[str, str]] = {}
     file_.close()
     if unformatted_code and black:
         try:
-            print("**", unformatted_code)
-
             new_code = black.format_file_contents(unformatted_code, fast=True, mode=BLACK_FILEMODE)
         except black.NothingChanged:
             new_code = unformatted_code
