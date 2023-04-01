@@ -265,47 +265,48 @@ QSA_KNOWN_ATTRS = {
 }
 
 DISALLOW_CONVERSION_FOR_NONSTRICT = {"connect", "disconnect", "form"}
+PYTHON_KEYWORDS = [
+    "and",
+    "del",
+    "for",
+    "is",
+    "raise",
+    "assert",
+    "elif",
+    "from",
+    "lambda",
+    "return",
+    "break",
+    "else",
+    "global",
+    "not",
+    "try",
+    "class",
+    "except",
+    "if",
+    "or",
+    "while",
+    "continue",
+    "from",
+    "exec",
+    "import",
+    "pass",
+    "yield",
+    "def",
+    "finally",
+    "in",
+    "print",
+    "str",
+    "qsa",
+    "self",
+]
 classesDefined: List[str] = []
 
 
 def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, str] = None) -> str:
     """Translate identifiers to avoid "import *" issues."""
     orig_name = name
-    python_keywords = [
-        "and",
-        "del",
-        "for",
-        "is",
-        "raise",
-        "assert",
-        "elif",
-        "from",
-        "lambda",
-        "return",
-        "break",
-        "else",
-        "global",
-        "not",
-        "try",
-        "class",
-        "except",
-        "if",
-        "or",
-        "while",
-        "continue",
-        "from",
-        "exec",
-        "import",
-        "pass",
-        "yield",
-        "def",
-        "finally",
-        "in",
-        "print",
-        "str",
-        "qsa",
-        "self",
-    ]
+
     if "(" in name:
         raise ValueError("Parenthesis not allowed in ID for translation")
     if "." in name:
@@ -347,50 +348,29 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         name = "arg"
     # if name == "Process":
     #    name = "qsatype.Process"
-    if name in python_keywords:
-        name = name + "_"
+
+    name = "%s_" % name if name in PYTHON_KEYWORDS else name
 
     if qsa_exclude is not None:
-        qsa_lower = {
-            x.lower(): x
-            for x in qsa_exclude | QSA_KNOWN_ATTRS
-            if x.lower() != x and x.lower() not in qsa_exclude
-        }
-        if orig_name.lower() in qsa_lower:
-            new_name = qsa_lower[orig_name.lower()]
-            count_diff_chars = len([1 for a, b in zip(new_name, orig_name) if a != b])
-            if count_diff_chars <= 2:
-                orig_name = name = new_name
-                if name in python_keywords:
-                    name = name + "_"
 
         if orig_name in qsa_exclude:
             return name
 
-        if name in QSA_KNOWN_ATTRS:
+        if orig_name in QSA_KNOWN_ATTRS:
             if name in DISALLOW_CONVERSION_FOR_NONSTRICT:
-                if name in ["connect", "disconnect"]:  # self.module_connect
-                    return "self.module_%s" % name
-                else:
-                    return name
-            return "qsa.%s" % name
+                return "self.module_%s" % name if name in ["connect", "disconnect"] else name
+            else:
+                return "qsa.%s" % name
 
-        if transform is not None and name in transform:
+        if transform and name in transform:
             return transform[name]
 
         if name.startswith("form") and len(name) > 4:
             return 'qsa.from_project("%s")' % name
 
-        if STRICT_MODE:
-            return "__undef__" + name
-        else:
-
-            return name
+        return "__undef__" + name if STRICT_MODE else name
     else:
-        if transform is not None and name in transform:
-            return transform[name]
-
-        return name
+        return transform[name] if transform and name in transform else name
 
 
 CONT_SWITCH = 0
@@ -1005,9 +985,8 @@ class For(ASTPython):
                 init_expr.append(" ".join(expr))
         if init_expr:
             yield "line", " ".join(init_expr)
-            yield "line", "while_pass = True"
-        else:
-            yield "line", "while_pass = True"
+
+        yield "line", "while_pass = True"
 
         incr_expr = []
         incr_lines = []
@@ -1101,93 +1080,6 @@ class ForIn(ASTPython):
             for obj in source.generate(include_pass=False):
                 yield obj
             yield "end", "block-for-in"
-
-
-class OldSwitch(ASTPython):
-    """Process OldSwitch XML tags."""
-
-    def generate(self, **kwargs: Any) -> ASTGenerator:
-        """Generate python code."""
-
-        global CONT_SWITCH
-        CONT_SWITCH += 1
-        key = "%02x" % CONT_SWITCH
-        name = "s%s_when" % key
-        name_pr = "s%s_do_work" % key
-        name_pr2 = "s%s_work_done" % key
-        main_expr = []
-        for number, arg in enumerate(self.elem.findall("Condition/*")):
-            arg.set("parent_", self.elem)  # type: ignore
-            expr = []
-            for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
-                if dtype == "expr":
-                    expr.append(data)
-                else:
-                    yield dtype, data
-            if len(expr) == 0:
-                main_expr.append("False")
-                yield "debug", "Expression %d not understood" % number
-                yield "debug", ET.tostring(arg)  # type: ignore
-            else:
-                main_expr.append(" ".join(expr))
-        yield "line", "%s = %s" % (name, " ".join(main_expr))
-        yield "line", "%s, %s = %s, %s" % (name_pr, name_pr2, "False", "False")
-        for scase in self.elem.findall("Case"):
-            scase.set("parent_", self.elem)  # type: ignore
-            value_expr = []
-            for number, arg in enumerate(scase.findall("Value")):
-                arg.set("parent_", self.elem)  # type: ignore
-                expr = []
-                for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
-                    if dtype == "expr":
-                        expr.append(data)
-                    else:
-                        yield dtype, data
-                if len(expr) == 0:
-                    value_expr.append("False")
-                    yield "debug", "Expression %d not understood" % number
-                    yield "debug", ET.tostring(arg)  # type: ignore
-                else:
-                    value_expr.append(" ".join(expr))
-
-            yield "line", "if %s == %s:" % (name, " ".join(value_expr))
-            yield "begin", "block-if"
-            yield "line", "%s, %s = %s, %s" % (name_pr, name_pr2, "True", "True")
-            yield "end", "block-if"
-            yield "line", "if %s:" % (name_pr)
-            yield "begin", "block-if"
-            count = 0
-            for source in scase.findall("Source"):
-                source.set("parent_", self.elem)  # type: ignore
-                for obj in parse_ast(source, parent=self).generate(break_mode=True):
-                    if obj[0] == "break":
-                        yield "line", "%s = %s  # BREAK" % (name_pr, "False")
-                        count += 1
-                    else:
-                        yield obj
-                        count += 1
-            if count < 1:
-                yield "line", "pass"
-            yield "end", "block-if"
-
-        for scasedefault in self.elem.findall("CaseDefault"):
-            scasedefault.set("parent_", self.elem)  # type: ignore
-            yield "line", "if not %s:" % (name_pr2)
-            yield "begin", "block-if"
-            yield "line", "%s, %s = %s, %s" % (name_pr, name_pr2, "True", "True")
-            yield "end", "block-if"
-            yield "line", "if %s:" % (name_pr)
-            yield "begin", "block-if"
-            for source in scasedefault.findall("Source"):
-                source.set("parent_", self.elem)  # type: ignore
-                for obj in parse_ast(source, parent=self).generate(break_mode=True):
-                    if obj[0] == "break":
-                        yield "line", "%s = %s  # BREAK" % (name_pr, "False")
-                    else:
-                        yield obj
-            yield "end", "block-if"
-        # yield "line", "assert( not %s )" % name_pr
-        # yield "line", "assert( %s )" % name_pr2
 
 
 class Switch(ASTPython):
@@ -1769,23 +1661,19 @@ class Member(ASTPython):
                     elif member == "isEmpty()":
                         arguments = ["%s == ''" % (".".join(part1))] + part2
                     elif member == "left":
-                        value = arg1[5:]
-                        value = value[: len(value) - 1]
+                        value = arg1[5:-1]
                         arguments = ["%s[0:%s]" % (".".join(part1), value)] + part2
                     elif member == "right":
-                        value = arg1[6:]
-                        value = value[: len(value) - 1]
+                        value = arg1[6:-1]
                         arguments = [
                             "%s[(len(%s) - (%s)):]" % (".".join(part1), ".".join(part1), value)
                         ] + part2
                     elif member == "substring":
-                        value = arg1[10:]
-                        value = value[: len(value) - 1]
+                        value = arg1[10:-1]
                         value = value.replace(",", ":")
                         arguments = ["%s[ %s]" % (".".join(part1), value)] + part2
                     elif member == "mid":
-                        value = arg1[4:]
-                        value = value[: len(value) - 1]
+                        value = arg1[4:-1]
                         if value.find(",") > -1:
                             if (value.find("(") < value.find(",")) and value.find(")") < value.find(
                                 ","
@@ -1812,27 +1700,22 @@ class Member(ASTPython):
                         arguments = ["%s[%s]" % (".".join(part1), value)] + part2
 
                     elif member == "length":
-                        value = arg1[7:]
-                        value = value[: len(value) - 1]
+                        value = arg1[7:-1]
                         arguments = ["qsa.length(%s)" % (".".join(part1))] + part2
                     elif member == "charAt":
-                        value = arg1[7:]
-                        value = value[: len(value) - 1]
+                        value = arg1[7:-1]
                         arguments = ["%s[%s]" % (".".join(part1), value)] + part2
                     elif member == "search":
                         if not part1:
                             # Algunas veces ve una variable "search" y cree que es una llamada
                             continue
-                        value = arg1[7:]
-                        value = value[: len(value) - 1]
+                        value = arg1[7:-1]
                         arguments = ["%s.find('%s')" % (".".join(part1), value)] + part2
                     elif member == "charCodeAt":
-                        value = arg1[11:]
-                        value = value[: len(value) - 1]
+                        value = arg1[11:-1]
                         arguments = ["ord(%s[%s])" % (".".join(part1), value)] + part2
                     elif member == "arg":
-                        value = arg1[4:]
-                        value = value[: len(value) - 1]
+                        value = arg1[4:-1]
                         new_part_1 = ".".join(part1)
                         str_value = "str(" + value + ")"
                         if new_part_1.find(str_value) > -1:
@@ -1849,28 +1732,22 @@ class Member(ASTPython):
                                 "%s %% (str(%s" % (new_part_1, value + ")" + new_part_2 + ")")
                             ]
                     elif member == "join":
-                        value = arg1[5:]
-                        value = value[: len(value) - 1] or '""'
+                        value = arg1[5:-1] or '""'
                         arguments = ["%s.join(%s)" % (value, ".".join(part1))] + part2
                     elif member == "match":
-                        value = arg1[6:]
-                        value = value[: len(value) - 1]
+                        value = arg1[6:-1]
                         arguments = ["qsa.re.match(%s, %s)" % (value, ".".join(part1))] + part2
                     elif member == "sort":
-                        value = arg1[5:]
-                        value = value[: len(value) - 1] or ""
+                        value = arg1[5:-1] or ""
                         arguments = ["qsa.Sort(%s).sort_(%s)" % (value, ".".join(part1))] + part2
                     elif member == "splice":
-                        value = arg1[7:]
-                        value = value[: len(value) - 1] or ""
+                        value = arg1[7:-1] or ""
                         arguments = ["qsa.splice(%s, %s)" % (".".join(part1), value)] + part2
                     elif member == "push":
-                        value = arg1[5:]
-                        value = value[: len(value) - 1]
+                        value = arg1[5:-1]
                         arguments = ["%s.append(%s)" % (".".join(part1), value)] + part2
                     elif member == "attributeValue":
-                        value = arg1[15:]
-                        value = value[: len(value) - 1]
+                        value = arg1[15:-1]
                         arguments = [
                             "%s.attributes().namedItem(%s).nodeValue()" % (".".join(part1), value)
                         ] + part2
@@ -1890,21 +1767,6 @@ class Member(ASTPython):
                                 % (part_list[0], ",".join(part_list[1:]), ".".join(part1))
                             ] + part2
                         else:
-                            # if not part2:
-                            # if ".".join(part1) and "replace(" in " ".join(arguments[0:1]):
-                            # arguments = ['numeroCSV', 'replace(".", ",")']
-                            #    rep_str = arguments[0]
-                            #    rep_from_to = arguments[1].replace("replace", "").strip()
-                            #    if rep_from_to[0] == "(" and rep_from_to[-1] == ")":
-                            #        rep_from_to = rep_from_to[1:-1]
-
-                            #    rep_extra = arguments[2:]
-                            # print(arguments)
-                            #    arguments = [
-                            #        "qsa.replace(%s, %s)" % (rep_str, rep_from_to)
-                            #    ] + rep_extra
-                            # print(arguments)
-                            # print("*")
                             rep_str = arguments[0]
                             rep_from_to = arguments[1].replace("replace", "").strip()
                             if rep_from_to[0] == "(" and rep_from_to[-1] == ")":
@@ -2031,12 +1893,7 @@ class Expression(ASTPython):
                     new_expr += [["expr", valor] for valor in cadena.split(" ")]
                     expr = new_expr
 
-                    found_in = False
-
-                if data == "in":
-                    found_in = True
-                else:
-                    found_in = False
+                found_in = data == "in"
 
         for dtype, data in expr:
             yield dtype, data
@@ -2200,18 +2057,18 @@ class New(ASTPython):
                     yield dtype, data
                     continue
                 if child.tag == "Identifier":
-                    data = data + "()"
-                ident = data[: data.find("(")]
-                if ident.find(".") == -1:
-                    parent_class = cast(ET.Element, self.elem.get("parent_"))
-                    # classIdent_ = False
-                    while parent_class is not None:
-                        if parent_class.tag == "Source":
-                            for item in parent_class.findall("Class"):
-                                if item.get("name") == ident:
-                                    # classIdent_ = True
-                                    break
-                        parent_class = cast(ET.Element, parent_class.get("parent_"))
+                    data += "()"
+                # ident = data[: data.find("(")]
+                # if ident.find(".") == -1:
+                #    parent_class = cast(ET.Element, self.elem.get("parent_"))
+                #    # classIdent_ = False
+                #    while parent_class is not None:
+                #        if parent_class.tag == "Source":
+                #            for item in parent_class.findall("Class"):
+                #                if item.get("name") == ident:
+                #                    # classIdent_ = True
+                #                    break
+                #        parent_class = cast(ET.Element, parent_class.get("parent_"))
 
                 yield dtype, data
 
@@ -2773,6 +2630,8 @@ def pythonize2(root_ast: ET.Element, known_refs: Dict[str, Tuple[str, str]] = {}
     file_.close()
     if unformatted_code and black:
         try:
+            print("**", unformatted_code)
+
             new_code = black.format_file_contents(unformatted_code, fast=True, mode=BLACK_FILEMODE)
         except black.NothingChanged:
             new_code = unformatted_code
