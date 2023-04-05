@@ -1,3 +1,5 @@
+"""Import module."""
+
 # -*- coding: utf-8 -*-
 # Translated with pineboolib 0.99.70
 from typing import Any, Dict
