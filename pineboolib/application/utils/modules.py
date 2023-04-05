@@ -22,12 +22,16 @@ def text_to_module(source: str) -> Any:
     import sys as python_sys
 
     module_name = "anon_%s" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")
-
+    last_state_strict_mode = pytnyzer.STRICT_MODE
+    pytnyzer.STRICT_MODE = False
     prog = flscriptparse.parse(source)
     if prog is None:
         raise ValueError("Failed to convert to Python")
     tree_data = flscriptparse.calctree(prog, alias_mode=0)
     ast = postparse.post_parse(tree_data)
+
+    pytnyzer.STRICT_MODE = last_state_strict_mode
+
     dest_filename = "%s/%s.py" % (
         settings.CONFIG.value("ebcomportamiento/temp_dir"),
         module_name,
