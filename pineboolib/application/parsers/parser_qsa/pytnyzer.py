@@ -519,6 +519,10 @@ class Source(ASTPython):
         prev_ast_type = None
         if declare_identifiers:
             self.locals |= declare_identifiers
+
+        if not len(self.elem):
+            include_pass = False
+
         for child in self.elem:
             # yield "debug", "<%s %s>" % (child.tag, repr(child.attrib))
             child.set("parent_", self.elem)  # type: ignore
@@ -551,6 +555,7 @@ class Source(ASTPython):
         for line in after_lines:
             elems += 1
             yield "line", line
+
         if not elems and include_pass:
             yield "line", "pass"
 
@@ -590,6 +595,9 @@ class Function(ASTPython):
             # Anonima:
             name = "_anonymous_fn_"
             anonymous = True
+
+        static_flag = self.elem.get("arg00")
+        is_static_function = static_flag is not None and str(static_flag).startswith("STATIC")
         withoutself = self.elem.get("withoutself")
         parent = cast(ET.Element, self.elem.get("parent_"))  # FIXME
         grandparent = None
@@ -671,7 +679,8 @@ class Function(ASTPython):
                     #    def_value = "0"
                     # expr += ["=", def_value]
                 arguments.append("".join(expr))
-
+        if is_static_function:
+            yield "line", "@classmethod"
         yield "line", "def %s(%s)%s:" % (
             name,
             ", ".join(arguments),
@@ -2459,6 +2468,7 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
         if cls_.get("name") == "ifaceCtx":
             add_form_internal_object = True
 
+    only_iface = False
     if add_form_internal_object:
         mainclass = ET.SubElement(
             sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"
@@ -2470,6 +2480,7 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
         csource = ET.SubElement(constructor, "Source")
     else:
         csource = mainsource = ET.SubElement(sourceclasses, "Source")
+        only_iface = True
 
     for child in ast:
         if child.tag != "Function":
@@ -2477,9 +2488,11 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
                 def_iface = copy.deepcopy(child)
                 def_iface.set("definition", "1")
                 child.set("constructor", "1")
-                csource.append(child)
+                if not only_iface:
+                    csource.append(child)
                 mainsource.insert(0, def_iface)
         else:
+
             mainsource.append(child)
 
     for dtype, data in parse_ast(sourceclasses).generate():
@@ -2518,7 +2531,6 @@ def write_python_file(
     last_dtype = None
 
     parser_template = template_list[ast.get("parser-template", default="file_template")]
-
     for dtype, data in parser_template(ast, import_refs):
         # if isinstance(data, bytes):
         #    data = data.decode("UTF-8", "replace")
