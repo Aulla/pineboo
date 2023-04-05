@@ -22,7 +22,7 @@ TreeData = Dict[str, Any]
 
 LOGGER = logging.get_logger(__name__)
 
-USEFUL_TOKENS = "ID,ICONST,FCONST,SCONST,CCONST,RXCONST".split(",")
+USEFUL_TOKENS = "ID,ICONST,FCONST,SCONST,CCONST,RXCONST,STATIC".split(",")
 
 KNOWN_PARSERS: Dict[str, Type["TagObjectBase"]] = {}
 UNKNOWN_PARSERS = {}

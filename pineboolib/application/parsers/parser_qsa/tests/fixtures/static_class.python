@@ -1,0 +1,13 @@
+# /** @class_declaration StaticClass */
+class StaticClass(qsa.ObjectClass):
+    @classmethod
+    def firstFunction(self):
+        qsa.debug("RUNNING")
+        self.saludo()
+
+    @classmethod
+    def saludo(self):
+        qsa.debug("HOLA!")
+
+    def exit(self):
+        qsa.debug("BYE")

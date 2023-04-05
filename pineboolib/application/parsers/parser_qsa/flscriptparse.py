@@ -9,8 +9,6 @@ import hashlib
 import tempfile
 import re
 from typing import Any, Dict, List, Tuple, Optional, TextIO
-
-from pineboolib.core.utils import utils_base
 from pineboolib.application.parsers import parser_qsa
 
 

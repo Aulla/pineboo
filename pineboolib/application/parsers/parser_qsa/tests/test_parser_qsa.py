@@ -390,8 +390,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         self.assertTrue(qs_py.find("TYPE_UINT_") > -1)
 
     def test_require(self) -> None:
-        """Test replace."""
-
         """Test conveting fixture require.qs"""
         self.maxDiff = None
         require_qs = fixture_read("require.qs")
@@ -410,6 +408,35 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         parser_qsa.IGNORE_NO_PYTHON_TAGS = old_tags
         utils_base.FORCE_DESKTOP = old_desktop
         self.assertEqual(require_qs_py, require_py)
+
+    def test_staticclass(self) -> None:
+        """Test static class."""
+
+        self.maxDiff = None
+        file_qs = fixture_read("static_class.qs")
+        require_qs_py = qs2py(file_qs)
+        require_py = fixture_read("static_class.python")
+
+        # Delete version translator tag.
+        pos_ini = require_qs_py.find("# Translated with pineboolib ")
+        pos_fin = require_qs_py[pos_ini:].find("\n")
+        require_qs_py = require_qs_py.replace(require_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
+        self.assertEqual(require_qs_py, require_py)
+
+        """     def test_var_first(self) -> None:
+        "Test when a var is first."
+
+        self.maxDiff = None
+        file_qs = fixture_read("varfirst.qs")
+        require_qs_py = qs2py(file_qs)
+
+        require_py = fixture_read("varfirst.python")
+
+        # Delete version translator tag.
+        pos_ini = require_qs_py.find("# Translated with pineboolib ")
+        pos_fin = require_qs_py[pos_ini:].find("\n")
+        require_qs_py = require_qs_py.replace(require_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
+        self.assertEqual(require_qs_py, require_py) """
 
     @classmethod
     def tearDownClass(cls) -> None:
