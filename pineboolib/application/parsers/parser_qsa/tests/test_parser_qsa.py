@@ -113,6 +113,7 @@ class TestParser(unittest.TestCase):
 
     def test_lib_str(self) -> None:
         """Test conveting fixture lib_str."""
+        pytnyzer.STRICT_MODE = False
         self.maxDiff = None  # pylint: disable=invalid-name
         flfacturac_qs = fixture_read("lib_str.qs")
         flfacturac_py = fixture_read("lib_str.python")
@@ -124,7 +125,7 @@ class TestParser(unittest.TestCase):
         flfacturac_qs_py = flfacturac_qs_py.replace(
             flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
         )
-
+        pytnyzer.STRICT_MODE = True
         # Write onto git so we have an example.
         with open(fixture_path("lib_str.qs.python"), "w") as file_:
             file_.write(flfacturac_qs_py)
