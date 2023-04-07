@@ -36,19 +36,10 @@ def text_to_module(source: str) -> Any:
     ast = postparse.post_parse(tree_data)
 
     pytnyzer.STRICT_MODE = last_state_strict_mode
-
-    # dest_filename = "%s/%s.py" % (
-    #    settings.CONFIG.value("ebcomportamiento/temp_dir"),
-    #    module_name,
-    # )
-
-    conn = PROJECT.conn_manager.dbAux()
-    db_name = conn.DBName()
-
+    db_name = PROJECT.conn_manager.mainConn().DBName()
     fileobj = file.File("anon", "%s.py" % module_name, "%s" % sha_, db_name=db_name)
     fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
     file_name = path._dir("cache", fileobj.filekey)
-    print("****", fileobj.filekey)
     if not os.path.isfile(file_name) or not os.path.getsize(
         file_name
     ):  # Borra si no existe el fichero o está vacio.
