@@ -781,7 +781,7 @@ class FunctionCall(ASTPython):
                 arguments.append(arg1)
 
         comment = ""
-        if STRICT_MODE and name.startswith("__undef__"):
+        if not STRICT_MODE and name.startswith("__undef__"):
             name = name[9:]
             name = "self.%s" % name
             comment = ""
@@ -1552,6 +1552,9 @@ class Member(ASTPython):
                 txtarg = " ".join(expr)
             arguments.append(txtarg)
             arg_expr.append(expr)
+
+        if not STRICT_MODE:
+            arguments[0] = arguments[0].replace("__undef__", "")
 
         # Deteccion de llamada a modulo externo
         if (
