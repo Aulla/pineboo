@@ -5,6 +5,7 @@ Tests for application.types module.
 import unittest
 import os
 from pineboolib.loader.main import init_cli
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core import settings
 from pineboolib.application import types
 
@@ -46,6 +47,11 @@ class TestQString(unittest.TestCase):
 
 class TestFunction(unittest.TestCase):
     """Test function. Parses QSA into Python."""
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
     def test_basic(self) -> None:
         """Basic testing."""
@@ -91,6 +97,11 @@ class TestFunction(unittest.TestCase):
 
         result = fun_([data])
         self.assertEqual(result, 30)
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
 
 
 class TestObject(unittest.TestCase):
