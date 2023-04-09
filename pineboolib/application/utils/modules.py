@@ -26,36 +26,35 @@ def text_to_module(source: str) -> Any:
     db_name = PROJECT.conn_manager.mainConn().DBName()
     source_bytes = source.encode()
     sha_ = hashlib.new("sha1", source_bytes).hexdigest()
+    module_name = "anon_%s" % sha_
+    fileobj = file.File("anon", "%s.py" % module_name, sha_, db_name=db_name)
+    file_name = fileobj.path()
 
-    module_name = "anon_%s" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")
-    pytnyzer.STRICT_MODE = False
-
-    prog = flscriptparse.parse(source)
-    if prog is None:
-        raise ValueError("Failed to convert to Python")
-    tree_data = flscriptparse.calctree(prog, alias_mode=0)
-    ast = postparse.post_parse(tree_data)
-
-    fileobj = file.File("anon", "%s.py" % module_name, "%s" % sha_, db_name=db_name)
-    fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
-    file_name = path._dir("cache", fileobj.filekey)
     if not os.path.isfile(file_name) or not os.path.getsize(
         file_name
-    ):  # Borra si no existe el fichero o está vacio.
-        if os.path.exists(fileobjdir):
-            utils_base.empty_dir(fileobjdir)
-        else:
-            os.makedirs(fileobjdir)
+    ):  # Si no existe el fichero o está vacio.
+        file_dir = os.path.dirname(file_name)
+        if not os.path.exists(file_dir):  # Si no existe la carpeta la crea
+            os.makedirs(file_dir)
+        elif os.path.exists(file_name):  # Si existe la carpeta borra el archivo erroneo
+            os.remove(file_name)
 
-    if os.path.exists(file_name):
-        os.remove(file_name)
+        pytnyzer.STRICT_MODE = False
 
-    file_ = open(file_name, "w", encoding="UTF-8")
+        prog = flscriptparse.parse(source)
+        if prog is None:
+            raise ValueError("Failed to convert to Python")
+        tree_data = flscriptparse.calctree(prog, alias_mode=0)
+        ast = postparse.post_parse(tree_data)
 
-    pytnyzer.write_python_file(file_, ast)
-    file_.close()
+        file_ = open(file_name, "w", encoding="UTF-8")
 
-    LOGGER.debug("Fichero generado %s" % file_name)
+        pytnyzer.write_python_file(file_, ast)
+        file_.close()
+
+        LOGGER.info("Nuevo módulo anónimo generado -> %s " % file_name)
+    else:
+        LOGGER.info("Usando módulo anónimo ya existente -> %s" % file_name)
 
     module_path = "tempdata.%s" % (module_name)
 
