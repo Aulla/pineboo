@@ -26,10 +26,6 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
         self._no_inno_db = True
         self.default_port = 3306
         self.active_create_index = True
-        self.rollback_savepoint_command = "ROLLBACK TO SAVEPOINT"
-        self.commit_transaction_command = "COMMIT"
-        self.rollback_transaction_command = "ROLLBACK"
-        self.transaction_command = "START TRANSACTION"
         self._true = True
         self._false = False
         self._like_true = "1"
@@ -179,7 +175,6 @@ class FLMYSQL_MYISAM(isqldriver.ISqlDriver):  # pylint: disable=invalid-name
                         % (primary_key, tmd.name(), field.name(), sql)
                     )
             else:
-
                 sql += " UNIQUE" if field.isUnique() else ""
                 sql += " NULL" if field.allowNull() else " NOT NULL"
 
