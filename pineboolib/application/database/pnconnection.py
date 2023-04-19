@@ -69,11 +69,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._driver_name = conn_manager._drivers_sql_manager.aliasToName(driver_alias)
 
         if application.USE_INTERACTIVE_GUI:
-            self._interactive_gui = (
-                "Pineboo"
-                if not utils_base.is_library() or not application.USE_AS_LIBRARY
-                else "Pinebooapi"
-            )
+            self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         else:
             self._interactive_gui = ""
 
@@ -321,6 +317,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             and cur.isModifiedBuffer()
             and cur.private_cursor._ask_for_cancel_changes
         ):
+
             msg_box = getattr(application.PROJECT.DGI, "msgBoxQuestion", None)
             if msg_box is not None:
                 res = msg_box(
@@ -417,6 +414,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             self._transaction_level -= 1
         else:
+
             return True
 
         if application.LOG_SQL:
@@ -466,6 +464,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def transaction(self) -> bool:
         """Create a transaction."""
         try:
+
             session_ = self.session()
             if not session_.in_transaction():
                 session_.begin()

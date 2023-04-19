@@ -34,4 +34,3 @@ USE_ALTER_TABLE_LEGACY: bool = True
 PERSISTENT: Dict[str, Any] = {}
 USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
 TESTING_MODE: bool = False  # True when testing_mode else False
-USE_AS_LIBRARY: bool = False
