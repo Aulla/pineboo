@@ -1487,7 +1487,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if tableMD is None:
             rel_m1 = field.relationM1()
             tableMD = (
-                self.db().connManager().manager().metadata(rel_m1.foreignTable())
+                self.db().connManager().manager().metadata(rel_m1.foreignTable(), True)
                 if rel_m1 is not None
                 else None
             )
