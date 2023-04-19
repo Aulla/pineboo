@@ -35,9 +35,6 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         self.error_list = []
         self.alias_ = "SQL Server (PYMSSQL)"
         self.default_port = 1433
-        self.savepoint_command = "SAVE TRANSACTION"
-        self.rollback_savepoint_command = "ROLLBACK TRANSACTION"
-        self.commit_transaction_command = "COMMIT"
         self._like_true = "1"
         self._like_false = "0"
         self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
@@ -148,7 +145,6 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
         unlocks = 0
         for number, field in enumerate(field_list):
-
             sql += field.name()
             type_ = field.type()
             if type_ == "serial":
@@ -199,7 +195,6 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
                         % (primary_key, tmd.name(), field.name(), sql)
                     )
             else:
-
                 sql += " UNIQUE" if field.isUnique() else ""
                 sql += " NULL" if field.allowNull() else " NOT NULL"
 
@@ -242,7 +237,6 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         table_list: List[str] = []
         result_list: List[Any] = []
         if self.is_open():
-
             where: List[str] = []
             if type_name in ("Tables", ""):
                 where.append("xtype ='U'")
