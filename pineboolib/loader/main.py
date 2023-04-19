@@ -40,6 +40,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     import pyfiglet  # type: ignore
 
     qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
+    application.PROJECT.USE_AS_LIBRARY = True
     init_logging(True)
     init_cli(catch_ctrl_c=False)
 
@@ -259,7 +260,7 @@ def init_testing(file_name: str = "") -> None:
 
     else:
         qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
-
+        application.PROJECT.USE_AS_LIBRARY = True
         init_logging(True)  # NOTE: Use pytest --log-level=0 for debug
         init_cli(catch_ctrl_c=False)
 
@@ -319,7 +320,6 @@ def finish_testing(delete_tmpdir: bool = True) -> None:
     if delete_tmpdir:
         LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
         try:
-
             shutil.rmtree(application.PROJECT.tmpdir)
         except Exception as error:
             LOGGER.warning(
