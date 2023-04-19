@@ -325,15 +325,12 @@ class BaseModel(object):
         for field in self.table_metadata().fieldList():
             relation_list = field.relationList()
             for relation in relation_list:
-
                 foreign_table_mtd = application.PROJECT.conn_manager.manager().metadata(
                     relation.foreignTable()
                 )
                 if foreign_table_mtd is not None:
-
                     foreign_field_mtd = foreign_table_mtd.field(relation.foreignField())
                     if foreign_field_mtd is not None:
-
                         relation_m1 = foreign_field_mtd.relationM1()
                         if relation_m1 is not None and relation_m1.deleteCascade():
                             foreign_table_class = qsadictmodules.QSADictModules.orm_(
@@ -366,7 +363,6 @@ class BaseModel(object):
         if self._session is None:
             self._error_manager("_flush", "_session is empty")
         else:
-
             self._current_mode = self.mode_access
             if not only or "before_flush" in only:
                 self._before_flush()
@@ -393,7 +389,6 @@ class BaseModel(object):
                             ignore_foreignkey=True,
                         )
                 try:
-
                     flush_objects = [self]
                     for relation in relations:
                         list_objects = getattr(self, relation, [])
@@ -498,7 +493,9 @@ class BaseModel(object):
     def table_metadata(cls) -> "pntablemetadata.PNTableMetaData":
         """Return table metadata."""
 
-        ret_ = application.PROJECT.conn_manager.manager().metadata(cls.__tablename__)
+        ret_ = application.PROJECT.conn_manager.manager().metadata(
+            cls.__tablename__, not application.PROJECT._db_admin_mode
+        )
 
         if ret_ is None:
             cls._error_manager("table_metadata", "%s tablemetadata is empty" % cls.__tablename__)
@@ -630,7 +627,6 @@ class BaseModel(object):
                     "save", "you are trying to save an instance in the process of deletion!"
                 )
             else:
-
                 if self.mode_access == 0:  # insert
                     self._session.add(self)
 
@@ -648,7 +644,6 @@ class BaseModel(object):
         table_meta = self.table_metadata()
 
         if not table_meta.isQuery():
-
             for field in table_meta.fieldList():
                 field_name = field.name()
                 if mode < 2:  # 0 insert,1 edit
@@ -747,7 +742,6 @@ class BaseModel(object):
                             and (not field.allowNull() or value)
                             and not ignore_foreignkey
                         ):
-
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' type(%s) is invalid"
@@ -953,7 +947,6 @@ class BaseModel(object):
         """Change slot."""
 
         if hasattr(target, "_deny_buffer_changed"):
-
             # Si no hay funciones conectadas , me voy.
             if not hasattr(target, "bufferChanged") or not target.bufferChanged._remote_funcs:
                 return

@@ -339,7 +339,6 @@ class PNSqlQuery(object):
 
                 prev = ""
                 for child in select.split(sep):
-
                     field_ = prev + child
                     if field_.count("(") == field_.count(")"):
                         list_fields.append(field_)
@@ -357,7 +356,6 @@ class PNSqlQuery(object):
         if not list_fields and isinstance(select, str) and not "*" == select:
             self.private_query._field_list.append(select)
         else:
-
             # fieldListAux = s.split(sep)
             # for f in s:
             #    f = str(f).strip()
@@ -731,7 +729,9 @@ class PNSqlQuery(object):
         table_list = table_list.replace(" ", "")
         mng = self.db().connManager().manager()
         for tabla in table_list.split(","):
-            if not mng.existsTable(tabla) and not mng.metadata(tabla):
+            if not mng.existsTable(tabla) and not mng.metadata(
+                tabla, not application.PROJECT._db_admin_mode
+            ):
                 self._invalid_tables_list = True
                 LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)
             self.private_query._tables_list.append(tabla)
@@ -796,7 +796,6 @@ class PNSqlQuery(object):
         """
         value_inspector = True
         if self.sql_inspector is not None:
-
             if self.sql_inspector._invalid_tables:
                 real_tables = self.db().tables()
                 for table_name in self.sql_inspector._invalid_tables:

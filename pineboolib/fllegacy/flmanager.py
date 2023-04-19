@@ -136,7 +136,6 @@ class FLManager(QtCore.QObject, IManager):
         #    quick = not bool(dbadmin)
 
         if isinstance(metadata_name_or_xml, str):
-
             ret: Optional["pntablemetadata.PNTableMetaData"] = None
             acl: Optional["pnaccesscontrollists.PNAccessControlLists"] = None
             key = metadata_name_or_xml.strip()
@@ -147,7 +146,6 @@ class FLManager(QtCore.QObject, IManager):
             if table_name in self.cache_metadata_.keys():
                 ret = copy.copy(self.cache_metadata_[table_name])
             if not ret:
-
                 # Buscamos primero si es un model_.
                 model_name = (
                     metadata_name_or_xml[: metadata_name_or_xml.find(".mtd")]
@@ -156,7 +154,7 @@ class FLManager(QtCore.QObject, IManager):
                 )
                 model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % model_name)
                 if model_ is not None:
-                    ret = self.metadata(model_.legacy_metadata)
+                    ret = self.metadata(model_.legacy_metadata, quick)
                 else:  # extraer datos del mtd (modo clásico)
                     # LOGGER.warning("metadata %s from xml is deprecated", metadata_name_or_xml)
                     stream = self.db_.connManager().managerModules().contentCached(table_name)
@@ -235,7 +233,6 @@ class FLManager(QtCore.QObject, IManager):
             return ret
 
         elif isinstance(metadata_name_or_xml, dict):
-
             meta_dict = metadata_name_or_xml
 
             name = meta_dict["name"]
@@ -434,7 +431,6 @@ class FLManager(QtCore.QObject, IManager):
         if action_name in self._cache_action.keys():
             pnaction_ = self._cache_action[action_name]
         else:
-
             pnaction_ = convert_flaction.convert_to_flaction(action_name)
             if not pnaction_.table():
                 pnaction_.setTable(action_name)
@@ -491,7 +487,6 @@ class FLManager(QtCore.QObject, IManager):
                 return False
 
             for field1 in [field for field in metadata_or_name.fieldList() if not field.isCheck()]:
-
                 field2 = metadata2.field(field1.name())
                 if field2 is None:
                     return False
@@ -619,7 +614,6 @@ class FLManager(QtCore.QObject, IManager):
         upper_: bool = args[2]
 
         if isinstance(args_0, pnfieldmetadata.PNFieldMetaData):
-
             field_name_ = args_0.name()
             type_ = args_0.type()
 
@@ -709,9 +703,7 @@ class FLManager(QtCore.QObject, IManager):
                         qry = self.query(mtd.query())
 
                         if qry:
-
                             for field in qry.fieldList():
-
                                 field_section_ = field
                                 pos = field.find(".")
                                 if pos > -1:
@@ -731,7 +723,6 @@ class FLManager(QtCore.QObject, IManager):
                 upper_ = args[2]
 
             elif len(args) == 2:
-
                 field_name_ = args[0].name()
                 field_type_ = args[0].type()
                 value_ = args[1]
@@ -1043,7 +1034,6 @@ class FLManager(QtCore.QObject, IManager):
                 field_mtd.setAssociatedField(assoc_with, assoc_by)
 
         else:
-
             for child in field:
                 tag = child.tag
                 if tag == "relation":
@@ -1095,7 +1085,6 @@ class FLManager(QtCore.QObject, IManager):
             while not node.isNull():
                 elem = node.toElement()
                 if not elem.isNull():
-
                     if elem.tagName() == "table":
                         foreign_table = elem.text()
                         node = node.nextSibling()
@@ -1404,7 +1393,6 @@ class FLManager(QtCore.QObject, IManager):
         @return Large value stored
         """
         if ref_key and ref_key[0:3] == "RK@":
-
             table_name = (
                 "fllarge"
                 if application.PROJECT.aq_app.singleFLLarge()
