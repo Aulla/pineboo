@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from importlib.machinery import ModuleSpec
 
 
-def text_to_module(source: str) -> Any:
+def text_to_module(source: str, file_name: str = "anon") -> Any:
     """Text to module function."""
 
     from pineboolib.application.parsers.parser_qsa import flscriptparse, postparse, pytnyzer
@@ -26,7 +26,7 @@ def text_to_module(source: str) -> Any:
     db_name = PROJECT.conn_manager.mainConn().DBName()
     source_bytes = source.encode()
     sha_ = hashlib.new("sha1", source_bytes).hexdigest()
-    module_name = "anon_%s" % sha_
+    module_name = "%s_%s" % (file_name, sha_)
     fileobj = file.File("anon", "%s.py" % module_name, sha_, db_name=db_name)
     file_name = fileobj.path()
 
