@@ -1,9 +1,6 @@
 """Modules module."""
 
-from PyQt6 import QtCore
-
-from pineboolib.application.utils import path
-from pineboolib.core.utils import logging, utils_base
+from pineboolib.core.utils import logging
 
 import hashlib
 import os
