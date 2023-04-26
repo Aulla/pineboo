@@ -114,6 +114,11 @@ class QsaRegExp(object):
         """Set regex global flag."""
         self.is_global = state
 
+    def exactMatch(self, value: str) -> bool:
+        """Return exactMatch."""
+
+        return self.pattern.fullmatch(value)
+
     global_ = property(get_global, set_global)
 
 
@@ -478,7 +483,6 @@ def splice(*args: Any) -> Any:
                     array_.pop(i)
 
             elif len(real_args) > 2 and real_args[1] == 0:  # Insertion
-
                 for value in reversed(real_args[2:]):
                     array_.insert(real_args[0], value)
 
@@ -523,7 +527,6 @@ class Sort:
             for pos, value in enumerate(array_):
                 found = False
                 for new_pos, new_value in enumerate(list(new_array_)):
-
                     result = self._function(value, new_value)
                     # print("Comparando", value, new_value, result, "-->", new_array_)
                     if result == 0:
