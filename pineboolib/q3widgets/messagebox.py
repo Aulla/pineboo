@@ -4,6 +4,7 @@
 from PyQt6 import QtWidgets  # type: ignore[import]
 
 from pineboolib import application
+from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
 import clipboard  # type: ignore [import] # noqa: F821
 
@@ -27,7 +28,7 @@ class MessageBox:
         """Return a messageBox."""
 
         if not getattr(application, "TESTING_MODE", None):
-            if QtWidgets.QApplication.platformName() == "offscreen":
+            if utils_base.is_library():
                 LOGGER.warning(
                     "q3widget.MessageBox launch when library mode ON! (%s : %s)",
                     typename,
