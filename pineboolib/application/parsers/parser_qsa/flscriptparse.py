@@ -228,6 +228,7 @@ p_parse.__doc__ = """
 
     dictobject_value : LBRACE RBRACE
                      | LBRACE dictobject_value_elemlist RBRACE
+                     | LBRACE dictobject_value_elemlist COMMA RBRACE
 
     dictobject_value_elemlist : dictobject_value_elem
                               | dictobject_value_elemlist COMMA dictobject_value_elem
@@ -859,7 +860,6 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     if ERROR_COUNT > 0:
         print("ERRORS (%d)" % ERROR_COUNT)
     if parser_ is not None:
-
         try:
             parser_["error_count"] = ERROR_COUNT
         except Exception as error:
@@ -958,7 +958,6 @@ def main() -> None:
                 sys.stderr.flush()
 
     else:
-
         line = ""
         while 1:
             try:
