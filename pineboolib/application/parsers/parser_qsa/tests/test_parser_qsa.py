@@ -439,6 +439,18 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         require_qs_py = require_qs_py.replace(require_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
         self.assertEqual(require_qs_py, require_py) """
 
+    def test_dict(self) -> None:
+        """Test dictionary."""
+
+        qsa = """const _i = this.iface;
+
+                const aDatosFactRect = {
+                "codalmacen" : _i.calcularCodAlmacenFacturaRect(cursor, facturaRect),
+                "regimeniva" : _i.calcularRegimenIvaFacturaRect(cursor, facturaRect),
+                "codagente" : _i.calcularCodAgenteFacturaRect(cursor, facturaRect),
+                }"""
+        require_qs_py = qs2py(qsa)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
