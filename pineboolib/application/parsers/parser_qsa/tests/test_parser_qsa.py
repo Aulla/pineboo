@@ -450,6 +450,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
                 "codagente" : _i.calcularCodAgenteFacturaRect(cursor, facturaRect),
                 }"""
         require_qs_py = qs2py(qsa)
+        self.assertTrue(require_qs_py)
 
     @classmethod
     def tearDownClass(cls) -> None:

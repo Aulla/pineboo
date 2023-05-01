@@ -437,7 +437,7 @@ class Project(object):
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
 
-        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
+        from pineboolib.application.parsers.parser_qsa import pyconvert
 
         if not path_list:
             return True

@@ -2,11 +2,11 @@
 """
 Simplify AST-XML structures for later generation of Python files.
 """
-from importlib.machinery import ModuleSpec
+from importlib import machinery, util
 from optparse import OptionParser
 import os
 import sys
-import importlib
+
 from xml.etree import ElementTree as ET
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
@@ -717,11 +717,11 @@ class Module(object):
     def loadModule(self):
         """Import and return Python file."""
         try:
-            from importlib import util
-
             module_name = self.name[: self.name.find(".")]
             script_name = os.path.join(self.path, self.name)
-            spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_name, script_name)
+            spec: Optional["machinery.ModuleSpec"] = util.spec_from_file_location(
+                module_name, script_name
+            )
             if spec and spec.loader is not None:
                 module = util.module_from_spec(spec)
                 spec.loader.exec_module(module)  # type: ignore [attr-defined]
