@@ -39,8 +39,6 @@ def text_to_module(source: str, file_name: str = "anon") -> Any:
         elif os.path.exists(file_name):  # Si existe la carpeta borra el archivo erroneo
             os.remove(file_name)
 
-        pytnyzer.STRICT_MODE = False
-
         prog = flscriptparse.parse(source)
         if prog is None:
             raise ValueError("Failed to convert to Python")

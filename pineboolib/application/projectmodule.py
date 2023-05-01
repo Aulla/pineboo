@@ -271,7 +271,6 @@ class Project(object):
                 raise Exception("Error building cache folder (%s) : %s" % (path_build, error))
 
         if os.path.exists(db_cache_folder):
-
             if not os.path.exists(cache_version_file_path):
                 delete_cache = True
             else:
@@ -296,7 +295,6 @@ class Project(object):
                     LOGGER.warning("Deleting cache.")
 
         if delete_cache and os.path.exists(db_cache_folder):
-
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
             LOGGER.info("DEVELOP: delete_cache Activado\nBorrando %s", db_cache_folder)
 
@@ -384,7 +382,6 @@ class Project(object):
         function_object = getattr(object_context, function_name, None)
         if function_object is not None:
             try:
-
                 # Controlar numero de argumentos
                 args_num = connections.get_expected_args_num(function_object)
                 while args_num > len(args):
@@ -448,8 +445,6 @@ class Project(object):
         for file_path in path_list:
             if not os.path.isfile(file_path):
                 raise IOError
-
-        pytnyzer.STRICT_MODE = True
 
         itemlist = []
         size_list = len(path_list)
@@ -539,7 +534,6 @@ class Project(object):
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
         for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
-
                 if "tests" in root:
                     continue
 
@@ -575,7 +569,6 @@ class Project(object):
             "flseqs",
             "flsettings",
         ):
-
             self.conn_manager.manager().createSystemTable(table)
 
         return True
@@ -616,7 +609,6 @@ class Project(object):
             )
 
         for idarea, idmodulo, descripcion, icono, version in list(result_modules):
-
             if idmodulo not in self.modules:
                 icon_cached = xpm.cache_xpm(icono)
                 self.modules[idmodulo] = module.Module(
@@ -636,7 +628,6 @@ class Project(object):
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido_or_bloqueo in list(result_files):
-
             if idmodulo not in self.modules.keys():  # Si el módulo no existe.
                 continue
 
