@@ -655,7 +655,7 @@ class Project(object):
                 if os.path.exists(fileobjdir):
                     utils_base.empty_dir(fileobjdir)
                 else:
-                    os.makedirs(fileobjdir)
+                    os.makedirs(fileobjdir, exist_ok=True)
 
                 contenido_content: Optional[str] = None
 
@@ -669,7 +669,7 @@ class Project(object):
                     )
 
                     result_content: Any = None
-                    if qry is not None:
+                    if qry:
                         result_content = qry.first()
 
                     if result_content is not None:
