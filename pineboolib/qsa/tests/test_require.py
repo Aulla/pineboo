@@ -1,7 +1,7 @@
 """Test require module."""
 
 from pineboolib.application import qsadictmodules
-from pineboolib.application.parsers.parser_qsa import pytnyzer
+from pineboolib.application.parsers import parser_qsa
 from importlib import util
 from pineboolib.qsa.tests import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
@@ -17,7 +17,7 @@ class TestRequire(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
-        pytnyzer.STRICT_MODE = True
+        parser_qsa.STRICT_MODE = True
         util_path = fixture_path("Import.py")
         spec = util.spec_from_file_location("Import", util_path)
         if spec and spec.loader is not None:
