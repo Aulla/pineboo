@@ -12,8 +12,9 @@ import pathlib
 import re
 from xml.etree import ElementTree as ET
 from typing import Any, Generator, Tuple, Type, List, Dict, Set, cast, Optional, TextIO, Callable
-
 from pineboolib.core.utils import logging
+from pineboolib.application.parsers import parser_qsa
+
 
 LOGGER = logging.get_logger(__name__)
 ASTGenerator = Generator[Tuple[str, str], None, None]
@@ -25,9 +26,6 @@ try:
 except ImportError:
     black = None  # type: ignore [assignment]
     BLACK_FILEMODE = None  # type: ignore [assignment]
-
-
-STRICT_MODE = False
 
 # To get the following list updated, do:
 # In [1]: from pineboolib.qsa import qsa
@@ -352,7 +350,6 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
     name = "%s_" % name if name in PYTHON_KEYWORDS else name
 
     if qsa_exclude is not None:
-
         if orig_name in qsa_exclude:
             return name
 
@@ -367,8 +364,7 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
 
         if name.startswith("form") and len(name) > 4:
             return 'qsa.from_project("%s")' % name
-
-        return "__undef__%s" % (name) if STRICT_MODE else name
+        return "%s%s" % ("__undef__" if parser_qsa.STRICT_MODE else "", name)
     else:
         return transform[name] if transform and name in transform else name
 
@@ -652,7 +648,6 @@ class Function(ASTPython):
                 yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 1:
-
                     dtype_: Optional[str] = arg.get("type")
                     dtyping_ = ""
                     if dtype_ is not None:
@@ -780,13 +775,10 @@ class FunctionCall(ASTPython):
                 arg1 = arg1.replace(" )", ")")
                 arguments.append(arg1)
 
-        comment = ""
-        if not STRICT_MODE and name.startswith("__undef__"):
-            name = name[9:]
-            name = "self.%s" % name
-            comment = ""
+        if not parser_qsa.STRICT_MODE and name.startswith("__undef__"):
+            name = "self.%s" % name[9:]
 
-        yield "expr", "%s(%s)%s" % (name, ", ".join(arguments), comment)
+        yield "expr", "%s(%s)" % (name, ", ".join(arguments))
 
 
 class FunctionAnonExec(FunctionCall):
@@ -827,7 +819,6 @@ class If(ASTPython):
                 yield "debug", "Expression %d not understood" % number
                 yield "debug", ET.tostring(arg)  # type: ignore
             else:
-
                 if len(expr) == 3:
                     # FIXME: This works if the pattern is alone in the IF. But if it has AND/Or does not work
                     if expr[1] == "==":
@@ -1315,7 +1306,6 @@ class Variable(ASTPython):
 
         if force_value:
             if values == 0:
-
                 if dtype is None:
                     yield "expr", ": Any = None"
                 else:
@@ -1350,7 +1340,6 @@ class InstructionUpdate(ASTPython):
             for dtype, data in parse_ast(arg, parent=self).generate(
                 isolate=False, is_member=(number == 0)
             ):
-
                 if dtype == "expr":
                     if not data:
                         raise ValueError(ET.tostring(arg))
@@ -1553,7 +1542,7 @@ class Member(ASTPython):
             arguments.append(txtarg)
             arg_expr.append(expr)
 
-        if not STRICT_MODE:
+        if not parser_qsa.STRICT_MODE:
             arguments[0] = arguments[0].replace("__undef__", "")
 
         # Deteccion de llamada a modulo externo
@@ -1736,7 +1725,6 @@ class Member(ASTPython):
                             new_part_2 = ""
                             if len(part2) > 0:
                                 for i in range(len(part2)):
-
                                     part2[i] = str(part2[i]).replace("arg(", "str(")
                                 new_part_2 = ", " + ", ".join(part2)
                             new_part_1 = re.sub(r"%\d", "%s", new_part_1)
@@ -2366,7 +2354,6 @@ class DeclarationBlock(ASTPython):
                 else:
                     yield dtype, data
             if is_constructor:
-
                 if expr[0] in list(self.source.locals):
                     if expr[0] not in ["form", "iface"]:
                         # LOGGER.warning("Pasando de %s", expr[0])
@@ -2452,9 +2439,6 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
     yield "line", "# -*- coding: utf-8 -*-"
     yield "line", "# Translated with pineboolib %s" % PINEBOO_VER
     yield "line", "from typing import TYPE_CHECKING, Any, Union"
-
-    if not STRICT_MODE:
-        yield "line", "from pineboolib.qsa.qsa import *  # noqa: F403"
     yield "line", "from pineboolib.qsa import qsa"
     # yield "line", "from pineboolib.qsaglobals import *"
     for alias, (path, name) in import_refs.items():
@@ -2495,7 +2479,6 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
                     csource.append(child)
                 mainsource.insert(0, def_iface)
         else:
-
             mainsource.append(child)
 
     for dtype, data in parse_ast(sourceclasses).generate():

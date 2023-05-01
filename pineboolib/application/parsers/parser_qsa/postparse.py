@@ -11,12 +11,9 @@ from xml.etree import ElementTree as ET
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
 from pineboolib.application.parsers.parser_qsa import pytnyzer, flscriptparse
+from pineboolib.application.parsers import parser_qsa
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
-
-STRICT_MODE = pytnyzer.STRICT_MODE
-importlib.reload(pytnyzer)
-pytnyzer.STRICT_MODE = STRICT_MODE
 
 TreeData = Dict[str, Any]
 
@@ -797,7 +794,7 @@ def parse_args(argv: List[str]) -> Tuple[Any, List[str]]:
     )
 
     parser.add_option(
-        "--full", action="store_true", dest="full", default=False, help="write xml file from qs"
+        "--full", action="store_true", dest="full", default=False, help="write py file from qs"
     )
 
     parser.add_option(
@@ -829,7 +826,7 @@ def parse_args(argv: List[str]) -> Tuple[Any, List[str]]:
 
 def main() -> None:
     """Run the program from command line."""
-    pytnyzer.STRICT_MODE = True
+
     log_format = "%(asctime)s - %(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(format=log_format, level=0)
     blib_logger = logging.get_logger("blib2to3.pgen2.driver")
@@ -887,7 +884,7 @@ def common_parse(data: str):
 def execute(options: Any, args: List[str]) -> None:
     """Execute conversion orders given by options and args. Can be used to emulate program calls."""
 
-    pytnyzer.STRICT_MODE = options.strict
+    parser_qsa.STRICT_MODE = options.strict
 
     if options.full:
         execpython = options.exec_python

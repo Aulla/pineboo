@@ -132,7 +132,6 @@ def main() -> None:
     filter_mod = sys.argv[1] if len(sys.argv) > 1 else None
     filter_file = sys.argv[2] if len(sys.argv) > 2 else None
 
-    pytnyzer.STRICT_MODE = False
     log_format = "%(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(format=log_format, level=0)
     blib_logger = logging.get_logger("blib2to3.pgen2.driver")
