@@ -272,7 +272,6 @@ class SqlInspector(object):
             inicio_parentesis: List[str] = []
             composed_field: Dict[str, List[str]] = {}
             for field in list(fields_list):
-
                 # Comprueba si hay field_names compuestos
                 if (field.find("(") > -1 and not field.find(")") > -1) or field in [
                     "case",
@@ -302,9 +301,7 @@ class SqlInspector(object):
                     or field == "end"
                     and inicio_parentesis
                 ):  # si es multiple de verdad
-
                     if field == "end":
-
                         composed_field[inicio_parentesis[-1]].append(field)
                         if len(inicio_parentesis) == 1:
                             new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
@@ -338,7 +335,6 @@ class SqlInspector(object):
                                 break
 
                 elif inicio_parentesis:  # si estoy en medio de un multiple
-
                     composed_field[inicio_parentesis[-1]].append(field)
                 else:
                     new_fields_list.append(field)
@@ -420,7 +416,6 @@ class SqlInspector(object):
                     continue
 
                 elif table == "as":
-
                     last_was_table = True
                     continue
 
@@ -536,7 +531,6 @@ class SqlInspector(object):
                     type_ = field_metadata.type()
 
         if type_ == "pixmap":
-
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
@@ -567,7 +561,7 @@ class SqlInspector(object):
         if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        db_admin = application.PROJECT._db_admin_mode
+        db_admin = application.PROJECT.db_admin_mode
 
         _filter = ["sum(", "max(", "distint("]
 

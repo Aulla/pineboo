@@ -319,7 +319,6 @@ def finish_testing(delete_tmpdir: bool = True) -> None:
     if delete_tmpdir:
         LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
         try:
-
             shutil.rmtree(application.PROJECT.tmpdir)
         except Exception as error:
             LOGGER.warning(
@@ -374,10 +373,10 @@ def exec_main(options: "optparse.Values") -> int:
         monkey_patch_connect()
 
     if options.enable_dbadmin:
-        application.PROJECT._db_admin_mode = True
+        application.PROJECT.db_admin_mode = True
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
     if options.enable_quick:
-        application.PROJECT._db_admin_mode = False
+        application.PROJECT.db_admin_mode = False
         settings.CONFIG.set_value("application/dbadmin_enabled", False)
 
     if options.enable_preping:
@@ -431,7 +430,7 @@ def exec_main(options: "optparse.Values") -> int:
             if configdb is None:
                 return 2
         else:
-            application.PROJECT._db_admin_mode = True
+            application.PROJECT.db_admin_mode = True
             settings.CONFIG.set_value("application/dbadmin_enabled", True)
             configdb = connection.DEFAULT_SQLITE_CONN
 

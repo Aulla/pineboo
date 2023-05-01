@@ -118,7 +118,7 @@ def save_model(path_, name: str) -> bool:
 def load_models() -> None:
     """Load all sqlAlchemy models."""
     # print("LOADING MODELS!!!")
-    db_admin = application.PROJECT._db_admin_mode
+    db_admin = application.PROJECT.db_admin_mode
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")

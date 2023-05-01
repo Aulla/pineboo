@@ -75,7 +75,7 @@ class SysBaseType(object):
     @classmethod
     def isDebuggerEnabled(cls) -> bool:
         """Check if this debugger is on."""
-        return bool(application.PROJECT._db_admin_mode)
+        return bool(application.PROJECT.db_admin_mode)
 
     @classmethod
     def isQuickBuild(cls) -> bool:
