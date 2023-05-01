@@ -87,12 +87,6 @@ class Project(object):
         self.apppath = utils_base.filedir("..")
         self.delete_base_cache = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
         self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
-        self.parse_project = (
-            settings.CONFIG.value("ebcomportamiento/parseProject", True)
-            if application.PARSE_PROJECT_ON_INIT
-            else False
-        )
-
         self.actions = {}
         self.files = {}
         self.areas = {}
@@ -165,6 +159,11 @@ class Project(object):
         # if self._conn is not None:
         #    del self._conn
         #    self._conn = None
+        self.parse_project = (
+            settings.CONFIG.value("ebcomportamiento/parseProject", True)
+            if application.PARSE_PROJECT_ON_INIT
+            else False
+        )
 
         return self.conn_manager.setMainConn(connection)
 
