@@ -13,7 +13,9 @@ from typing import List, Tuple, TypeVar, cast, Dict, Optional
 from xml import etree
 from pineboolib import logging
 from pineboolib.core.utils import struct
-from pineboolib.application.parsers.parser_qsa import postparse, pytnyzer, USE_THREADS
+from pineboolib.application.parsers import parser_qsa
+from pineboolib.application.parsers.parser_qsa import postparse
+
 
 LOGGER = logging.get_logger(__name__)
 
@@ -108,7 +110,7 @@ class PythonifyItem(object):
 
 def pythonify_item(item: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
-    if USE_THREADS:
+    if parser_qsa.USE_THREADS:
         LOGGER.info("(%.2f%%) Parsing QS %r", 100 * item.number / item.len, item.src_path)
     try:
         pycode = postparse.pythonify2(item.src_path, known_refs=item.known)
@@ -228,7 +230,7 @@ def main() -> None:
 
     pycode_list: List[bool] = []
 
-    if USE_THREADS:
+    if parser_qsa.USE_THREADS:
         with multiprocessing.Pool(CPU_COUNT) as cpu:
             # TODO: Add proper signatures to Python files to avoid reparsing
             pycode_list = cpu.map(pythonify_item, itemlist, chunksize=2)

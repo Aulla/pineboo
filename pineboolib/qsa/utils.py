@@ -114,7 +114,7 @@ class QsaRegExp(object):
         """Set regex global flag."""
         self.is_global = state
 
-    def exactMatch(self, value: str) -> bool:
+    def exactMatch(self, value: str) -> Optional[Match[str]]:
         """Return exactMatch."""
 
         return self.pattern.fullmatch(value)
