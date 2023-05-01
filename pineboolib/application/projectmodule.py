@@ -52,6 +52,7 @@ class Project(object):
     main_window: Optional["imainwindow.IMainWindow"] = None
     dgi: Optional["dgi_schema.dgi_schema"] = None
     delete_cache: bool = False
+    delete_base_cache: bool
     parse_project: bool
     path = None
     _splash = None
@@ -69,7 +70,7 @@ class Project(object):
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
     USE_FLFILES_FOLDER: str = ""
-    _db_admin_mode: bool = False
+    db_admin_mode: bool = False
 
     def __init__(self) -> None:
         """Initialize."""
@@ -81,15 +82,22 @@ class Project(object):
         self.apppath = ""
         self.tmpdir = settings.CONFIG.value("ebcomportamiento/temp_dir", "")
         self.parser = None
-        self.delete_cache = False
-        self.parse_project = True
-        self.no_python_cache = False
+
+        self.no_python_cache = settings.CONFIG.value("ebcomportamiento/noPythonCache", False)
+        self.apppath = utils_base.filedir("..")
+        self.delete_base_cache = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
+        self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
+        self.parse_project = (
+            settings.CONFIG.value("ebcomportamiento/parseProject", True)
+            if application.PARSE_PROJECT_ON_INIT
+            else False
+        )
 
         self.actions = {}
         self.files = {}
         self.areas = {}
         self.modules = {}
-        self._db_admin_mode = settings.CONFIG.value("application/dbadmin_enabled", False)
+        self.db_admin_mode = settings.CONFIG.value("application/dbadmin_enabled", False)
 
         import pathlib
 
@@ -158,24 +166,7 @@ class Project(object):
         #    del self._conn
         #    self._conn = None
 
-        result_init_conn = self.conn_manager.setMainConn(connection)
-
-        if result_init_conn:
-            self.apppath = utils_base.filedir("..")
-            self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
-
-            self.parse_project = (
-                settings.CONFIG.value("ebcomportamiento/parseProject", True)
-                if application.PARSE_PROJECT_ON_INIT
-                else False
-            )
-
-            if not self.no_python_cache:
-                self.no_python_cache = settings.CONFIG.value(
-                    "ebcomportamiento/noPythonCache", False
-                )
-
-        return result_init_conn
+        return self.conn_manager.setMainConn(connection)
 
     def init_dgi(self, dgi: "dgi_schema.dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""
@@ -307,19 +298,15 @@ class Project(object):
                         if os.path.exists(os.path.join(root, name)):
                             os.rmdir(os.path.join(root, name))
 
-        else:
-            keep_images = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
-            if keep_images is False:
-                for file_name in os.listdir(self.tmpdir):
-                    if file_name.find(".") > -1 and not file_name.endswith("sqlite3"):
-                        file_path = os.path.join(self.tmpdir, file_name)
-                        try:
-                            os.remove(file_path)
-                        except Exception:
-                            LOGGER.warning(
-                                "No se ha podido borrar %s al limpiar la cache", file_path
-                            )
-                            pass
+        elif self.delete_base_cache:
+            for file_name in os.listdir(self.tmpdir):
+                if file_name.find(".") > -1 and not file_name.endswith("sqlite3"):
+                    file_path = os.path.join(self.tmpdir, file_name)
+                    try:
+                        os.remove(file_path)
+                    except Exception:
+                        LOGGER.warning("No se ha podido borrar %s al limpiar la cache", file_path)
+                        pass
 
         if not os.path.exists(cache_folder):
             LOGGER.info("RUN: Creating %s folder.", cache_folder)
@@ -503,7 +490,7 @@ class Project(object):
         """Initialize current version numbers."""
         from pineboolib.application import PINEBOO_VER
 
-        return "DBAdmin v%s" % PINEBOO_VER if self._db_admin_mode else "Quick v%s" % PINEBOO_VER
+        return "DBAdmin v%s" % PINEBOO_VER if self.db_admin_mode else "Quick v%s" % PINEBOO_VER
 
     def message_manager(self):
         """Return message manager for splash and progress."""
