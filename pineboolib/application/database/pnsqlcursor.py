@@ -31,7 +31,6 @@ from typing import Any, Optional, List, Dict, Union, TYPE_CHECKING
 from pineboolib.application.acls import pnboolflagstate
 
 if TYPE_CHECKING:
-
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnaction  # noqa: F401 # pragma: no cover
@@ -165,7 +164,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.setName(mtd.name(), autopopulate)
 
         if cursor_relation and relation_mtd is not None:
-
             cursor_relation.bufferChanged.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.refresh
             )
@@ -271,11 +269,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self._action is None:
             self._action = new_action
         else:
-
             if (
                 self._action.table() == new_action.table()
             ):  # Esto es para evitar que se setee en un FLTableDB con metadata inválido un action sobre un cursor del parentWidget.
-
                 LOGGER.debug(
                     "Se hace setAction sobre un cursor con la misma table %s\nAction anterior: %s\nAction nueva: %s",
                     new_action.table(),
@@ -584,7 +580,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Restore Edition flag to its previous value."""
         edition_state = self.private_cursor.edition_states_
         if edition_state:
-
             state_modifier = edition_state.find(modifier)
 
             if state_modifier:
@@ -998,7 +993,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             self.buffer().setNull(field_name)
 
                         elif not self.isNull(field_metadata_name):
-
                             filter_ = "%s AND %s" % (
                                 manager.formatAssignValue(
                                     field.associatedFieldFilterTo(),
@@ -1142,46 +1136,36 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and not checked_compound_key
                     and self.private_cursor.mode_access_ == self.Insert
                 ):
-                    filter_compound_key: str = ""
-                    field_1: str = ""
-                    values_fields: str = ""
+                    filter_compound_key: List[str] = []
+                    field_1: List[str] = []
+                    values_fields: List[str] = []
                     for field_compound_key in field_list_compound_key:
                         value_compound_key = self.private_cursor.buffer_.value(
                             field_compound_key.name()
                         )
-
-                        filter_compound_key += " AND " if filter_compound_key else ""
-
-                        filter_compound_key += "%s" % manager.formatAssignValue(
-                            field_compound_key, value_compound_key, True
+                        filter_compound_key.append(
+                            manager.formatAssignValue(field_compound_key, value_compound_key, True)
                         )
-
-                        field_1 += "+" if field_1 else ""
-
-                        field_1 += "%s" % field_compound_key.alias()
-
-                        values_fields += "+" if values_fields else ""
-
-                        values_fields = "%s" % str(value_compound_key)
+                        values_fields.append(str(value_compound_key))
+                        field_1.append(field_compound_key.alias())
 
                     qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())
                     if filter_compound_key:
-                        qry.setWhere(filter_compound_key)
+                        qry.setWhere(" AND ".join(filter_compound_key))
                     qry.setForwardOnly(True)
                     qry.exec_()
 
                     if qry.next():
                         message += (
                             "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
-                            % (field_1, values_fields, self.table())
+                            % ("+".join(field_1), "+".join(values_fields), self.table())
                         )
                     checked_compound_key = True
 
         elif self.private_cursor.mode_access_ == self.Del:
-
             for field in field_list:
                 if self.isNull(field.name()):
                     continue
@@ -1327,7 +1311,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ret_ = False
         if self.private_cursor.mode_access_ is not self.Insert:
             if self.private_cursor._currentregister > -1:
-
                 for field_name in self.private_cursor.metadata_.fieldNamesUnlock():
                     if self.private_cursor.buffer_.value(field_name) not in ("True", True, 1, "1"):
                         ret_ = True
@@ -1715,7 +1698,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         current_filter = self.filter()
 
         if base_filter not in current_filter:
-
             self.setFilter()
 
         # <---
@@ -1801,7 +1783,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             field_list = self.private_cursor.metadata_.fieldList()
 
             for field in field_list:
-
                 field_name = field.name()
                 type_ = field.type()
                 default_value = field.defaultValue()
@@ -1818,7 +1799,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         self.buffer().set_value(field_name, val_str)
 
                 if field.isCounter():
-
                     function_counter = None
                     if self._action.scriptFormRecord():
                         from pineboolib.application.safeqsa import SafeQSA
@@ -1865,7 +1845,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.newBuffer.emit()
 
         elif self.private_cursor.mode_access_ == self.Del:
-
             if self.isLocked():
                 self.private_cursor.msgBoxWarning("Registro bloqueado, no se puede eliminar")
                 self.private_cursor.mode_access_ = self.Browse
@@ -2182,7 +2161,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             field = self.private_cursor.metadata_.field(self.private_cursor.relation_.field())
 
             if field is not None and relation_value is not None:
-
                 relation_filter = (
                     self.db().connManager().manager().formatAssignValue(field, relation_value, True)
                 )
@@ -2530,7 +2508,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
             if self.isModifiedBuffer():
-
                 if not self.buffer().apply_buffer():
                     log_func("CommitBuffer en Edit cancelado. Fallo al aplicar el buffer al objeto")
                     return False
@@ -2544,7 +2521,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             updated = 2
 
         elif self.modeAccess() == self.Del:
-
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata():
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
@@ -2571,7 +2547,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             field_list = self.metadata().fieldList()
             for field in field_list:
-
                 field_name = field.name()
 
                 if self.isNull(field_name):
@@ -2582,7 +2557,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
                 for relation in field.relationList():
-
                     cursor = PNSqlCursor(relation.foreignTable())
                     foreign_mtd = cursor.private_cursor.metadata_
                     if foreign_mtd is None:
@@ -2696,7 +2670,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return result
 
         if application.PROJECT.DGI.localDesktop():
-
             active_widget = QtWidgets.QApplication.activeModalWidget()
             if not active_widget:
                 active_widget = QtWidgets.QApplication.activePopupWidget()
@@ -2993,7 +2966,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         LOGGER.trace("PNSqlCursor.update --- BEGIN:")
         update_successful = False
         if self.modeAccess() == PNSqlCursor.Edit:
-
             if not self.private_cursor.buffer_:
                 raise Exception("Buffer is not set. Cannot update")
 
@@ -3097,7 +3069,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.info("%s%s (cursor) retorna %s" % (label_, fun_name, result))
             self._last_delegate_commit_result = result
             if result:
-
                 pk_name_ = meta_.primaryKey()
                 pk_where_ = (
                     self.db()
@@ -3272,7 +3243,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
             condition_true = False
 
             if self._acos_cond == self.cursor_.Value:
-
                 condition_true = (
                     self.cursor_.valueBuffer(self._acos_cond_name) == self._acos_cond_value
                 )
@@ -3304,7 +3274,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         elif self.cursor_.isLocked() or (
             self.cursor_relation_ and self.cursor_relation_.isLocked()
         ):
-
             if not self.acl_table_[self._id_acl].name() == self.id_:
                 self.acl_table_[self._id_acl].clear()
                 self.acl_table_[self._id_acl].setName(self.id_)
