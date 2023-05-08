@@ -254,7 +254,6 @@ class FLFieldDB(QtWidgets.QWidget):
             # print("Hay topWidget en %s", self)
 
         if self.cursor_ and self.cursor_.private_cursor.buffer_:
-
             pass
             # LOGGER.info(
             #    "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
@@ -594,14 +593,12 @@ class FLFieldDB(QtWidgets.QWidget):
         data = None
 
         if hasattr(self, "editor_"):
-
             if isinstance(self.editor_, fldateedit.FLDateEdit):
                 data = str(self.editor_.getDate())
                 if not data:
                     is_null = True
 
                 if not self.cursor_.bufferIsNull(self._field_name):
-
                     if str(data) == self.cursor_.valueBuffer(self._field_name):
                         return
                 elif is_null:
@@ -615,7 +612,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not data:
                     is_null = True
                 if not self.cursor_.bufferIsNull(self._field_name):
-
                     if str(data) == self.cursor_.valueBuffer(self._field_name):
                         return
                 elif is_null:
@@ -636,7 +632,6 @@ class FLFieldDB(QtWidgets.QWidget):
                         return
 
             elif isinstance(self.editor_, fllineedit.FLLineEdit):
-
                 data = self.editor_.text()
 
                 if not self.cursor_.bufferIsNull(self._field_name):
@@ -722,7 +717,6 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if type_ == "pixmap":
             if self._editor_img:
-
                 if not value:
                     self._editor_img.clear()
                     return
@@ -762,7 +756,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 editor_str.home(False)
 
         elif type_ == "stringlist":
-
             cast(fllineedit.FLLineEdit, self.editor_).setText(value)
 
         elif type_ == "double":
@@ -883,7 +876,6 @@ class FLFieldDB(QtWidgets.QWidget):
             if self.editor_:
                 value = cast(fldateedit.FLDateEdit, self.editor_).date
                 if value:
-
                     value = types.Date(value)
 
         elif type_ == "time":
@@ -1221,7 +1213,6 @@ class FLFieldDB(QtWidgets.QWidget):
             #    self.editor_.setText("0.00")
 
         elif type_ == "string":
-
             do_home = False
             if not hol:
                 editor_str = cast(fllineedit.FLLineEdit, self.editor_)
@@ -1263,7 +1254,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 )
 
         elif type_ in ("timestamp", "json"):
-
             do_home = False
             editor_str = cast(fllineedit.FLLineEdit, self.editor_)
             try:
@@ -1344,7 +1334,6 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "pixmap":
             if not hasattr(self, "_editor_img"):
-
                 self._editor_img = flpixmapview.FLPixmapView(self)
                 self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._editor_img.setSizePolicy(self.sizePolicy())
@@ -1375,7 +1364,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 #    return
                 if isinstance(value, str):
                     if value.find("static char") > -1:
-
                         value = xpm.cache_xpm(value)
 
                 pix = QtGui.QPixmap(value)
@@ -1490,7 +1478,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 LOGGER.exception("Error al desconectar señal toggled")
 
             if value is not None:
-
                 editor_bool.setChecked(value)
             else:
                 def_val = field.defaultValue()
@@ -1888,7 +1875,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 )
 
         if self._table_name:
-
             self.cursor_ = pnsqlcursor.PNSqlCursor(
                 self._table_name,
                 False,
@@ -2330,7 +2316,6 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.editor_.setTime(default_value.toTime())
 
         elif type_ == "stringlist":
-
             self.editor_ = qtextedit.QTextEdit(self)
             self.editor_.setFont(self.font())
             self.editor_.setTabChangesFocus(True)
@@ -2387,7 +2372,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setWhatsThis("Completado automático desactivado")
 
         elif type_ == "bool":
-
             alias = table_metadata.fieldNameToAlias(self._field_name)
             if not alias:
                 raise Exception("alias is empty!")
@@ -2511,7 +2495,6 @@ class FLFieldDB(QtWidgets.QWidget):
             )
 
         else:
-
             self.editor_ = fllineedit.FLLineEdit(self, "editor")
             self.editor_.setFont(self.font())
             if self._icon_size and self.font().pointSize() < 10:
@@ -2530,7 +2513,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.installEventFilter(self)
 
             if type_ == "double":
-
                 self.editor_.setValidator(
                     fldoublevalidator.FLDoubleValidator(
                         ((pow(10, part_integer) - 1) * -1),
@@ -2542,13 +2524,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
             else:
                 if type_ == "uint":
-
                     self.editor_.setValidator(
                         fluintvalidator.FLUIntValidator(0, pow(10, part_integer), self.editor_)
                     )
                     pass
                 elif type_ == "int":
-
                     self.editor_.setValidator(
                         flintvalidator.FLIntValidator(
                             ((pow(10, part_integer) - 1) * -1),
@@ -2746,7 +2726,6 @@ class FLFieldDB(QtWidgets.QWidget):
                             )
 
                     else:
-
                         self._auto_com_field_name = field_relation.foreignField()
                         self._auto_com_field_relation = None
                         cur = pnsqlcursor.PNSqlCursor(
@@ -2947,7 +2926,6 @@ class FLFieldDB(QtWidgets.QWidget):
         #    return
 
         if cursor.first():
-
             cursor.setAction(self._action_name)
 
             mode_access = self.cursor_.modeAccess()
@@ -3068,7 +3046,6 @@ class FLFieldDB(QtWidgets.QWidget):
         if form_search.mainWidget():
             cur_value = self.value()
             if obj_tdb:
-
                 if field.type() == "string" and cur_value:
                     obj_tdb.setInitSearch(cur_value)
                     obj_tdb.putFirstCol(field_relation.foreignField())
@@ -3184,7 +3161,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 % (
                     self.cursor().metadata().name(),
                     self._field_name,
-                    QtCore.QDateTime().currentDateTime().toString("ddhhmmssz"),
+                    QtCore.QDateTime.currentDateTime().toString("ddhhmmssz"),
                 ),
             )
         self.updateValue(text_)
@@ -3439,7 +3416,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setDisabled(True)
                 self.editor_.setStyleSheet("background-color: #f0f0f0")
             else:
-
                 read_only = getattr(self.editor_, "setReadOnly", None)
 
                 if read_only is not None:
@@ -3582,7 +3558,6 @@ class FLFieldDB(QtWidgets.QWidget):
                         and self.cursor_
                         and self.cursor_.bufferIsNull(self._field_name)
                     ):
-
                         if (
                             self._foreign_field is not None
                             and self._field_relation is not None
