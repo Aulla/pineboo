@@ -5,6 +5,7 @@ This package holds all functions and classes that are like side resources.
 """
 
 from pineboolib.application.projectmodule import Project
+from pineboolib.core import settings
 from typing import Dict, List, Any
 
 PROJECT = Project()
@@ -29,7 +30,7 @@ USE_REPORT_VIEWER: bool = True  # Enable internal report viewer.
 ENABLE_ACLS: bool = True  # Enable acls usage.
 USE_INTERACTIVE_GUI: bool = True  # Enable interactiveGUI value.
 ENABLE_CALL_EXCEPTIONS: bool = True  # Enable QSA calls exceptions.
-PARSE_PROJECT_ON_INIT: bool = True  # Parse all projects on init.
+PARSE_PROJECT_ON_INIT: bool = settings.CONFIG.value("ebcomportamiento/parseProject", False)
 USE_ALTER_TABLE_LEGACY: bool = True
 PERSISTENT: Dict[str, Any] = {}
 USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
