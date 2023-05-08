@@ -734,7 +734,7 @@ class ISqlDriver(object):
 
         renamed_table = "%salteredtable%s" % (
             table_name,
-            QtCore.QDateTime().currentDateTime.toString("ddhhssz"),
+            QtCore.QDateTime.currentDateTime().toString("ddhhssz"),
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
