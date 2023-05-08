@@ -159,10 +159,9 @@ class Project(object):
         # if self._conn is not None:
         #    del self._conn
         #    self._conn = None
-        self.parse_project = (
-            settings.CONFIG.value("ebcomportamiento/parseProject", True)
-            if application.PARSE_PROJECT_ON_INIT
-            else False
+
+        self.parse_project = settings.CONFIG.value(
+            "ebcomportamiento/parseProject", application.PARSE_PROJECT_ON_INIT
         )
 
         return self.conn_manager.setMainConn(connection)
