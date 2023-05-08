@@ -53,7 +53,6 @@ class Project(object):
     dgi: Optional["dgi_schema.dgi_schema"] = None
     delete_cache: bool = False
     delete_base_cache: bool
-    parse_project: bool
     path = None
     _splash = None
     sql_drivers_manager = None
@@ -87,9 +86,6 @@ class Project(object):
         self.apppath = utils_base.filedir("..")
         self.delete_base_cache = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
         self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
-        application.PARSE_PROJECT_ON_INIT = settings.CONFIG.value(
-            "ebcomportamiento/parseProject", False
-        )
         self.actions = {}
         self.files = {}
         self.areas = {}
@@ -162,8 +158,6 @@ class Project(object):
         # if self._conn is not None:
         #    del self._conn
         #    self._conn = None
-
-        self.parse_project = application.PARSE_PROJECT_ON_INIT
 
         return self.conn_manager.setMainConn(connection)
 
@@ -681,7 +675,7 @@ class Project(object):
                     if os.path.exists(static_flag):
                         os.remove(static_flag)
 
-            if self.parse_project:
+            if application.PARSE_PROJECT_ON_INIT:
                 if nombre.endswith(".qs"):
                     if self.no_python_cache or not os.path.exists(
                         "%spy" % file_name[:-2]
