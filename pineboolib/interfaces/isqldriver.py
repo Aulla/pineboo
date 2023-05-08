@@ -734,7 +734,7 @@ class ISqlDriver(object):
 
         renamed_table = "%salteredtable%s" % (
             table_name,
-            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
+            QtCore.QDateTime().currentDateTime.toString("ddhhssz"),
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
@@ -832,7 +832,6 @@ class ISqlDriver(object):
             session_.rollback()
             result_insert_multi = False
         else:
-
             session_.commit()
 
             if new_metadata.name() not in self.tables("Views"):
@@ -940,7 +939,6 @@ class ISqlDriver(object):
             field_values = []
             for field, value in line:
                 if field.generated():
-
                     if field.type() in ("string", "stringlist", "bytearray"):
                         value = self.normalizeValue(value)
 
@@ -1017,7 +1015,6 @@ class ISqlDriver(object):
         )
 
         for number, table_fllarge in enumerate(fllarge_tables_list):
-
             util.setLabelText(util.translate("application", "Revisando tabla %s" % table_fllarge))
 
             sql = "SELECT refkey FROM %s WHERE 1 = 1" % table_fllarge
@@ -1249,7 +1246,6 @@ class ISqlDriver(object):
         limit_conn = mng_.limit_connections
 
         if self.pool_enabled():
-
             LOGGER.info("SqlAlchemy pool enabled")
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
