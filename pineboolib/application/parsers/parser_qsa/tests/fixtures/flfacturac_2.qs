@@ -103,6 +103,7 @@ function interna_init()
 }function interna_calculateField(fN): String {
   var util = new FLUtil;
   var cursor = this.cursor();
+  var hija = form.child("hija");
   var valor;
   switch (fN)
   {
