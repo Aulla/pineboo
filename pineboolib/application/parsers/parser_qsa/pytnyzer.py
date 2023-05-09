@@ -1314,11 +1314,11 @@ class Variable(ASTPython):
                     elif dtype == "Number":
                         yield "expr", " = 0"
                     elif dtype == "Boolean":
-                        yield "expr", ": bool"
+                        yield "expr", ": bool = False"
                     elif dtype in ("FLUtil", "Array"):
                         yield "expr", ': "qsa.%s" = qsa.%s() # Please initialize!' % (dtype, dtype)
                     elif dtype in QSA_KNOWN_ATTRS:
-                        yield "expr", ': "qsa.%s"' % dtype
+                        yield "expr", ': Optional["qsa.%s"] = None' % dtype
                     else:
                         yield "expr", "= %s()" % self.local_var(dtype)
 
@@ -2438,7 +2438,7 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
 
     yield "line", "# -*- coding: utf-8 -*-"
     yield "line", "# Translated with pineboolib %s" % PINEBOO_VER
-    yield "line", "from typing import TYPE_CHECKING, Any, Union"
+    yield "line", "from typing import TYPE_CHECKING, Any, Optional, Union"
     yield "line", "from pineboolib.qsa import qsa"
     # yield "line", "from pineboolib.qsaglobals import *"
     for alias, (path, name) in import_refs.items():
