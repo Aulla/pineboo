@@ -319,8 +319,10 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         return "None"
     elif name == "undefined":
         return "None"
-    elif name in ("this", "form"):
+    elif name == "this":
         return "self"
+    elif name == "form":
+        return "self.form" if name in qsa_exclude else "self"
     elif name == "NaN":
         return 'float("nan")'
 
