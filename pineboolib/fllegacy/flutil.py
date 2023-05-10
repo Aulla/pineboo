@@ -732,20 +732,10 @@ class FLUtil(object):
 
         where = "flkey = '%s'" % key
         found = cls.readDBSettingEntry(key)
-        session_ = application.PROJECT.conn_manager.useConn("default").session()
-        if found is None:
-            sql = "INSERT INTO flsettings (flkey, valor) VALUES ('%s', '%s')" % (key, value)
+        if found:
+            return cls.sqlUpdate("flsettins", ["flkey", "valor"], [key, value], where)
         else:
-            sql = "UPDATE flsettings SET valor = '%s' WHERE %s" % (value, where)
-        try:
-            session_.execute(sql)
-
-        except Exception:
-            LOGGER.exception("writeDBSettingEntry: Error al ejecutar SQL: %s", sql)
-            return False
-
-        # session_.close()
-        return True
+            return cls.sqlInsert("flsettings", ["valor"], ["value"])
 
     @classmethod
     def roundFieldValue(

@@ -70,8 +70,8 @@ class TestOrm(unittest.TestCase):
         # res_1 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
         # self.assertFalse(res_1.returns_rows)
         do_flush(session_, [obj_])  # Aplica el cambio en la BD.
-        res_2 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")
-        self.assertTrue(res_2.returns_rows)
+        res_2 = session_.execute("SELECT idarea FROM flareas WHERE idarea = 'A'")  # type: ignore [arg-type]
+        self.assertTrue(res_2.returns_rows)  # type: ignore [attr-defined]
 
         obj2_ = session_.query(class_).get("A")  # Recupera el registro de la BD
 
@@ -123,13 +123,13 @@ class TestOrm(unittest.TestCase):
         session_2 = qsa.session()
         session_2.begin()
         obj2_ = session_2.query(class_).get("B")  # Recupera el registro de la BD
-        self.assertEqual(obj2_.descripcion, "Area B")
-        obj2_.descripcion = "Area B modificada"
+        self.assertEqual(obj2_.descripcion, "Area B")  # type: ignore [union-attr]
+        obj2_.descripcion = "Area B modificada"  # type: ignore [union-attr]
         session_2.commit()  # Guarda el cambio permanentemente.
 
         session_3 = qsa.session()
         obj3_ = session_3.query(class_).get("B")
-        self.assertEqual(obj3_.descripcion, "Area B modificada")
+        self.assertEqual(obj3_.descripcion, "Area B modificada")  # type: ignore [union-attr]
         qsa.thread_session_free()
 
     def test_legacy_metadata(self) -> None:
@@ -178,7 +178,7 @@ class TestOrm(unittest.TestCase):
         obj2_ = session_.query(class_).get("C")
 
         self.assertEqual(obj_.descripcion, "Descripción Nueva")
-        self.assertEqual(obj2_.descripcion, "Descripción Nueva")
+        self.assertEqual(obj2_.descripcion, "Descripción Nueva")  # type: ignore [union-attr]
 
         session_.rollback()  # rollback save_point
 

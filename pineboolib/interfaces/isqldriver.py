@@ -63,7 +63,7 @@ class ISqlDriver(object):
     mobile_: bool
     pure_python_: bool
     default_port: int
-    cursor_proxy: Dict[str, "result.ResultProxy"]
+    cursor_proxy: Dict[str, "result.Result"]
     open_: bool
     desktop_file: bool
     _true: Union[str, bool]
@@ -333,7 +333,7 @@ class ISqlDriver(object):
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
         setattr(new_session, "_conn_name", self.db_._name)
-        return new_session
+        return new_session  # type: ignore [return-value]
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
@@ -861,7 +861,7 @@ class ISqlDriver(object):
     #    """Return if use a file like database."""
     #    return self.desktop_file
 
-    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["result.Result"]:
         """Excecute a query and return result."""
 
         if not self.is_open():
@@ -869,17 +869,17 @@ class ISqlDriver(object):
 
         self.set_last_error_null()
         session_ = self.db_.session()
-        result_ = None
+
         try:
             try:
                 if query.find("::bytea") > -1:
-                    result_ = (  # Esto es necesario para no obtener error en la consulta con los bytearray
+                    return (  # Esto es necesario para no obtener error en la consulta con los bytearray
                         session_.connection()
                         .execution_options(autocommit=True)
                         .execute("""%s""" % query)
                     )
                 else:
-                    result_ = session_.execute(text("""%s""" % query))
+                    return session_.execute(text("""%s""" % query))
             except sqlalchemy.exc.DBAPIError as error:
                 LOGGER.warning(
                     "Se ha producido un error DBAPI con la consulta %s. Ejecutando rollback necesario",
@@ -901,7 +901,7 @@ class ISqlDriver(object):
             )
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
 
-        return result_
+        return None
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""

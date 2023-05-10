@@ -9,7 +9,6 @@ from pineboolib.core.utils import logging
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-
     from pineboolib.fllegacy import flmanager  # pragma: no cover
     from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
@@ -285,7 +284,7 @@ class IConnection:
 
     #    return ""  # pragma: no cover
 
-    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["result.Result"]:
         """Execute a query in a database cursor."""
 
         return None  # pragma: no cover

@@ -276,7 +276,7 @@ class PNConnectionManager(QtCore.QObject):
             else conn_or_session
         )
         try:
-            session.execute("SELECT 1").fetchone()
+            session.execute("SELECT 1").fetchone() # type: ignore [arg-type]
             result = hasattr(session, "commit")
         except Exception as error:
             session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821

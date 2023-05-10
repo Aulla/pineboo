@@ -18,20 +18,20 @@ LOGGER = logging.get_logger(__name__)
 class XmlDigest:
     """XmlDigest class."""
 
-    _root: "etree"
+    _root: "etree._Element"
     _pass: str
     _policy_list: List[str]
     _cert_path: str
     _certificate: Any
     _policy: Optional["policy.GenericPolicyId"]
-    _signature: str
+    _signature: Optional["etree._Element"]
     _is_signed: bool
     _sha: Optional[int]
     _rsa: Optional[int]
     _use_algorithm: str
 
     def __init__(
-        self, file_path_or_xml: Union[str, "etree.Element"], cert_path: str, pwsd_: str = ""
+        self, file_path_or_xml: Union[str, "etree._Element"], cert_path: str, pwsd_: str = ""
     ) -> None:
         """Initialize."""
 
@@ -42,7 +42,7 @@ class XmlDigest:
 
         self._root = (
             etree.parse(file_path_or_xml).getroot()
-            if isinstance(file_path_or_xml, str)
+            if isinstance(file_path_or_xml, str)  # type: ignore [unreachable]
             else file_path_or_xml
         )
         self._cert_path = cert_path
@@ -54,7 +54,7 @@ class XmlDigest:
         ]
         self._certificate = None
         self._policy = None
-        self._signature = ""
+        self._signature = None
         self._is_signed = False
         self._use_algorithm = "sha256"
         self._sha = None
@@ -72,7 +72,6 @@ class XmlDigest:
             LOGGER.warning("Password is empty!")
             return False
         try:
-
             with open(self._cert_path, "rb") as cert_file:
                 self._certificate = tuple(
                     pkcs12.load_key_and_certificates(
@@ -215,7 +214,8 @@ class XmlDigest:
             LOGGER.warning("signature not loaded!")
             return False
 
-        self._root.append(self._signature)
+        if self._signature:
+            self._root.append(self._signature)  # type: ignore [attr-defined]
 
         try:
             if self._policy is None:
@@ -250,11 +250,11 @@ class XmlDigest:
             LOGGER.warning("xml is not signed yet")
             return ""
 
-        for child in self._root:
+        for child in self._root:  # type: ignore [attr-defined]
             if str(child.get("Id")).startswith("Signature"):
                 for child_elem in child:
                     if "SignatureValue" in child_elem.tag:
-                        return child_elem.text
+                        return child_elem.text or ""
 
         LOGGER.warning("SignatureValue not found!")
         return ""

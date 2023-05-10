@@ -345,7 +345,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     result = "No"
 
             elif _type in ("unlock", "pixmap"):
-
                 result = None
 
             elif _type in ("string", "stringlist", "timestamp", "json"):
@@ -418,7 +417,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             utils_base.filedir("./core/images/icons", "unlock.png")
                         )
                     elif result in (False, "0"):
-
                         pixmap = QtGui.QPixmap(
                             utils_base.filedir("./core/images/icons", "lock.png")
                         )
@@ -575,7 +573,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             break
                     # Omito los campos que aparentemente no existen
                     if not found and not field.name() in self.sql_fields_omited:
-
                         if qry is None:
                             raise Exception("The qry is empty!")
 
@@ -682,7 +679,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # self._data_proxy = dynamic_filter_class.return_query()
         if self.metadata().isQuery():
-
             meta_qry = pnsqlquery.PNSqlQuery(self.metadata().query())
             if where_filter.strip().lower().startswith("order"):
                 order_by = where_filter.lower().replace("order by", "")
@@ -703,8 +699,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_query = self.session.execute(sql_query)
-        rows_loaded = result_query.rowcount
+        result_query = self.session.execute(sql_query)  # type: ignore [arg-type]
+        rows_loaded = result_query.rowcount  # type: ignore [attr-defined]
 
         if rows_loaded == -1:
             sql_count = (
@@ -717,11 +713,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     sql_count += " WHERE 1 = 1"
                 sql_count = sql_count[: sql_count.find("ORDER BY")]
 
-            result_count = self.session.execute(sql_count)
-            rows_loaded = result_count.fetchone()[0]
+            result_count = self.session.execute(sql_count)  # type: ignore [arg-type]
+            rows_loaded = result_count.fetchone()[0]  # type: ignore [index]
 
         if rows_loaded > 0:
-
             self._data_proxy = ProxyIndex(result_query, rows_loaded)
 
             self.need_update = False
@@ -782,7 +777,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             sql_query += " AND" if sql_query.find("WHERE") > -1 else " WHERE"
             sql_query += extra_where
 
-        result = self.session.execute(sql_query)
+        result = self.session.execute(sql_query)  # type: ignore [arg-type]
         new_data = result.fetchone()
 
         if new_data is None and mode in [1, 2]:  # mode 3 allways returns None
@@ -793,17 +788,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             LOGGER.debug("data_proxy is empty!")
             return True
         elif (
-            mode == 1 and new_data[0] in self._data_proxy._cached_data
+            mode == 1 and new_data[0] in self._data_proxy._cached_data  # type: ignore [index]
         ):  # if exists dont need Insert.
             return True
 
         if mode == 1:  # Insert.
-
             if order_by:
                 LOGGER.warning("FIXME! update chache whit alternative order_by")
                 return False
             else:
-
                 current_pos = None
                 min_val = 0
                 max_val = self._data_proxy._total_rows
@@ -812,7 +805,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     upper = None
 
                     if self.rowCount():
-
                         if current_pos is None:
                             current_pos = max_val // 2
 
@@ -840,14 +832,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             if current_pos in (max_val, 0):
                                 upper = True
                             else:
-
                                 min_val = current_pos
                                 current_pos += (max_val - min_val) // 2
                         else:
                             if current_pos in (min_val, 0):
                                 upper = False
                             else:
-
                                 max_val = current_pos
                                 current_pos -= (max_val - min_val) // 2
 
@@ -858,7 +848,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         current_pos = 0
 
                     if upper is not None:
-
                         if upper:
                             current_pos += 1
 
@@ -873,7 +862,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
 
         elif mode == 2:  # Edit.
-            self._data_proxy.update_pk(pk_value, new_data[0])
+            self._data_proxy.update_pk(pk_value, new_data[0])  # type: ignore [index]
 
             return True
 
@@ -897,7 +886,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 or self._grid_obj[row] is not None
                 and inspect(self._grid_obj[row]).expired
             ):
-
                 query = orm_utils.DynamicFilter(
                     query=session_.query(self._parent._cursor_model),
                     model_class=self._parent._cursor_model,

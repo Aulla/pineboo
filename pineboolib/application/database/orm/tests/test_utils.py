@@ -49,7 +49,7 @@ class TestUtils(unittest.TestCase):
         )
         ret_ = query.return_query().first()
         self.assertEqual(query.order_by, [["idarea", "desc"]])
-        self.assertEqual(ret_.idarea, "ir")
+        self.assertEqual(ret_.idarea, "ir")  # type: ignore [union-attr]
 
     @classmethod
     def tearDownClass(cls) -> None:

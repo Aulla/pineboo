@@ -82,7 +82,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
         if self.is_open():
             cur = self.execute_query("SELECT NEXT VALUE FOR %s_%s_seq" % (table_name, field_name))
 
-            if cur and cur.returns_rows:
+            if cur and cur.returns_rows:  # type: ignore [attr-defined]
                 return cur.fetchone()[0]  # type: ignore [index] # noqa: F821
 
             LOGGER.warning("not exec sequence")
@@ -259,7 +259,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
 
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
-    ) -> Optional["result.ResultProxy"]:
+    ):
         """Set a refresh query for database."""
 
         if not self.is_open():
@@ -278,8 +278,6 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
             LOGGER.error("refreshQuery: %s", error)
             LOGGER.info("SQL: %s", sql)
             LOGGER.trace("Detalle:", stack_info=True)
-
-        return None
 
     def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
         """Delete cursor."""

@@ -306,7 +306,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             and cur.isModifiedBuffer()
             and cur.private_cursor._ask_for_cancel_changes
         ):
-
             msg_box = getattr(application.PROJECT.DGI, "msgBoxQuestion", None)
             if msg_box is not None:
                 res = msg_box(
@@ -397,7 +396,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             self._transaction_level -= 1
         else:
-
             return True
 
         if self._transaction_level:
@@ -444,7 +442,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def transaction(self) -> bool:
         """Create a transaction."""
         try:
-
             session_ = self.session()
 
             if not session_.in_transaction():
@@ -466,7 +463,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Release a transaction."""
 
         try:
-
             session_ = self.session()
             trans_ = (
                 session_.get_nested_transaction()
@@ -474,7 +470,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 else session_.get_transaction()
             )
 
-            trans_.commit()
+            trans_.commit() # type: ignore [union-attr]
 
             return True
         except Exception as error:
@@ -487,14 +483,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Roll back a transaction."""
 
         try:
-
             session_ = self.session()
             trans_ = (
                 session_.get_nested_transaction()
                 if session_.in_nested_transaction()
                 else session_.get_transaction()
             )
-            trans_.rollback()
+            trans_.rollback()  # type: ignore [union-attr]
 
             return True
         except Exception as error:
@@ -553,7 +548,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     #    return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry) -> Optional["result.ResultProxy"]:
+    def execute_query(self, qry) -> Optional["result.Result"]:
         """Execute a query in a database cursor."""
 
         return self.driver().execute_query(qry)

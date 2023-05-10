@@ -22,7 +22,6 @@ import os
 if TYPE_CHECKING:
     from pineboolib.qsa import formdbwidget  # pragma: no cover
     from pineboolib.application import xmlaction  # pragma: no cover
-    from sqlalchemy.ext.declarative import api  # noqa: F401 # pragma: no cover
     from types import ModuleType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
@@ -292,7 +291,6 @@ def _load(  # type: ignore [return] # noqa: F821, F723
             raise PermissionError
 
     try:
-
         spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_name, script_name)
         if spec and spec.loader is not None:
             module = util.module_from_spec(spec)

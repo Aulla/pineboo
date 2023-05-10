@@ -109,8 +109,8 @@ class PNSqlQuery(object):
     _is_active: bool
     _field_name_to_pos_dict: Optional[Dict[str, int]]
     _sql_inspector: "sql_tools.SqlInspector"
-    _row: Optional["result_engine.RowProxy"]
-    _datos: List["result_engine.RowProxy"]
+    _row: Optional["result_engine.Row"]
+    _datos: List["result_engine.Row"]
     _posicion: int
     _last_query: str
     private_query: "PNSqlQueryPrivate"
@@ -211,7 +211,7 @@ class PNSqlQuery(object):
         )  # type: ignore [misc] # noqa: F821, F401
         result = self.db().execute_query(sql)
         try:
-            self._datos = result.fetchall() if result and result.returns_rows else []
+            self._datos = result.fetchall() if result and result.returns_rows else []  # type: ignore [attr-defined]
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
@@ -630,7 +630,7 @@ class PNSqlQuery(object):
         )
 
         try:
-            ret = self._row[pos] if self._row else None
+            ret = self._row[pos] if self._row else None  # type: ignore [index]
             return (
                 self.sql_inspector.resolve_empty_value(pos)
                 if ret in (None, "None")
@@ -655,7 +655,7 @@ class PNSqlQuery(object):
         if isinstance(field_name, str):
             pos_ = self.fieldNameToPos(field_name)
 
-            return self._row[pos_] in (None, "None")
+            return self._row[pos_] in (None, "None")  # type: ignore [index]
 
         raise Exception("isNull. field not found %s" % field_name)
 
