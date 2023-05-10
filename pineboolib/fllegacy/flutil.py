@@ -264,7 +264,6 @@ class FLUtil(object):
             buffer = "Sólo hay capacidad hasta mil millones"
 
         elif num < 1000000:
-
             buffer = cls.centenamillar(int(num))
 
         else:
@@ -303,15 +302,12 @@ class FLUtil(object):
             res = "%s %s" % (cls.enLetra(entero), currency)
 
             if decimal > 0:
-
                 res += " con %s céntimos" % cls.enLetra(decimal)
 
         if entero <= 0 and decimal > 0:
-
             res = "%s céntimos" % cls.enLetra(decimal)
 
         if num < 0.00:
-
             res = "menos %s" % res
 
         return res.upper()
@@ -1184,7 +1180,7 @@ class FLUtil(object):
         @param field_name. Field Name.
         @param table_name. Name of the table containing the field.
         @param conn_name. Name of the connection to use.
-        @return Alias ​​of the specified field.
+        @return Alias of the specified field.
         """
         conn = application.PROJECT.conn_manager.useConn(conn_name)
         metadata = conn.connManager().manager().metadata(table_name)
@@ -1200,7 +1196,7 @@ class FLUtil(object):
 
         @param table_name. Table name
         @param conn_name. Name of the connection to use
-        @return Alias ​​of the specified table
+        @return Alias of the specified table
         """
         conn = application.PROJECT.conn_manager.useConn(conn_name)
         metadata = conn.connManager().manager().metadata(table_name)
@@ -1217,7 +1213,7 @@ class FLUtil(object):
         @param alias. Field Name
         @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
-        @return Alias ​​of the specified field
+        @return Alias of the specified field
         """
         conn = application.PROJECT.conn_manager.useConn(conn_name)
         metadata = conn.connManager().manager().metadata(table_name)
