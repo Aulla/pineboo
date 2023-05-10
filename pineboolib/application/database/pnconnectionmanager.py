@@ -147,7 +147,6 @@ class PNConnectionManager(QtCore.QObject):
             if name == "main_conn":
                 return main_conn
             else:
-
                 if db_name:
                     if not self.removeConn(name):
                         raise Exception("a problem existes deleting older connection")
@@ -192,7 +191,6 @@ class PNConnectionManager(QtCore.QObject):
         result = True
 
         if name_conn_ in self.connections_dict.keys():
-
             self.connections_dict[name_conn_]._is_open = False
 
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
@@ -276,7 +274,7 @@ class PNConnectionManager(QtCore.QObject):
             else conn_or_session
         )
         try:
-            session.execute("SELECT 1").fetchone() # type: ignore [arg-type]
+            session.execute("SELECT 1").fetchone()  # type: ignore [arg-type]
             result = hasattr(session, "commit")
         except Exception as error:
             session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821

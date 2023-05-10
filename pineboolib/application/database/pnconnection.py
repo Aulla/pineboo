@@ -470,8 +470,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 else session_.get_transaction()
             )
 
-            trans_.commit() # type: ignore [union-attr]
-
+            trans_.commit()  # type: ignore [union-attr]
             return True
         except Exception as error:
             LOGGER.warning("Commit: %s", str(error), stack_info=True)

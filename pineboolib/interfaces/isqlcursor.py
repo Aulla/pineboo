@@ -22,7 +22,6 @@ if TYPE_CHECKING:
         pnaction,
     )
     from pineboolib.interfaces import iconnection  # pragma: no cover
-    import sqlalchemy  # type: ignore [import] # noqa: F821 # pragma: no cover
     from sqlalchemy.ext import declarative
 
 
