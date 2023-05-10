@@ -214,10 +214,12 @@ class XmlDigest:
             LOGGER.warning("signature not loaded!")
             return False
 
-        if self._signature:
+        try:
+            if self._signature is None:
+                raise Exception("Signature is empty!")
+
             self._root.append(self._signature)  # type: ignore [attr-defined]
 
-        try:
             if self._policy is None:
                 raise Exception("Policy is empty!")
             context = XAdESContext(self._policy)
