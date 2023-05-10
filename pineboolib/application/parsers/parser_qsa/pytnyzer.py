@@ -321,8 +321,6 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         return "None"
     elif name == "this":
         return "self"
-    elif name == "form":
-        return "self.form" if name in qsa_exclude else "self"
     elif name == "NaN":
         return 'float("nan")'
 
@@ -353,7 +351,11 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
 
     if qsa_exclude is not None:
         if orig_name in qsa_exclude:
+            if orig_name == "form":
+                return "self.form"
             return name
+        elif orig_name == "form":
+            return "self"
 
         if orig_name in QSA_KNOWN_ATTRS:
             if name in DISALLOW_CONVERSION_FOR_NONSTRICT:
