@@ -150,16 +150,19 @@ class FormInternalObj(qsa.FormDBWidget):
     def write_db_value(self, valor_name: str, value: Union[str, bool]) -> None:
         """Set global value."""
         util = qsa.FLUtil()
+        insert = False
         if not util.sqlSelect("flsettings", "flkey", "flkey='%s'" % valor_name):
-            util.sqlInsert("flsettings", "flkey,valor", "%s,%s" % (valor_name, value))
+            util.sqlInsert("flsettings", ["flkey", "valor"], [valor_name, value])
+            insert = True
         else:
-            util.sqlUpdate("flsettings", "valor", str(value), "flkey = '%s'" % valor_name)
+            util.sqlUpdate("flsettings", ["valor"], [str(value)], "flkey = '%s'" % valor_name)
+
+        print("Insert", insert, valor_name)
 
     def read_local_value(self, valor_name: str) -> Any:
         """Return local value."""
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
-
             valor = settings.CONFIG.value("application/%s" % valor_name, False)
         else:
             if valor_name in (
@@ -213,6 +216,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def guardar_clicked(self) -> None:
         """Save actual configuration."""
+
+        qsa.aqApp.db().default().transaction()
 
         self.write_db_value(
             "verticalName", self.ui_.findChild(QtWidgets.QWidget, "leNombreVertical").text()  # type: ignore [attr-defined]
@@ -304,6 +309,8 @@ class FormInternalObj(qsa.FormDBWidget):
             auto_complete = "OnDemandF4"
 
         self.write_local_value("autoComp", auto_complete)
+        qsa.aqApp.db().default().commit()
+
         self.cerrar_clicked()
 
     def color_chooser_clicked(self) -> None:
