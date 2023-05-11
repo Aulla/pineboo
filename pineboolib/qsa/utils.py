@@ -675,6 +675,8 @@ def typeof_(obj: Any) -> str:
         result = "number"
     elif isinstance(obj, (dict, list, types.Array)):
         result = "object"
+    elif hasattr(obj, "__call__"):
+        result = "function"
 
     return result
 
