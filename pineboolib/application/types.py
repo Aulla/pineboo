@@ -215,12 +215,10 @@ class Array(object):
         new_dict = {}
 
         if len(args) == 2:  # Delete
-
             for key in list(self._dict.keys())[args[0] : args[0] + args[1]]:
                 new_dict[key] = self._dict[key]
 
         elif len(args) > 2 and args[1] == 0:  # Insertion
-
             fix_pos = 0
             for pos in range(len(self._dict.keys())):
                 new_dict[pos + fix_pos] = self._dict[pos]
@@ -230,7 +228,6 @@ class Array(object):
                         new_dict[pos + fix_pos] = new_value
 
         elif len(args) > 2 and args[1] > 0:  # Replacement
-
             for pos, key in enumerate(self._dict.keys()):
                 if pos == args[0]:
                     for new_value in args[2:]:
@@ -325,7 +322,7 @@ class Dir(object):
     def entryList(
         self,
         patron: str,
-        type_: "QtCore.QDir.Filter" = QtCore.QDir.Filter.NoFilter,
+        filter: "QtCore.QDir.Filter" = QtCore.QDir.Filter.NoFilter,
         sort: "QtCore.QDir.SortFlag" = QtCore.QDir.SortFlag.NoSort,
     ) -> list:
         """
@@ -334,22 +331,7 @@ class Dir(object):
         @param patron. Patron a usa para identificar los ficheros
         @return lista con los ficheros que coinciden con el patrón
         """
-        # p = os.walk(self.path)
-        retorno: List[str] = []
-        try:
-            import fnmatch
-
-            if self.path is None:
-                raise ValueError("self.path is not defined!")
-
-            if os.path.exists(self.path):
-                for file in os.listdir(self.path):
-                    if fnmatch.fnmatch(file, patron):
-                        retorno.append(file)
-        except Exception as exception:
-            print("Dir_Class.entryList:", exception)
-
-        return retorno
+        return QtCore.QDir(self.path).entryList([patron], filter, sort)
 
     @staticmethod
     def fileExists(file_name: str) -> bool:
