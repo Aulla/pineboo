@@ -47,9 +47,9 @@ def text_to_module(source: str, file_name: str = "anon") -> Any:
         pytnyzer.write_python_file(file_, ast)
         file_.close()
 
-        LOGGER.info("Nuevo módulo anónimo generado -> %s " % file_name)
+        LOGGER.debug("Nuevo módulo anónimo generado -> %s " % file_name)
     else:
-        LOGGER.info("Usando módulo anónimo ya existente -> %s" % file_name)
+        LOGGER.debug("Usando módulo anónimo ya existente -> %s" % file_name)
 
     module_path = "tempdata.%s" % (module_name)
 
