@@ -234,6 +234,7 @@ QSA_KNOWN_ATTRS = {
     "killTimers",
     "logger",
     "parseFloat",
+    "toJson",
     "parseInt",
     "parseString",
     "print_",
@@ -894,12 +895,13 @@ class TryCatch(ASTPython):
                 else:
                     yield dtype, data
             identifier = " ".join(expr)
-        yield "line", "except Exception:"
+        yield "line", "except Exception as exc_:"
         yield "begin", "block-except"
         if identifier:
             self.source.locals.add(identifier)
-            # yield "line", "%s = str(%s)" % (identifier, identifier)
-            yield "line", "%s = qsa.format_exc()" % (identifier)
+            yield "line", "%s = exc_" % (identifier)
+        else:
+            yield "line", "print(qsa.format_exc())"
         for obj in parse_ast(catchblock, parent=self).generate(include_pass=identifier is None):
             yield obj
         yield "end", "block-except"
