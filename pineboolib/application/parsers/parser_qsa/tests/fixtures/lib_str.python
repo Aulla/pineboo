@@ -17,8 +17,8 @@ def entry_point(user, verb, model: "Any" = None, params: "Any" = None, method: "
         response_data: Any = f(user, params)
         return response_data
 
-    except Exception:
-        e = qsa.format_exc()
+    except Exception as exc_:
+        e = exc_
         qsa.debug(qsa.ustr("Error ", e))
 
 
