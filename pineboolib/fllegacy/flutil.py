@@ -685,7 +685,7 @@ class FLUtil(object):
         @return Setting value
         """
 
-        return settings.SETTINGS.value(key, def_)
+        return settings.CONFIG.value(key, def_)
 
     @classmethod
     def writeSettingEntry(cls, key: str, value: Any) -> None:
@@ -698,7 +698,7 @@ class FLUtil(object):
         @return Indicator if the writing of the settings is successful
         """
 
-        return settings.SETTINGS.set_value(key, value)
+        return settings.CONFIG.set_value(key, value)
 
     @classmethod
     def readDBSettingEntry(cls, key: str) -> Any:
