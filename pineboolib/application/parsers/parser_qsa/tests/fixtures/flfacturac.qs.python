@@ -1185,8 +1185,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryEjerAsiento.setWhere(qsa.ustr("a.idasiento = ", idAsiento))
         try:
             qryEjerAsiento.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryEjerAsiento.exec_():
             return False
@@ -1246,8 +1246,8 @@ class FormInternalObj(qsa.FormDBWidget):
             if not qsa.from_project("flcontppal").iface.pub_comprobarAsiento(datosAsiento.idasiento):
                 raise Exception(util.translate("scripts", "Error al comprobar el asiento"))
 
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
             curTransaccion.rollback()
             qsa.MessageBox.warning(
                 qsa.ustr(
@@ -1346,8 +1346,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryIva.setWhere(qsa.ustr("idfactura = ", curFactura.valueBuffer("idfactura")))
         try:
             qryIva.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryIva.exec_():
             return False
@@ -2004,8 +2004,8 @@ class FormInternalObj(qsa.FormDBWidget):
             if not qsa.from_project("flcontppal").iface.pub_comprobarAsiento(datosAsiento.idasiento):
                 raise Exception(util.translate("scripts", "Error al comprobar el asiento"))
 
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
             curTransaccion.rollback()
             qsa.MessageBox.warning(
                 qsa.ustr(
@@ -2040,8 +2040,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             qrySubcuentas.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qrySubcuentas.exec_():
             return False
@@ -2193,8 +2193,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryIva.setWhere(qsa.ustr("idfactura = ", curFactura.valueBuffer("idfactura")))
         try:
             qryIva.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryIva.exec_():
             return False
@@ -2460,8 +2460,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             q.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not q.exec_():
             datos["error"] = 2
@@ -2486,8 +2486,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             q.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not q.exec_():
             datos["error"] = 2
@@ -2508,8 +2508,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             q.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not q.exec_():
             datos["error"] = 2
@@ -2688,8 +2688,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             q.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not q.exec_():
             datos["error"] = 2
@@ -2718,8 +2718,8 @@ class FormInternalObj(qsa.FormDBWidget):
         # WITH_END
         try:
             q.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not q.exec_():
             datos["error"] = 2
@@ -2786,8 +2786,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryPartidasVenta.setWhere(qsa.ustr("c.idcuentaesp = 'VENTAS' AND idasiento = ", idAsiento))
         try:
             qryPartidasVenta.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryPartidasVenta.exec_():
             return False
@@ -2873,8 +2873,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryPartidasCompra.setWhere(qsa.ustr("c.idcuentaesp = 'COMPRA' AND idasiento = ", idAsiento))
         try:
             qryPartidasCompra.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryPartidasCompra.exec_():
             return False
@@ -3964,8 +3964,8 @@ class FormInternalObj(qsa.FormDBWidget):
         qryImpuesto.setWhere(qsa.ustr("codimpuesto = '", codImpuesto, "'"))
         try:
             qryImpuesto.setForwardOnly(True)
-        except Exception:
-            e = qsa.format_exc()
+        except Exception as exc_:
+            e = exc_
 
         if not qryImpuesto.exec_():
             return False
