@@ -191,11 +191,11 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
-        "--no-parse-project",
+        "--parse-project",
         action="store_false",
         dest="parse_project_on_init",
-        default=True,
-        help="parse all project on init is disabled",
+        default=False,
+        help="parse all project on init",
     )
 
     if custom_argv is None:
