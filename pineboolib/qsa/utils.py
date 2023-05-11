@@ -6,6 +6,7 @@ import re
 import math
 import sys
 import threading
+import json
 import os
 
 from PyQt6 import QtCore
@@ -741,3 +742,8 @@ def require(name: str) -> Any:
     """Return require."""
 
     return qsadictmodules.from_project("formImport").from_(name)
+
+
+def to_json(text: str) -> Union[Dict, List]:
+    text = text.replace("'", '"')
+    return json.loads(text)

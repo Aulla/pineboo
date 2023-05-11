@@ -19,6 +19,7 @@ from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 from pineboolib.qsa.input import Input  # noqa: F401
 from pineboolib.qsa.utils import reg_exp as RegExp  # noqa: F401
 from pineboolib.qsa.utils import parse_float as parseFloat  # noqa: F401
+from pineboolib.qsa.utils import to_json as toJson  # noqa: F401
 from pineboolib.qsa.utils import parse_string as parseString  # noqa: F401
 from pineboolib.qsa.utils import parse_int as parseInt  # noqa: F401
 from pineboolib.qsa.utils import start_timer as startTimer  # noqa: F401
