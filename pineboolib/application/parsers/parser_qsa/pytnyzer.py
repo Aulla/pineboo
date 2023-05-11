@@ -15,7 +15,7 @@ from typing import Any, Generator, Tuple, Type, List, Dict, Set, cast, Optional,
 from pineboolib.core.utils import logging
 from pineboolib.application.parsers import parser_qsa
 
-
+ANON_NO = 0
 LOGGER = logging.get_logger(__name__)
 ASTGenerator = Generator[Tuple[str, str], None, None]
 
@@ -587,13 +587,16 @@ class Function(ASTPython):
 
     def generate(self, **kwargs: Any) -> ASTGenerator:
         """Generate python code."""
+
+        global ANON_NO
+
         _name = self.elem.get("name")
         anonymous = False
         if _name:
             name = self.other_var(_name)
         else:
             # Anonima:
-            name = "_anonymous_fn_"
+            name = "_anonymous_%s_fn" % ANON_NO
             anonymous = True
 
         static_flag = self.elem.get("arg00")
