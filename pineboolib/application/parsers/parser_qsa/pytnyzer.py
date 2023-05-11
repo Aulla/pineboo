@@ -597,6 +597,7 @@ class Function(ASTPython):
         else:
             # Anonima:
             name = "_anonymous_%s_fn" % ANON_NO
+            ANON_NO += 1
             anonymous = True
 
         static_flag = self.elem.get("arg00")
@@ -1708,8 +1709,11 @@ class Member(ASTPython):
                         arguments = ["%s[%s]" % (".".join(part1), value)] + part2
 
                     elif member == "length":
-                        value = arg1[7:-1]
-                        arguments = ["qsa.length(%s)" % (".".join(part1))] + part2
+                        if arguments[0] == "self" and arguments[1] == member:
+                            continue
+                        else:
+                            value = arg1[7:-1]
+                            arguments = ["qsa.length(%s)" % (".".join(part1))] + part2
                     elif member == "charAt":
                         value = arg1[7:-1]
                         arguments = ["%s[%s]" % (".".join(part1), value)] + part2
