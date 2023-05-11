@@ -23,7 +23,7 @@ def text_to_module(source: str, file_name: str = "anon") -> Any:
     db_name = PROJECT.conn_manager.mainConn().DBName()
     source_bytes = source.encode()
     sha_ = hashlib.new("sha1", source_bytes).hexdigest()
-    module_name = "%s_%s" % (file_name, sha_)
+    module_name = "%s" % (file_name)
     fileobj = file.File("anon", "%s.py" % module_name, sha_, db_name=db_name)
     file_name = fileobj.path()
 
