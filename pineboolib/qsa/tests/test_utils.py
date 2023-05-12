@@ -59,6 +59,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(math_.round(10.1234, 2), 10.12)
         self.assertEqual(math_.round(0.9698, 2), 0.97)
         self.assertEqual(math_.round(123.969899, 4), 123.9699)
+        self.assertEqual(math_.round(123.969899), 124)
 
         self.assertTrue(math_.random() > 0)
         self.assertTrue(math_.max(1, 2) == 2)

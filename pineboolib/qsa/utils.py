@@ -223,7 +223,7 @@ class MathClass(object):
         """Raise base to the power of exp."""
         return math.pow(base_, exp)
 
-    def round(self, value_1: float, value_2: int = 2) -> float:
+    def round(self, value_1: float, value_2: Optional[int] = None) -> float:
         """Round a number x to y decimal places."""
         return round(float(value_1), value_2)
 
