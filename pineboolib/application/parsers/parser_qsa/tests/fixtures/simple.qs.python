@@ -5,13 +5,13 @@ from pineboolib.qsa import qsa
 # /** @file */
 
 
-TYPE_SEL_: Any = 300
-TYPE_UNLOCK_: Any = 200
-TYPE_SERIAL_: Any = 100
-TYPE_TIME_: Any = 27
-TYPE_DATE_: Any = 26
-TYPE_DOUBLE_: Any = 19
-TYPE_BOOL_: Any = 18
-TYPE_UINT_: Any = 17
-TYPE_INT_: Any = 16
 TYPE_STRING_: Any = 3
+TYPE_INT_: Any = 16
+TYPE_UINT_: Any = 17
+TYPE_BOOL_: Any = 18
+TYPE_DOUBLE_: Any = 19
+TYPE_DATE_: Any = 26
+TYPE_TIME_: Any = 27
+TYPE_SERIAL_: Any = 100
+TYPE_UNLOCK_: Any = 200
+TYPE_SEL_: Any = 300
