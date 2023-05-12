@@ -2490,7 +2490,9 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
                 child.set("constructor", "1")
                 if not only_iface:
                     csource.append(child)
-                mainsource.insert(0, def_iface)
+                    mainsource.insert(0, def_iface)
+                else:
+                    mainsource.append(def_iface)
         else:
             mainsource.append(child)
 
