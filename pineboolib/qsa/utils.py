@@ -441,7 +441,7 @@ def is_nan(value: Any) -> bool:
     @param x. Valor numérico
     @return True o False
     """
-    if value in [None, "", True, False]:
+    if value in [None, ""] or isinstance(value, bool):
         return True
 
     if isinstance(value, str) and value.find(":"):
