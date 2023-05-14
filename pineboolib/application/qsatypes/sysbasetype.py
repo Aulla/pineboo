@@ -218,7 +218,7 @@ class SysBaseType(object):
                 conn_db._is_open = True
 
         else:
-            LOGGER.warning(
+            LOGGER.debug(
                 "addDatabase: '%s' connection is already open",
                 conn_name if conn_name else driver_or_conn,
             )
