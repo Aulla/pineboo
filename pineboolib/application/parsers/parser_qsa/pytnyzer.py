@@ -1082,10 +1082,8 @@ class ForIn(ASTPython):
             myelems.append(" ".join(expr))
         list_elem, main_list = myelems
         yield "debug", "FOR-IN: " + repr(myelems)
-        yield "line", "for %s in %s if hasattr(%s, 'keys') else range(len(%s)):" % (
+        yield "line", "for %s in %s:" % (
             list_elem,
-            main_list,
-            main_list,
             main_list,
         )
         for source_elem in self.elem.findall("Source"):
