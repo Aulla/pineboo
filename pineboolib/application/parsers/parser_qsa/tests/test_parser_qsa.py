@@ -392,6 +392,36 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         self.assertTrue(qs_py.find("TYPE_INT_") > -1)
         self.assertTrue(qs_py.find("TYPE_UINT_") > -1)
 
+    def test_anon_class(self) -> None:
+        """Test converting anon class"""
+
+        qsa = """class ProveedorDefectoSetter {
+        var esta_no;
+        static var esta_si;
+        static function fun1() {
+
+            }
+        function fun2() {
+        
+            }
+        }"""
+
+        valid = """# /** @class_declaration ProveedorDefectoSetter */
+class ProveedorDefectoSetter(qsa.ObjectClass):
+    # esta_no : Any = None
+    esta_si: Any = None
+
+    @classmethod
+    def fun1(self):
+        pass
+
+    def fun2(self):
+        pass
+"""
+        require_qs_py = qs2py(qsa)
+
+        self.assertEqual(require_qs_py, valid)
+
     def test_require(self) -> None:
         """Test conveting fixture require.qs"""
         self.maxDiff = None

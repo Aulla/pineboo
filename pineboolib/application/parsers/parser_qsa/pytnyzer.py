@@ -1270,9 +1270,22 @@ class Variable(ASTPython):
     def generate(self, force_value: bool = False, **kwargs) -> ASTGenerator:
         """Generate python code."""
 
+        is_valid = True
+        parent_ = self.elem.get("parent_")
+        if parent_ and parent_.tag == "DeclarationBlock":
+            static_flag = parent_.get("arg00")
+            grand_parent_ = parent_.get("parent_")
+            if grand_parent_ and grand_parent_.tag == "Source":
+                class_parent_ = grand_parent_.get("parent_")
+                if class_parent_ and not class_parent_.get("extends"):
+                    is_valid = static_flag and str(static_flag).startswith("STATIC")
+
         name = self.elem.get("name", "unnamed")
         # if name.startswith("colorFun"): print(name)
-        yield "expr", self.local_var(name, is_member=True)
+
+        variable = self.local_var(name, is_member=True)
+        variable = "%s%s" % ("" if is_valid else "#", variable)
+        yield "expr", variable
         values = 0
         # for value in self.elem.findall("Value|Expression"):
         dtype: Optional[str] = self.elem.get("type", None)
