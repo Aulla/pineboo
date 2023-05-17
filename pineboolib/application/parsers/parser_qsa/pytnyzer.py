@@ -1270,22 +1270,9 @@ class Variable(ASTPython):
     def generate(self, force_value: bool = False, **kwargs) -> ASTGenerator:
         """Generate python code."""
 
-        is_valid = True
-        parent_ = self.elem.get("parent_")
-        if parent_ and parent_.tag == "DeclarationBlock":
-            static_flag = parent_.get("arg00")
-            grand_parent_ = parent_.get("parent_")
-            if grand_parent_ and grand_parent_.tag == "Source":
-                class_parent_ = grand_parent_.get("parent_")
-                if class_parent_ and not class_parent_.get("extends"):
-                    is_valid = static_flag and str(static_flag).startswith("STATIC")
-
         name = self.elem.get("name", "unnamed")
         # if name.startswith("colorFun"): print(name)
-
-        variable = self.local_var(name, is_member=True)
-        variable = "%s%s" % ("" if is_valid else "#", variable)
-        yield "expr", variable
+        yield "expr", self.local_var(name, is_member=True)
         values = 0
         # for value in self.elem.findall("Value|Expression"):
         dtype: Optional[str] = self.elem.get("type", None)
@@ -2374,7 +2361,22 @@ class DeclarationBlock(ASTPython):
         # if mode == "CONST": yield "debug", "Const Declaration:"
         for var in self.elem:
             var.set("parent_", self.elem)  # type: ignore
+
+            is_valid = True
+
+            grand_parent_ = self.elem.get("parent_")
+            if grand_parent_ and grand_parent_.tag == "Source":
+                class_parent_ = grand_parent_.get("parent_")
+                if (
+                    class_parent_
+                    and class_parent_.tag == "Class"
+                    and not class_parent_.get("extends")
+                ):
+                    static_flag = self.elem.get("arg00")
+                    is_valid = static_flag and str(static_flag).startswith("STATIC")
+
             expr = []
+
             for dtype, data in parse_ast(var, parent=self).generate(force_value=True):
                 if dtype == "expr":
                     if data is None:
@@ -2407,8 +2409,12 @@ class DeclarationBlock(ASTPython):
                             expr[1] = " :"
                             expr[2] = ' "%s"' % expr[2].replace("(self)", "")
             else:
-                if expr[0] == "ctx" and expr[1].find("qsa.Object") > -1:
-                    expr[1] = ': "FormInternalObj"'
+                if expr[0] == "ctx":
+                    if expr[1].find("qsa.Object") > -1:
+                        expr[1] = ': "FormInternalObj"'
+                else:
+                    if dtype == "expr" and not is_valid:
+                        expr.insert(0, "#")
             yield "line", " ".join(expr)
 
 
