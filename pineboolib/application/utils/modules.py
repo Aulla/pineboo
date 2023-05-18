@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from importlib.machinery import ModuleSpec
 
 
-def text_to_module(source: str, file_name: str = "anon") -> Any:
+def text_to_module(source: str, file_name: str = "anon", lang="qs") -> Any:
     """Text to module function."""
 
     from pineboolib.application.parsers.parser_qsa import flscriptparse, postparse, pytnyzer
@@ -36,17 +36,21 @@ def text_to_module(source: str, file_name: str = "anon") -> Any:
             os.makedirs(file_dir)
         elif os.path.exists(file_name):  # Si existe la carpeta borra el archivo erroneo
             os.remove(file_name)
+        if lang == "qs":
+            prog = flscriptparse.parse(source)
+            if prog is None:
+                raise ValueError("Failed to convert to Python")
+            tree_data = flscriptparse.calctree(prog, alias_mode=0)
+            ast = postparse.post_parse(tree_data)
 
-        prog = flscriptparse.parse(source)
-        if prog is None:
-            raise ValueError("Failed to convert to Python")
-        tree_data = flscriptparse.calctree(prog, alias_mode=0)
-        ast = postparse.post_parse(tree_data)
+            file_ = open(file_name, "w", encoding="UTF-8")
 
-        file_ = open(file_name, "w", encoding="UTF-8")
-
-        pytnyzer.write_python_file(file_, ast)
-        file_.close()
+            pytnyzer.write_python_file(file_, ast)
+            file_.close()
+        else:
+            file_ = open(file_name, "w", encoding="UTF-8")
+            file_.write(source)
+            file_.close()
 
         LOGGER.debug("Nuevo módulo anónimo generado -> %s " % file_name)
     else:
