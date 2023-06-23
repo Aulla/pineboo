@@ -352,11 +352,11 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
 
     if qsa_exclude is not None:
         if orig_name in qsa_exclude:
-            if orig_name == "form":
-                return "self.form"
+            # if orig_name == "form":
+            #    return "self.form"
             return name
-        elif orig_name == "form":
-            return "self"
+        #elif orig_name == "form":
+        #    return "self"
 
         if orig_name in QSA_KNOWN_ATTRS:
             if name in DISALLOW_CONVERSION_FOR_NONSTRICT:
