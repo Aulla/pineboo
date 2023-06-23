@@ -49,11 +49,9 @@ class ifaceCtx(head):
 # /** @class_declaration FormInternalObj */
 class FormInternalObj(qsa.FormDBWidget):
     iface: "ifaceCtx"
-    form: "qsa.FormDBWidget"
 
     # /** @class_definition FormInternalObj */
     def _class_init(self):
-        self.form = self
         self.iface = ifaceCtx(self)
 
     # /** @class_definition interna */
@@ -67,7 +65,7 @@ class FormInternalObj(qsa.FormDBWidget):
     def interna_calculateField(self, fN) -> "str":
         util: Any = qsa.FLUtil()
         cursor: Any = self.cursor()
-        hija: Any = self.form.child("hija")
+        hija: Any = form.child("hija")
         valor: Any = None
         for case in qsa.switch(fN):
             if case("X"):
