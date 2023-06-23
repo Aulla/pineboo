@@ -735,7 +735,7 @@ class FLUtil(object):
         if found:
             return cls.sqlUpdate("flsettins", ["flkey", "valor"], [key, value], where)
         else:
-            return cls.sqlInsert("flsettings", ["valor"], ["value"])
+            return cls.sqlInsert("flsettings", ["flkey", "valor"], [key, value])
 
     @classmethod
     def roundFieldValue(
