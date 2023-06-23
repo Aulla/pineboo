@@ -198,6 +198,15 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         help="parse all project on init",
     )
 
+    parser.add_option(
+        "-i",
+        "--omit-no_python",
+        action="store_true",
+        dest="omit_no_python_tags",
+        default=False,
+        help="Omit tags no_python",
+    )
+
     if custom_argv is None:
         (options, args) = parser.parse_args()
     else:

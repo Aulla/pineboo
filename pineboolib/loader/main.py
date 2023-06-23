@@ -358,6 +358,10 @@ def exec_main(options: "optparse.Values") -> int:
     application.USE_INTERACTIVE_GUI = options.enable_interactive_gui
     application.ENABLE_CALL_EXCEPTIONS = options.enable_call_exceptions
     application.PARSE_PROJECT_ON_INIT = options.parse_project_on_init
+    if options.omit_no_python_tags:
+        from pineboolib.application.parsers import parser_qsa
+
+        parser_qsa.IGNORE_NO_PYTHON_TAGS = True
 
     application.PROJECT.set_app(call_qapplication(app_args))
 
