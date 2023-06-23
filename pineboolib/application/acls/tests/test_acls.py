@@ -308,7 +308,7 @@ class TestACLS(unittest.TestCase):
 
         main_form_class = getattr(eneboo, "MainForm", None)
         self.assertTrue(main_form_class)
-        application.PROJECT.main_window = main_form_class()
+        application.PROJECT.main_window = main_form_class()  # type: ignore[misc]
 
         sys_type = systype.SysType()
         sys_type.installACL("tercera")
@@ -341,7 +341,7 @@ class TestACLS(unittest.TestCase):
         main_form_class = getattr(eneboo, "MainForm", None)
         # main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_class)
-        self.main_w = main_form_class()
+        self.main_w = main_form_class()  # type: ignore[misc]
         project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()
@@ -378,7 +378,7 @@ class TestACLS(unittest.TestCase):
         main_form_class = getattr(eneboo, "MainForm", None)
         # main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_class)
-        self.main_w = main_form_class()
+        self.main_w = main_form_class()  # type: ignore[misc]
         project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()
@@ -404,7 +404,7 @@ class TestACLS(unittest.TestCase):
         main_form_class = getattr(eneboo, "MainForm", None)
         # main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_class)
-        self.main_w = main_form_class()
+        self.main_w = main_form_class()  # type: ignore[misc]
         project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()

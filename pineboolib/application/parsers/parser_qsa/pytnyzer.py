@@ -355,7 +355,7 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
             # if orig_name == "form":
             #    return "self.form"
             return name
-        #elif orig_name == "form":
+        # elif orig_name == "form":
         #    return "self"
 
         if orig_name in QSA_KNOWN_ATTRS:

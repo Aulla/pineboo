@@ -5,11 +5,9 @@ from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 
 import unittest
 from pineboolib.application.parsers.parser_qsa.postparse import pythonify_string as qs2py
-from pineboolib.application.utils import modules
 from pineboolib.application.parsers import parser_qsa
 from pineboolib.application.parsers.parser_qsa.tests import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.application.utils import modules
 
 from pineboolib.core.utils import utils_base
 import os
@@ -402,7 +400,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
             }
         function fun2() {
-        
             }
         }"""
 

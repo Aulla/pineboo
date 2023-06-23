@@ -745,5 +745,6 @@ def require(name: str) -> Any:
 
 
 def to_json(text: str) -> Union[Dict, List]:
+    """Return json object from str."""
     text = text.replace("'", '"')
     return json.loads(text)
