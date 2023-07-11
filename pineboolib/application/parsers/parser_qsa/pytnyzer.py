@@ -1372,7 +1372,7 @@ class InstructionUpdate(ASTPython):
                     parent = self.elem.get("parent_")
                     new_parent = None if "ifaceCtx" in self.source.locals else parent
                     found_global = None
-                    
+
                     while new_parent:
                         if new_parent.tag == "Value":
                             for variable in new_parent.findall('*/*/Variable'):
@@ -1380,23 +1380,23 @@ class InstructionUpdate(ASTPython):
                                     found_global = False
                                     break
 
-                        parent = new_parent 
+                        parent = new_parent
 
                         if found_global is None:
                             if parent.tag == "Source":
                                 grand_parent = parent.get("parent_")
                                 if grand_parent and grand_parent.tag == "Source":
-                                    for variable_global in  parent.findall("DeclarationBlock/Variable"):
+                                    for variable_global in parent.findall("DeclarationBlock/Variable"):
                                         if variable_global.get("name") == identifier:
                                             found_global = True
                                             break
-                        
+
                         if found_global:
                             yield "line", "global %s" % identifier
-                        
+
                         new_parent = None
                         if found_global is None:
-                            new_parent =parent.get("parent_")
+                            new_parent = parent.get("parent_")
 
                 arguments.append(" ".join(expr))
 
