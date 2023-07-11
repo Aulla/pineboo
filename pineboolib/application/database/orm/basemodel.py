@@ -494,8 +494,7 @@ class BaseModel(object):
         """Return table metadata."""
 
         ret_ = application.PROJECT.conn_manager.manager().metadata(
-            cls.__tablename__, not application.PROJECT.db_admin_mode
-        )
+            cls.__tablename__)
 
         if ret_ is None:
             cls._error_manager("table_metadata", "%s tablemetadata is empty" % cls.__tablename__)

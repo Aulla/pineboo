@@ -730,7 +730,7 @@ class PNSqlQuery(object):
         mng = self.db().connManager().manager()
         for tabla in table_list.split(","):
             if not mng.existsTable(tabla) and not mng.metadata(
-                tabla, not application.PROJECT.db_admin_mode
+                tabla
             ):
                 self._invalid_tables_list = True
                 LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)

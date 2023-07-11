@@ -128,6 +128,9 @@ class FLManager(QtCore.QObject, IManager):
 
         if not self.db_:
             raise Exception("metadata. self.db_ is empty!")
+        
+        if not quick:
+            quick = not application.PROJECT.db_admin_mode
 
         util = flutil.FLUtil()
 
@@ -540,7 +543,7 @@ class FLManager(QtCore.QObject, IManager):
             raise Exception("createTable. self.db_ is empty!")
 
         if isinstance(metadata_or_name, str):
-            metadata_or_name = self.metadata(metadata_or_name, False)
+            metadata_or_name = self.metadata(metadata_or_name)
 
         if metadata_or_name is None:
             return None
@@ -1262,7 +1265,7 @@ class FLManager(QtCore.QObject, IManager):
         while qry2.next():
             table = str(qry2.value(0))
             table = table.replace(".mtd", "")
-            tmd = self.metadata(table)
+            tmd = self.metadata(table, True)
             if not self.existsTable(table):
                 self.createTable(table)
             if not tmd:
