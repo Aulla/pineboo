@@ -2861,7 +2861,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         @param chr_ Character string with filtering pattern
         """
-        if not self.cursor().model:
+        if not self.cursor().model():
             return
         base_filter: Any = None
         if not self._table_records:

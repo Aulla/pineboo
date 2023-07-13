@@ -4,7 +4,7 @@
 
 from pineboolib.application.database.orm import basemodel
 
-import sqlalchemy
+import sqlalchemy  # type: ignore [import]
 
 from pineboolib.qsa import qsa
 

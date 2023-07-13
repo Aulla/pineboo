@@ -61,7 +61,7 @@ class MessageBox:
         if application.PROJECT._splash:
             application.PROJECT._splash.hide()
 
-        if not getattr(application, "TESTING_MODE", None):
+        if msg_box and not getattr(application, "TESTING_MODE", None):
             if not default_button:
                 return msg_box(parent, title, text, *buttons)
             else:

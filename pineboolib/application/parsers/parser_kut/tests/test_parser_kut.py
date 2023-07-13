@@ -26,7 +26,7 @@ class TestParser(unittest.TestCase):
 
         main_form_class = getattr(eneboo, "MainForm", None)
         self.assertTrue(main_form_class)
-        application.PROJECT.main_window = main_form_class()
+        application.PROJECT.main_window = main_form_class()  # type: ignore[misc]
         self.assertTrue(application.PROJECT.main_window)
         if application.PROJECT.main_window is not None:
             application.PROJECT.main_window.initScript()
@@ -109,7 +109,7 @@ class TestParser(unittest.TestCase):
         item_1.set("Precision", "2")
         self.assertEqual(parser_tools.calculated("11.22", 2, item_1), ret_)
         self.assertEqual(parser_tools.calculated("2019-01-31T00:01:02", 3), "31-01-2019")
-        self.assertEqual(parser_tools.calculated("codpais", 1, None, child), "ES")
+        self.assertEqual(parser_tools.calculated("codpais", 1, None, child), "ES")  # type: ignore [arg-type]
 
         cur = pnsqlcursor.PNSqlCursor("paises")
         cur.select("1=1")

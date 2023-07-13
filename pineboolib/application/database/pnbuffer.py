@@ -12,7 +12,7 @@ from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import xpm
 
 import datetime
-import sqlalchemy
+import sqlalchemy  # type: ignore [import]
 
 from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
 
@@ -73,7 +73,7 @@ class PNBuffer(object):
         self._generated_fields = []
         self._cache_buffer = {}
 
-    def prime_insert(self, row: int = None) -> None:
+    def prime_insert(self, row: Optional[int] = None) -> None:
         """
         Set the initial values of the buffer fields.
 

@@ -5,11 +5,11 @@ from typing import List, Any, TYPE_CHECKING
 
 from pineboolib.application import qsadictmodules
 from pineboolib.core.utils import logging
-import sqlalchemy
+import sqlalchemy  # type: ignore [import]
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext import declarative  # pragma: no cover
-    from sqlalchemy.orm import query  # pragma: no cover
+    from sqlalchemy.ext import declarative  # type: ignore [import] # pragma: no cover
+    from sqlalchemy.orm import query  # type: ignore [import] # pragma: no cover
     from sqlalchemy.orm import Session
 
 
@@ -255,7 +255,7 @@ class DynamicFilter(object):
             query_ = query_.filter(filt)
 
         for name, ord in self.order_by:
-            column_order = getattr(model_class, name, None)
+            column_order = getattr(model_class, name)
             query_ = query_.order_by(column_order.desc() if ord == "desc" else column_order.asc())
 
         return query_

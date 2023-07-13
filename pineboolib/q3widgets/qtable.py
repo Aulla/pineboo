@@ -38,7 +38,7 @@ class QTable(Q3TableWidget):
     AutoOneFit = 3
     sort_column_: int
 
-    def __init__(self, parent: Optional["QtWidgets.QGroupBox"] = None, name: str = None) -> None:
+    def __init__(self, parent: Optional["QtWidgets.QGroupBox"] = None, name: Optional[str] = None) -> None:
         """Inicialize."""
         super(QTable, self).__init__(parent)
         if not parent:
@@ -189,7 +189,7 @@ class QTable(Q3TableWidget):
 
     def setSelectionMode(self, mode: "QtWidgets.QAbstractItemView.SelectionMode") -> None:
         """Set selection mode."""
-        if mode.value == 999:
+        if mode.value == 999:  # type: ignore [comparison-overlap]
             self.setAlternatingRowColors(True)
         else:
             super().setSelectionMode(mode)

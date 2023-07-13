@@ -7,7 +7,7 @@ from typing import Any, Optional, List, Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import base  # noqa: F401 # pragma: no cover
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

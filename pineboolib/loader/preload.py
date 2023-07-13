@@ -1,7 +1,7 @@
 """Preload Module."""
 
 from pineboolib import logging
-from typing import Container, TYPE_CHECKING
+from typing import Container, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from pineboolib.application import projectmodule  # pragma: no cover
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-def preload_actions(project: "projectmodule.Project", forceload: Container = None) -> None:
+def preload_actions(project: "projectmodule.Project", forceload: Optional[Container] = None) -> None:
     """
     Preload actions for warming up the pythonizer cache.
 

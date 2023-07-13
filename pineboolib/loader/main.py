@@ -71,7 +71,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     _initialize_data(True)
 
 
-def startup(enable_gui: bool = None) -> None:
+def startup(enable_gui: Optional[bool] = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
     from pineboolib.core.utils import check_dependencies
@@ -200,7 +200,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
     # es bastante incómodo y genera problemas graves para detectar el problema.
     # Agregamos sys.excepthook para controlar esto y hacer que PyQt6 no nos
     # dé un segfault, aunque el resultado no sea siempre correcto:
-    sys.excepthook = _excepthook
+    sys.excepthook = _excepthook  # type: ignore[assignment]
     # -------------------
     if catch_ctrl_c:
         # Fix Control-C / KeyboardInterrupt for PyQt:

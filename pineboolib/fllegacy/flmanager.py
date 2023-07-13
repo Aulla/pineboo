@@ -128,7 +128,7 @@ class FLManager(QtCore.QObject, IManager):
 
         if not self.db_:
             raise Exception("metadata. self.db_ is empty!")
-        
+
         if not quick:
             quick = not application.PROJECT.db_admin_mode
 

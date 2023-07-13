@@ -41,7 +41,7 @@ from pineboolib.application import load_script, qsadictmodules
 from pineboolib.application.database.orm import basemodel
 from pineboolib import logging, application
 from pineboolib.application.parsers.parser_mtd import pnmtdparser
-import sqlalchemy
+import sqlalchemy  # type: ignore [import]
 
 
 from typing import Any, List, Dict, cast, TYPE_CHECKING

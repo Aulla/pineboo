@@ -18,7 +18,7 @@ from typing import List, Optional, Any, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor, isqldriver, isession  # pragma: no cover
     from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
-    from sqlalchemy.engine import base, result  # pragma: no cover
+    from sqlalchemy.engine import base, result  # type: ignore [import] # pragma: no cover
 
     from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
 

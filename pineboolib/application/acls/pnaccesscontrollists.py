@@ -87,7 +87,7 @@ class PNAccessControlLists(object):
         self._access_control_list.clear()
 
         if _acl_xml and not doc.setContent(_acl_xml):
-            LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso errónea"))
+            LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso errónea"))  # type: ignore [unreachable]
             return
 
         doc_elem = doc.documentElement()
@@ -187,7 +187,7 @@ class PNAccessControlLists(object):
             )
 
     def make_rule(
-        self, qry: "pnsqlquery.PNSqlQuery" = None, dom_document: "QtXml.QDomDocument" = None
+        self, qry: Optional["pnsqlquery.PNSqlQuery"] = None, dom_document: Optional["QtXml.QDomDocument"] = None
     ) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.
@@ -212,8 +212,8 @@ class PNAccessControlLists(object):
 
     def make_rule_user(
         self,
-        qry: "pnsqlquery.PNSqlQuery" = None,
-        dom_document: "QtXml.QDomDocument" = None,
+        qry: Optional["pnsqlquery.PNSqlQuery"] = None,
+        dom_document: Optional["QtXml.QDomDocument"] = None,
         iduser: str = "",
     ) -> None:
         """

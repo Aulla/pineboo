@@ -150,13 +150,13 @@ class FLReportEngine(QtCore.QObject):
             from PyQt6 import QtGui
             from PIL.ImageQt import ImageQt  # type: ignore [import]
 
-            page_filter = []
+            page_filter: List[int] = []
             if not isinstance(name_or_dialog, str):
                 printer = name_or_dialog.printer()
                 range_ = name_or_dialog.printRange()
                 first = name_or_dialog.fromPage()
                 last = name_or_dialog.toPage()
-                if range_.value == 2:  # 0 all, 1,selection, 2 range, 3 current page
+                if range_.value == 2:  # type: ignore [comparison-overlap] # 0 all, 1,selection, 2 range, 3 current page
                     for num in range(first, last + 1):
                         page_filter.append(num)
 

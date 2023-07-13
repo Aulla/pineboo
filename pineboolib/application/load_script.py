@@ -12,8 +12,8 @@ from pineboolib import application
 
 import xml.etree.ElementTree as ET
 from importlib import util
-from sqlalchemy.ext import declarative
-from sqlalchemy import exc
+from sqlalchemy.ext import declarative  # type: ignore [import]
+from sqlalchemy import exc  # type: ignore [import]
 
 import shutil
 import time

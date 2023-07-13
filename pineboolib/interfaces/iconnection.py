@@ -17,7 +17,7 @@ if TYPE_CHECKING:
         pnconnectionmanager,
     )  # pragma: no cover
     from pineboolib.interfaces import isession, isqldriver, isqlcursor  # pragma: no cover
-    from sqlalchemy.engine import base, result
+    from sqlalchemy.engine import base, result  # type: ignore [import]
 
 LOGGER = logging.get_logger(__name__)
 

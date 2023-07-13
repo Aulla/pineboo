@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection  # pragma: no cover
     from pineboolib.interfaces import isqldriver
-    from sqlalchemy.engine import result as result_engine
+    from sqlalchemy.engine import result as result_engine  # type: ignore [import]
     from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
     from pineboolib.application.database import pngroupbyquery  # noqa: F401 # pragma: no cover
     from pineboolib.application.database import pnparameterquery  # noqa: F401 # pragma: no cover

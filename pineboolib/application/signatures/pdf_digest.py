@@ -59,8 +59,10 @@ class PdfDigest:
 
         return True
 
-    def _load_signature(self) -> bool:
+    def _load_signature(self) -> bool:  # type: ignore [empty-body]
         """Load signature."""
+
+        pass
 
     def _load_unsigned_document(self, load_writer: bool = False) -> bool:
         """Load unsigned document."""
@@ -94,7 +96,7 @@ class PdfDigest:
 
         return True
 
-    def signature_value(self) -> str:
+    def signature_value(self) -> str:  # type: ignore [empty-body]
         """Return SisgnatureValue field value."""
 
         pass

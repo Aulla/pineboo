@@ -477,7 +477,7 @@ class QHttp(HttpState, HttpError):
             raise Exception("url_ is not a valid URL!")
         _request.setUrl(url_)
 
-        method_ = getattr(self._manager, _tipo, None)
+        method_ = getattr(self._manager, _tipo)
         self._data = buffer_
         if self._data is not None:
             self._data.open(QtCore.QIODevice.OpenModeFlag.ReadWrite)
@@ -536,13 +536,13 @@ class QHttp(HttpState, HttpError):
         return self._current_id
 
     @decorators.not_implemented_warn
-    def currentSourceDevice(self) -> QtCore.QIODevice:
+    def currentSourceDevice(self) -> QtCore.QIODevice:  # type: ignore [empty-body]
         """Return current source device."""
 
         pass
 
     @decorators.not_implemented_warn
-    def currentDestinationDevice(self) -> QtCore.QIODevice:
+    def currentDestinationDevice(self) -> QtCore.QIODevice:  # type: ignore [empty-body]
         """Return current destination device."""
 
         pass

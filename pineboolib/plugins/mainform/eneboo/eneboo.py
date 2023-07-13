@@ -138,7 +138,7 @@ class DockListView(QtCore.QObject):
 
         self.doc_widget = doc_widget
         self.tree_widget = doc_widget.widget()
-        if self.tree_widget and self.tree_widget.doubleClicked:
+        if self.tree_widget and hasattr(self.tree_widget, "doubleClicked"):
             self.tree_widget.doubleClicked.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.activateAction
             )

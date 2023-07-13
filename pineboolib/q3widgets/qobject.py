@@ -52,5 +52,7 @@ class QObject(QtCore.QObject):
     def get_event_filter_function(self) -> str:
         """Return event filter function."""
 
+        return self._event_filter_function
+
     eventFilterFunction = property(get_event_filter_function, set_event_filter_function)
     allowedEvents = property(get_allowed_events, set_allowed_events)

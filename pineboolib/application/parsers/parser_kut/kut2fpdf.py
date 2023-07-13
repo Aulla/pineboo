@@ -989,7 +989,7 @@ class Kut2FPDF(object):
         return [red, green, blue]
 
     def drawRect(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: "Element" = None
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: Optional["Element"] = None
     ) -> None:
         """
         Draw a rectangle in current page.

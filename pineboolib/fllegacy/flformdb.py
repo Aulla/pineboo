@@ -318,7 +318,7 @@ class FLFormDB(QtWidgets.QDialog):
     #
     #    self.unbindIface()
 
-    def setCursor(self, cursor: "isqlcursor.ISqlCursor" = None) -> None:  # type: ignore
+    def setCursor(self, cursor: Optional["isqlcursor.ISqlCursor"] = None) -> None:  # type: ignore
         """Change current cursor binded to this control."""
         if cursor is None:
             return
@@ -984,7 +984,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return ""
 
-    def get_iface(self) -> Callable:
+    def get_iface(self) -> Optional['Callable']:
         """Return script iface."""
 
         fun = getattr(self.action_widget, "iface", None)

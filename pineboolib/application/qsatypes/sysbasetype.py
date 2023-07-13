@@ -362,7 +362,7 @@ class SysBaseType(object):
         application.PROJECT.message_manager().send("msgBoxWarning", None, new_list)
 
     @classmethod
-    def errorMsgBox(cls, msg: str = None) -> None:
+    def errorMsgBox(cls, msg: Optional[str] = None) -> None:
         """Show error message box."""
         msg = ustr(msg)
         msg += "\n"

@@ -5,7 +5,7 @@
 import sqlalchemy  # type: ignore [import] # noqa: F821
 from pineboolib.application import TESTING_MODE
 from pineboolib.application.database.orm import basemodel
-from sqlalchemy.orm import relationship, foreign
+from sqlalchemy.orm import relationship, foreign  # type: ignore [import]
 from pineboolib.qsa import qsa
 from typing import Optional
 

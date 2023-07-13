@@ -281,7 +281,8 @@ class PNApplication(QtCore.QObject):
     @decorators.not_implemented_warn
     def getWidgetList(self, widget_name: str, class_name: str) -> List:
         """Get widgets."""
-        pass
+
+        return []
 
     def aboutQt(self) -> None:
         """Show About QT."""
@@ -675,8 +676,8 @@ class PNApplication(QtCore.QObject):
     def consoleShown(self) -> bool:
         """Return if console is shown."""
 
-        hidden = getattr(self._ted_output, "isHidden", False)
-        return hidden() if hidden is not None else False
+        hidden = getattr(self._ted_output, "isHidden", None)
+        return False if hidden is None else hidden()
 
     def modMainWidget(self, id_modulo: str) -> Optional["QtWidgets.QWidget"]:
         """Set module main widget."""

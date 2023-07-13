@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 # Translated with pineboolib 0.99.70
-from typing import Any, Dict
+from typing import Any
 from pineboolib.qsa import qsa
 from pineboolib.application.utils import modules
 
@@ -13,9 +13,9 @@ from pineboolib.application.utils import modules
 class ifaceCtx(qsa.ObjectClass):
     """ifaceCtx class."""
 
-    ctx: Dict[str, Any]
+    ctx: "qsa.FormDBWidget"
 
-    def __init__(self, context):
+    def __init__(self, context : "qsa.FormDBWidget"):
         """Just a comment."""
         self.ctx = context
 
@@ -29,7 +29,7 @@ class FormInternalObj(qsa.FormDBWidget):
     iface: "ifaceCtx"
 
     # /** @class_definition FormInternalObj */
-    def _class_init(self):
+    def _class_init(self) -> None:
         """Just a comment."""
         self.iface = ifaceCtx(self)
         self.base = qsa.AQUtil.readSettingEntry(qsa.ustr("application/codepath/", qsa.sys.nameBD()))
@@ -47,7 +47,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return codigo
 
-    def getExportByRegexp(self, code: str, re):
+    def getExportByRegexp(self, code: str, re : Any) -> Any:
         """Just a comment."""
         pos: Any = re.find("code")
         if pos != -1:
@@ -63,15 +63,14 @@ class FormInternalObj(qsa.FormDBWidget):
             idx -= 1
             class_name = list_data[idx]
 
-        new_data = "\n".join(list_data[:idx])
+        new_data = "\n".join(list_data[:idx])  # type: ignore [unreachable]
 
         mod_ = modules.text_to_module(new_data)
-        print("*", class_name, mod_.__name__)
 
         class_ = getattr(mod_, class_name, None)
         return class_
 
-    def from_(self, filePath: str, fullPath: str = ""):
+    def from_(self, filePath: str, fullPath: str = "") -> Any:
         """Just a comment."""
         codigo: Any = self.loadCode(filePath, fullPath)
         try:

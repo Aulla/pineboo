@@ -7,7 +7,7 @@ from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 
 import os
 
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -137,7 +137,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         self.ui_.findChild(QtWidgets.QWidget, "leCO").show()  # type: ignore [attr-defined]
 
-    def read_db_value(self, valor_name: str = None) -> Any:
+    def read_db_value(self, valor_name: Optional[str] = None) -> Any:
         """Return global value."""
         util = qsa.FLUtil()
         value = util.sqlSelect("flsettings", "valor", "flkey='%s'" % valor_name)

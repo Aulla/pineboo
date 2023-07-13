@@ -5,7 +5,7 @@ It allows MyPy/PyType to properly keep track of the new message types
 """
 import logging as python_logging
 from logging import basicConfig  # noqa: F401
-from typing import Any, Set
+from typing import Any, Set, Optional
 
 CRITICAL = 50
 FATAL = CRITICAL
@@ -58,7 +58,7 @@ class Logger(python_logging.Logger):
 python_logging.Logger.manager.loggerClass = Logger  # type: ignore
 
 
-def get_logger(name: str = None) -> Logger:
+def get_logger(name: Optional[str] = None) -> Logger:
     """
     Return a logger with the specified name, creating it if necessary.
 

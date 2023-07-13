@@ -11,7 +11,7 @@ from pineboolib.application.database.orm import dummy_cursor, dummy_signal
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
-from sqlalchemy import orm, inspect
+from sqlalchemy import orm, inspect  # type: ignore [import]
 import datetime
 import sys
 import time

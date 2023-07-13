@@ -249,7 +249,7 @@ class SysType(sysbasetype.SysBaseType):
         aq_dumper.init()
 
     @staticmethod
-    def terminateChecksLocks(cursor: "isqlcursor.ISqlCursor" = None) -> None:
+    def terminateChecksLocks(cursor: Optional["isqlcursor.ISqlCursor"] = None) -> None:
         """Set check risk locks to False in a cursor."""
         if cursor is not None:
             cursor.checkRisksLocks(True)

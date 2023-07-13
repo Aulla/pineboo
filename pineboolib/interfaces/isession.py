@@ -1,6 +1,6 @@
 """isession module."""
 
-from sqlalchemy import orm
+from sqlalchemy import orm  # type: ignore [import]
 
 
 class PinebooSession(orm.Session):

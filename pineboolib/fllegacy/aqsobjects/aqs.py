@@ -174,7 +174,7 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
 
             # _p_properties.append(meta_prop.name())
 
-            val = getattr(obj_, meta_prop.name(), None)
+            val = getattr(obj_, meta_prop.name())
             try:
                 val = val()
             except Exception:

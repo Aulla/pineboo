@@ -8,7 +8,7 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 from pineboolib.application import xmlaction, proxy, safeqsa
 from pineboolib import logging, application
 
-import sqlalchemy
+import sqlalchemy  # type: ignore [import]
 import gc
 
 from typing import Any, Optional, Union, TYPE_CHECKING

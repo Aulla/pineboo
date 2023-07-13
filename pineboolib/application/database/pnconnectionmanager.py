@@ -10,7 +10,7 @@ from pineboolib.application.database import pnconnection
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.database import pnsqldriversmanager
 
-from sqlalchemy import exc
+from sqlalchemy import exc  # type: ignore [import]
 import threading
 
 from typing import Dict, Union, List, Optional, TYPE_CHECKING

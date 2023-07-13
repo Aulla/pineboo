@@ -302,7 +302,7 @@ PYTHON_KEYWORDS = [
 classesDefined: List[str] = []
 
 
-def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, str] = None) -> str:
+def id_translate(name: str, qsa_exclude: Optional[Set[str]] = None, transform: Optional[Dict[str, str]] = None) -> str:
     """Translate identifiers to avoid "import *" issues."""
     orig_name = name
 
@@ -371,7 +371,7 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
             return 'qsa.from_project("%s")' % name
         return "%s%s" % ("__undef__" if parser_qsa.STRICT_MODE else "", name)
     else:
-        return transform[name] if transform and name in transform else name
+        return transform[name] if transform and name in transform else name  # type: ignore [unreachable]
 
 
 CONT_SWITCH = 0
@@ -381,11 +381,11 @@ CONT_DO_WHILE = 0
 class ASTPythonBase(object):
     """Generate python lines. Base class."""
 
-    elem: ET.Element
+    elem: "ET.Element"
 
-    def __init__(self, elem: ET.Element) -> None:
+    def __init__(self, elem: "ET.Element") -> None:
         """Create ASTPythonBase."""
-        self.elem: ET.Element = elem
+        self.elem = elem
         self.parent: Optional["ASTPythonBase"] = None
         self.source: Optional["Source"] = None
 
@@ -511,7 +511,7 @@ class Source(ASTPython):
         *,
         break_mode: bool = False,
         include_pass: bool = True,
-        declare_identifiers: Set[str] = None,
+        declare_identifiers: Optional[Set[str]] = None,
         **kwargs: Any
     ) -> ASTGenerator:
         """Generate python code."""
@@ -1369,8 +1369,8 @@ class InstructionUpdate(ASTPython):
             else:
                 if number == 0 and len(expr) == 1:
                     identifier = expr[0]
-                    parent = self.elem.get("parent_")
-                    new_parent = None if "ifaceCtx" in self.source.locals else parent
+                    parent : Optional["ET.Element"] = cast(ET.Element, self.elem.get("parent_"))
+                    new_parent : Optional["ET.Element"] = None if "ifaceCtx" in self.source.locals else parent
                     found_global = None
 
                     while new_parent:
@@ -1384,7 +1384,7 @@ class InstructionUpdate(ASTPython):
 
                         if found_global is None:
                             if parent.tag == "Source":
-                                grand_parent = parent.get("parent_")
+                                grand_parent = cast(ET.Element, parent.get("parent_"))
                                 if grand_parent and grand_parent.tag == "Source":
                                     for variable_global in parent.findall("DeclarationBlock/Variable"):
                                         if variable_global.get("name") == identifier:
@@ -1396,7 +1396,7 @@ class InstructionUpdate(ASTPython):
 
                         new_parent = None
                         if found_global is None:
-                            new_parent = parent.get("parent_")
+                            new_parent = cast(ET.Element, parent.get("parent_"))
 
                 arguments.append(" ".join(expr))
 
@@ -2393,16 +2393,16 @@ class DeclarationBlock(ASTPython):
 
             is_valid = True
 
-            grand_parent_ = self.elem.get("parent_")
+            grand_parent_ = cast(ET.Element, self.elem.get("parent_"))
             if grand_parent_ and grand_parent_.tag == "Source":
-                class_parent_ = grand_parent_.get("parent_")
+                class_parent_ = cast(ET.Element, grand_parent_.get("parent_"))
                 if (
                     class_parent_
                     and class_parent_.tag == "Class"
                     and not class_parent_.get("extends")
                 ):
-                    static_flag = self.elem.get("arg00")
-                    is_valid = static_flag and str(static_flag).startswith("STATIC")
+                    static_flag: Optional[str] = self.elem.get("arg00")
+                    is_valid = static_flag and str(static_flag).startswith("STATIC")  # type: ignore [assignment]
 
             expr = []
 

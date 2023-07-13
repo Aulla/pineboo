@@ -112,7 +112,7 @@ class KParserTools(object):
         return ret
 
     def calculated(
-        self, value: Any, data_type: int, xml: "Element" = None, data: "Element" = None
+        self, value: Any, data_type: int, xml: Optional["Element"] = None, data: Optional["Element"] = None
     ) -> Any:
         """
         Get value of type "calculated".

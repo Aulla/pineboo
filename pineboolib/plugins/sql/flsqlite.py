@@ -18,7 +18,7 @@ from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F82
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
-    from sqlalchemy.engine import (
+    from sqlalchemy.engine import (  # type: ignore [import]
         base,
     )  # type: ignore [import] # noqa: F401, F821 # pragma: no cover
     from sqlalchemy.orm import (  # type: ignore [import] # noqa: F821, F401

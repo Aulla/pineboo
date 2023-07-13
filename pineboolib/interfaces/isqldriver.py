@@ -23,7 +23,7 @@ from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noq
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
-from sqlalchemy import event, pool, text
+from sqlalchemy import event, pool, text  # type: ignore [import]
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 import traceback
 

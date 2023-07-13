@@ -2743,7 +2743,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.rollback()
 
     @decorators.pyqt_slot()
-    def commitOpened(self, count: int = -1, message: str = None) -> None:
+    def commitOpened(self, count: int = -1, message: Optional[str] = None) -> None:
         """
         Complete transactions opened by this cursor.
 
@@ -3018,7 +3018,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.private_cursor.metadata_.primaryKey() if self.private_cursor.metadata_ else ""
 
-    def fieldType(self, field_name: str = None) -> Optional[int]:
+    def fieldType(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Return the field type.
 

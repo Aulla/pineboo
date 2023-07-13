@@ -22,7 +22,7 @@ if TYPE_CHECKING:
         pnaction,
     )
     from pineboolib.interfaces import iconnection  # pragma: no cover
-    from sqlalchemy.ext import declarative
+    from sqlalchemy.ext import declarative  # type: ignore [import]
 
 
 class ICursorPrivate(QtCore.QObject):
@@ -233,7 +233,7 @@ class ICursorPrivate(QtCore.QObject):
 
         pass  # pragma: no cover
 
-    def needUpdate(self) -> bool:
+    def needUpdate(self) -> bool:  # type: ignore [empty-body]
         """Indicate if the cursor needs to be updated."""
 
         pass  # pragma: no cover
@@ -348,7 +348,7 @@ class ISqlCursor(QtCore.QObject):
         """Initialize cursor."""
         pass  # pragma: no cover
 
-    def conn(self) -> "iconnection.IConnection":
+    def conn(self) -> "iconnection.IConnection":  # type: ignore [empty-body]
         """Retrieve connection object."""
         pass  # pragma: no cover
 
@@ -360,15 +360,15 @@ class ISqlCursor(QtCore.QObject):
         """Set cursor name."""
         pass  # pragma: no cover
 
-    def metadata(self) -> "pntablemetadata.PNTableMetaData":
+    def metadata(self) -> "pntablemetadata.PNTableMetaData":  # type: ignore [empty-body]
         """Get table metadata for this cursor table."""
         pass  # pragma: no cover
 
-    def currentRegister(self) -> int:
+    def currentRegister(self) -> int:  # type: ignore [empty-body]
         """Get current row number."""
         pass  # pragma: no cover
 
-    def modeAccess(self) -> int:
+    def modeAccess(self) -> int:  # type: ignore [empty-body]
         """Get current access mode."""
         pass  # pragma: no cover
 
@@ -376,7 +376,7 @@ class ISqlCursor(QtCore.QObject):
         """Get SQL filter as a string."""
         return ""
 
-    def mainFilter(self) -> str:
+    def mainFilter(self) -> str:  # type: ignore [empty-body]
         """Get SQL Main filter as a string."""
         pass  # pragma: no cover
 
@@ -384,11 +384,11 @@ class ISqlCursor(QtCore.QObject):
         """Get action object."""
         pass  # pragma: no cover
 
-    def actionName(self) -> str:
+    def actionName(self) -> str:  # type: ignore [empty-body]
         """Get action name."""
         pass  # pragma: no cover
 
-    def setAction(self, action) -> bool:
+    def setAction(self, action) -> bool:  # type: ignore [empty-body]
         """Set Action object."""
         pass  # pragma: no cover
 
@@ -400,7 +400,7 @@ class ISqlCursor(QtCore.QObject):
         """Set Access mode for the cursor."""
         pass  # pragma: no cover
 
-    def connectionName(self) -> str:
+    def connectionName(self) -> str:  # type: ignore [empty-body]
         """Get current connection name."""
         pass  # pragma: no cover
 
@@ -448,27 +448,27 @@ class ISqlCursor(QtCore.QObject):
         """Get script execution context."""
         pass  # pragma: no cover
 
-    def fieldDisabled(self, field_name) -> bool:
+    def fieldDisabled(self, field_name) -> bool:  # type: ignore [empty-body]
         """Get if field is disabled."""
         pass  # pragma: no cover
 
-    def inTransaction(self) -> bool:
+    def inTransaction(self) -> bool:  # type: ignore [empty-body]
         """Return if transaction is in progress."""
         pass  # pragma: no cover
 
-    def transaction(self, lock=False) -> bool:
+    def transaction(self, lock=False) -> bool:  # type: ignore [empty-body]
         """Open transaction."""
         pass  # pragma: no cover
 
-    def rollback(self) -> bool:
+    def rollback(self) -> bool:  # type: ignore [empty-body]
         """Rollback transaction."""
         pass  # pragma: no cover
 
-    def commit(self, notify=True) -> bool:
+    def commit(self, notify=True) -> bool:  # type: ignore [empty-body]
         """Commit transaction."""
         pass  # pragma: no cover
 
-    def size(self) -> int:
+    def size(self) -> int:  # type: ignore [empty-body]
         """Get current cursor size in rows."""
         pass  # pragma: no cover
 
@@ -476,7 +476,7 @@ class ISqlCursor(QtCore.QObject):
         """Open record form in specified mode."""
         pass  # pragma: no cover
 
-    def isNull(self, field_name) -> bool:
+    def isNull(self, field_name) -> bool:  # type: ignore [empty-body]
         """Get if field is null."""
         pass  # pragma: no cover
 
@@ -484,7 +484,7 @@ class ISqlCursor(QtCore.QObject):
         """Refresh buffer copy."""
         pass  # pragma: no cover
 
-    def isModifiedBuffer(self) -> bool:
+    def isModifiedBuffer(self) -> bool:  # type: ignore [empty-body]
         """Get if buffer is modified."""
         pass  # pragma: no cover
 
@@ -496,7 +496,7 @@ class ISqlCursor(QtCore.QObject):
         """Activate integrity checks."""
         pass  # pragma: no cover
 
-    def activatedCheckIntegrity(self) -> bool:
+    def activatedCheckIntegrity(self) -> bool:  # type: ignore [empty-body]
         """Get integrity check state."""
         pass  # pragma: no cover
 
@@ -504,7 +504,7 @@ class ISqlCursor(QtCore.QObject):
         """Activate before/after commit."""
         pass  # pragma: no cover
 
-    def activatedCommitActions(self) -> bool:
+    def activatedCommitActions(self) -> bool:  # type: ignore [empty-body]
         """Get before/after commit status."""
         pass  # pragma: no cover
 
@@ -520,15 +520,15 @@ class ISqlCursor(QtCore.QObject):
         """Set unlock field."""
         pass  # pragma: no cover
 
-    def isLocked(self) -> bool:
+    def isLocked(self) -> bool:  # type: ignore [empty-body]
         """Get if record is locked."""
         pass  # pragma: no cover
 
-    def buffer(self) -> "pnbuffer.PNBuffer":
+    def buffer(self) -> "pnbuffer.PNBuffer":  # type: ignore [empty-body]
         """Get buffer object."""
         pass  # pragma: no cover
 
-    def bufferCopy(self) -> "pnbuffer.PNBuffer":
+    def bufferCopy(self) -> "pnbuffer.PNBuffer":  # type: ignore [empty-body]
         """Get buffer copy."""
         pass  # pragma: no cover
 
@@ -536,11 +536,11 @@ class ISqlCursor(QtCore.QObject):
         """Set field to null."""
         pass  # pragma: no cover
 
-    def db(self) -> "iconnection.IConnection":
+    def db(self) -> "iconnection.IConnection":  # type: ignore [empty-body]
         """Return database object."""
         pass  # pragma: no cover
 
-    def curName(self) -> str:
+    def curName(self) -> str:  # type: ignore [empty-body]
         """Get cursor name."""
         pass  # pragma: no cover
 
@@ -548,11 +548,11 @@ class ISqlCursor(QtCore.QObject):
         """Retrieve filter for associated field."""
         pass  # pragma: no cover
 
-    def calculateField(self, field_name) -> bool:
+    def calculateField(self, field_name) -> bool:  # type: ignore [empty-body]
         """Return the result of a field calculation."""
         pass  # pragma: no cover
 
-    def model(self) -> "pncursortablemodel.PNCursorTableModel":
+    def model(self) -> "pncursortablemodel.PNCursorTableModel":  # type: ignore [empty-body]
         """Get sqlAlchemy model."""
         pass  # pragma: no cover
 
@@ -560,11 +560,11 @@ class ISqlCursor(QtCore.QObject):
         """Get selection."""
         pass  # pragma: no cover
 
-    def at(self) -> int:
+    def at(self) -> int:  # type: ignore [empty-body]
         """Get row number."""
         pass  # pragma: no cover
 
-    def isValid(self) -> bool:
+    def isValid(self) -> bool:  # type: ignore [empty-body]
         """Return if cursor is valid."""
         pass  # pragma: no cover
 
@@ -572,43 +572,43 @@ class ISqlCursor(QtCore.QObject):
         """Refresh cursor."""
         pass  # pragma: no cover
 
-    def refreshBuffer(self) -> bool:
+    def refreshBuffer(self) -> bool:  # type: ignore [empty-body]
         """Refresh buffer."""
         pass  # pragma: no cover
 
-    def setEditMode(self) -> bool:
+    def setEditMode(self) -> bool:  # type: ignore [empty-body]
         """Set cursor in edit mode."""
         pass  # pragma: no cover
 
-    def seek(self, i, relative=None, emite=None) -> bool:
+    def seek(self, i, relative=None, emite=None) -> bool:  # type: ignore [empty-body]
         """Move cursor without fetching."""
         pass  # pragma: no cover
 
-    def next(self, emite=True) -> bool:
+    def next(self, emite=True) -> bool:  # type: ignore [empty-body]
         """Get next row."""
         pass  # pragma: no cover
 
-    def moveby(self, pos) -> bool:
+    def moveby(self, pos) -> bool:  # type: ignore [empty-body]
         """Move cursor down "pos" rows."""
         pass  # pragma: no cover
 
-    def prev(self, emite=True) -> bool:
+    def prev(self, emite=True) -> bool:  # type: ignore [empty-body]
         """Get previous row."""
         pass  # pragma: no cover
 
-    def move(self, row) -> bool:
+    def move(self, row) -> bool:  # type: ignore [empty-body]
         """Move cursor to row number."""
         pass  # pragma: no cover
 
-    def first(self, emite=True) -> bool:
+    def first(self, emite=True) -> bool:  # type: ignore [empty-body]
         """Move cursor to first row."""
         pass  # pragma: no cover
 
-    def last(self, emite=True) -> bool:
+    def last(self, emite=True) -> bool:  # type: ignore [empty-body]
         """Move cursor to last row."""
         pass  # pragma: no cover
 
-    def select(self, _filter=None, sort=None) -> bool:
+    def select(self, _filter=None, sort=None) -> bool:  # type: ignore [empty-body]
         """Perform SQL Select."""
         pass  # pragma: no cover
 
@@ -644,19 +644,19 @@ class ISqlCursor(QtCore.QObject):
         """Set forward only."""
         pass  # pragma: no cover
 
-    def commitBuffer(self, emite=True, check_locks=False) -> bool:
+    def commitBuffer(self, emite=True, check_locks=False) -> bool:  # type: ignore [empty-body]
         """Commit current buffer to db."""
         pass  # pragma: no cover
 
-    def commitBufferCursorRelation(self) -> bool:
+    def commitBufferCursorRelation(self) -> bool:  # type: ignore [empty-body]
         """Commit buffer from cursor relation."""
         pass  # pragma: no cover
 
-    def transactionLevel(self) -> int:
+    def transactionLevel(self) -> int:  # type: ignore [empty-body]
         """Get number of nested transactions."""
         pass  # pragma: no cover
 
-    def transactionsOpened(self) -> List[str]:
+    def transactionsOpened(self) -> List[str]:  # type: ignore [empty-body]
         """Return if any transaction is open."""
         pass  # pragma: no cover
 
@@ -668,31 +668,27 @@ class ISqlCursor(QtCore.QObject):
         """Return if in commit."""
         pass  # pragma: no cover
 
-    def checkIntegrity(self, show_error: bool = True) -> bool:
+    def checkIntegrity(self, show_error: bool = True) -> bool:  # type: ignore [empty-body]
         """Return check integrity result."""
         pass  # pragma: no cover
 
-    def checkRisksLocks(self, terminate: bool = False) -> bool:
+    def checkRisksLocks(self, terminate: bool = False) -> bool:  # type: ignore [empty-body]
         """Return risks locks result."""
 
         pass  # pragma: no cover
 
-    def msgCheckIntegrity(self) -> str:
+    def msgCheckIntegrity(self) -> str:  # type: ignore [empty-body]
         """Return msg check integrity."""
 
         pass  # pragma: no cover
 
-    def aqWasDeleted(self) -> bool:
+    def aqWasDeleted(self) -> bool:  # type: ignore [empty-body]
         """Indicate if the cursor has been deleted."""
 
         pass  # pragma: no cover
 
-    def concurrencyFields(self) -> List[str]:
-        """
-        Check if there is a collision of fields edited by two sessions simultaneously.
-
-        @return List with the names of the colliding fields
-        """
+    def concurrencyFields(self) -> List[str]:  # type: ignore [empty-body]
+        """Return list of concurrency fields."""
 
         pass  # pragma: no cover
 

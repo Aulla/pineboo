@@ -20,7 +20,7 @@ class TestAQObjectQueryList(unittest.TestCase):
 
         main_form_class = getattr(eneboo, "MainForm", None)
         self.assertTrue(main_form_class)
-        application.PROJECT.main_window = main_form_class()
+        application.PROJECT.main_window = main_form_class()  # type: ignore[misc]
         self.assertTrue(application.PROJECT.main_window)
         if application.PROJECT.main_window is not None:
             application.PROJECT.main_window.initScript()

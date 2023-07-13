@@ -19,7 +19,7 @@ from pineboolib.core.utils import logging
 
 from PyQt6 import QtCore  # type: ignore[import]
 
-from typing import Dict, List, Any, Union, Tuple, Type
+from typing import Dict, List, Any, Union, Tuple, Type, Optional
 
 LOGGER = logging.get_logger(__name__)
 
@@ -71,7 +71,7 @@ class PinebooSettings(QtCore.QSettings):
         return value
 
     def value(  # type: ignore [override]
-        self, key: str, def_value: Any = None, type: Type = None
+        self, key: str, def_value: Any = None, type: Optional[Type] = None
     ) -> Any:
         """Get a value from INI for the specified key."""
         curtime = time.time()

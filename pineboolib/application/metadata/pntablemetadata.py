@@ -64,7 +64,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         self.private = PNTableMetaDataPrivate()
         self.copy(other)
 
-    def inicializeNewFLTableMetaData(self, name: str, alias: str, query_name: str = None) -> None:
+    def inicializeNewFLTableMetaData(self, name: str, alias: str, query_name: Optional[str] = None) -> None:
         """
         Initialize the data with the basic information.
 
@@ -754,7 +754,7 @@ class PNTableMetaDataPrivate:
 
     count_ = 0
 
-    def __init__(self, name: str = None, alias=None, qry_name: str = None) -> None:
+    def __init__(self, name: Optional[str] = None, alias: Optional[str] = None, qry_name: Optional[str] = None) -> None:
         """
         Initialize the class.
 
@@ -776,12 +776,15 @@ class PNTableMetaDataPrivate:
         self._query = ""
         self._in_cache = False
         # print("Vaciando field list ahora",  len(self._field_list))
-        if name is None:
-            self.inicializeFLTableMetaDataPrivate()
-        elif name and not alias and not qry_name:
-            self.inicializeFLTableMetaDataPrivateS(name)
+
+        if name:
+            if alias:
+                self.inicializeNewFLTableMetaDataPrivate(name, alias, qry_name)
+            else:
+                self.inicializeFLTableMetaDataPrivateS(name)
         else:
-            self.inicializeNewFLTableMetaDataPrivate(name, alias, qry_name)
+            self.inicializeFLTableMetaDataPrivate()
+
         self.count_ += 1
 
     def inicializeFLTableMetaDataPrivate(self) -> None:
@@ -791,7 +794,7 @@ class PNTableMetaDataPrivate:
 
         self._compound_key = None
 
-    def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: str = None) -> None:
+    def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: Optional[str] = None) -> None:
         """
         Initialize the class end with data.
 

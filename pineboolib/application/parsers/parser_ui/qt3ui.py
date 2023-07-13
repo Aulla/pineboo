@@ -417,7 +417,7 @@ def clone_action(action: "QtGui.QAction", widget: "QtWidgets.QWidget") -> None:
 
 
 def load_action(
-    action: "ET.Element", widget: "QtWidgets.QWidget", action_widget: "QtGui.QAction" = None
+    action: "ET.Element", widget: "QtWidgets.QWidget", action_widget: Optional["QtGui.QAction"] = None
 ) -> None:
     """
     Load Action into widget.
@@ -425,10 +425,8 @@ def load_action(
     widget: pre-created widget to store the object.
     """
     global ICONS
-    if action_widget is not None:
-        new_action = action_widget
-    else:
-        new_action = QtGui.QAction(widget)
+
+    new_action = action_widget if action_widget is not None else QtGui.QAction(widget)
 
     action_name = action.get("name")
     for root_action in ROOT.findall("actions//action"):  # type: ignore [union-attr] # noqa: F821
@@ -944,7 +942,7 @@ class LoadWidget:
 
                 if isinstance(widget, qbuttongroup.QButtonGroup):
                     if isinstance(new_widget, qtoolbutton.QToolButton):
-                        widget.addButton(new_widget)
+                        widget.addButton(new_widget)  # type: ignore [misc]
                         continue
 
                 LoadWidget(item, new_widget, self.parent, self.orig_widget)
@@ -1129,7 +1127,8 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             ivalue_policy = int((item.text or "0").strip())
             real_policy: Any = None
             for it_ in policy.Policy:
-                if it_.value == ivalue_policy:
+                if it_.value == ivalue_policy:  # type: ignore [comparison-overlap]
+
                     real_policy = it_
                     break
 
@@ -1185,9 +1184,9 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             text = text.replace("WordBreak|", "")
 
         for item_ in text.split("|"):
-            value = getattr(QtCore.Qt, item_, None)
-            if value is not None:
-                final = final + int(value)
+            value3 = getattr(QtCore.Qt, item_, None)
+            if value3 is not None:
+                final = final + int(value3)
 
         return QtCore.Qt.AlignmentFlag(final)
 
@@ -1208,9 +1207,9 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             QtWidgets.QLineEdit.EchoMode,
         ]
         for lib in libs_2:
-            value = getattr(lib, text, None)
-            if value is not None:
-                return value
+            value2 = getattr(lib, text, None)
+            if value2 is not None:
+                return value2
         if text in ["GroupBoxPanel", "LineEditPanel", "ToolBarPanel"]:
             return QtWidgets.QFrame.Shape.StyledPanel
         if text in ("Single", "SingleRow"):

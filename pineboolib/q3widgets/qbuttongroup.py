@@ -5,7 +5,7 @@ from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 from pineboolib.q3widgets import qgroupbox
 
 
-from typing import Callable
+from typing import Callable, Optional
 
 
 class QButtonGroup(qgroupbox.QGroupBox):
@@ -26,7 +26,7 @@ class QButtonGroup(qgroupbox.QGroupBox):
 
         self.selectedId = id_
 
-    def __getattr__(self, name: str) -> Callable:
+    def __getattr__(self, name: str) -> Optional[Callable]:
         """Return an attribute."""
 
         ret_ = getattr(self.bg_, name, None)

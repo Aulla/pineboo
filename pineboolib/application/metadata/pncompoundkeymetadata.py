@@ -9,7 +9,7 @@ that is FLFieldMetaData objects.
 """
 
 
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # pragma: no cover
@@ -24,7 +24,7 @@ class PNCompoundKeyMetaData(object):
 
     _field_list: List["PNFieldMetaData"] = []
 
-    def __init__(self, other: "PNCompoundKeyMetaData" = None) -> None:
+    def __init__(self, other: Optional["PNCompoundKeyMetaData"] = None) -> None:
         """Initialize the empty compound key or is copied from another."""
 
         super().__init__()

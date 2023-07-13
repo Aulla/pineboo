@@ -103,13 +103,13 @@ class PNTranslator(QtCore.QTranslator):
         return ret_
 
     def translate(  # type: ignore [override] # noqa: F821
-        self, context: str, source_text: str, disambiguation: str = None, num: int = -1
+        self, context: str, source_text: str, disambiguation: Optional[str] = None, num: int = -1
     ) -> Optional[str]:
         """Return a translated text."""
 
         if context.endswith("PlatformTheme"):
             context = "QMessageBox"
-        ret_ = None
+        ret_: Optional[str] = None
         if self._translation_from_qm:
             ret_ = super().translate(context, source_text)
             if ret_ == "":

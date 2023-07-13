@@ -331,7 +331,7 @@ class Dir(object):
         @param patron. Patron a usa para identificar los ficheros
         @return lista con los ficheros que coinciden con el patrón
         """
-        return QtCore.QDir(self.path).entryList([patron], filter, sort)
+        return QtCore.QDir(self.path).entryList([patron], filter, sort)  # type: ignore [arg-type]
 
     @staticmethod
     def fileExists(file_name: str) -> bool:

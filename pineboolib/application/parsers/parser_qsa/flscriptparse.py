@@ -932,7 +932,7 @@ def main() -> None:
             printtree(tree_data, mode="xml", output=f1_xml)
             f1_xml.close()
         elif options.output == "yaml":
-            import yaml
+            import yaml  # type: ignore [import]
 
             print(yaml.safe_dump(tree_data["content"]))
 

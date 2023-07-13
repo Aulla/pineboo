@@ -8,7 +8,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets  # type: ignore[import]
 
 from pineboolib.core.utils import logging, utils_base
 
-from sqlalchemy import exc, orm, inspect
+from sqlalchemy import exc, orm, inspect  # type: ignore [import]
 from pineboolib.application.utils import date_conversion, xpm
 
 from pineboolib.application.database.orm import utils as orm_utils
@@ -424,7 +424,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     if not self._parent.private_cursor._is_system_table:
                         data = self.conn_manager.manager().fetchLargeValue(result)
                     else:
-                        data = xpm.cache_xpm(result)
+                        data = xpm.cache_xpm(result)  # type: ignore [arg-type]
 
                     pixmap = QtGui.QPixmap(data)
                     if not pixmap.isNull():
@@ -471,7 +471,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             else:
                 if res_color_function and len(res_color_function) and res_color_function[0] != "":
                     color_ = QtGui.QColor(res_color_function[0])
-                    style_ = getattr(QtCore.Qt, res_color_function[2], None)
+                    style_ = getattr(QtCore.Qt, res_color_function[2])
                     result = QtGui.QBrush(color_)
                     result.setStyle(style_)
                 else:
@@ -488,7 +488,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             else:
                 if res_color_function and len(res_color_function) and res_color_function[1] != "":
                     color_ = QtGui.QColor(res_color_function[1])
-                    style_ = getattr(QtCore.Qt, res_color_function[2], None)
+                    style_ = getattr(QtCore.Qt, res_color_function[2])
                     result = QtGui.QBrush(color_)
                     result.setStyle(style_)
                 else:
@@ -979,7 +979,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self.metadata().isQuery():
             self._refresh_field_info()
 
-    def rowCount(self, parent: QtCore.QModelIndex = None) -> int:
+    def rowCount(self, parent: Optional['QtCore.QModelIndex'] = None) -> int:
         """
         Get current row count.
 
