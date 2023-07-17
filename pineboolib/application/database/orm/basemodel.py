@@ -523,7 +523,7 @@ class BaseModel(object):
             else session
         )
 
-        return session_.get(cls, pk_value) if session_ else None
+        return session_.get(cls, pk_value) if session_ else None  # type: ignore [attr-defined]
 
     @classmethod
     @decorators.deprecated
@@ -828,10 +828,10 @@ class BaseModel(object):
         ret_ = -1
         current_transaction = None
         if self._session:
-            if self._session.in_nested_transaction():
-                current_transaction = self._session.get_nested_transaction()
-            elif self._session.in_transaction():
-                current_transaction = self._session.get_transaction()
+            if self._session.in_nested_transaction():  # type: ignore [attr-defined]
+                current_transaction = self._session.get_nested_transaction()  # type: ignore [attr-defined]
+            elif self._session.in_transaction():  # type: ignore [attr-defined]
+                current_transaction = self._session.get_transaction()  # type: ignore [attr-defined]
 
         while True:
             if current_transaction is None:

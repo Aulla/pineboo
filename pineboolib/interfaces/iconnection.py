@@ -99,7 +99,7 @@ class IConnection:
 
     #    return IApiCursor()
 
-    def connection(self) -> "base.Connection":
+    def connection(self) -> "base.Connection":  # type: ignore [empty-body]
         """Return base connection."""
 
         pass  # pragma: no cover
@@ -284,7 +284,7 @@ class IConnection:
 
     #    return ""  # pragma: no cover
 
-    def execute_query(self, query: str) -> Optional["result.Result"]:
+    def execute_query(self, query: str) -> Optional["result.Result"]:  # type: ignore [name-defined]
         """Execute a query in a database cursor."""
 
         return None  # pragma: no cover

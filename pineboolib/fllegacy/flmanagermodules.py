@@ -87,7 +87,7 @@ class FLManagerModules(object):
     Informacion para la carga estatica desde el disco local
     """
     static_db_info_: "pnmodulesstaticloader.AQStaticBdInfo"
-    _file_watcher: "observers.Observer"
+    _file_watcher: "observers.Observer"  # type: ignore [valid-type]
     root_dir_: str
     scripts_dir_: str
     tables_dir_: str
@@ -145,7 +145,7 @@ class FLManagerModules(object):
         """Add folder."""
 
         if os.path.exists(folder):
-            self._file_watcher.schedule(event_handler, folder, recursive=True)
+            self._file_watcher.schedule(event_handler, folder, recursive=True)  # type: ignore [attr-defined]
         else:
             LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !" % folder)
             return False
@@ -156,7 +156,7 @@ class FLManagerModules(object):
         """Reload static loader."""
         pnmodulesstaticloader.SHOW_REINIT_MESSAGE = True
         if hasattr(self, "_file_watcher"):
-            self._file_watcher.stop()
+            self._file_watcher.stop()  # type: ignore [attr-defined]
             del self._file_watcher
         del self.static_db_info_
 

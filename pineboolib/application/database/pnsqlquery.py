@@ -109,8 +109,8 @@ class PNSqlQuery(object):
     _is_active: bool
     _field_name_to_pos_dict: Optional[Dict[str, int]]
     _sql_inspector: "sql_tools.SqlInspector"
-    _row: Optional["result_engine.Row"]
-    _datos: List["result_engine.Row"]
+    _row: Optional["result_engine.Row"]  # type: ignore [name-defined]
+    _datos: List["result_engine.Row"]  # type: ignore [name-defined]
     _posicion: int
     _last_query: str
     private_query: "PNSqlQueryPrivate"

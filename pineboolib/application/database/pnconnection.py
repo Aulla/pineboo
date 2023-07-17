@@ -444,7 +444,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
 
-            if not session_.in_transaction():
+            if not session_.in_transaction():  # type: ignore [attr-defined]
                 LOGGER.debug(
                     "%s: ISOLATION LEVEL %s"
                     % (self._name, session_.connection().get_isolation_level())
@@ -465,9 +465,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
             trans_ = (
-                session_.get_nested_transaction()
-                if session_.in_nested_transaction()
-                else session_.get_transaction()
+                session_.get_nested_transaction()  # type: ignore [attr-defined]
+                if session_.in_nested_transaction()  # type: ignore [attr-defined]
+                else session_.get_transaction()  # type: ignore [attr-defined]
             )
 
             trans_.commit()  # type: ignore [union-attr]
@@ -484,9 +484,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
             trans_ = (
-                session_.get_nested_transaction()
-                if session_.in_nested_transaction()
-                else session_.get_transaction()
+                session_.get_nested_transaction()  # type: ignore [attr-defined]
+                if session_.in_nested_transaction()  # type: ignore [attr-defined]
+                else session_.get_transaction()  # type: ignore [attr-defined]
             )
             trans_.rollback()  # type: ignore [union-attr]
 
@@ -547,7 +547,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     #    return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry) -> Optional["result.Result"]:
+    def execute_query(self, qry) -> Optional["result.Result"]:  # type: ignore [name-defined]
         """Execute a query in a database cursor."""
 
         return self.driver().execute_query(qry)

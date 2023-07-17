@@ -63,7 +63,7 @@ class ISqlDriver(object):
     mobile_: bool
     pure_python_: bool
     default_port: int
-    cursor_proxy: Dict[str, "result.Result"]
+    cursor_proxy: Dict[str, "result.Result"]  # type: ignore [name-defined]
     open_: bool
     desktop_file: bool
     _true: Union[str, bool]
@@ -861,7 +861,7 @@ class ISqlDriver(object):
     #    """Return if use a file like database."""
     #    return self.desktop_file
 
-    def execute_query(self, query: str) -> Optional["result.Result"]:
+    def execute_query(self, query: str) -> Optional["result.Result"]:  # type: ignore [name-defined]
         """Excecute a query and return result."""
 
         if not self.is_open():

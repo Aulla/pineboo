@@ -710,7 +710,6 @@ class MainForm(imainwindow.IMainWindow):
                                     slot_obj = getattr(
                                         application.PROJECT.actions[sender],
                                         slot[0 : slot.find("(")],
-                                        None,
                                     )
                                     action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
                                         slot_obj
