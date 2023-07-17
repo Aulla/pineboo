@@ -64,7 +64,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         self.private = PNTableMetaDataPrivate()
         self.copy(other)
 
-    def inicializeNewFLTableMetaData(self, name: str, alias: str, query_name: Optional[str] = None) -> None:
+    def inicializeNewFLTableMetaData(
+        self, name: str, alias: str, query_name: Optional[str] = None
+    ) -> None:
         """
         Initialize the data with the basic information.
 
@@ -754,7 +756,12 @@ class PNTableMetaDataPrivate:
 
     count_ = 0
 
-    def __init__(self, name: Optional[str] = None, alias: Optional[str] = None, qry_name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        alias: Optional[str] = None,
+        qry_name: Optional[str] = None,
+    ) -> None:
         """
         Initialize the class.
 
@@ -794,7 +801,9 @@ class PNTableMetaDataPrivate:
 
         self._compound_key = None
 
-    def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: Optional[str] = None) -> None:
+    def inicializeNewFLTableMetaDataPrivate(
+        self, name: str, alias: str, query: Optional[str] = None
+    ) -> None:
         """
         Initialize the class end with data.
 
