@@ -9,13 +9,14 @@ from pineboolib.application.utils import modules
 
 # /** @file */
 
+
 # /** @class_declaration ifaceCtx */
 class ifaceCtx(qsa.ObjectClass):
     """ifaceCtx class."""
 
     ctx: "qsa.FormDBWidget"
 
-    def __init__(self, context : "qsa.FormDBWidget"):
+    def __init__(self, context: "qsa.FormDBWidget"):
         """Just a comment."""
         self.ctx = context
 
@@ -47,7 +48,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return codigo
 
-    def getExportByRegexp(self, code: str, re : Any) -> Any:
+    def getExportByRegexp(self, code: str, re: Any) -> Any:
         """Just a comment."""
         pos: Any = re.find("code")
         if pos != -1:

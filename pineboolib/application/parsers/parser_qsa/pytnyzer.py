@@ -302,7 +302,9 @@ PYTHON_KEYWORDS = [
 classesDefined: List[str] = []
 
 
-def id_translate(name: str, qsa_exclude: Optional[Set[str]] = None, transform: Optional[Dict[str, str]] = None) -> str:
+def id_translate(
+    name: str, qsa_exclude: Optional[Set[str]] = None, transform: Optional[Dict[str, str]] = None
+) -> str:
     """Translate identifiers to avoid "import *" issues."""
     orig_name = name
 
@@ -1369,13 +1371,15 @@ class InstructionUpdate(ASTPython):
             else:
                 if number == 0 and len(expr) == 1:
                     identifier = expr[0]
-                    parent : Optional["ET.Element"] = cast(ET.Element, self.elem.get("parent_"))
-                    new_parent : Optional["ET.Element"] = None if "ifaceCtx" in self.source.locals else parent
+                    parent: Optional["ET.Element"] = cast(ET.Element, self.elem.get("parent_"))
+                    new_parent: Optional["ET.Element"] = (
+                        None if "ifaceCtx" in self.source.locals else parent
+                    )
                     found_global = None
 
                     while new_parent:
                         if new_parent.tag == "Value":
-                            for variable in new_parent.findall('*/*/Variable'):
+                            for variable in new_parent.findall("*/*/Variable"):
                                 if variable.get("name") == identifier:
                                     found_global = False
                                     break
@@ -1386,7 +1390,9 @@ class InstructionUpdate(ASTPython):
                             if parent.tag == "Source":
                                 grand_parent = cast(ET.Element, parent.get("parent_"))
                                 if grand_parent and grand_parent.tag == "Source":
-                                    for variable_global in parent.findall("DeclarationBlock/Variable"):
+                                    for variable_global in parent.findall(
+                                        "DeclarationBlock/Variable"
+                                    ):
                                         if variable_global.get("name") == identifier:
                                             found_global = True
                                             break

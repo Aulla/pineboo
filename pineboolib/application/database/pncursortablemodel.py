@@ -979,7 +979,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self.metadata().isQuery():
             self._refresh_field_info()
 
-    def rowCount(self, parent: Optional['QtCore.QModelIndex'] = None) -> int:
+    def rowCount(self, parent: Optional["QtCore.QModelIndex"] = None) -> int:
         """
         Get current row count.
 

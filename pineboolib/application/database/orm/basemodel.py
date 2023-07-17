@@ -493,8 +493,7 @@ class BaseModel(object):
     def table_metadata(cls) -> "pntablemetadata.PNTableMetaData":
         """Return table metadata."""
 
-        ret_ = application.PROJECT.conn_manager.manager().metadata(
-            cls.__tablename__)
+        ret_ = application.PROJECT.conn_manager.manager().metadata(cls.__tablename__)
 
         if ret_ is None:
             cls._error_manager("table_metadata", "%s tablemetadata is empty" % cls.__tablename__)

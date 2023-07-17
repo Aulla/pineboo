@@ -572,9 +572,7 @@ class SqlInspector(object):
             self._field_list[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
-                mtd_table = application.PROJECT.conn_manager.manager().metadata(
-                    table_name
-                )
+                mtd_table = application.PROJECT.conn_manager.manager().metadata(table_name)
                 mtd_field = None
                 if mtd_table is not None:
                     for fil in _filter:

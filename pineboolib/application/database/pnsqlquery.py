@@ -729,9 +729,7 @@ class PNSqlQuery(object):
         table_list = table_list.replace(" ", "")
         mng = self.db().connManager().manager()
         for tabla in table_list.split(","):
-            if not mng.existsTable(tabla) and not mng.metadata(
-                tabla
-            ):
+            if not mng.existsTable(tabla) and not mng.metadata(tabla):
                 self._invalid_tables_list = True
                 LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)
             self.private_query._tables_list.append(tabla)

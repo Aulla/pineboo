@@ -185,7 +185,6 @@ class FLFormDB(QtWidgets.QDialog):
                 if application.PROJECT.main_window.main_widget is not None:
                     parent_widget = application.PROJECT.main_window.main_widget
                 else:
-
                     parent_widget = application.PROJECT.main_window
             else:
                 raise Exception("main_window is not loaded!")
@@ -273,7 +272,6 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         if self._ui_name:
-
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
@@ -292,7 +290,6 @@ class FLFormDB(QtWidgets.QDialog):
         Call the "init" function of the masterprocess script associated with the form.
         """
         if self._loaded:
-
             if self.action_widget:
                 self.action_widget.clear_connections()
 
@@ -401,7 +398,6 @@ class FLFormDB(QtWidgets.QDialog):
         Save the image or screenshot of the form in a PNG format file.
         """
         if not path_file:
-
             tmp_file = "%s/snap_shot_%s.png" % (
                 application.PROJECT.tmpdir,
                 QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
@@ -545,7 +541,6 @@ class FLFormDB(QtWidgets.QDialog):
         """Emit formReady signal, after the form has been loaded."""
 
         if "fltesttest" in application.PROJECT.conn_manager.managerModules().listAllIdModules():
-
             application.PROJECT.call(
                 "fltesttest.iface.recibeEvento", ["formReady", self._action_name], None
             )
@@ -633,7 +628,6 @@ class FLFormDB(QtWidgets.QDialog):
         push_button_size = self._icon_size
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
-
             pushButtonExport = QtWidgets.QToolButton()  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
@@ -764,7 +758,6 @@ class FLFormDB(QtWidgets.QDialog):
 
         # self.hide()
         try:
-
             if type(self).__name__ != "FLFormSearchDB":
                 super().close()
 
@@ -773,7 +766,6 @@ class FLFormDB(QtWidgets.QDialog):
                 del self.known_instances[instance_name]
 
         except Exception:
-
             LOGGER.error(
                 "El FLFormDB %s no se cerró correctamente:\n%s",
                 self.formName(),
@@ -867,7 +859,6 @@ class FLFormDB(QtWidgets.QDialog):
 
                 mdi_area = module_window.centralWidget()
                 if isinstance(mdi_area, QtWidgets.QMdiArea):
-
                     for sub_window in mdi_area.subWindowList():
                         if cast(FLFormDB, sub_window.widget()).formName() == self.formName():
                             mdi_area.setActiveSubWindow(sub_window)
@@ -890,7 +881,6 @@ class FLFormDB(QtWidgets.QDialog):
         # tiempo_fin = time.time()
         parent_ = self.parent()
         if parent_ and parent_.parent() is None:
-
             qt_rectangle = self.frameGeometry()
             center_point = self.screen().availableGeometry().center()
             qt_rectangle.moveCenter(center_point)
@@ -984,7 +974,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return ""
 
-    def get_iface(self) -> Optional['Callable']:
+    def get_iface(self) -> Optional["Callable"]:
         """Return script iface."""
 
         fun = getattr(self.action_widget, "iface", None)

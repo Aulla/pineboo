@@ -187,7 +187,9 @@ class PNAccessControlLists(object):
             )
 
     def make_rule(
-        self, qry: Optional["pnsqlquery.PNSqlQuery"] = None, dom_document: Optional["QtXml.QDomDocument"] = None
+        self,
+        qry: Optional["pnsqlquery.PNSqlQuery"] = None,
+        dom_document: Optional["QtXml.QDomDocument"] = None,
     ) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.

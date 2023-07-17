@@ -112,7 +112,11 @@ class KParserTools(object):
         return ret
 
     def calculated(
-        self, value: Any, data_type: int, xml: Optional["Element"] = None, data: Optional["Element"] = None
+        self,
+        value: Any,
+        data_type: int,
+        xml: Optional["Element"] = None,
+        data: Optional["Element"] = None,
     ) -> Any:
         """
         Get value of type "calculated".
@@ -137,7 +141,6 @@ class KParserTools(object):
             value = data.get(value)
 
         elif data_type == 2:  # float
-
             if type_ is None:
                 if value not in (None, "None"):
                     value = QtCore.QLocale.system().toString(float(value), "f", precision)
@@ -157,7 +160,6 @@ class KParserTools(object):
                 else:
                     LOGGER.warning("UNKNOWN DateFormat %s --> %s", date_format_num, value)
         elif data_type == 4:  # currency
-
             if value not in (None, "None"):
                 float_value = float(value)
                 if float_value < -0.01 or float_value > 0.01:
@@ -195,7 +197,6 @@ class KParserTools(object):
             img_file = "%s/%s.png" % (tmp_dir, ref_key)
 
             if not os.path.exists(img_file) and ref_key[0:3] == "RK@":
-
                 single_query = pnsqlquery.PNSqlQuery()
                 single_query.exec_("SELECT valor FROM flsettings WHERE flkey='FLLargeMode'")
                 one_fllarge = True
@@ -238,7 +239,6 @@ class KParserTools(object):
                     ret = img_file
 
             else:
-
                 ret = img_file
 
         return ret
@@ -370,7 +370,6 @@ class KParserTools(object):
 
         for folder in fonts_folders:
             for root, dirnames, filenames in os.walk(folder):
-
                 for filename in fnmatch.filter(filenames, "%s.ttf" % font_name):
                     ret_ = os.path.join(root, filename)
                     return ret_

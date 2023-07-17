@@ -15,7 +15,6 @@ from typing import Any, Union, List, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401 # pragma: no cover
     from pineboolib.application import file as file_app  # noqa : F401 # pragma: no cover
 
@@ -68,7 +67,6 @@ def next_counter(
     """
 
     if cursor_ is None:
-
         if not isinstance(cursor_or_name, (pnsqlcursor.PNSqlCursor, dummy_cursor.DummyCursor)):
             raise ValueError
         return _next_counter2(name_or_series, cursor_or_name)
@@ -81,7 +79,6 @@ def next_counter(
 def _next_counter2(
     name_: str, cursor_: Union["isqlcursor.ISqlCursor", "dummy_cursor.DummyCursor"]
 ) -> Optional[Union[str, int]]:
-
     if not cursor_:
         return None
 
@@ -128,7 +125,6 @@ def _next_counter2(
 def _next_counter3(
     serie_: str, name_: str, cursor_: Union["isqlcursor.ISqlCursor", "dummy_cursor.DummyCursor"]
 ) -> Optional[Union[str, int]]:
-
     if not cursor_:
         return None
 
@@ -261,7 +257,6 @@ def sql_insert(
     _cursor.refreshBuffer()
 
     for _pos in range(len_field_list):
-
         if _value_list[_pos] is None:
             _cursor.setNull(_field_list[_pos])
         else:
@@ -292,7 +287,6 @@ def sql_update(
     _cursor.select(where_)
     _cursor.setForwardOnly(True)
     while _cursor.next():
-
         _cursor.setModeAccess(_cursor.Edit)
         _cursor.refreshBuffer()
 

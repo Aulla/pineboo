@@ -137,7 +137,6 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
         else:
             senders = widget.findChildren(QtCore.QObject, sender_name)
             for sender in senders:
-
                 # if not application.PROJECT.DGI.localDesktop():
                 #    wui = hasattr(widget, "ui_") and sender_name in widget.ui_
                 #    if sender is None and wui:
@@ -187,7 +186,6 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
                     #    ifx = widget.iface
                     if hasattr(ifx, fn_name):
                         try:
-
                             # getattr(sender, sg_name).connect(
                             #    getattr(ifx, fn_name))
                             connections.connect(sender, signal_name, ifx, fn_name)
@@ -417,7 +415,9 @@ def clone_action(action: "QtGui.QAction", widget: "QtWidgets.QWidget") -> None:
 
 
 def load_action(
-    action: "ET.Element", widget: "QtWidgets.QWidget", action_widget: Optional["QtGui.QAction"] = None
+    action: "ET.Element",
+    widget: "QtWidgets.QWidget",
+    action_widget: Optional["QtGui.QAction"] = None,
 ) -> None:
     """
     Load Action into widget.
@@ -1101,7 +1101,6 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
     elif variant.tag in ["iconset", "pixmap"]:
         global ICONS
         if text in ICONS.keys():
-
             return ICONS[text]
         else:
             LOGGER.warning("Icon %s not found:", text)
@@ -1121,14 +1120,12 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         return QtCore.QRect(rect_["x"], rect_["y"], rect_["width"], rect_["height"])
 
     elif variant.tag == "sizepolicy":
-
         policy = QtWidgets.QSizePolicy()
         for item in variant:
             ivalue_policy = int((item.text or "0").strip())
             real_policy: Any = None
             for it_ in policy.Policy:
                 if it_.value == ivalue_policy:  # type: ignore [comparison-overlap]
-
                     real_policy = it_
                     break
 
@@ -1270,7 +1267,6 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         return pal_
 
     elif variant.tag == "date":
-
         year_ = 2000
         month_ = 1
         day_ = 1

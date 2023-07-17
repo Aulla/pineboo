@@ -38,7 +38,9 @@ class QTable(Q3TableWidget):
     AutoOneFit = 3
     sort_column_: int
 
-    def __init__(self, parent: Optional["QtWidgets.QGroupBox"] = None, name: Optional[str] = None) -> None:
+    def __init__(
+        self, parent: Optional["QtWidgets.QGroupBox"] = None, name: Optional[str] = None
+    ) -> None:
         """Inicialize."""
         super(QTable, self).__init__(parent)
         if not parent:
