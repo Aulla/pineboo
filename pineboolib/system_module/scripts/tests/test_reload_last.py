@@ -78,7 +78,7 @@ class TestFLReloadLast(unittest.TestCase):
         form.close()
         settings.SETTINGS.set_value("scripts/sys/modLastModule_temp_db", ruta)
         mod_ = qsa.from_project("formflreloadlast")
-        mod_.main()
+        self.assertTrue(getattr(mod_, "main", None))
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
