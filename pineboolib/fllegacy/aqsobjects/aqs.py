@@ -174,9 +174,10 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
 
             # _p_properties.append(meta_prop.name())
 
-            val = getattr(obj_, meta_prop.name())
+            val = getattr(obj_, meta_prop.name(), None)
             try:
-                val = val()
+                if val is not None:
+                    val = val()
             except Exception:
                 pass
 
@@ -194,9 +195,7 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
             i += 1
 
         if include_children:
-
             for child in obj_.children():
-
                 itd = cls.toXml(child, include_children, include_complex_types)
                 xml_.firstChild().appendChild(itd.firstChild())
         return xml_
