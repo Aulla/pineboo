@@ -759,7 +759,7 @@ class FileStatic(FileBaseClass):
         return file.remove()
 
     @staticmethod
-    def read(file_: str, bytes: bool = False) -> str:
+    def read(file_: str, bytes: bool = False) -> Union[str, bytes]:
         """
         Read file completely.
 
