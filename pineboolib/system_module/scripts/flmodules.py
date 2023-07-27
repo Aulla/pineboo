@@ -6,7 +6,7 @@ from pineboolib.qsa import qsa
 from pineboolib.application.parsers.parser_qsa import postparse
 import os
 import pathlib
-from typing import TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -30,7 +30,11 @@ class FormInternalObj(qsa.FormDBWidget):
             btn_export.setEnabled(False)
 
     def load_file_to_db(
-        self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
+        self,
+        nombre: str,
+        contenido: Union[str, bytes],
+        log: "QtWidgets.QTextEdit",
+        directorio: str,
     ) -> None:
         """Load a file into database."""
         if not qsa.util.isFLDefFile(contenido) and not nombre.endswith(
@@ -44,6 +48,8 @@ class FormInternalObj(qsa.FormDBWidget):
                 ".ar",
                 ".py",
                 ".kut",
+                ".jasper",
+                ".jrxml",
             )
         ):
             return
@@ -51,6 +57,7 @@ class FormInternalObj(qsa.FormDBWidget):
         cursor_ficheros = qsa.FLSqlCursor("flfiles")
         cursor = self.cursor()
 
+        binary = nombre.endswith(".jasper")
         cursor_ficheros.select(qsa.ustr("nombre = '", nombre, "'"))
         if not cursor_ficheros.first():
             if nombre.endswith(".ar"):
@@ -61,15 +68,25 @@ class FormInternalObj(qsa.FormDBWidget):
             cursor_ficheros.refreshBuffer()
             cursor_ficheros.setValueBuffer("nombre", nombre)
             cursor_ficheros.setValueBuffer("idmodulo", cursor.valueBuffer("idmodulo"))
-            cursor_ficheros.setValueBuffer("sha", qsa.util.sha1(contenido))
-            cursor_ficheros.setValueBuffer("contenido", contenido)
+            if binary:
+                cursor_ficheros.setValueBuffer(
+                    "sha", qsa.util.sha1(contenido.decode(errors="replace"))
+                )
+                cursor_ficheros.setValueBuffer("binario", contenido)
+            else:
+                cursor_ficheros.setValueBuffer("sha", qsa.util.sha1(contenido))
+                cursor_ficheros.setValueBuffer("contenido", contenido)
             cursor_ficheros.commitBuffer()
 
         else:
             cursor_ficheros.setModeAccess(cursor_ficheros.Edit)
             cursor_ficheros.refreshBuffer()
             copy_content = cursor_ficheros.valueBuffer("contenido")
-            if copy_content != contenido:
+            copy_binario = cursor_ficheros.valueBuffer("binario")
+            if (not binary and copy_content != contenido) or (
+                binary
+                and copy_binario.decode(errors="replace") != contenido.decode(errors="replace")
+            ):
                 log.append(qsa.util.translate("scripts", "- Actualizando :: ") + nombre)
                 cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
                 cursor_ficheros.refreshBuffer()
@@ -77,6 +94,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 cursor_ficheros.setValueBuffer("nombre", nombre + qsa.parseString(this_date))
                 cursor_ficheros.setValueBuffer("idmodulo", cursor.valueBuffer("idmodulo"))
                 cursor_ficheros.setValueBuffer("contenido", copy_content)
+                cursor_ficheros.setValueBuffer("binario", copy_binario)
                 cursor_ficheros.commitBuffer()
                 log.append(
                     qsa.util.translate("scripts", "- Backup :: ")
@@ -88,8 +106,14 @@ class FormInternalObj(qsa.FormDBWidget):
                 cursor_ficheros.setModeAccess(cursor_ficheros.Edit)
                 cursor_ficheros.refreshBuffer()
                 cursor_ficheros.setValueBuffer("idmodulo", cursor.valueBuffer("idmodulo"))
-                cursor_ficheros.setValueBuffer("sha", qsa.util.sha1(contenido))
-                cursor_ficheros.setValueBuffer("contenido", contenido)
+                if binary:
+                    cursor_ficheros.setValueBuffer(
+                        "sha", qsa.util.sha1(contenido.decode(errors="replace"))
+                    )
+                    cursor_ficheros.setValueBuffer("binario", contenido)
+                else:
+                    cursor_ficheros.setValueBuffer("sha", qsa.util.sha1(contenido))
+                    cursor_ficheros.setValueBuffer("contenido", contenido)
                 cursor_ficheros.commitBuffer()
                 if nombre.endswith(".ar"):
                     self.load_ar(nombre, contenido, log, directorio)
@@ -154,17 +178,20 @@ class FormInternalObj(qsa.FormDBWidget):
                                 raise Exception("value_py must be string not bytes.")
 
                             self.load_file_to_db("%s.py" % name[-3], value_py, log, directorio)
-
-                    encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
-                    try:
-                        value = qsa.File(path_, encode).read()
-                    except UnicodeDecodeError:
-                        LOGGER.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
-                        encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
-                        value = qsa.File(path_, encode).read()
-
-                    if not isinstance(value, str):
-                        raise Exception("value must be string not bytes.")
+                    if name.endswith(".jasper"):
+                        file_ = open(path_, "rb")
+                        value = file_.read()
+                        file_.close()
+                    else:
+                        encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
+                        try:
+                            value = qsa.File(path_, encode).read()
+                        except UnicodeDecodeError:
+                            LOGGER.warning(
+                                "The file %s has a incorrect encode (%s)" % (path_, encode)
+                            )
+                            encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
+                            value = qsa.File(path_, encode).read()
 
                     self.load_file_to_db(name, value, log, directorio)
                     # qsa.sys.processEvents()
@@ -230,7 +257,6 @@ class FormInternalObj(qsa.FormDBWidget):
             # qsa.sys.cleanupMetaData()
             qsa.sys.processEvents()
             if self.cursor().commitBuffer():
-
                 id_mod_widget = self.child("idMod")
                 if id_mod_widget is not None:
                     id_mod_widget.setDisabled(True)
@@ -256,6 +282,8 @@ class FormInternalObj(qsa.FormDBWidget):
                     "kut",
                     "ar",
                     "ts",
+                    "jasper",
+                    "jrxml",
                 ]
                 for extension in extensiones:
                     self.load_files(directorio, ".%s" % extension)
@@ -314,7 +342,12 @@ class FormInternalObj(qsa.FormDBWidget):
                     s01_dowhile_1stloop = False
                     file_name = cur_files.valueBuffer("nombre")
                     tipo = self.file_type(file_name)
-                    contenido = cur_files.valueBuffer("contenido")
+                    contenido = (
+                        cur_files.valueBuffer("binario")
+                        if tipo == ".jasper"
+                        else cur_files.valueBuffer("contenido")
+                    )
+
                     if contenido:
                         codec: str = ""
                         if tipo in [
@@ -329,6 +362,8 @@ class FormInternalObj(qsa.FormDBWidget):
                             ".qry",
                             ".mtd",
                             ".kut",
+                            ".jasper",
+                            ".jrxml",
                         ]:
                             codec = "ISO-8859-1"
                         elif tipo in [".py", ".ts"]:
@@ -352,12 +387,17 @@ class FormInternalObj(qsa.FormDBWidget):
                             sub_carpeta = "translations"
                         elif tipo == ".ui":
                             sub_carpeta = "forms"
-                        elif tipo == ".kut":
+                        elif tipo in (".kut", ".jasper", ".jrxml"):
                             sub_carpeta = "reports"
 
-                        qsa.sys.write(
-                            codec, qsa.ustr(directorio, "/%s/" % sub_carpeta, file_name), contenido
-                        )
+                        file_path = os.path.join(directorio, sub_carpeta, file_name)
+
+                        if tipo == ".jasper":
+                            file_ = open(file_path, "wb")
+                            file_.write(contenido)
+                            file_.close()
+                        else:
+                            qsa.sys.write(codec, file_path, contenido)
                         log.append(
                             qsa.util.translate("scripts", qsa.ustr("* Exportando ", file_name, "."))
                         )
