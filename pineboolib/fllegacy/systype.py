@@ -551,7 +551,6 @@ class SysType(sysbasetype.SysBaseType):
         """Load and process a Abanq/Eneboo package."""
 
         if input_:
-
             if warning_bakup and self.interactiveGUI():
                 txt = ""
                 txt += self.translate(
@@ -592,9 +591,10 @@ class SysType(sysbasetype.SysBaseType):
             if self.loadModulesDef(unpacker):
                 if self.loadFilesDef(unpacker):
                     self.registerUpdate(input_)
-                    self.infoMsgBox(
-                        self.translate("La carga de módulos se ha realizado con éxito.")
-                    )
+                    if warning_bakup:
+                        self.infoMsgBox(
+                            self.translate("La carga de módulos se ha realizado con éxito.")
+                        )
                     self.reinit()
 
                     tmp_var = flvar.FLVar()
@@ -623,7 +623,6 @@ class SysType(sysbasetype.SysBaseType):
         flutil.FLUtil.createProgressDialog(self.translate("Registrando ficheros"), len(files))
 
         for number in range(len(files)):
-
             it_ = files.item(number)
             fil = {
                 "id": it_.namedItem("name").toElement().text(),
@@ -666,26 +665,35 @@ class SysType(sysbasetype.SysBaseType):
         cur = pnsqlcursor.PNSqlCursor("flfiles")
         if not cur.select("nombre='%s'" % id_value):
             return False
+
+        binary = id_value.endswith(".jasper")
+
+        contenido = document.getBinary() if binary else document.getText()
+
         cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
         cur.setValueBuffer("nombre", id_value)
         cur.setValueBuffer("idmodulo", fil["module"])
-        cur.setValueBuffer("sha", fil["shatext"])
-        if len(fil["text"]):
-            encode = "iso-8859-15" if not id_value.endswith((".py")) else "UTF-8"
-            try:
-                cur.setValueBuffer(
-                    "contenido",
-                    self.toUnicode(document.getText(), encode)
-                    if not id_value.endswith(".py")
-                    else document.getText(),
-                )
-            except UnicodeEncodeError as error:
-                LOGGER.error("The %s file does not have the correct encode (%s)", id_value, encode)
-                raise error
+        cur.setValueBuffer("sha", fil["shabinary"] if binary else fil["shatext"])
+        if binary:
+            cur.setValueBuffer("contenido", "")
+            cur.setValueBuffer("binario", contenido)
+        else:
+            if len(fil["text"]):
+                encode = "iso-8859-15" if not id_value.endswith((".py")) else "UTF-8"
+                try:
+                    cur.setValueBuffer(
+                        "contenido",
+                        self.toUnicode(contenido, encode)
+                        if not id_value.endswith(".py")
+                        else contenido,
+                    )
+                except UnicodeEncodeError as error:
+                    LOGGER.error(
+                        "The %s file does not have the correct encode (%s)", id_value, encode
+                    )
+                    raise error
 
-        if len(fil["binary"]) > 0:
-            document.getBinary()
         return cur.commitBuffer()
 
     def checkProjectName(self, project_name: str) -> bool:
@@ -844,7 +852,6 @@ class SysType(sysbasetype.SysBaseType):
         push_button_no.clicked.connect(diag.reject)  # type: ignore [attr-defined]
         check_remember = None
         if key_remember and txt_remember:
-
             check_remember = QtWidgets.QCheckBox(txt_remember, diag)
             check_remember.setChecked(value_remember)
             lay.addWidget(check_remember)
@@ -1353,10 +1360,8 @@ class SysType(sysbasetype.SysBaseType):
 
         obj_class: Any = None
         if control_name == "FLFieldDB":
-
             obj_class = flfielddb.FLFieldDB
         elif control_name == "FLTableDB":
-
             obj_class = fltabledb.FLTableDB
         elif control_name == "Button":
             control_name = "QPushButton"
