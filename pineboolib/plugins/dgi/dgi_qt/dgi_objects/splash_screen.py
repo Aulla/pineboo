@@ -24,7 +24,8 @@ class SplashScreen(object):
 
         frame_geo = self._splash.frameGeometry()
         primary_screen = QtGui.QGuiApplication.primaryScreen()
-        frame_geo.moveCenter(primary_screen.geometry().center())
+        if primary_screen:
+            frame_geo.moveCenter(primary_screen.geometry().center())
         self._splash.move(frame_geo.topLeft())
 
     def showMessage(self, text: str) -> None:

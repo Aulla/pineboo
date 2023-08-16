@@ -17,7 +17,7 @@ from pineboolib.interfaces import imainwindow
 from pineboolib.q3widgets import qmainwindow
 
 
-from typing import Any, cast, List, TYPE_CHECKING
+from typing import Any, cast, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
@@ -348,7 +348,7 @@ class MainForm(imainwindow.IMainWindow):
             new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
             new_area_bar.setOrientation(QtCore.Qt.Orientation.Vertical)
-            new_area_bar.layout().setSpacing(3)
+            new_area_bar.layout().setSpacing(3)  # type: ignore [union-attr]
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
             action_group = QtGui.QActionGroup(new_area_bar)
             action_group.setObjectName(descript_area)
@@ -366,7 +366,6 @@ class MainForm(imainwindow.IMainWindow):
 
                 if mod == "sys":
                     if settings.CONFIG.value("application/isDebuggerMode", False):
-
                         descript_module = "%s: %s" % (
                             str(chr(char_num)),
                             self.tr("Carga Estática desde Disco Duro"),
@@ -451,11 +450,11 @@ class MainForm(imainwindow.IMainWindow):
             for child in new_area_bar.children():
                 if isinstance(child, QtWidgets.QToolButton):
                     self.mdi_toolbuttons.append(child)
-                    lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)
+                    lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)  # type: ignore [union-attr]
 
             a_menu = self.modules_menu.addMenu(descript_area)
             for action in action_group.actions():
-                a_menu.addAction(action)
+                a_menu.addAction(action)  # type: ignore [union-attr]
 
         descript_area = "Configuración"
         config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
@@ -535,12 +534,14 @@ class MainForm(imainwindow.IMainWindow):
         for child in config_tool_bar.children():
             if isinstance(child, QtWidgets.QToolButton):
                 self.mdi_toolbuttons.append(child)
-                lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)
+                lay.setAlignment(child, QtCore.Qt.AlignmentFlag.AlignCenter)  # type: ignore [union-attr]
 
         if application.PROJECT.aq_app.acl_:
             application.PROJECT.aq_app.acl_.process(self.container_)
 
-    def eventFilter(self, obj_: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(
+        self, obj_: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """React to user events."""
 
         if self._inicializing or application.PROJECT.aq_app._destroying:
@@ -549,7 +550,7 @@ class MainForm(imainwindow.IMainWindow):
         # if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
         #    return super().eventFilter(obj, event)
         obj_ = cast(QtWidgets.QWidget, obj_)
-        event_type = event.type()
+        event_type = event.type()  # type: ignore [union-attr]
         main_widget = self.main_widget
 
         if (
@@ -557,7 +558,6 @@ class MainForm(imainwindow.IMainWindow):
             and not isinstance(obj_, QtWidgets.QMainWindow)
             and not isinstance(obj_, qmainwindow.QMainWindow)
         ):
-
             return super().eventFilter(obj_, event)
 
         # aw = None
@@ -614,7 +614,7 @@ class MainForm(imainwindow.IMainWindow):
                 ret = self.generalExit()
                 if not ret:
                     obj_.setDisabled(False)
-                    event.ignore()
+                    event.ignore()  # type: ignore [union-attr]
             else:
                 self.writeStateActions(obj_.objectName())
 
@@ -652,7 +652,7 @@ class MainForm(imainwindow.IMainWindow):
 
         if not idm:
             if self.sender():
-                idm = self.sender().objectName()
+                idm = self.sender().objectName()  # type: ignore [union-attr]
 
         if not idm:
             return
@@ -665,7 +665,6 @@ class MainForm(imainwindow.IMainWindow):
             if widget is None:
                 widget = self.db().managerModules().createUI(file_name="%s.ui" % idm)
                 if widget is None:
-
                     return
                 if isinstance(widget, qmainwindow.QMainWindow) or widget.findChild(pncore.PNCore):
                     doc = QtXml.QDomDocument()
@@ -790,11 +789,12 @@ class MainForm(imainwindow.IMainWindow):
             for item in [
                 item.widget() for item in container_.findChildren(QtWidgets.QMdiSubWindow)  # type: ignore [attr-defined]
             ]:
-                key = "Geometry/%s/" % item._action_name
-                settings.SETTINGS.set_value("%s/X" % key, item.x())
-                settings.SETTINGS.set_value("%s/Y" % key, item.y())
-                settings.SETTINGS.set_value("%s/Width" % key, item.width())
-                settings.SETTINGS.set_value("%s/Height" % key, item.height())
+                if item:
+                    key = "Geometry/%s/" % item._action_name  # type: ignore [attr-defined]
+                    settings.SETTINGS.set_value("%s/X" % key, item.x())
+                    settings.SETTINGS.set_value("%s/Y" % key, item.y())
+                    settings.SETTINGS.set_value("%s/Width" % key, item.width())
+                    settings.SETTINGS.set_value("%s/Height" % key, item.height())
 
     def writeStateModule(self) -> None:
         """Write settings for modules."""
@@ -844,7 +844,8 @@ class MainForm(imainwindow.IMainWindow):
 
                 frame_geo = self.frameGeometry()
                 primary_screen = QtGui.QGuiApplication.primaryScreen()
-                frame_geo.moveCenter(primary_screen.geometry().center())
+                if primary_screen:
+                    frame_geo.moveCenter(primary_screen.geometry().center())
                 self.move(frame_geo.topLeft())
 
                 desk = self.container_.frameGeometry()
@@ -925,7 +926,6 @@ class MainForm(imainwindow.IMainWindow):
         for action_name in windows_opened:
             action = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, action_name))
             if action and action.isVisible() and action_name in application.PROJECT.actions.keys():
-
                 form = mng_modules.createForm(application.PROJECT.actions[action_name])
                 self.read_state_widget(action_name, form)
                 form.show()
@@ -973,7 +973,6 @@ class MainForm(imainwindow.IMainWindow):
 
         view_back = cast(QtWidgets.QMainWindow, self.main_widget).centralWidget()
         if not isinstance(view_back, QtWidgets.QMdiArea):
-
             view_back = QtWidgets.QMdiArea()
             view_back.setObjectName("mdi_area")
             view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
@@ -1018,7 +1017,7 @@ class MainForm(imainwindow.IMainWindow):
                 tools_action.setChecked(tool_bar.isVisible())
 
             if status_action is not None:
-                status_action.setChecked(main_widget.statusBar().isVisible())
+                status_action.setChecked(main_widget.statusBar().isVisible())  # type: ignore [union-attr]
 
     def showMainWidget(self, widget) -> None:
         """Show UI."""
@@ -1094,8 +1093,8 @@ class MainForm(imainwindow.IMainWindow):
             return
 
         if main_widget:
-            action = main_widget.menuBar().addMenu(self.window_menu)
-            action.setText(self.tr("&Ventana"))
+            action = main_widget.menuBar().addMenu(self.window_menu)  # type: ignore [union-attr]
+            action.setText(self.tr("&Ventana"))  # type: ignore [union-attr]
             # main_widget.setCentralWidget(None)
 
         self.initView()
@@ -1149,11 +1148,12 @@ class MainForm(imainwindow.IMainWindow):
 
         if main_widget is not None:
             status_bar = cast(QtWidgets.QMainWindow, main_widget).statusBar()
-            status_bar.setSizeGripEnabled(False)
+            if status_bar:
+                status_bar.setSizeGripEnabled(False)
 
-            conexion = QtWidgets.QLabel(status_bar)
-            conexion.setText("%s@%s" % (self.db().user(), self.db().DBName()))
-            status_bar.addWidget(conexion)
+                conexion = QtWidgets.QLabel(status_bar)
+                conexion.setText("%s@%s" % (self.db().user(), self.db().DBName()))
+                status_bar.addWidget(conexion)
 
     def toggleToolBar(self, toggle: bool) -> None:
         """Show or hide toolbar."""
@@ -1178,9 +1178,9 @@ class MainForm(imainwindow.IMainWindow):
         if not main_widget:
             return
         if toggle:
-            main_widget.statusBar().show()
+            main_widget.statusBar().show()  # type: ignore [union-attr]
         else:
-            main_widget.statusBar().hide()
+            main_widget.statusBar().hide()  # type: ignore [union-attr]
 
     def generalExit(self, ask_exit=True) -> bool:
         """Perform before close checks."""
@@ -1207,5 +1207,4 @@ class MainForm(imainwindow.IMainWindow):
 
             return True
         else:
-
             return False

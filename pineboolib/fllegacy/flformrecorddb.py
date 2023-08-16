@@ -230,7 +230,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
         push_button_size = self._icon_size
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
-
             pushButtonExport = QtWidgets.QToolButton()  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
@@ -243,7 +242,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-            self.bottomToolbar.layout().addWidget(pushButtonExport)
+            self.bottomToolbar.layout().addWidget(pushButtonExport)  # type: ignore [union-attr]
             pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.exportToXml
             )
@@ -261,7 +260,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(push_button_snapshot)
+                self.bottomToolbar.layout().addWidget(push_button_snapshot)  # type: ignore [union-attr]
                 push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                     self.saveSnapShot
                 )
@@ -269,7 +268,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
-            self.bottomToolbar.layout().addItem(spacer)
+            self.bottomToolbar.layout().addItem(spacer)  # type: ignore [union-attr]
 
         if self.cursor().modeAccess() in (self.cursor().Edit, self.cursor().Browse):
             if not self.pushButtonFirst:
@@ -290,7 +289,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 )
                 self.pushButtonFirst.setToolTip("Aceptar los cambios e ir al primer registro (F5)")
                 self.pushButtonFirst.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(self.pushButtonFirst)
+                self.bottomToolbar.layout().addWidget(self.pushButtonFirst)  # type: ignore [union-attr]
                 # self.pushButtonFirst.show()
 
             if not self.pushButtonPrevious:
@@ -313,7 +312,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     "Aceptar los cambios e ir al registro anterior (F6)"
                 )
                 self.pushButtonPrevious.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(self.pushButtonPrevious)
+                self.bottomToolbar.layout().addWidget(self.pushButtonPrevious)  # type: ignore [union-attr]
                 # self.pushButtonPrevious.show()
 
             if not self.pushButtonNext:
@@ -336,7 +335,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     "Aceptar los cambios e ir al registro siguiente (F7)"
                 )
                 self.pushButtonNext.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(self.pushButtonNext)
+                self.bottomToolbar.layout().addWidget(self.pushButtonNext)  # type: ignore [union-attr]
                 # self.pushButtonNext.show()
 
             if not self.pushButtonLast:
@@ -355,7 +354,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonLast.setWhatsThis("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setToolTip("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(self.pushButtonLast)
+                self.bottomToolbar.layout().addWidget(self.pushButtonLast)  # type: ignore [union-attr]
                 # self.pushButtonLast.show()
 
         if not self.cursor().modeAccess() == self.cursor().Browse:
@@ -378,7 +377,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 "Aceptar los cambios y continuar con la edición de un nuevo registro (F9)"
             )
             self.pushButtonAcceptContinue.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-            self.bottomToolbar.layout().addWidget(self.pushButtonAcceptContinue)
+            self.bottomToolbar.layout().addWidget(self.pushButtonAcceptContinue)  # type: ignore [union-attr]
             if not self._show_accept_continue:
                 self.pushButtonAcceptContinue.close()
                 # self.pushButtonAcceptContinue.show()
@@ -400,7 +399,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAccept.setWhatsThis("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setToolTip("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-            self.bottomToolbar.layout().addWidget(self.pushButtonAccept)
+            self.bottomToolbar.layout().addWidget(self.pushButtonAccept)  # type: ignore [union-attr]
             # self.pushButtonAccept.show()
 
         if not self.pushButtonCancel:
@@ -436,12 +435,12 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonCancel.setToolTip("Aceptar y cerrar formulario (Esc)")
 
         # pushButtonCancel->setDefault(true);
-        self.bottomToolbar.layout().addItem(
+        self.bottomToolbar.layout().addItem(  # type: ignore [union-attr]
             QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
         )
-        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
+        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)  # type: ignore [union-attr]
         # self.pushButtonAccept.show()
 
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -459,13 +458,13 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         return "formRecord%s" % self._id_mdi
 
-    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
+    def closeEvent(self, event: Optional["QtGui.QCloseEvent"]) -> None:
         """
         Capture event close.
         """
         self.frameGeometry()
         if self.focusWidget():
-            parent = self.focusWidget().parentWidget()
+            parent = self.focusWidget().parentWidget()  # type: ignore [union-attr]
             if parent:
                 fdb = cast(flfielddb.FLFieldDB, parent)
                 acf_ = getattr(fdb, "autoComFrame_", None)
@@ -502,13 +501,13 @@ class FLFormRecordDB(flformdb.FLFormDB):
             else:
                 if not self.cursor_.useDelegateCommit():
                     if not self.cursor_.rollback():
-                        event.ignore()
+                        event.ignore()  # type: ignore [union-attr]
 
             self.setCursor(None)
 
         self.closed.emit()
-
-        super().closeEvent(event)
+        if event is not None:
+            super().closeEvent(event)
         # self.deleteLater()
 
     def validateForm(self) -> bool:

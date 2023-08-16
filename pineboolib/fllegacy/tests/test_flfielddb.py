@@ -68,7 +68,7 @@ class TestFLFieldDBString(unittest.TestCase):
         field_icono.setPixmapFromPixmap(pix)
 
         clb = QtWidgets.QApplication.clipboard()
-        clb.setPixmap(pix)
+        clb.setPixmap(pix)  # type: ignore [union-attr]
         field_icono.setPixmapFromClipboard()
 
         # module_.form.close()

@@ -64,7 +64,8 @@ class DlgConnect(QtWidgets.QWidget):
 
         frame_geo = self.frameGeometry()
         primary_screen = QtGui.QGuiApplication.primaryScreen()
-        frame_geo.moveCenter(primary_screen.geometry().center())
+        if primary_screen:
+            frame_geo.moveCenter(primary_screen.geometry().center())
         self.move(frame_geo.topLeft())
 
         self._user_interface.pbLogin.clicked.connect(self.open)
@@ -207,7 +208,6 @@ class DlgConnect(QtWidgets.QWidget):
             self._user_interface.leProfilePassword.text()
             != self._user_interface.leProfilePassword2.text()
         ):
-
             QtWidgets.QMessageBox.information(
                 self._user_interface, "Pineboo", "La contraseña del perfil no coincide"
             )
@@ -400,7 +400,9 @@ class DlgConnect(QtWidgets.QWidget):
             projectconfig.ProjectConfig.profile_dir = new_dir
             self.loadProfiles()
 
-    def eventFilter(self, object: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
+    def eventFilter(
+        self, object: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Event Filter."""
 
         if isinstance(event, QtGui.QKeyEvent):

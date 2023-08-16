@@ -51,7 +51,7 @@ class DockListView(QtCore.QObject):
         self.tree_widget.setObjectName(self.objectName())
         self.tree_widget.setColumnCount(2)
         self.tree_widget.setHeaderLabels(["", ""])
-        self.tree_widget.headerItem().setHidden(True)
+        self.tree_widget.headerItem().setHidden(True)  # type: ignore [union-attr]
         self.tree_widget.hideColumn(1)
 
         self.doc_widget.setWidget(self.tree_widget)
@@ -223,7 +223,6 @@ class DockListView(QtCore.QObject):
                         and not group_name.endswith("Actions")
                         and not group_name.startswith(("pinebooAg"))
                     ) or group_name.endswith("MoreActions"):
-
                         this_item = QtWidgets.QTreeWidgetItem(parent_item)
                         this_item.setText(0, group_name)
 
@@ -242,7 +241,6 @@ class DockListView(QtCore.QObject):
                     "pinebooActionGroup",
                     "pinebooActionGroup_actiongroup_name",
                 ):
-
                     action_name = node.attribute("objectName")
                     action = action_group_.findChild(QtGui.QAction, action_name)
 
@@ -304,7 +302,9 @@ class MainForm(imainwindow.IMainWindow):
         self.ag_rec_ = None
         self.ag_mar_ = None
 
-    def eventFilter(self, obj_: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
+    def eventFilter(
+        self, obj_: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Process GUI events."""
 
         if isinstance(event, AQS.ContextMenu):
@@ -414,16 +414,18 @@ class MainForm(imainwindow.IMainWindow):
 
         recent_actions = []
         root_recent = self.dck_rec_.tree_widget.invisibleRootItem()
-        count_recent = root_recent.childCount()
-        for i in range(count_recent):
-            recent_actions.append(root_recent.child(i).text(1))
+        if root_recent:
+            count_recent = root_recent.childCount()
+            for i in range(count_recent):
+                recent_actions.append(root_recent.child(i).text(1))  # type: ignore [union-attr]
         settings.writeEntryList("%srecentActions" % key, recent_actions)
 
         mark_actions = []
         root_mark = self.dck_mar_.tree_widget.invisibleRootItem()
-        count_mark = root_mark.childCount()
-        for i in range(count_mark):
-            mark_actions.append(root_mark.child(i).text(1))
+        if root_mark:
+            count_mark = root_mark.childCount()
+            for i in range(count_mark):
+                mark_actions.append(root_mark.child(i).text(1))  # type: ignore [union-attr]
         settings.writeEntryList("%smarkActions" % key, mark_actions)
 
     def readState(self) -> None:
@@ -465,7 +467,6 @@ class MainForm(imainwindow.IMainWindow):
     def loadTabs(self) -> None:
         """Load tabs."""
         if self.ag_menu_:
-
             settings = aqsobjectfactory.AQSettings()
             key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
 
@@ -475,8 +476,9 @@ class MainForm(imainwindow.IMainWindow):
                 raise Exception("tab_widget is empty!")
 
             for number in range(self.tab_widget.count()):
-                if self.tab_widget.widget(number) is not None:
-                    self.tab_widget.widget(number).close()
+                widget = self.tab_widget.widget(number)
+                if widget is not None:
+                    widget.close()
                     self.tab_widget.removeTab(number)
 
             actions_opened: List[str] = []
@@ -518,7 +520,7 @@ class MainForm(imainwindow.IMainWindow):
     def init(self) -> None:
         """Initialize UI."""
 
-        cast(QtWidgets.QMainWindow, self.main_widget).statusBar().hide()
+        cast(QtWidgets.QMainWindow, self.main_widget).statusBar().hide()  # type: ignore [union-attr]
         self.main_widgets_ = {}
         self.act_sig_map_ = QtCore.QSignalMapper(self.main_widget)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
@@ -609,8 +611,9 @@ class MainForm(imainwindow.IMainWindow):
                     break
 
         if idx is not None:
-            if isinstance(self.tab_widget.widget(idx), QtWidgets.QDialog):
-                self.tab_widget.widget(idx).close()
+            widget = self.tab_widget.widget(idx)
+            if isinstance(widget, QtWidgets.QDialog):
+                widget.close()
                 # self.tab_widget.removeTab(idx)
 
     def removeAllPages(self) -> None:
@@ -622,8 +625,9 @@ class MainForm(imainwindow.IMainWindow):
         #    self.tab_widgetcorner.hide()
 
         for number in range(self.tab_widget.count()):
-            if self.tab_widget.widget(number):
-                self.tab_widget.widget(number).close()
+            widget = self.tab_widget.widget(number)
+            if widget:
+                widget.close()
 
     def addForm(self, action_str: str, icono: "QtGui.QPixmap") -> None:
         """Add new tab."""
@@ -690,7 +694,7 @@ class MainForm(imainwindow.IMainWindow):
         if tree_widget is None:
             return
         if check_max and tree_widget.topLevelItemCount() >= self.MAX_RECENT:
-            last_name = tree_widget.topLevelItem(tree_widget.topLevelItemCount() - 1).text(1)
+            last_name = tree_widget.topLevelItem(tree_widget.topLevelItemCount() - 1).text(1)  # type: ignore [union-attr]
             action_ = cast(QtGui.QAction, self.ag_rec_.findChild(QtGui.QAction, last_name))
             if action_:
                 self.ag_rec_.removeAction(action_)
@@ -747,7 +751,7 @@ class MainForm(imainwindow.IMainWindow):
             return False
         if (
             self.dck_mar_.tree_widget is None
-            or self.dck_mar_.tree_widget.invisibleRootItem().childCount() == 0
+            or self.dck_mar_.tree_widget.invisibleRootItem().childCount() == 0  # type: ignore [union-attr]
         ):
             return False
         if item.text(1) is None:
@@ -770,7 +774,6 @@ class MainForm(imainwindow.IMainWindow):
         """Update the modules menu with the available options."""
 
         for obj_ in action_group.children():
-
             o_name = obj_.objectName()
             if (
                 not getattr(obj_, "isVisible", None)
@@ -1097,18 +1100,19 @@ class MainForm(imainwindow.IMainWindow):
 
         docks = cast(List[DockListView], self.main_widget.findChildren(DockListView))
         for dock in docks:
-            action = sub_menu.addAction(dock.doc_widget.windowTitle())
-            action.setCheckable(True)
-            # FIXME: Comprobar si estoy visible o no
-            # action.setChecked(dock.doc_widget.isVisible())
-            dock.set_visible.connect(action.setChecked)
-            action.triggered.connect(dock.change_state)  # type: ignore [attr-defined] # noqa: F821
-            cast(
-                QtCore.pyqtSignal, dock.doc_widget.topLevelChanged
-            ).connect(  # type: ignore [attr-defined] # noqa: F821
-                action.setChecked
-            )
-            # dock.doc_widget.Close.connect(action.setChecked)
+            action = sub_menu.addAction(dock.doc_widget.windowTitle())  # type: ignore [union-attr]
+            if action:
+                action.setCheckable(True)
+                # FIXME: Comprobar si estoy visible o no
+                # action.setChecked(dock.doc_widget.isVisible())
+                dock.set_visible.connect(action.setChecked)
+                action.triggered.connect(dock.change_state)  # type: ignore [attr-defined] # noqa: F821
+                cast(
+                    QtCore.pyqtSignal, dock.doc_widget.topLevelChanged
+                ).connect(  # type: ignore [attr-defined] # noqa: F821
+                    action.setChecked
+                )
+                # dock.doc_widget.Close.connect(action.setChecked)
 
     def cloneAction(self, old_action, parent) -> Any:
         """Clone one action into another."""
@@ -1227,8 +1231,9 @@ class MainForm(imainwindow.IMainWindow):
         if len(items) > 0:
             if not reduced:
                 sep_ = action_group.addAction("separator")
-                sep_.setObjectName("separator")
-                sep_.setSeparator(True)
+                if sep_:
+                    sep_.setObjectName("separator")
+                    sep_.setSeparator(True)
 
                 menu_ag = QtGui.QActionGroup(action_group)
                 menu_ag.setObjectName("%sMore" % action_group.objectName())
@@ -1274,7 +1279,6 @@ class MainForm(imainwindow.IMainWindow):
             sender = itn.namedItem("sender").toElement().text()
             action = action_group.findChild(QtGui.QAction, sender)
             if action:
-
                 signal = itn.namedItem("signal").toElement().text()
                 if signal in ["activated()", "triggered()"]:
                     signal_fix = "triggered"

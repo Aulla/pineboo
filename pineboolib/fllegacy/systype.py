@@ -1782,7 +1782,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         rec = str("%s" % self.SEP_CSV).join(qry.fieldList())
 
-        ts_.device().write(utils_base.ustr(rec, "\n").encode())
+        ts_.device().write(utils_base.ustr(rec, "\n").encode())  # type: ignore [union-attr]
         # ts.opIn(utils_base.ustr(rec, u"\n"))
         flutil.FLUtil.createProgressDialog(
             SysType.translate("Haciendo copia en CSV de ") + table, qry.size()
@@ -1795,7 +1795,7 @@ class AbanQDbDumper(QtCore.QObject):
 
             rec = str("%s" % self.SEP_CSV).join(values)
 
-            ts_.device().write(utils_base.ustr(rec, "\n").encode())
+            ts_.device().write(utils_base.ustr(rec, "\n").encode())  # type: ignore [union-attr]
             pos += 1
             flutil.FLUtil.setProgress(pos)
 

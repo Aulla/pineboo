@@ -159,7 +159,6 @@ class FormInternalObj(qsa.FormDBWidget):
         """Return local value."""
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
-
             valor = settings.CONFIG.value("application/%s" % valor_name, False)
         else:
             if valor_name in (
@@ -200,7 +199,9 @@ class FormInternalObj(qsa.FormDBWidget):
         self.ui_.allowedEvents = qsa.Array([qsa.AQS.Close])  # type: ignore [attr-defined]
         self.ui_.installEventFilter(self.ui_)
 
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(
+        self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Event filter."""
         if type(event) == qsa.AQS.Close:
             self.cerrar_clicked()

@@ -1,7 +1,7 @@
 """Qmenu module."""
 from PyQt6 import QtCore  # type: ignore[import]
 
-from typing import List, Any
+from typing import List, Optional, Any
 from pineboolib import application
 
 
@@ -19,7 +19,9 @@ class QObject(QtCore.QObject):
         self._event_filter_function = ""
         self._allowed_events = []
 
-    def eventFilter(self, obj: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
+    def eventFilter(
+        self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Return event filter result."""
 
         result: Any = False

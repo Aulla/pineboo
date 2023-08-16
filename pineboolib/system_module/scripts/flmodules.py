@@ -37,7 +37,7 @@ class FormInternalObj(qsa.FormDBWidget):
         directorio: str,
     ) -> None:
         """Load a file into database."""
-        if not qsa.util.isFLDefFile(contenido) and not nombre.endswith(
+        if not qsa.util.isFLDefFile(contenido) and not nombre.endswith(  # type: ignore [arg-type]
             (
                 ".mod",
                 ".xpm",
@@ -61,7 +61,7 @@ class FormInternalObj(qsa.FormDBWidget):
         cursor_ficheros.select(qsa.ustr("nombre = '", nombre, "'"))
         if not cursor_ficheros.first():
             if nombre.endswith(".ar"):
-                if not self.load_ar(nombre, contenido, log, directorio):
+                if not self.load_ar(nombre, contenido, log, directorio):  # type: ignore [arg-type]
                     return
             log.append(qsa.util.translate("scripts", "- Cargando :: ") + nombre)
             cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
@@ -70,7 +70,7 @@ class FormInternalObj(qsa.FormDBWidget):
             cursor_ficheros.setValueBuffer("idmodulo", cursor.valueBuffer("idmodulo"))
             if binary:
                 cursor_ficheros.setValueBuffer(
-                    "sha", qsa.util.sha1(contenido.decode(errors="replace"))
+                    "sha", qsa.util.sha1(contenido.decode(errors="replace"))  # type: ignore [union-attr]
                 )
                 cursor_ficheros.setValueBuffer("binario", contenido)
             else:
@@ -85,7 +85,7 @@ class FormInternalObj(qsa.FormDBWidget):
             copy_binario = cursor_ficheros.valueBuffer("binario")
             if (not binary and copy_content != contenido) or (
                 binary
-                and copy_binario.decode(errors="replace") != contenido.decode(errors="replace")
+                and copy_binario.decode(errors="replace") != contenido.decode(errors="replace")  # type: ignore [union-attr]
             ):
                 log.append(qsa.util.translate("scripts", "- Actualizando :: ") + nombre)
                 cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
@@ -108,7 +108,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 cursor_ficheros.setValueBuffer("idmodulo", cursor.valueBuffer("idmodulo"))
                 if binary:
                     cursor_ficheros.setValueBuffer(
-                        "sha", qsa.util.sha1(contenido.decode(errors="replace"))
+                        "sha", qsa.util.sha1(contenido.decode(errors="replace"))  # type: ignore [union-attr]
                     )
                     cursor_ficheros.setValueBuffer("binario", contenido)
                 else:
@@ -116,7 +116,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     cursor_ficheros.setValueBuffer("contenido", contenido)
                 cursor_ficheros.commitBuffer()
                 if nombre.endswith(".ar"):
-                    self.load_ar(nombre, contenido, log, directorio)
+                    self.load_ar(nombre, contenido, log, directorio)  # type: ignore [arg-type]
 
         # cursor_ficheros.close()
 
@@ -185,13 +185,13 @@ class FormInternalObj(qsa.FormDBWidget):
                     else:
                         encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
                         try:
-                            value = qsa.File(path_, encode).read()
+                            value = qsa.File(path_, encode).read()  # type: ignore [assignment]
                         except UnicodeDecodeError:
                             LOGGER.warning(
                                 "The file %s has a incorrect encode (%s)" % (path_, encode)
                             )
                             encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
-                            value = qsa.File(path_, encode).read()
+                            value = qsa.File(path_, encode).read()  # type: ignore [assignment]
 
                     self.load_file_to_db(name, value, log, directorio)
                     # qsa.sys.processEvents()

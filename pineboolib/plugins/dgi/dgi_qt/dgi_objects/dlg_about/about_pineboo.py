@@ -60,5 +60,6 @@ class AboutPineboo(QtWidgets.QDialog):
         """Copy resume libraries loaded into clipboard."""
 
         clip_board = QtWidgets.QApplication.clipboard()
-        clip_board.clear()
-        clip_board.setText(self.load_components())
+        if clip_board:
+            clip_board.clear()
+            clip_board.setText(self.load_components())

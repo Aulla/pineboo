@@ -138,7 +138,6 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         push_button_size = self._icon_size
         if settings.CONFIG.value("application/isDebuggerMode", False):
-
             pushButtonExport = QtWidgets.QToolButton(self)  # pylint: disable=invalid-name
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(size_policy)
@@ -151,7 +150,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-            self.bottomToolbar.layout().addWidget(pushButtonExport)
+            self.bottomToolbar.layout().addWidget(pushButtonExport)  # type: ignore [union-attr]
             pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.exportToXml
             )
@@ -169,7 +168,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(push_button_snapshot)
+                self.bottomToolbar.layout().addWidget(push_button_snapshot)  # type: ignore [union-attr]
                 push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                     self.saveSnapShot
                 )
@@ -177,7 +176,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
-            self.bottomToolbar.layout().addItem(spacer)
+            self.bottomToolbar.layout().addItem(spacer)  # type: ignore [union-attr]
 
         if not self.pushButtonAccept:
             self.pushButtonAccept = QtWidgets.QToolButton(self)
@@ -197,7 +196,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.pushButtonAccept.setWhatsThis("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setToolTip("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.bottomToolbar.layout().addWidget(self.pushButtonAccept)
+        self.bottomToolbar.layout().addWidget(self.pushButtonAccept)  # type: ignore [union-attr]
         self.pushButtonAccept.show()
 
         if not self.pushButtonCancel:
@@ -217,7 +216,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         # pushButtonCancel->setAccel(Esc); FIXME
         self.pushButtonCancel.setWhatsThis("Cerrar formulario sin seleccionar registro (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario sin seleccionar registro (Esc)")
-        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
+        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)  # type: ignore [union-attr]
         self.pushButtonCancel.show()
         if self.cursor_ is None:
             raise Exception("Cursor is empty!.")
@@ -309,7 +308,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         return "formSearch%s" % self._id_mdi
 
-    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
+    def closeEvent(self, event: Optional["QtGui.QCloseEvent"]) -> None:
         """Capture event close."""
 
         self.frameGeometry()
@@ -334,7 +333,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if self.isHidden():
             # self.saveGeometry()
             # self.closed.emit()
-            super().closeEvent(event)
+            super().closeEvent(event)  # type: ignore [arg-type]
             # self.deleteLater()
         else:
             self.reject()

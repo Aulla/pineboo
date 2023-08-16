@@ -235,7 +235,7 @@ class FLFieldDB(QtWidgets.QWidget):
         from pineboolib.fllegacy import flformdb
 
         while not isinstance(parent, flformdb.FLFormDB):
-            parent = parent.parentWidget()
+            parent = parent.parentWidget()  # type: ignore [assignment]
 
             if not parent:
                 break
@@ -520,7 +520,9 @@ class FLFieldDB(QtWidgets.QWidget):
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(int)
-    def eventFilter(self, obj: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
+    def eventFilter(
+        self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """
         Process Qt events for keypresses.
         """
@@ -529,9 +531,9 @@ class FLFieldDB(QtWidgets.QWidget):
             return True
 
         super().eventFilter(obj, event)
-        if event.type() == QtCore.QEvent.Type.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:  # type: ignore [union-attr]
             key_ = cast(QtGui.QKeyEvent, event)
-            if self._process_autocomplete_events(event):
+            if self._process_autocomplete_events(event):  # type: ignore [arg-type]
                 return True
 
             if isinstance(obj, fllineedit.FLLineEdit):
@@ -569,7 +571,7 @@ class FLFieldDB(QtWidgets.QWidget):
         # elif isinstance(event, QtCore.QEvent.MouseButtonRelease) and
         # isinstance(obj,self._text_label_db) and event.button() == QtCore.Qt.LeftButton:
         elif (
-            event.type() == QtCore.QEvent.Type.MouseButtonRelease
+            event.type() == QtCore.QEvent.Type.MouseButtonRelease  # type: ignore [union-attr]
             and isinstance(obj, type(self._text_label_db))
             and cast(QtGui.QMouseEvent, event).button() == QtCore.Qt.MouseButton.LeftButton
         ):
@@ -2765,8 +2767,8 @@ class FLFieldDB(QtWidgets.QWidget):
                     # FIXME
                     # self._auto_com_popup.setTopMargin(0)
                     # self._auto_com_popup.setLeftMargin(0)
-                    self._auto_com_popup.horizontalHeader().hide()
-                    self._auto_com_popup.verticalHeader().hide()
+                    self._auto_com_popup.horizontalHeader().hide()  # type: ignore [union-attr]
+                    self._auto_com_popup.verticalHeader().hide()  # type: ignore [union-attr]
 
                     cur.newBuffer.connect(self.autoCompletionUpdateValue)
                     self._auto_com_popup.recordChoosed.connect(self.autoCompletionUpdateValue)
@@ -3221,7 +3223,7 @@ class FLFieldDB(QtWidgets.QWidget):
         @author Silix
         """
         clb = QtWidgets.QApplication.clipboard()
-        img = clb.image()
+        img = clb.image() if clb else None
 
         if not isinstance(img, QtGui.QImage):
             return
@@ -3532,7 +3534,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             child.setEnabled(False)
                             child.setAttribute(QtCore.Qt.WA_ForceDisabled, False)
 
-    def showEvent(self, event: QtGui.QShowEvent) -> None:
+    def showEvent(self, event: Optional["QtGui.QShowEvent"]) -> None:
         """Process event show."""
         self.load()
         if self._loaded:

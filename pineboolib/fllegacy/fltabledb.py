@@ -1057,7 +1057,9 @@ class FLTableDB(QtWidgets.QWidget):
 
         return self._auto_sort_column
 
-    def eventFilter(self, obj_: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
+    def eventFilter(
+        self, obj_: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """
         Process user events.
         """
@@ -1070,11 +1072,10 @@ class FLTableDB(QtWidgets.QWidget):
         ):
             return super().eventFilter(obj_, event)
 
-        if event.type() == QtCore.QEvent.Type.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:  # type: ignore [union-attr]
             key = cast(QtGui.QKeyEvent, event)
 
             if isinstance(obj_, fldatatable.FLDataTable):
-
                 if key.key() == cast(int, QtCore.Qt.Key.Key_F2):
                     self._combo_box_field_to_search_1.showPopup()
                     return True
@@ -1084,7 +1085,6 @@ class FLTableDB(QtWidgets.QWidget):
             #    return True
 
             elif isinstance(obj_, QtWidgets.QLineEdit):
-
                 if key.key() in (
                     cast(int, QtCore.Qt.Key.Key_Enter),
                     cast(int, QtCore.Qt.Key.Key_Return),
@@ -1112,7 +1112,7 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             return super().eventFilter(obj_, event)
 
-    def showEvent(self, event: "QtGui.QShowEvent") -> None:
+    def showEvent(self, event: Optional["QtGui.QShowEvent"]) -> None:
         """
         Proccess show event.
         """
@@ -1162,7 +1162,6 @@ class FLTableDB(QtWidgets.QWidget):
             else:
                 self.refresh(True)
                 if self._table_records and self._table_records.numRows() <= 0:
-
                     self.refresh(False, True)
                 else:
                     self.refreshDelayed()
@@ -1633,10 +1632,8 @@ class FLTableDB(QtWidgets.QWidget):
 
                             self._tdb_filter.setCellWidget(_linea, idx_j, editor_qcb)
                         else:
-
                             editor_le = QtWidgets.QLineEdit(self)
                             if type_ == "double":
-
                                 editor_le.setValidator(
                                     fldoublevalidator.FLDoubleValidator(
                                         0, pow(10, part_integer) - 1, part_decimal, editor_le
@@ -1645,14 +1642,12 @@ class FLTableDB(QtWidgets.QWidget):
                                 editor_le.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
                             elif type_ in ("uint", "int"):
                                 if type_ == "uint":
-
                                     editor_le.setValidator(
                                         fluintvalidator.FLUIntValidator(
                                             0, pow(10, part_integer) - 1, editor_le
                                         )
                                     )
                                 else:
-
                                     editor_le.setValidator(
                                         flintvalidator.FLIntValidator(
                                             pow(10, part_integer) - 1 * (-1),
@@ -1677,19 +1672,16 @@ class FLTableDB(QtWidgets.QWidget):
                             self._tdb_filter.setCellWidget(_linea, idx_j, editor_le)
 
                     elif type_ == "serial":
-
                         editor_se = flspinbox.FLSpinBox()
                         editor_se.setMaxValue(pow(10, part_integer) - 1)
                         self._tdb_filter.setCellWidget(_linea, idx_j, editor_se)
 
                     elif type_ == "pixmap":
-
                         editor_px = QtWidgets.QLineEdit(self)
                         self._tdb_filter.setRowReadOnly(idx_i, True)
                         self._tdb_filter.setCellWidget(_linea, idx_j, editor_px)
 
                     elif type_ == "date":
-
                         editor_de = fldateedit.FLDateEdit(self, _label)
                         editor_de.setOrder(fldateedit.FLDateEdit.DMY)
                         editor_de.setAutoAdvance(True)
@@ -1699,14 +1691,12 @@ class FLTableDB(QtWidgets.QWidget):
                         self._tdb_filter.setCellWidget(_linea, idx_j, editor_de)
 
                     elif type_ == "time":
-
                         editor_te = fltimeedit.FLTimeEdit(self)
                         time_now = QtCore.QTime.currentTime()
                         editor_te.setTime(time_now)
                         self._tdb_filter.setCellWidget(_linea, idx_j, editor_te)
 
                     elif type_ in (pnfieldmetadata.PNFieldMetaData.Unlock, "bool"):
-
                         editor_cb = flcheckbox.FLCheckBox(self)
                         self._tdb_filter.setCellWidget(_linea, idx_j, editor_cb)
 
@@ -1865,7 +1855,6 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = editor_op_1.value()
                     arg4 = editor_op_2.value()
                 else:
-
                     editor_op_1 = flspinbox.FLSpinBox(self._tdb_filter.cellWidget(idx, 2))
                     arg2 = editor_op_1.value()
 
@@ -2540,7 +2529,7 @@ class FLTableDB(QtWidgets.QWidget):
                 == self._combo_box_field_to_search_2.currentIndex()
             ):
                 self._combo_box_field_to_search_2.setCurrentIndex(
-                    self._table_records._h_header.logicalIndex(self._sort_column_1)
+                    self._table_records._h_header.logicalIndex(self._sort_column_1)  # type: ignore [union-attr]
                 )
             self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.putSecondCol
@@ -2573,7 +2562,7 @@ class FLTableDB(QtWidgets.QWidget):
                     == self._combo_box_field_to_search_2.currentIndex()
                 ):
                     self._combo_box_field_to_search_1.setCurrentIndex(
-                        self._table_records._h_header.logicalIndex(self._sort_column_2)
+                        self._table_records._h_header.logicalIndex(self._sort_column_2)  # type: ignore [union-attr]
                     )
                 self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
                     self.putFirstCol
@@ -2780,7 +2769,6 @@ class FLTableDB(QtWidgets.QWidget):
                             if val.find("cacheXPM") > -1:
                                 pix = QtGui.QPixmap(val)
                                 if not pix.isNull():
-
                                     pix_name = "pix%s_" % id_pix
                                     id_pix += 1
                                     row.opIn(
@@ -2846,7 +2834,6 @@ class FLTableDB(QtWidgets.QWidget):
             if self._table_records.logical_index_to_visual_index(
                 col
             ) == self._table_records.visual_index_to_column_index(self._sort_column_1):
-
                 self._order_asc_1 = not self._order_asc_1
 
             self.setSortOrder(self._order_asc_1, self._sort_column_1)
@@ -2936,7 +2923,6 @@ class FLTableDB(QtWidgets.QWidget):
 
         if self._table_records:
             while True:
-
                 column = self._table_records.header().logicalIndex(col)
                 if not self._table_records.isColumnHidden(column):
                     break
