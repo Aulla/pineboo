@@ -3,8 +3,8 @@ coverage==6.0b1
 defusedxml
 flup
 mccabe
-mypy>=0.790
-mypy-extensions>=1.0.0
+mypy==1.4.1
+mypy-extensions==1.0.0
 typing-extensions>=3.7.4
 pydocstyle
 pylint
@@ -16,6 +16,7 @@ setuptools
 six
 sphinx==4.1.2
 sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-htmlhelp==2.0.1
 sphinx-autodoc-typehints==1.12.0
 sphinx-rtd-theme==0.5.2
 sqlalchemy-stubs==0.4
