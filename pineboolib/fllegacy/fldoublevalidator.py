@@ -6,7 +6,7 @@ from PyQt6 import QtGui  # type: ignore[import]
 
 from pineboolib import application
 
-from typing import Tuple, Union, TYPE_CHECKING
+from typing import Tuple, Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt6 import QtWidgets  # pragma: no cover
@@ -33,12 +33,14 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
         self.setNotation(self.Notation.StandardNotation)
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple["QtGui.QValidator.State", str, int]:
+    def validate(
+        self, input_: Optional[str], pos_cursor: int
+    ) -> Tuple["QtGui.QValidator.State", str, int]:
         """Return if a value is valid."""
         value_in = input_
 
         if value_in is None or self._formatting:
-            return (self.State.Acceptable, value_in, pos_cursor)
+            return (self.State.Acceptable, value_in, pos_cursor)  # type: ignore [return-value]
 
         # pos_cursor= len(value_in)
         state = super().validate(value_in, pos_cursor)

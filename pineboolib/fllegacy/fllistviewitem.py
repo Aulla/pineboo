@@ -91,10 +91,10 @@ class FLListViewItem(QtGui.QStandardItem):
             # print("Inicializando con %s a %s" % ( value, self.parent()))
             super().setText(value)
         else:
-            item = self.parent().child(self.row(), col)
+            item = self.parent().child(self.row(), col)  # type: ignore [union-attr]
             if item is None:
                 item = FLListViewItem()
-                self.parent().setChild(self.row(), col, item)
+                self.parent().setChild(self.row(), col, item)  # type: ignore [union-attr]
 
             item.setText(value)
 
@@ -126,7 +126,7 @@ class FLListViewItem(QtGui.QStandardItem):
 
         if self.parent() and self.column() > 0:
             return (
-                self.parent().child(self.row(), 0).key()  # type: ignore [attr-defined] # noqa: F821
+                self.parent().child(self.row(), 0).key()  # type: ignore [attr-defined, union-attr] # noqa: F821
             )
         return self._key
 

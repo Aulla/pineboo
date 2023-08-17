@@ -644,7 +644,7 @@ class FLFormDB(QtWidgets.QDialog):
                 QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
             )
             pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-            self.bottomToolbar.layout().addWidget(pushButtonExport)
+            self.bottomToolbar.layout().addWidget(pushButtonExport)  # type: ignore [union-attr]
             pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.exportToXml
             )
@@ -662,7 +662,7 @@ class FLFormDB(QtWidgets.QDialog):
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-                self.bottomToolbar.layout().addWidget(push_button_snapshot)
+                self.bottomToolbar.layout().addWidget(push_button_snapshot)  # type: ignore [union-attr]
                 push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
                     self.saveSnapShot
                 )
@@ -670,7 +670,7 @@ class FLFormDB(QtWidgets.QDialog):
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
-            self.bottomToolbar.layout().addItem(spacer)
+            self.bottomToolbar.layout().addItem(spacer)  # type: ignore [union-attr]
 
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton()
@@ -692,7 +692,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.pushButtonCancel.setShortcut(QtGui.QKeySequence(self.tr("Esc")))
         self.pushButtonCancel.setWhatsThis("Cerrar formulario (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario (Esc)")
-        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
+        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)  # type: ignore [union-attr]
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def formName(self) -> str:
@@ -739,7 +739,7 @@ class FLFormDB(QtWidgets.QDialog):
     #    else:
     #        return False
 
-    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
+    def closeEvent(self, event: Optional["QtGui.QCloseEvent"]) -> None:
         """
         Capture event close.
         """
@@ -777,7 +777,7 @@ class FLFormDB(QtWidgets.QDialog):
         if isinstance(parent, QtWidgets.QMdiSubWindow):
             parent.close()
 
-    def showEvent(self, event: "QtGui.QShowEvent") -> None:
+    def showEvent(self, event: Optional["QtGui.QShowEvent"] = None) -> None:
         """
         Capture event show.
         """
@@ -882,7 +882,7 @@ class FLFormDB(QtWidgets.QDialog):
         parent_ = self.parent()
         if parent_ and parent_.parent() is None:
             qt_rectangle = self.frameGeometry()
-            center_point = self.screen().availableGeometry().center()
+            center_point = self.screen().availableGeometry().center()  # type: ignore [union-attr]
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
 

@@ -19,11 +19,13 @@ class FLUIntValidator(QtGui.QIntValidator):
 
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple["QtGui.QValidator.State", str, int]:
+    def validate(
+        self, input_: Optional[str], pos_cursor: int
+    ) -> Tuple["QtGui.QValidator.State", str, int]:
         """Valiate a Value."""
 
         if not input_ or self._formatting:
-            return (self.State.Acceptable, input_, pos_cursor)
+            return (self.State.Acceptable, input_, pos_cursor)  # type: ignore [return-value]
 
         i_v = QtGui.QIntValidator(0, 1000000000, self)
         state = i_v.validate(input_, pos_cursor)

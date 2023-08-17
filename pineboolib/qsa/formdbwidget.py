@@ -101,14 +101,14 @@ class FormDBWidget(QtWidgets.QWidget):
 
         self._my_proxy = proxy_parent
 
-    def closeEvent(self, event: "QtCore.QEvent") -> None:
+    def closeEvent(self, event: Optional["QtCore.QEvent"] = None) -> None:
         """Close event."""
 
         if self._action is None:
             self._action = getattr(self.parent(), "_action")
 
         self.closed.emit()
-        event.accept()  # let the window close
+        event.accept()  # type: ignore [union-attr] # let the window close
 
         if self._action is not None:
             LOGGER.debug("closeEvent para accion %r", self._action._name)
@@ -165,7 +165,6 @@ class FormDBWidget(QtWidgets.QWidget):
             return None  # type: ignore [return-value] # noqa F821
 
         if self._action is not None:
-
             if self._action._table:
                 cursor = self.cursor()
                 ret_ = getattr(cursor, name, None)
@@ -182,7 +181,6 @@ class FormDBWidget(QtWidgets.QWidget):
                     ret_ = getattr(form_, name, None)
 
         if ret_ is None and not TYPE_CHECKING:
-
             ret_ = getattr(application.PROJECT.aq_app, name, None)
             if ret_ is not None:
                 LOGGER.warning(

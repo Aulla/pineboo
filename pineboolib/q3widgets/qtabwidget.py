@@ -41,7 +41,7 @@ class QTabWidget(QtWidgets.QTabWidget):
 
         try:
             for num in range(self.count()):
-                if self.widget(num).objectName() == tab.lower():
+                if self.widget(num).objectName() == tab.lower():  # type: ignore [union-attr]
                     return num
         except ValueError:
             logger.error("ERROR: Tab not found:: QTabWidget, tab name = %r", tab)

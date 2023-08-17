@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from PyQt6 import QtGui  # type: ignore
-from typing import Any, Tuple, TYPE_CHECKING
+from typing import Any, Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt6 import QtWidgets  # pragma: no cover
@@ -19,11 +19,11 @@ class FLIntValidator(QtGui.QIntValidator):
         super().__init__(minimum, maximum, parent)
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple[Any, str, int]:
+    def validate(self, input_: Optional[str], pos_cursor: int) -> Tuple[Any, str, int]:
         """Return validate result."""
 
         if not input_ or self._formatting:
-            return (self.State.Acceptable, input_, pos_cursor)
+            return (self.State.Acceptable, input_, pos_cursor)  # type: ignore [return-value]
 
         state = super().validate(input_, pos_cursor)
 

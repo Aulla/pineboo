@@ -234,14 +234,15 @@ class PNApplication(QtCore.QObject):
             action_group = QtGui.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)  # type: ignore [union-attr] # noqa : F821
-                action_.setObjectName("style_%s" % style_)
-                action_.setCheckable(True)
-                if style_ == style_read:
-                    action_.setChecked(True)
+                if action_:
+                    action_.setObjectName("style_%s" % style_)
+                    action_.setCheckable(True)
+                    if style_ == style_read:
+                        action_.setChecked(True)
 
-                action_.triggered.connect(self.style_mapper.map)
-                self.style_mapper.setMapping(action_, style_)
-                action_group.addAction(action_)
+                    action_.triggered.connect(self.style_mapper.map)  # type: ignore [union-attr, arg-type]
+                    self.style_mapper.setMapping(action_, style_)
+                    action_group.addAction(action_)
             action_group.setExclusive(True)
 
         self.style = True
@@ -273,8 +274,9 @@ class PNApplication(QtCore.QObject):
 
         tab_names: str = ""
         for number in range(tab_widget.count()):
-            item: "QtWidgets.QWidget" = tab_widget.widget(number)
-            tab_names += "%s/%s*" % (item.objectName(), tab_widget.tabText(number))
+            item: Optional["QtWidgets.QWidget"] = tab_widget.widget(number)
+            if item:
+                tab_names += "%s/%s*" % (item.objectName(), tab_widget.tabText(number))
 
         return tab_names
 
@@ -308,7 +310,7 @@ class PNApplication(QtCore.QObject):
         if main_widget is None:
             return
 
-        cast(QtWidgets.QMainWindow, main_widget).statusBar().showMessage(text, 2000)
+        cast(QtWidgets.QMainWindow, main_widget).statusBar().showMessage(text, 2000)  # type: ignore [union-attr]
 
     def loadScriptsFromModule(self, id_module: str) -> None:
         """Load scripts from named module."""
@@ -394,7 +396,6 @@ class PNApplication(QtCore.QObject):
         )
 
         if ctx is not None:
-
             msg += self.tr("Contexto: %s\n" % ctx)
 
         # FIXME: Missing _gui parameter
@@ -473,7 +474,6 @@ class PNApplication(QtCore.QObject):
 
         self._inicializing = False
         if not utils_base.is_library():
-
             if application.PROJECT.main_window:
                 if not hasattr(application.PROJECT.main_window, "initModule"):
                     self.call("sys.init()", [])
@@ -660,12 +660,11 @@ class PNApplication(QtCore.QObject):
 
         if application.PROJECT.main_window is not None:
             if self._ted_output:
-                self._ted_output.parentWidget().close()
+                self._ted_output.parentWidget().close()  # type: ignore [union-attr]
 
             dock_widget = QtWidgets.QDockWidget("tedOutputDock", application.PROJECT.main_window)
 
             if dock_widget is not None:
-
                 self._ted_output = TextEditOutput(dock_widget)
                 dock_widget.setWidget(self._ted_output)
                 dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
@@ -801,7 +800,6 @@ class PNApplication(QtCore.QObject):
             return False
 
         if application.PROJECT.conn_manager.mainConn().interactiveGUI():
-
             main_widget = application.PROJECT.main_window
             if main_widget is not None:
                 ret = QtWidgets.QMessageBox.question(

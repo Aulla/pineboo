@@ -166,15 +166,15 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
 
         i = 0
         # _p_properties = []
-        for i in range(_meta.propertyCount()):
-            meta_prop = _meta.property(i)
+        for i in range(_meta.propertyCount()):  # type: ignore [union-attr]
+            meta_prop = _meta.property(i)  # type: ignore [union-attr]
             # if meta_prop.name() in _p_properties:
             #    i += 1
             #    continue
 
             # _p_properties.append(meta_prop.name())
 
-            val = getattr(obj_, meta_prop.name(), None)
+            val = getattr(obj_, meta_prop.name(), None)  # type: ignore [arg-type]
             try:
                 if val is not None:
                     val = val()

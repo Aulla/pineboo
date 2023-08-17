@@ -136,7 +136,7 @@ class QTable(Q3TableWidget):
 
     def setCellAlignment(self, row: int, col: int, alig_: int) -> None:
         """Set cell alignment."""
-        self.item(row, col).setTextAlignment(alig_)
+        self.item(row, col).setTextAlignment(alig_)  # type: ignore [union-attr]
 
     def setNumCols(self, num: int) -> None:
         """Set num cols."""
@@ -199,11 +199,11 @@ class QTable(Q3TableWidget):
     def setColumnStrechable(self, col: int, value: bool) -> None:
         """Set column strechable."""
         if value:
-            self.horizontalHeader().setSectionResizeMode(
+            self.horizontalHeader().setSectionResizeMode(  # type: ignore [union-attr]
                 col, QtWidgets.QHeaderView.ResizeMode.Stretch
             )
         else:
-            self.horizontalHeader().setSectionResizeMode(
+            self.horizontalHeader().setSectionResizeMode(  # type: ignore [union-attr]
                 col, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
             )
 
@@ -222,7 +222,8 @@ class QTable(Q3TableWidget):
         """Return text from a index."""
         if row is None:
             return
-        return self.item(row, col).text() if self.item(row, col) else ""
+        item = self.item(row, col)
+        return item.text() if item else ""
 
     def setText(self, row: int, col: int, value: Any) -> None:
         """Set text to a index."""
@@ -268,7 +269,7 @@ class QTable(Q3TableWidget):
                     )
                 )
 
-    def setCellWidget(self, row: int, col: int, obj: "QtWidgets.QWidget") -> None:
+    def setCellWidget(self, row: int, col: int, obj: Optional["QtWidgets.QWidget"]) -> None:
         """Set cell widget."""
 
         super().setCellWidget(row, col, obj)
@@ -281,7 +282,7 @@ class QTable(Q3TableWidget):
     def adjustColumn(self, k: int) -> None:
         """Adjust a column specified by name."""
 
-        self.horizontalHeader().setSectionResizeMode(
+        self.horizontalHeader().setSectionResizeMode(  # type: ignore [union-attr]
             k, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
         )
 

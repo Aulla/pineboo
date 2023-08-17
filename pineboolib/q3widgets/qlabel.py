@@ -32,7 +32,7 @@ class QLabel(QtWidgets.QLabel):
 
         return super().text()
 
-    def setText(self, text: Union[str, int]) -> None:
+    def setText(self, text: Union[str, int]) -> None:  # type: ignore [override]
         """Set text label."""
 
         if not isinstance(text, str):

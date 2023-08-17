@@ -169,9 +169,10 @@ class FLReportEngine(QtCore.QObject):
                 else:
                     LOGGER.warning("CopyCount not supported by %s", name_or_dialog)
 
-            printer.setResolution(self._rel_dpi)
-            printer.setDocName("Document from Viewer")
-            printer.setCreator("Pineboo")
+            if printer:
+                printer.setResolution(self._rel_dpi)
+                printer.setDocName("Document from Viewer")
+                printer.setCreator("Pineboo")
             pdf_file = self._parser.get_file_name()
 
             images = convert_from_path(
@@ -185,7 +186,7 @@ class FLReportEngine(QtCore.QObject):
                 page_index = num + 1
                 if not page_filter or page_index in page_filter:
                     if not first_:
-                        printer.newPage()
+                        printer.newPage()  # type: ignore [union-attr]
                     first_ = False
                     rect = painter.viewport()
                     image_qt = ImageQt(image)

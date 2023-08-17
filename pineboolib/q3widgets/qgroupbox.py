@@ -8,7 +8,7 @@ from pineboolib.core import settings
 
 from pineboolib import logging
 from pineboolib.q3widgets import qwidget
-from typing import Any
+from typing import Optional, Any
 
 logger = logging.get_logger(__name__)
 
@@ -56,7 +56,7 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
 
         self.setContentsMargins(0, 2, 0, 2)
 
-    def setLayout(self, layout: QtWidgets.QLayout) -> None:
+    def setLayout(self, layout: Optional["QtWidgets.QLayout"]) -> None:
         """Set layout to QGroupBox."""
 
         # layout.setContentsMargins(0, 0, 0, 0)
@@ -74,7 +74,7 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
         self.line_width = width
         self.setStyleSheet(style_)
 
-    def setTitle(self, title: str) -> None:
+    def setTitle(self, title: Optional[str]) -> None:
         """Set title."""
         if self.line_width == 0:
             title = ""

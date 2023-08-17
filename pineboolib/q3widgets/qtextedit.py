@@ -18,7 +18,7 @@ class QTextEdit(QtWidgets.QTextEdit):
         self.LogText = 0  # pylint: disable=invalid-name
         self.RichText = 1  # pylint: disable=invalid-name
 
-    def setText(self, text: str) -> None:
+    def setText(self, text: Optional[str]) -> None:
         """Set text."""
 
         super(QTextEdit, self).setText(text)

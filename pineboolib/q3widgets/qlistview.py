@@ -124,7 +124,9 @@ class QListView(QtWidgets.QWidget):
         """Set resizeable."""
         self._resizeable = resizeable
 
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(
+        self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Event filter."""
 
         if isinstance(event, QtGui.QResizeEvent):

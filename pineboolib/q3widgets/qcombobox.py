@@ -42,9 +42,9 @@ class QComboBox(QtWidgets.QComboBox):
         pos = -1
         if isinstance(new_item, str):
             pos = 0
-            size_ = self.model().rowCount()
+            size_ = self.model().rowCount()  # type: ignore [union-attr]
             for pos_item in range(size_):
-                item = self.model().index(pos_item, 0)
+                item = self.model().index(pos_item, 0)  # type: ignore [union-attr]
                 if item.data() == new_item:
                     pos = pos_item
                     break
@@ -59,7 +59,7 @@ class QComboBox(QtWidgets.QComboBox):
 
         return super().currentText()
 
-    def setCurrentText(self, value: str) -> None:
+    def setCurrentText(self, value: Optional[str]) -> None:
         """Set current item text."""
 
         super().setCurrentText(value)

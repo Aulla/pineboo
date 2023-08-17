@@ -1,7 +1,7 @@
 """Flpixmapview module."""
 # -*- coding: utf-8 -*-
 from PyQt6 import QtCore, QtWidgets, QtGui  # type: ignore
-from typing import cast
+from typing import cast, Optional
 
 
 class FLPixmapView(QtWidgets.QScrollArea):
@@ -52,7 +52,9 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self.repaint()
         QtWidgets.QApplication.restoreOverrideCursor()
 
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(
+        self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
+    ) -> bool:
         """Event filter process."""
 
         if isinstance(obj, QtWidgets.QLabel) and isinstance(event, QtGui.QResizeEvent):

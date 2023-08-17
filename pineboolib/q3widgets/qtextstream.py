@@ -8,7 +8,7 @@ class QTextStream(QtCore.QTextStream):
 
     def opIn(self, text_):
         """Set value to QTextStream."""
-        self.device().write(text_.encode())
+        self.device().write(text_.encode())  # type: ignore [union-attr]
 
     def read(self, max_len: int = 0) -> str:
         """Read datas from QTextStream."""

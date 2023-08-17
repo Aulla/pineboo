@@ -295,16 +295,18 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
         if action.tag == "action":
             name = action.get("name") or "action"
             new_action = tool_bar.addAction(name)
-            new_action.setObjectName(name)
-            # print("**", name, new_action, tool_bar)
-            load_action(action, widget, new_action)
-            # print("**", new_action.objectName())
-            # clone_action(new_action, widget)
+            if new_action:
+                new_action.setObjectName(name)
+                # print("**", name, new_action, tool_bar)
+                load_action(action, widget, new_action)
+                # print("**", new_action.objectName())
+                # clone_action(new_action, widget)
 
             # FIXME!!, meter el icono y resto de datos!!
         elif action.tag == "separator":
             separator = tool_bar.addSeparator()
-            separator.setObjectName("separator")
+            if separator:
+                separator.setObjectName("separator")
         elif action.tag == "widget":
             new_widget = WidgetResolver.get_widget_class(action.get("class") or "")(tool_bar)
             LoadWidget(action, new_widget, None, tool_bar)
@@ -325,13 +327,14 @@ def load_menu_bar(xml: "ET.Element", widget: "QtWidgets.QWidget") -> None:
         menu_bar = widget.menuBar()
     else:
         menu_bar = QtWidgets.QMenuBar(widget)
-        widget.layout().setMenuBar(menu_bar)  # quitamos _layout()
+        if menu_bar:
+            widget.layout().setMenuBar(menu_bar)  # type: ignore [union-attr] # quitamos _layout()
     for item in xml:
         if item.tag == "property":
             name = item.get("name")
             if name == "name":
                 cstring = item.find("cstring")
-                if cstring is not None and cstring.text is not None:
+                if cstring is not None and cstring.text is not None and menu_bar:
                     menu_bar.setObjectName(cstring.text)
             elif name == "geometry":
                 geo_ = item.find("rect")
@@ -347,7 +350,8 @@ def load_menu_bar(xml: "ET.Element", widget: "QtWidgets.QWidget") -> None:
                     height = geo_height.text if geo_height else None
                     if pos_x is None or pos_y is None or width is None or height is None:
                         continue
-                    menu_bar.setGeometry(int(pos_x), int(pos_y), int(width), int(height))
+                    if menu_bar:
+                        menu_bar.setGeometry(int(pos_x), int(pos_y), int(width), int(height))
             elif name in ("acceptDrops", "defaultUp"):
                 bool_elem = item.find("bool")
                 if bool_elem is not None:
@@ -359,7 +363,7 @@ def load_menu_bar(xml: "ET.Element", widget: "QtWidgets.QWidget") -> None:
             #    bool_elem = item.find("bool")
             #    if bool_elem is not None:
             #        menu_bar.setDefaultUp(bool_elem.text == "true")
-        elif item.tag == "item":
+        elif item.tag == "item" and menu_bar:
             process_item(item, menu_bar, widget)
 
 
@@ -378,19 +382,21 @@ def process_item(
     # accel = xml.get("accel")
 
     menu_ = parent.addMenu(text)
-    menu_.setObjectName(name)
+    if menu_:
+        menu_.setObjectName(name)
 
-    for item in xml:
-        if item.tag == "action":
-            name_ = item.get("name") or ""
-            new_action = menu_.addAction(name_)
-            new_action.setObjectName(name_)
+        for item in xml:
+            if item.tag == "action":
+                name_ = item.get("name") or ""
+                new_action = menu_.addAction(name_)
+                if new_action:
+                    new_action.setObjectName(name_)
 
-            load_action(item, widget, new_action)
-            # action.setObjectName(name_)
-            # clone_action(action, widget)
-        elif item.tag == "item":
-            process_item(item, menu_, widget)
+                    load_action(item, widget, new_action)
+                # action.setObjectName(name_)
+                # clone_action(action, widget)
+            elif item.tag == "item":
+                process_item(item, menu_, widget)
 
 
 def clone_action(action: "QtGui.QAction", widget: "QtWidgets.QWidget") -> None:

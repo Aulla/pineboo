@@ -99,7 +99,7 @@ class FLNetwork(QtCore.QObject):
 
         self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, from_location)))
         data = self.manager.get(self.request)
-        self.put(data.readAll(), to_location)
+        self.put(data.readAll(), to_location)  # type: ignore [union-attr]
 
     @decorators.pyqt_slot()
     def _slotNetworkStart(self) -> None:

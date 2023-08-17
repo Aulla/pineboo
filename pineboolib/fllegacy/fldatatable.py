@@ -153,10 +153,13 @@ class FLDataTable(QtWidgets.QTableView):
         self.cursor_ = None
 
         self._v_header = self.verticalHeader()
-        self._v_header.setDefaultSectionSize(22)
+        if self._v_header:
+            self._v_header.setDefaultSectionSize(22)
+
         self._h_header = self.horizontalHeader()
-        self._h_header.setDefaultSectionSize(120)
-        self._h_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        if self._h_header:
+            self._h_header.setDefaultSectionSize(120)
+            self._h_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
@@ -247,7 +250,7 @@ class FLDataTable(QtWidgets.QTableView):
         Return the number of columns.
         """
 
-        return self.horizontalHeader().count()
+        return self.horizontalHeader().count()  # type: ignore [union-attr]
 
     def setSort(self, sort: str) -> None:
         """Return the ascending / descending order of the first columns."""
@@ -424,7 +427,7 @@ class FLDataTable(QtWidgets.QTableView):
             raise Exception("Field not found")
         return field.name()
 
-    def eventFilter(self, obj: Any, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: Any, event: Optional["QtCore.QEvent"]) -> bool:
         """
         Event Filtering.
         """
@@ -433,7 +436,7 @@ class FLDataTable(QtWidgets.QTableView):
         col = self.currentColumn()
         num_rows = self.numRows()
         num_cols = self.numCols()
-        if event.type() == QtCore.QEvent.Type.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:  # type: ignore [union-attr]
             key_event = cast(QtGui.QKeyEvent, event)
 
             if (
@@ -441,7 +444,7 @@ class FLDataTable(QtWidgets.QTableView):
                 and self.popup_
                 and self.parentWidget()
             ):
-                self.parentWidget().hide()
+                self.parentWidget().hide()  # type: ignore [union-attr]
                 return True
 
             if key_event.key() == cast(int, QtCore.Qt.Key.Key_Insert):
@@ -481,7 +484,6 @@ class FLDataTable(QtWidgets.QTableView):
                         and not self.editonly_
                         and not self.only_table_
                     ):
-
                         self.cursor_.insertRecord()
                         return True
                     else:
@@ -604,7 +606,7 @@ class FLDataTable(QtWidgets.QTableView):
                         data_table.setColumnHidden(i, True)
 
                 sub_menu = popup.addMenu(sub_popup)
-                sub_menu.hovered.connect(  # type: ignore [attr-defined] # noqa: F821
+                sub_menu.hovered.connect(  # type: ignore [attr-defined, arg-type, union-attr] # noqa: F821
                     sub_popup_frame.show
                 )
                 sub_popup_frame.move(
@@ -698,7 +700,6 @@ class FLDataTable(QtWidgets.QTableView):
             self.cursor_.refresh()
         # if not self.refreshing_ and self.cursor_ and not self.cursor_.aqWasDeleted() and self.cursor_.metadata():
         if not self.refreshing_:
-
             # if self.function_get_color and self.cursor_.model:
             #    if self.cursor_.model.color_function_ != self.function_get_color:
             #        self.cursor_.model.setColorFunction(self.function_get_color)
@@ -851,7 +852,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.cursor_.model().metadata().fieldIsIndex(name)
 
-    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+    def mouseDoubleClickEvent(self, event: Optional["QtGui.QMouseEvent"]) -> None:
         """Double click event."""
         if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.MouseButton.LeftButton:
             return

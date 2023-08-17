@@ -75,10 +75,10 @@ class QPushButton(QtWidgets.QPushButton):
 
         return super().text()
 
-    def setText(self, val: str) -> None:
+    def setText(self, val: Optional[str]) -> None:
         """Set text."""
 
-        if self.maximumWidth() < 33 and len(val) > 4:
+        if self.maximumWidth() < 33 and len(val) > 4:  # type: ignore [arg-type]
             val = ""
         super().setText(val)
 

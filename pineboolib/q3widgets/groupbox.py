@@ -18,4 +18,4 @@ class GroupBox(qgroupbox.QGroupBox):
     def add(self, widget: QtWidgets.QWidget) -> None:
         """Add new widget."""
 
-        self.layout().addWidget(widget)
+        self.layout().addWidget(widget)  # type: ignore [union-attr]

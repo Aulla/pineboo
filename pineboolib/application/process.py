@@ -94,7 +94,7 @@ class ProcessStatic(ProcessBaseClass):
 
     @classmethod
     def execute(
-        cls, program: Union[str, List, "types.Array"], arguments: Optional[Iterable[str]] = None
+        cls, program: Union[str, List, "types.Array"], arguments: Optional[Iterable[str]] = None  # type: ignore [override]
     ) -> int:
         """Execute normal command."""
         comando_: List[str] = []
