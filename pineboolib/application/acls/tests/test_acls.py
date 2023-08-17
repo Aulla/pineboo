@@ -18,6 +18,7 @@ class TestACLS(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
         utils_base.FORCE_DESKTOP = True
+        application.PROJECT.db_admin_mode = True
 
         # Install package
         qsa_sys = qsa.qsa.sys
