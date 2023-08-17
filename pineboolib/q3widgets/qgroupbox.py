@@ -61,7 +61,7 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
 
         # layout.setContentsMargins(0, 0, 0, 0)
         # layout.setSpacing(0)
-        super().setLayout(layout)
+        super().setLayout(layout)  # type: ignore [arg-type]
 
     def setLineWidth(self, width: int) -> None:
         """Set line width."""
@@ -80,7 +80,7 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
             title = ""
         if title == "":
             self.setLineWidth(0)
-        super().setTitle(title)
+        super().setTitle(title)  # type: ignore [arg-type]
 
     def get_enabled(self) -> bool:
         """Return if enabled."""

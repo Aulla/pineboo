@@ -80,7 +80,7 @@ class QPushButton(QtWidgets.QPushButton):
 
         if self.maximumWidth() < 33 and len(val) > 4:  # type: ignore [arg-type]
             val = ""
-        super().setText(val)
+        super().setText(val)  # type: ignore [arg-type]
 
     def setMaximumSize(
         self, width: Union[int, QtCore.QSize] = 30, height: Optional[int] = None

@@ -1070,7 +1070,7 @@ class FLTableDB(QtWidgets.QWidget):
             or not self._combo_box_field_to_search_2
             or not self.cursor()
         ):
-            return super().eventFilter(obj_, event)
+            return super().eventFilter(obj_, event)  # type: ignore [arg-type]
 
         if event.type() == QtCore.QEvent.Type.KeyPress:  # type: ignore [union-attr]
             key = cast(QtGui.QKeyEvent, event)
@@ -1110,13 +1110,13 @@ class FLTableDB(QtWidgets.QWidget):
         if obj_ in (self._table_records, self._line_edit_search):
             return False
         else:
-            return super().eventFilter(obj_, event)
+            return super().eventFilter(obj_, event)  # type: ignore [arg-type]
 
     def showEvent(self, event: Optional["QtGui.QShowEvent"]) -> None:
         """
         Proccess show event.
         """
-        super().showEvent(event)
+        super().showEvent(event)  # type: ignore [arg-type]
         self.load()
         if not self.loaded():
             self.showWidget()

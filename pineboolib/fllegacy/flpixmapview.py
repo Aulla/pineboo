@@ -60,7 +60,7 @@ class FLPixmapView(QtWidgets.QScrollArea):
         if isinstance(obj, QtWidgets.QLabel) and isinstance(event, QtGui.QResizeEvent):
             self.resizeContents()
 
-        return super().eventFilter(obj, event)
+        return super().eventFilter(obj, event)  # type: ignore [arg-type]
 
     def resizeContents(self) -> None:
         """Resize contents to actual control size."""

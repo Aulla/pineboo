@@ -150,7 +150,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
                 super().setText(text_)
             else:
                 self.setText(text_)
-        super().focusOutEvent(event)
+        super().focusOutEvent(event)  # type: ignore [arg-type]
 
     def focusInEvent(self, event: Optional["QtGui.QFocusEvent"]) -> None:
         """Focus in event."""
@@ -182,4 +182,4 @@ class FLLineEdit(QtWidgets.QLineEdit):
         if self._auto_select and not self.selectedText() and not self.isReadOnly():
             self.selectAll()
 
-        super().focusInEvent(event)
+        super().focusInEvent(event)  # type: ignore [arg-type]

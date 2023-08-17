@@ -417,4 +417,4 @@ class DlgConnect(QtWidgets.QWidget):
                 self.close()
                 return True
 
-        return super().eventFilter(object, event)
+        return super().eventFilter(object, event)  # type: ignore [arg-type]

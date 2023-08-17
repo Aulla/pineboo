@@ -62,7 +62,7 @@ class QComboBox(QtWidgets.QComboBox):
     def setCurrentText(self, value: Optional[str]) -> None:
         """Set current item text."""
 
-        super().setCurrentText(value)
+        super().setCurrentText(value)  # type: ignore [arg-type]
 
     def setSizeLimit(self, size: int) -> None:
         """Set size limit."""

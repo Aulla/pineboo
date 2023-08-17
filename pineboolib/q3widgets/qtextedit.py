@@ -21,7 +21,7 @@ class QTextEdit(QtWidgets.QTextEdit):
     def setText(self, text: Optional[str]) -> None:
         """Set text."""
 
-        super(QTextEdit, self).setText(text)
+        super(QTextEdit, self).setText(text)  # type: ignore [arg-type]
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setText" % self._parent.objectName(), text)
 

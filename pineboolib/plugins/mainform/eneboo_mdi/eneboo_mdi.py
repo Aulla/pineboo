@@ -545,7 +545,7 @@ class MainForm(imainwindow.IMainWindow):
         """React to user events."""
 
         if self._inicializing or application.PROJECT.aq_app._destroying:
-            return super().eventFilter(obj_, event)
+            return super().eventFilter(obj_, event)  # type: ignore [arg-type]
 
         # if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
         #    return super().eventFilter(obj, event)
@@ -558,7 +558,7 @@ class MainForm(imainwindow.IMainWindow):
             and not isinstance(obj_, QtWidgets.QMainWindow)
             and not isinstance(obj_, qmainwindow.QMainWindow)
         ):
-            return super().eventFilter(obj_, event)
+            return super().eventFilter(obj_, event)  # type: ignore [arg-type]
 
         # aw = None
         # if self._p_work_space is not None:
@@ -645,7 +645,7 @@ class MainForm(imainwindow.IMainWindow):
 
             return True
 
-        return super().eventFilter(obj_, event)
+        return super().eventFilter(obj_, event)  # type: ignore [arg-type]
 
     def activateModule(self, idm=None) -> None:
         """Initialize module."""

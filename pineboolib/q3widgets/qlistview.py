@@ -133,7 +133,7 @@ class QListView(QtWidgets.QWidget):
             if not self._resizeable:
                 return False
 
-        return super().eventFilter(obj, event)
+        return super().eventFilter(obj, event)  # type: ignore [arg-type]
 
     def setItemMargin(self, item_margin: int) -> None:
         """Set items margin."""

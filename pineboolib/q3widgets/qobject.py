@@ -32,7 +32,7 @@ class QObject(QtCore.QObject):
                     result = False
         else:
             if event in self._allowed_events:
-                result = super().eventFilter(obj, event)
+                result = super().eventFilter(obj, event)  # type: ignore [arg-type]
 
         return result
 

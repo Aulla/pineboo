@@ -530,7 +530,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if obj is None:
             return True
 
-        super().eventFilter(obj, event)
+        super().eventFilter(obj, event)  # type: ignore [arg-type]
         if event.type() == QtCore.QEvent.Type.KeyPress:  # type: ignore [union-attr]
             key_ = cast(QtGui.QKeyEvent, event)
             if self._process_autocomplete_events(event):  # type: ignore [arg-type]
@@ -3539,7 +3539,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.load()
         if self._loaded:
             self.showWidget()
-        super().showEvent(event)
+        super().showEvent(event)  # type: ignore [arg-type]
 
     def showWidget(self) -> None:
         """

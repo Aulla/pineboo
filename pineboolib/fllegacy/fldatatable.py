@@ -527,7 +527,7 @@ class FLDataTable(QtWidgets.QTableView):
 
             return False
 
-        return super().eventFilter(obj, event)
+        return super().eventFilter(obj, event)  # type: ignore [arg-type]
 
     def contextMenuEvent(self, event: Any) -> None:
         """

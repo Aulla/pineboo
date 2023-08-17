@@ -272,7 +272,7 @@ class QTable(Q3TableWidget):
     def setCellWidget(self, row: int, col: int, obj: Optional["QtWidgets.QWidget"]) -> None:
         """Set cell widget."""
 
-        super().setCellWidget(row, col, obj)
+        super().setCellWidget(row, col, obj)  # type: ignore [arg-type]
 
         widget = self.cellWidget(row, col)
         if widget is not None:
