@@ -51,8 +51,9 @@ class DelayedObjectProxyLoader(object):
         id_thread = threading.current_thread().ident
 
         # limpieza de objetos
+        list_threads = list([thread.ident for thread in threading.enumerate()])
         for key in list(self.loaded_obj.keys()):
-            if key not in list([thread.ident for thread in threading.enumerate()]):
+            if key not in list_threads:
                 obj_ = self.loaded_obj[key]
                 self.loaded_obj[key] = None
                 del self.loaded_obj[key]

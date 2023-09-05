@@ -59,8 +59,8 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     static_flag = (
         "%s/static.xml" % os.path.dirname(cached_script_path_qs) if cached_script_path_qs else ""
     )
-    script_path_qs_static = _static_file("%s.qs" % script_name)
     script_path_py_static = _static_file("%s.py" % script_name)
+    script_path_qs_static = _static_file("%s.qs" % script_name) if not script_path_py_static else ""
 
     # Primera opción carga estática.
     if script_path_py_static:
@@ -110,12 +110,12 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 )
             if replace_static:
                 shutil.copy(script_path_qs_static, cached_script_path_qs)  # Lo copiamos en tempdata
-                _remove(script_path_py)
+                # _remove(script_path_py)
                 _build_static_flag(static_flag, cached_script_path_qs, script_path_qs_static)
             else:
                 need_parse = not os.path.exists(script_path_py)
         else:
-            if os.path.exists(script_path_py) and not application.PROJECT.no_python_cache:
+            if not application.PROJECT.no_python_cache and os.path.exists(script_path_py):
                 need_parse = False
 
         if need_parse:
@@ -212,15 +212,15 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
 
     model_class: Optional["type"] = None
     script_path_py = _resolve_script("%s_model.py" % script_name, script_path_py)
-    if os.path.exists(script_path_py) and pnmtdparser.use_mtd_fields(script_path_py):
-        script_path_py = pnmtdparser.populate_fields(script_path_py, "%s.mtd" % script_name)
-        LOGGER.warning(
-            "El model %s no contenía legacy_metadata. Se rellena con datos de %s.mtd",
-            script_name,
-            script_name,
-        )
-
     if script_path_py:
+        if pnmtdparser.use_mtd_fields(script_path_py):
+            script_path_py = pnmtdparser.populate_fields(script_path_py, "%s.mtd" % script_name)
+            LOGGER.warning(
+                "El model %s no contenía legacy_metadata. Se rellena con datos de %s.mtd",
+                script_name,
+                script_name,
+            )
+
         class_name = "%s%s" % (script_name[0].upper(), script_name[1:])
         script_loaded = _load("model.%s" % class_name, script_path_py)
         module_class = getattr(script_loaded, class_name, None)

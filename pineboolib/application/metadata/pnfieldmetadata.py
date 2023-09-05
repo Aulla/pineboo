@@ -424,7 +424,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         return self.private.associated_field_name
 
-    def defaultValue(self) -> Optional[Union[Any]]:
+    def defaultValue(self) -> Optional[Any]:
         """
         Return the default value for the field.
 
@@ -472,10 +472,9 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         @return List of field options.
         """
-        if name in self.private._options_list:
-            return self.private._options_list.index(name)
-
-        return None
+        return (
+            self.private._options_list.index(name) if name in self.private._options_list else None
+        )
 
     def setOptionsList(self, options_list: str) -> None:
         """

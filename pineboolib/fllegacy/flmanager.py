@@ -69,6 +69,7 @@ class FLManager(QtCore.QObject, IManager):
         self._cache_action = {}
         QtCore.QTimer.singleShot(100, self.init)
         self.init_count_ += 1
+        self._util = flutil.FLUtil()
 
     def init(self) -> None:
         """
@@ -132,8 +133,6 @@ class FLManager(QtCore.QObject, IManager):
         if not quick:
             quick = not application.PROJECT.db_admin_mode
 
-        util = flutil.FLUtil()
-
         # if quick is None:
         #    dbadmin = settings.CONFIG.value("application/dbadmin_enabled", False)
         #    quick = not bool(dbadmin)
@@ -166,7 +165,7 @@ class FLManager(QtCore.QObject, IManager):
                         if metadata_name_or_xml.find("alteredtable") == -1:
                             LOGGER.info(
                                 "FLManager : "
-                                + util.translate(
+                                + self._util.translate(
                                     "FLManager",
                                     "Error al cargar los metadatos para la tabla %s"
                                     % metadata_name_or_xml,
@@ -202,7 +201,7 @@ class FLManager(QtCore.QObject, IManager):
                     else:
                         if self.db_.mismatchedTable(metadata_name_or_xml, ret):
                             if ret.name():
-                                msg = util.translate(
+                                msg = self._util.translate(
                                     "application",
                                     "La estructura de los metadatos de la %s '%s'"
                                     " y su estructura interna en la base de datos no coinciden.\n"
@@ -290,7 +289,7 @@ class FLManager(QtCore.QObject, IManager):
                 elif child.tag == "query":
                     query = child.text or ""
                 elif child.tag == "alias":
-                    alias = util.translate(
+                    alias = self._util.translate(
                         "Metadata", utils_base.auto_qt_translate_text(child.text)
                     )
                 elif child.tag == "visible":
@@ -797,7 +796,6 @@ class FLManager(QtCore.QObject, IManager):
             "timestamp",
             "json",
         ]
-        util = flutil.FLUtil()
 
         compound_key = False
         name: str = ""
@@ -990,7 +988,7 @@ class FLManager(QtCore.QObject, IManager):
 
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             name,
-            util.translate("Metadata", alias),
+            self._util.translate("Metadata", alias),
             as_null,
             is_primary_key,
             type_,
@@ -1231,7 +1229,6 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("cleanupMetaData. self.db_ is empty!")
 
-        # util = flutil.FLUtil()
         if not self.existsTable("flfiles") or not self.existsTable("flmetadata"):
             return
 
@@ -1271,7 +1268,7 @@ class FLManager(QtCore.QObject, IManager):
             if not tmd:
                 LOGGER.warning(
                     "FLManager::cleanupMetaData %s",
-                    flutil.FLUtil().translate(
+                    self._util.translate(
                         "application", "No se ha podido crear los metadatatos para la tabla %s"
                     )
                     % table,
@@ -1363,8 +1360,7 @@ class FLManager(QtCore.QObject, IManager):
                 if not self.createTable(mtd_large):
                     return None
 
-        util = flutil.FLUtil()
-        sha = str(util.sha1(large_value))
+        sha = str(self._util.sha1(large_value))
         ref_key = "RK@%s@%s" % (table_name, sha)
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry.setSelect("refkey")

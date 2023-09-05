@@ -203,8 +203,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if not self.private._primary_key:
-            length_field_list = len(self.fieldList())
-            for field in self.fieldList():
+            field_list = self.fieldList()
+            length_field_list = len(field_list)
+            for field in field_list:
                 if field.type() == "serial" or length_field_list == 1:
                     LOGGER.debug(
                         "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
@@ -216,11 +217,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             if not self.private._primary_key:
                 raise Exception("No primaryKey in %s" % self.private._name)
 
-        if prefix_table:
-            if "." not in self.private._primary_key:
-                return "%s.%s" % (self.private._name, self.private._primary_key)
-
-        return self.private._primary_key
+        return (
+            "%s.%s" % (self.private._name, self.private._primary_key)
+            if prefix_table and "." not in self.private._primary_key
+            else self.private._primary_key
+        )
 
     def fieldNameToAlias(self, field_name: str = "") -> str:
         """
