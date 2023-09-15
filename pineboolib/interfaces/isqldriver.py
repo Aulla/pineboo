@@ -721,6 +721,9 @@ class ISqlDriver(object):
         """Modify a table structure."""
 
         if not application.ALLOW_ALTER_TABLE:
+            LOGGER.warning(
+                "ALTER TABLE DESHABILITADO",
+            )
             return False
 
         if self.hasCheckColumn(new_metadata):
