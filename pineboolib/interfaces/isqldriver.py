@@ -720,6 +720,9 @@ class ISqlDriver(object):
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
+        if not application.ALLOW_ALTER_TABLE:
+            return False
+
         if self.hasCheckColumn(new_metadata):
             return False
 
