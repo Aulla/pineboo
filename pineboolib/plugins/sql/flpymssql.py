@@ -306,7 +306,7 @@ class FLPYMSSQL(isqldriver.ISqlDriver):
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
-        return True
+        return False
 
     def recordInfo2(self, tablename: str) -> Dict[str, List[Any]]:
         """Return info from a database table."""
