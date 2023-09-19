@@ -420,7 +420,7 @@ class ISqlDriver(object):
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""
-        return True
+        return application.PROJECT.db_admin_mode
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
