@@ -1133,7 +1133,7 @@ class TestCorruption(unittest.TestCase):
             "fltest3", "bool_field", "counter_field='%s'" % pk_value
         )
         self.assertEqual(valor_final, valor_final_sql)
-        self.assertTrue(cursor.metadata().field("bool_field").outTransaction())
+        self.assertTrue(cursor.metadata().field("bool_field").outTransaction())  # type: ignore [union-attr]
 
     def test_basic_3(self) -> None:
         """Bad cursor."""
