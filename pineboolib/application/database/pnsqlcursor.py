@@ -497,7 +497,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if (
             field_metadata.outTransaction()
-            and self.db()._name not in ["dbAux"]
+            and self.db()._name.lower() not in ["dbaux", "aux"]
             and self.modeAccess() != self.Insert
         ):
             pk_name = table_metadata.primaryKey()
@@ -514,7 +514,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             qry.exec_(sql_query)
             if qry.next():
                 value = qry.value(0)
-
         return value
 
     def fetchLargeValue(self, value: str) -> Optional[str]:

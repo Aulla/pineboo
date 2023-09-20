@@ -256,7 +256,6 @@ class TestMove(unittest.TestCase):
         init_testing()
 
     def test_basic(self) -> None:
-
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("flareas")
@@ -1084,7 +1083,6 @@ class TestCorruption(unittest.TestCase):
         self.assertEqual(cursor_3.size(), 99)
         i = 1
         while cursor_3.next():
-
             if i == 10:
                 self.assertTrue(qsa.FLUtil().sqlDelete("fltest", "string_field = 'Linea 20'"))
                 i += 1
@@ -1095,6 +1093,34 @@ class TestCorruption(unittest.TestCase):
         cursor_3.setForwardOnly(False)
         cursor_3.select()
         self.assertEqual(cursor_3.size(), 98)
+
+    def test_out_transaction(self) -> None:
+        """Out transaction test."""
+
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.fllegacy import flutil
+
+        cursor = pnsqlcursor.PNSqlCursor("Fltest3")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bool_field", False)
+        pk_value = cursor.valueBuffer(cursor.primaryKey())
+        self.assertTrue(cursor.commitBuffer())
+        cursor.select("counter_field='%s'" % pk_value)
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Edit)
+        cursor.refreshBuffer()
+        valor_inicial = cursor.valueBuffer("bool_field")
+        cursor.setValueBuffer("bool_field", True)
+        valor_intermedio = cursor.valueBuffer("bool_field")
+        self.assertNotEqual(
+            valor_inicial,
+            valor_intermedio,
+            "la pk era %s" % cursor.valueBuffer(cursor.primaryKey()),
+        )
+        cursor.setValueBuffer("bool_field", False)
+        valor_final = cursor.valueBuffer("bool_field")
+        self.assertNotEqual(valor_final, valor_intermedio)
 
     def test_basic_3(self) -> None:
         """Bad cursor."""
