@@ -1111,6 +1111,10 @@ class TestCorruption(unittest.TestCase):
         cursor.setModeAccess(cursor.Edit)
         cursor.refreshBuffer()
         valor_inicial = cursor.valueBuffer("bool_field")
+        valor_inicial_sql = flutil.FLUtil.sqlSelect(
+            "fltest3", "bool_field", "counter_field='%s'" % pk_value
+        )
+        self.assertEqual(valor_inicial, valor_inicial_sql)
         cursor.setValueBuffer("bool_field", True)
         valor_intermedio = cursor.valueBuffer("bool_field")
         self.assertNotEqual(
@@ -1118,9 +1122,18 @@ class TestCorruption(unittest.TestCase):
             valor_intermedio,
             "la pk era %s" % cursor.valueBuffer(cursor.primaryKey()),
         )
+        valor_intermedio_sql = flutil.FLUtil.sqlSelect(
+            "fltest3", "bool_field", "counter_field='%s'" % pk_value
+        )
+        self.assertEqual(valor_intermedio, valor_intermedio_sql)
         cursor.setValueBuffer("bool_field", False)
         valor_final = cursor.valueBuffer("bool_field")
         self.assertNotEqual(valor_final, valor_intermedio)
+        valor_final_sql = flutil.FLUtil.sqlSelect(
+            "fltest3", "bool_field", "counter_field='%s'" % pk_value
+        )
+        self.assertEqual(valor_final, valor_final_sql)
+        self.assertTrue(cursor.metadata().field("bool_field").outTransaction())
 
     def test_basic_3(self) -> None:
         """Bad cursor."""
