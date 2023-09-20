@@ -458,7 +458,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
                 )
                 conn_aux = self.db().connManager().dbAux()
-                conn_aux.session().connection().execution_options(autocommit=False).execute(sql)
+                conn_aux.session().execute(sql)
 
             else:
                 LOGGER.warning(

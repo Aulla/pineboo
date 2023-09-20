@@ -252,7 +252,9 @@ class Project(object):
                     if not os.path.exists(path_med):
                         os.mkdir(path_med)
             except Exception as error:
-                raise Exception("Error building cache folder (%s) : %s" % (path_build, error))
+                raise Exception(
+                    "Error building cache folder (%s) : %s" % (path_build, error)
+                ) from error
 
         if os.path.exists(db_cache_folder):
             if not os.path.exists(cache_version_file_path):
@@ -505,7 +507,9 @@ class Project(object):
         base_dir = utils_base.get_base_dir()
         is_library = utils_base.is_library()
 
-        file_object = open(utils_base.filedir(base_dir, "system_module", "sys.xpm"), "r")
+        file_object = open(
+            utils_base.filedir(base_dir, "system_module", "sys.xpm"), "r", encoding="UTF-8"
+        )
         icono = file_object.read()
         file_object.close()
 
@@ -603,7 +607,7 @@ class Project(object):
                 """SELECT idmodulo, nombre, sha, bloqueo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
             )
 
-        log_file = open(path._dir("project.txt"), "w")
+        log_file = open(path._dir("project.txt"), "w", encoding="UTF-8")
 
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")

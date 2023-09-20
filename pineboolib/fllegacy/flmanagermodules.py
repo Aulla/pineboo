@@ -97,12 +97,12 @@ class FLManagerModules(object):
     trans_dir_: str
     _files_cached: Dict[str, str]
 
-    def __init__(self, db: "iconnection.IConnection") -> None:
+    def __init__(self, db_: "iconnection.IConnection") -> None:
         """Inicialize."""
 
-        if db is None:
+        if db_ is None:
             raise ValueError("Database is required")
-        self.conn_ = db
+        self.conn_ = db_
 
         self.commonInit()
         self.active_id_module_ = ""
@@ -390,7 +390,6 @@ class FLManagerModules(object):
                     break
 
         if parent is None:
-
             if wid is None:
                 raise Exception("No parent provided and also no <widget> found")
             xclass = wid.get("class")

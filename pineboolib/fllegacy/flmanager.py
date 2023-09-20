@@ -600,8 +600,8 @@ class FLManager(QtCore.QObject, IManager):
         Return the value content of a formatted field to be recognized by the current database, within the SQL WHERE closing.
 
         This method takes as parameters the field metadata defined with
-        PNFieldMetaData. In addition to TRUE and FALSE as possible values ​​of a field
-        logical also accepts the values ​​Yes and No (or its translation into the corresponding language).
+        PNFieldMetaData. In addition to TRUE and FALSE as possible values of a field
+        logical also accepts the values Yes and No (or its translation into the corresponding language).
         The dates are adapted to the YYYY-MM-DD form, which is the format recognized by PostgreSQL.
 
         @param field_metadata PNFieldMetaData object that describes the metadata for the field
@@ -1313,7 +1313,7 @@ class FLManager(QtCore.QObject, IManager):
         self, mtd: "pntablemetadata.PNTableMetaData", large_value: str
     ) -> Optional[str]:
         """
-        Store large field values ​​in separate indexed tables by SHA keys of the value content.
+        Store large field values in separate indexed tables by SHA keys of the value content.
 
         It is used to optimize queries that include fields with large values,
         such as images, to handle the reference to the value in the SQL queries

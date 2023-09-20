@@ -553,7 +553,7 @@ class ISqlDriver(object):
             if application.USE_MISMATCHED_VIEWS:
                 qry = pnsqlquery.PNSqlQuery(table_name)
                 names = qry.select().split(",")
-                if not len(metadata.fieldNames()):
+                if len(metadata.fieldNames()) == 0:
                     return False
 
                 for name in names:
@@ -871,7 +871,7 @@ class ISqlDriver(object):
         """Excecute a query and return result."""
 
         if not self.is_open():
-            raise Exception("execute_query: Database not open %s", self)
+            raise Exception("execute_query: Database not open %s" % self)
 
         self.set_last_error_null()
         session_ = self.db_.session()
