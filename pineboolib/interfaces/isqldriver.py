@@ -525,6 +525,7 @@ class ISqlDriver(object):
 
         sql = ""
         qry = pnsqlquery.PNSqlQuery(meta.name())
+        qry.disableInjectionCkeck(True)
         if qry.select() and qry.from_():
             if self.is_valid_view(meta, qry):
                 sql = "CREATE VIEW %s AS SELECT %s FROM %s" % (
@@ -552,6 +553,7 @@ class ISqlDriver(object):
         if metadata.isQuery():
             if application.USE_MISMATCHED_VIEWS:
                 qry = pnsqlquery.PNSqlQuery(table_name)
+                qry.disableInjectionCkeck(True)
                 names = qry.select().split(",")
                 if len(metadata.fieldNames()) == 0:
                     return False
@@ -744,7 +746,7 @@ class ISqlDriver(object):
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
-
+        query.disableInjectionCkeck(True)
         session_ = query.db().session()
         query.db().transaction()
 

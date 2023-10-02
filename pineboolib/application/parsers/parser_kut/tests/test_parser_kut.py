@@ -81,6 +81,7 @@ class TestParser(unittest.TestCase):
         import os
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setTablesList("paises")
         qry.setSelect("codpais, bandera")
         qry.setFrom("paises")

@@ -377,6 +377,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             manager = conn_manager.manager()
 
             qry = pnsqlquery.PNSqlQuery(None, db_aux)
+            qry.disableInjectionCkeck(True)
             ret = qry.exec_(
                 "UPDATE  %s SET %s = %s WHERE %s"
                 % (
@@ -511,6 +512,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             sql_query = "SELECT %s FROM %s WHERE %s" % (field_name, table_metadata.name(), where)
 
             qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+            qry.disableInjectionCkeck(True)
             qry.exec_(sql_query)
             if qry.next():
                 value = qry.value(0)
@@ -1005,6 +1007,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             )
 
                             qry = pnsqlquery.PNSqlQuery(None, self.db())
+                            qry.disableInjectionCkeck(True)
                             qry.setTablesList(table_metadata.name())
                             qry.setSelect(field.associatedFieldFilterTo())
                             qry.setFrom(table_metadata.name())
@@ -1049,6 +1052,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         if field_mtd is None:
                             raise Exception("pk field is not found!")
                         qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry.disableInjectionCkeck(True)
                         qry.setTablesList(self.table())
                         qry.setSelect(field_name)
                         qry.setFrom(self.table())
@@ -1076,6 +1080,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and value is not None
                 ):
                     qry = pnsqlquery.PNSqlQuery(None, self.db())
+                    qry.disableInjectionCkeck(True)
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())
@@ -1092,6 +1097,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
                         qry = pnsqlquery.PNSqlQuery(None, self.db())
+                        qry.disableInjectionCkeck(True)
                         qry.setTablesList(table_metadata.name())
                         qry.setSelect(relation_m1.foreignField())
                         qry.setFrom(table_metadata.name())
@@ -1149,6 +1155,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         field_1.append(field_compound_key.alias())
 
                     qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry.disableInjectionCkeck(True)
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())
@@ -1194,6 +1201,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         continue
 
                     qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry.disableInjectionCkeck(True)
                     qry.setTablesList(metadata.name())
                     qry.setSelect(relation.foreignField())
                     qry.setFrom(metadata.name())

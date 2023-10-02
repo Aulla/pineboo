@@ -97,6 +97,7 @@ def _next_counter2(
     _where: str = cursor_.db().sqlLength(name_, _len)
 
     qry = pnsqlquery.PNSqlQuery(None, cursor_.db())
+    qry.disableInjectionCkeck(True)
     qry.setForwardOnly(True)
     qry.setTablesList(tmd.name())
     qry.setSelect(name_)
@@ -145,6 +146,7 @@ def _next_counter3(
     )
 
     qry = pnsqlquery.PNSqlQuery(None, cursor_.db())
+    qry.disableInjectionCkeck(True)
     qry.setForwardOnly(True)
     qry.setTablesList(tmd.name())
     qry.setSelect(name_)

@@ -1096,6 +1096,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 value = self.cursor_.valueBuffer(self._field_relation)
                 qry = pnsqlquery.PNSqlQuery()
+                qry.disableInjectionCkeck(True)
                 qry.setForwardOnly(True)
                 relation_m1 = field.relationM1()
                 if relation_m1 is None:
@@ -3342,6 +3343,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         raise Exception("foreign field not found.")
 
                     qry = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
+                    qry.disableInjectionCkeck(True)
                     qry.setForwardOnly(True)
                     qry.setTablesList(relation_table)
                     qry.setSelect("%s,%s" % (field_relation.foreignField(), foreign_field))
@@ -3580,6 +3582,7 @@ class FLFieldDB(QtWidgets.QWidget):
                                 qry = pnsqlquery.PNSqlQuery(
                                     None, self.cursor_.db().connectionName()
                                 )
+                                qry.disableInjectionCkeck(True)
                                 qry.setForwardOnly(True)
                                 qry.setTablesList(self._table_name)
                                 qry.setSelect(self._field_name)

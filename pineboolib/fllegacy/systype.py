@@ -319,6 +319,7 @@ class SysType(sysbasetype.SysBaseType):
 
         value = ""
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("sha")
         qry.setFrom("flfiles")
         if qry.exec_() and qry.first():
@@ -432,6 +433,7 @@ class SysType(sysbasetype.SysBaseType):
         root = doc.createElement("files")
         doc.appendChild(root)
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("idmodulo,nombre,contenido")
         qry.setFrom("flfiles")
         if not qry.exec_():
@@ -474,6 +476,7 @@ class SysType(sysbasetype.SysBaseType):
                 sha_sum_txt = ba_.sha1()
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("idmodulo,icono")
         qry.setFrom("flmodules")
         if qry.exec_():
@@ -894,6 +897,7 @@ class SysType(sysbasetype.SysBaseType):
             return
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("idmodulo")
         qry.setFrom("flmodules")
         if not qry.exec_() or qry.size() == 0:
@@ -939,6 +943,7 @@ class SysType(sysbasetype.SysBaseType):
     def xmlModule(self, id_module: str) -> "QtXml.QDomDocument":
         """Return xml data from a module."""
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("descripcion,idarea,version")
         qry.setFrom("flmodules")
         qry.setWhere(utils_base.ustr("idmodulo='", id_module, "'"))
@@ -1007,6 +1012,7 @@ class SysType(sysbasetype.SysBaseType):
         )
         self.fileWriteIso(utils_base.ustr(dir_path, "/", id_module, ".xpm"), xpm_module)
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("nombre,contenido")
         qry.setFrom("flfiles")
         qry.setWhere(utils_base.ustr("idmodulo='", id_module, "'"))
@@ -1775,6 +1781,7 @@ class AbanQDbDumper(QtCore.QObject):
         ts_ = QtCore.QTextStream(file_.ioDevice())
         # ts_.setCodec(aqs.AQS.TextCodec_codecForName(u"utf8"))
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect(utils_base.ustr(table, ".*"))
         qry.setFrom(table)
         if not qry.exec_():

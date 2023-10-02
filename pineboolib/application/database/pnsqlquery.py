@@ -177,6 +177,10 @@ class PNSqlQuery(object):
 
         return self._sql_inspector
 
+    def disableInjectionCkeck(self, value: bool = True):
+        """Disable suspected injection."""
+        self.sql_inspector.disable_sql_injection(value)
+
     def exec_(self, sql: Optional[str] = "") -> bool:
         """
         Run a query.

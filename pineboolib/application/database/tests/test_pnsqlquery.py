@@ -20,7 +20,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         from pineboolib.application.database import pnparameterquery, pngroupbyquery
 
         qry = pnsqlquery.PNSqlQuery("fltest2")
-
+        qry.disableInjectionCkeck(True)
         from_param = pnparameterquery.PNParameterQuery("from", "from", 2)
         to_param = pnparameterquery.PNParameterQuery("to", "to", 2)
         from_param.setValue(0)
@@ -50,6 +50,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         group[gr_01.level()] = gr_01.field()
 
         qry2 = pnsqlquery.PNSqlQuery("fltest")
+        qry2.disableInjectionCkeck(True)
         qry2.setSelect(
             "id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo"
         )
@@ -83,6 +84,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         """Test basic_2."""
 
         qry = pnsqlquery.PNSqlQuery("fake")
+        qry.disableInjectionCkeck(True)
         qry.setTablesList("fake_table")
         self.assertEqual(qry.tablesList(), ["fake_table"])
         qry.setTablesList(["fake_table_1", "fake_table_2"])
@@ -108,6 +110,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         """Test basic_3."""
 
         qry = pnsqlquery.PNSqlQuery("fake")
+        qry.disableInjectionCkeck(True)
         qry.setTablesList("fake_table")
         qry.setSelect("field_01")
         qry.setFrom("fake_table")
@@ -123,6 +126,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertFalse(qry.isForwardOnly())
         self.assertFalse(qry.lastError())
         qry2 = pnsqlquery.PNSqlQuery("fake")
+        qry2.disableInjectionCkeck(True)
         self.assertFalse(qry2.exec_("SELEFT * FROM DDD"))
         self.assertTrue(qry.lastError())
         self.assertEqual(qry2.driver(), qry2.db().driver())
@@ -142,6 +146,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         cursor.commitBuffer()
 
         qry = pnsqlquery.PNSqlQuery("flareas")
+        qry.disableInjectionCkeck(True)
         qry.setSelect("idarea, case when idarea ='G' THEN 'YO' ELSE 'TU' END")
         qry.setFrom("flareas")
         qry.setWhere("1=1")
@@ -153,6 +158,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry.value("case when idarea ='G' THEN 'YO' ELSE 'TU' END"), "YO")
 
         qry2 = pnsqlquery.PNSqlQuery("flareas")
+        qry2.disableInjectionCkeck(True)
         qry2.setSelect("idarea, case when idarea ='G' THEN 'YO' ELSE ((((5 * 4) + 2))/2) END")
         qry2.setFrom("flareas")
         qry2.setWhere("1=1")
@@ -188,6 +194,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         cursor_6.commit()
 
         qry = pnsqlquery.PNSqlQuery("")
+        qry.disableInjectionCkeck(True)
         qry.setTablesList("flareas")
         qry.setSelect("idarea")
         qry.setFrom("flareas")
@@ -214,6 +221,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         """Test parentesis."""
 
         qry = pnsqlquery.PNSqlQuery("fake")
+        qry.disableInjectionCkeck(True)
         qry.exec_(
             "select CAST(MAX(codagente) as INTEGER), campo_dos from agentes where codagente ~ '^[0-9]+$' AND codagente < 99990"
         )
@@ -225,6 +233,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         """Test only inspector."""
 
         qry = pnsqlquery.PNSqlQuery("fake")
+        qry.disableInjectionCkeck(True)
         qry.exec_(
             "SELECT SUM(munitos), dia, noche FROM dias WHERE astro = 'sol' GROUP BY dias.minutos ORDER BY dia ASC, noche DESC"
         )
@@ -236,6 +245,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry.where(), "astro = 'sol'")
 
         qry_2 = pnsqlquery.PNSqlQuery("fake")
+        qry_2.disableInjectionCkeck(True)
         qry_2.exec_(
             "SELECT SUM(munitos), dia, noche, p.nombre FROM dias INNER JOIN planetas AS "
             + "p ON p.id = dias.id WHERE astro = 'sol' GROUP BY dias.minutos ORDER BY dia ASC, noche DESC"
@@ -266,6 +276,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         cursor.commit()
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("date_field")
         qry.setFrom("fltest")
         qry.setWhere("1=1")
@@ -308,6 +319,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         cursor.commit()
 
         qry_one = pnsqlquery.PNSqlQuery()
+        qry_one.disableInjectionCkeck(True)
         qry_one.setSelect("date_field")
         qry_one.setFrom("fltest")
         qry_one.setWhere("1 = 1")
@@ -317,6 +329,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry_one.size(), 4)
 
         qry_two = pnsqlquery.PNSqlQuery()
+        qry_two.disableInjectionCkeck(True)
         qry_two.setSelect("date_field")
         qry_two.setFrom("fltest")
         qry_two.setWhere("1 = 1")
@@ -327,6 +340,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry_two.size(), 2)  # 7 + 2 = 9 rows
 
         qry_tree = pnsqlquery.PNSqlQuery()
+        qry_tree.disableInjectionCkeck(True)
         qry_tree.setSelect("date_field")
         qry_tree.setFrom("fltest")
         qry_tree.setWhere("1 = 1")
@@ -553,6 +567,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         """Test invalid tables."""
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.setSelect("area.idarea,modulo.idmodelo")
         qry.setFrom(
             "flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST(modulo.idarea AS STRING) AND modulo.bloqueado = False"
@@ -568,6 +583,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertTrue(qry.isValid())
 
         qry2 = pnsqlquery.PNSqlQuery()
+        qry2.disableInjectionCkeck(True)
         qry2.setSelect("area.idarea,modulo.idmodelo")
         qry2.setFrom(
             """flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST (modulo.idarea AS STRING)
@@ -584,7 +600,6 @@ class TestPNSqlQuery2(unittest.TestCase):
         # self.assertTrue(qry2.isValid())
 
     def test_sql_injection(self) -> None:
-
         sql = (
             "SELECT s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,"
             + "t.telefono, s.talla FROM tpv_tiendas t inner join stocks s on t.codalmacen = s.codalmacen "
@@ -617,6 +632,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.sql_inspector.set_sql(sql)
         qry.sql_inspector.resolve()
         self.assertEqual(
@@ -646,9 +662,10 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.sql_inspector.set_sql(sql)
         qry.sql_inspector.resolve()
-        print("*", qry.sql_inspector.table_names())
+        # print("*", qry.sql_inspector.table_names())
         self.assertEqual(
             qry.sql_inspector.table_names(),
             ["familias", "articulos", "lineasfacturascli", "facturascli"],
@@ -667,6 +684,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.sql_inspector.set_sql(sql)
         qry.sql_inspector.resolve()
         self.assertEqual(qry.sql_inspector.field_list(), {"idpedido": 0, "cobros": 1, "ventas": 2})
@@ -682,6 +700,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.sql_inspector.set_sql(sql)
         qry.sql_inspector.resolve()
         self.assertEqual(qry.sql_inspector.field_list(), {"idpedido": 0, "cobros": 1, "ventas": 2})
@@ -698,6 +717,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         )
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         qry.sql_inspector.set_sql(sql)
         qry.sql_inspector.resolve()
         self.assertEqual(
@@ -709,6 +729,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         """Test resolve fields."""
 
         qry = pnsqlquery.PNSqlQuery()
+        qry.disableInjectionCkeck(True)
         por_dto = 10
         qry.setSelect("SUM((pvptotal * iva * (100 - %s)) / 100 / 100), iva" % (por_dto))
         qry.setFrom("lineasalbaranescli")

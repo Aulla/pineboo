@@ -198,6 +198,7 @@ class KParserTools(object):
 
             if not os.path.exists(img_file) and ref_key[0:3] == "RK@":
                 single_query = pnsqlquery.PNSqlQuery()
+                single_query.disableInjectionCkeck(True)
                 single_query.exec_("SELECT valor FROM flsettings WHERE flkey='FLLargeMode'")
                 one_fllarge = True
 
@@ -211,6 +212,7 @@ class KParserTools(object):
                     table_name += "_%s" % ref_key.split("@")[1]
 
                 qry = pnsqlquery.PNSqlQuery()
+                qry.disableInjectionCkeck(True)
                 if qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key)):
                     if qry.next():
                         value = xpm.cache_xpm(qry.value(0))
