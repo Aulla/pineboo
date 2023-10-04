@@ -30,13 +30,13 @@ class SqlInspector(object):
     _list_sql: List[str]
 
     _suspected_injection: Optional[str]
-    _suspicious_keywords: List[str] = [
-        "ASCII(",
-        "SUBSTRING(",
-        "SELECT",
-        "COALESCE",
-        "CAST",
-        "CHARACTER",
+    _suspicious_keywords: List[str] = [  # en minuscula!!
+        "ascii(",
+        "substring(",
+        "select",
+        "coalesce",
+        "cast",
+        "character",
         "/**/",
         "current_database()",
         "::text",
@@ -614,16 +614,15 @@ class SqlInspector(object):
         infected = ""
 
         # 1 concatenado.
-        for word in where:
-            if len(word) > 30:
-                contador = [
-                    suspicious_word
-                    for suspicious_word in self._suspicious_keywords
-                    if suspicious_word.lower() in word.lower()
-                ]
-                if len(contador) > 1:
-                    infected = word
-                    break
+        for word in (item for item in where if len(item) > 30):
+            word_lower = word.lower()
+            if [
+                suspicious_word
+                for suspicious_word in self._suspicious_keywords
+                if suspicious_word in word_lower
+            ]:
+                infected = word
+                break
 
         # 2 bypass
         if not infected:

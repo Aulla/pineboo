@@ -641,10 +641,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 return
 
         self._initialized = False
+        rows = self.rowCount()
 
-        if (
-            self._disable_refresh or self._parent.modeAccess() == self._parent.Del
-        ) and self.rowCount():
+        if (self._disable_refresh or self._parent.modeAccess() == self._parent.Del) and rows:
             return
 
         self._grid_obj = {}
@@ -656,7 +655,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         parent = QtCore.QModelIndex()
 
-        rows = self.rowCount()
         self.beginRemoveRows(parent, 0, rows)
         self.endRemoveRows()
         if rows > 0:
@@ -702,7 +700,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         result_query = self.session.execute(sql_query)  # type: ignore [arg-type]
         rows_loaded = result_query.rowcount  # type: ignore [attr-defined]
 
-        if rows_loaded == -1:
+        if rows_loaded == -1:  # Si rowcount no está disponible...
             sql_count = (
                 "SELECT COUNT(%s) FROM " % self.metadata().primaryKey()
                 + sql_query[sql_query.find(" FROM ") + 6 :]
@@ -897,7 +895,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 try:
                     self._grid_obj[row] = query.return_query().first()
                 except Exception as error:
-                    raise Exception("get_object_from_row %s (%s) : %s" % (row, pk_value, error))
+                    raise Exception(
+                        "get_object_from_row %s (%s) : %s" % (row, pk_value, error)
+                    ) from error
 
             return self._grid_obj[row]
 
