@@ -205,7 +205,6 @@ class TestFetchMore(unittest.TestCase):
         from pineboolib.application.database import pnsqlquery
 
         qry_test = pnsqlquery.PNSqlQuery()
-        qry_test.disableInjectionCkeck(True)
         qry_test.setTablesList("fltest")
         qry_test.setFrom("fltest")
         qry_test.setWhere("1=1")

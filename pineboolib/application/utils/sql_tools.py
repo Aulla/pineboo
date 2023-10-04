@@ -59,7 +59,6 @@ class SqlInspector(object):
         "fromselectsleep",
         "selectsubsctring@",
     ]
-    _disable_sql_injection: bool = False
 
     def __init__(self) -> None:
         """
@@ -72,16 +71,11 @@ class SqlInspector(object):
         self._mtd_fields = {}
         self._invalid_tables = []
         self._suspected_injection = None
-        self._disable_sql_injection = False
         # self.set_sql(sql_text)
         # self.resolve()
 
         # self.table_names()
         # self.field_names()
-
-    def disable_sql_injection(self, value: bool = True) -> None:
-        """Disable sql injection."""
-        self._disable_sql_injection = value
 
     def resolve(self) -> None:
         """Resolve query."""
@@ -617,10 +611,6 @@ class SqlInspector(object):
 
     def _check_sql_injection(self, where: List[str]) -> None:
         """Examine the query for suspected sql injection."""
-
-        if self._disable_sql_injection:
-            return
-
         infected = ""
 
         # 1 concatenado.

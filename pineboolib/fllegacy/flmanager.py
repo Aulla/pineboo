@@ -370,7 +370,6 @@ class FLManager(QtCore.QObject, IManager):
             return None
 
         qry = pnsqlquery.PNSqlQuery()
-        qry.disableInjectionCkeck(True)
         qry.setName(name)
         root_ = ElementTree.fromstring(qry_)
 
@@ -630,7 +629,6 @@ class FLManager(QtCore.QObject, IManager):
 
             if mtd_.isQuery() and field_name_.find(".") == -1:
                 qry = pnsqlquery.PNSqlQuery(mtd_.query())
-                qry.disableInjectionCkeck(True)
 
                 for item in qry.fieldList():
                     item_field_name = item[item.find(".") + 1 :] if item.find(".") > -1 else item
@@ -1251,7 +1249,6 @@ class FLManager(QtCore.QObject, IManager):
         self.db_.connManager().managerModules().loadIdAreas()
 
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry.disableInjectionCkeck(True)
         qry.exec_("SELECT tabla,xml FROM flmetadata")
         while qry.next():
             self.dict_key_metadata_[str(qry.value(0))] = str(qry.value(1))
@@ -1259,7 +1256,6 @@ class FLManager(QtCore.QObject, IManager):
         cursor = pnsqlcursor.PNSqlCursor("flmetadata", True, "dbAux")
 
         qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry2.disableInjectionCkeck(True)
         qry2.exec_(
             "SELECT nombre,sha FROM flfiles WHERE nombre LIKE '%.mtd' and nombre not like '%%alteredtable%'"
         )
@@ -1367,7 +1363,6 @@ class FLManager(QtCore.QObject, IManager):
         sha = str(self._util.sha1(large_value))
         ref_key = "RK@%s@%s" % (table_name, sha)
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry.disableInjectionCkeck(True)
         qry.setSelect("refkey")
         qry.setFrom(table_large)
         qry.setWhere("refkey = '%s'" % ref_key)
@@ -1415,7 +1410,6 @@ class FLManager(QtCore.QObject, IManager):
 
             if self.existsTable(table_name):
                 qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-                qry.disableInjectionCkeck(True)
                 qry.setSelect("contenido")
                 qry.setFrom(table_name)
                 qry.setWhere("refkey = '%s'" % ref_key)

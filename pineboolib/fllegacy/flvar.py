@@ -25,7 +25,6 @@ class FLVar(object):
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
 
         qry = pnsqlquery.PNSqlQuery()
-        qry.disableInjectionCkeck(True)
         qry.setTablesList("flvar")
         qry.setSelect("id")
         qry.setFrom("flvar")

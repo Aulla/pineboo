@@ -164,7 +164,7 @@ class PNAccessControlLists(object):
         name.appendChild(text_node)
 
         qry = pnsqlquery.PNSqlQuery()
-        qry.disableInjectionCkeck(True)
+
         qry.setTablesList("flacs")
         qry.setSelect("idac,tipo,nombre,iduser,idgroup,degrupo,permiso")
         qry.setFrom("flacs")
@@ -242,7 +242,6 @@ class PNAccessControlLists(object):
         rule.setPerm(str(qry.value(6)))
 
         qry_acos = pnsqlquery.PNSqlQuery()
-        qry_acos.disableInjectionCkeck(True)
         qry_acos.setTablesList("flacos")
         qry_acos.setSelect("nombre,permiso")
         qry_acos.setFrom("flacos")
@@ -276,7 +275,7 @@ class PNAccessControlLists(object):
             return
 
         qry_users = pnsqlquery.PNSqlQuery()
-        qry_users.disableInjectionCkeck(True)
+
         qry_users.setTablesList("flusers")
         qry_users.setSelect("iduser")
         qry_users.setFrom("flusers")

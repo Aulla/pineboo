@@ -709,7 +709,6 @@ class FLUtil(object):
         """
 
         qry = pnsqlquery.PNSqlQuery()
-        qry.disableInjectionCkeck(True)
         qry.setSelect("valor")
         qry.setFrom("flsettings")
         qry.setWhere("flkey = '%s'" % key)
@@ -781,9 +780,9 @@ class FLUtil(object):
         @param conn connection name.
         @return query value.
         """
-        size = 0
-        conn = ""
+
         if not isinstance(size_or_conn, int):
+            size = 0
             conn = size_or_conn
         else:
             size = size_or_conn
@@ -1139,9 +1138,8 @@ class FLUtil(object):
         @return field type id
         """
 
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             return metadata.fieldType(field_name)
 
@@ -1157,11 +1155,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return requested field length
         """
-
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             return metadata.fieldLength(field_name)
 
@@ -1177,11 +1172,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use.
         @return Alias of the specified field.
         """
-
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             return metadata.fieldNameToAlias(field_name)
 
@@ -1196,11 +1188,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return Alias of the specified table
         """
-
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             return metadata.alias()
 
@@ -1216,11 +1205,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return Alias of the specified field
         """
-
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             return metadata.fieldAliasToName(alias)
 
@@ -1237,10 +1223,8 @@ class FLUtil(object):
         @return Boolean. Whether or not to accept the value of the field
         """
 
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             field = metadata.field(field_name)
             if field is not None:
@@ -1261,9 +1245,8 @@ class FLUtil(object):
         @return Boolean. If it is primary key or not
         """
 
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             field = metadata.field(field_name)
             if field is not None:
@@ -1284,9 +1267,8 @@ class FLUtil(object):
         @return Boolean. If it is a composite key or not
         """
 
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             field = metadata.field(field_name)
             if field is not None:
@@ -1305,9 +1287,8 @@ class FLUtil(object):
         @return Default field value
         """
 
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        # metadata = conn.connManager().manager().metadata(table_name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        metadata = conn.connManager().manager().metadata(table_name)
         if metadata is not None:
             field = metadata.field(field_name)
             if field is not None:
@@ -1326,8 +1307,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return Formatted Value
         """
-        # conn = application.PROJECT.conn_manager.useConn(conn_name)
-        return application.PROJECT.conn_manager.manager().formatValue(type_, value, upper)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
+        return conn.connManager().manager().formatValue(type_, value, upper)
 
     @classmethod
     def nameUser(cls) -> str:

@@ -644,7 +644,6 @@ class FLManagerModules(object):
         from pineboolib.application.database import pnsqlquery
 
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry.disableInjectionCkeck(True)
         qry.setForwardOnly(True)
         qry.exec_("SELECT sha FROM flserial")
         if qry.lastError is None:
@@ -685,7 +684,6 @@ class FLManagerModules(object):
 
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         # qry.setForwardOnly(True)
-        qry.disableInjectionCkeck(True)
         qry.exec_("SELECT nombre, sha, idmodulo FROM flfiles")
 
         while qry.next():

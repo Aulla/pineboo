@@ -27,7 +27,7 @@ class FLReportEnginePrivate(object):
     q_double_field_list_: List[str]
     q_group_dict_: Dict[int, str]
     q_img_fields_: List[int]
-    qry_: Optional["PNSqlQuery"]
+    qry_: Optional[PNSqlQuery]
 
     def __init__(self, report_engine: "FLReportEngine") -> None:
         """Inicialize."""
@@ -82,7 +82,7 @@ class FLReportEnginePrivate(object):
 
         self.addRowToReportData(level_max)
 
-    def setQuery(self, qry: Optional["PNSqlQuery"]) -> None:
+    def setQuery(self, qry: Optional[PNSqlQuery]) -> None:
         """Set query to the report."""
         self.qry_ = qry
 
@@ -212,7 +212,7 @@ class FLReportEngine(QtCore.QObject):
         return self._rel_dpi
 
     def setReportData(
-        self, qry: Optional[Union["FLDomNodeInterface", "PNSqlQuery"]] = None
+        self, qry: Optional[Union[FLDomNodeInterface, PNSqlQuery]] = None
     ) -> Optional[bool]:
         """Set data source to report."""
 
@@ -227,7 +227,6 @@ class FLReportEngine(QtCore.QObject):
             self.report_data_.createDocumentFragment()
         )  # FIXME: Don't set the private from the public.
         self._private.setQuery(qry)
-        qry.disableInjectionCkeck(True)
         qry.setForwardOnly(True)
         if qry.exec_() and qry.next():
             group = self._private.q_group_dict_
