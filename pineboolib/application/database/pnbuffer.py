@@ -80,7 +80,9 @@ class PNBuffer(object):
         @param row = cursor line.
         """
         self.clear()
+
         self._orm_obj = self._cursor._cursor_model(session=self._cursor.db().session())
+        self.inicialized_ = True
 
     def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
