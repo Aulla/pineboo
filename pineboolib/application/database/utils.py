@@ -108,16 +108,14 @@ def _next_counter2(
     if not qry.exec_():
         return None
 
-    _value: str = qry.value(0) if qry.last() else "0"
-    _serie: str = "".join(digit for digit in _value if not digit.isdigit())
-    _len_serie = len(_serie)
-    _len_numero = _len - _len_serie
-    print("***", _value, _serie, _len_serie, _len_numero)
-    _numero: int = int(_value[_len_serie:]) + 1
+    _numero: int = int(qry.value(0)) if qry.last() else 0
+
+    _numero += 1
 
     if type_ == "string":
-        _numero = str(_numero).rjust(_len_numero, "0")
-        return "%s%s" % (_serie, _numero)
+        _cadena = str(_numero)
+
+        return _cadena.rjust(_len, "0") if len(_cadena) < _len else _cadena
 
     elif type_ == "double":
         return _numero
