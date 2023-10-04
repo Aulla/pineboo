@@ -14,6 +14,18 @@ class TestUtils(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
+    def test_next_counter(self) -> None:
+        """Test next counter."""
+
+        cur_2 = pnsqlcursor.PNSqlCursor("fltest3")
+        cur_2.setModeAccess(cur_2.Insert)
+        cur_2.refreshBuffer()
+        cur_2.setValueBuffer("counter_field", "PR0001")
+
+        self.assertTrue(cur_2.commitBuffer())
+        val_1 = utils.next_counter("counter_field", cur_2)
+        self.assertEqual(val_1, "PR0002")
+
     def test_full(self) -> None:
         """Test all options."""
 
