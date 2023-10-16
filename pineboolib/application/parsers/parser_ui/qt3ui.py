@@ -96,7 +96,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
     # Cargamos menubar ...
     xmlmenubar = ROOT.find("menubar")
     # print("Cargamos menubar!")
-    if xmlmenubar:
+    if xmlmenubar is not None:
         load_menu_bar(xmlmenubar, widget)
 
     # Cargamos toolbars ...
@@ -338,16 +338,16 @@ def load_menu_bar(xml: "ET.Element", widget: "QtWidgets.QWidget") -> None:
                     menu_bar.setObjectName(cstring.text)
             elif name == "geometry":
                 geo_ = item.find("rect")
-                if geo_:
+                if geo_ is not None:
                     geo_x = geo_.find("x")
                     geo_y = geo_.find("y")
                     geo_width = geo_.find("width")
                     geo_height = geo_.find("height")
 
-                    pos_x = geo_x.text if geo_x else None
-                    pos_y = geo_y.text if geo_y else None
-                    width = geo_width.text if geo_width else None
-                    height = geo_height.text if geo_height else None
+                    pos_x = geo_x.text if geo_x is not None else None
+                    pos_y = geo_y.text if geo_y is not None else None
+                    width = geo_width.text if geo_width is not None else None
+                    height = geo_height.text if geo_height is not None else None
                     if pos_x is None or pos_y is None or width is None or height is None:
                         continue
                     if menu_bar:

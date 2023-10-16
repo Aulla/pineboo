@@ -11,7 +11,7 @@ from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter  # typ
 from pyhanko.sign.fields import SigSeedSubFilter  # type: ignore[import]
 from pyhanko_certvalidator import ValidationContext  # type: ignore[import]
 
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 LOGGER = logging.get_logger(__name__)
 
@@ -23,8 +23,8 @@ class PdfDigest:
     _certificate: Any
     _cert_path: str
     _unsigned_pdf_path: str
-    _signer: "signers.PdfSigner"
-    _writer: "IncrementalPdfFileWriter"
+    _signer: Optional["signers.PdfSigner"]
+    _writer: Optional["IncrementalPdfFileWriter"]
     _stamp: Dict[str, Any]
 
     def __init__(self, file_path: str, cert_path: str, pass_: str = "") -> None:
@@ -135,7 +135,6 @@ class PdfDigest:
             kwargs = {"signature_meta": signature_meta, "signer": self._certificate}
 
             if self._stamp:
-
                 if not os.path.exists(self._stamp["font"]):
                     LOGGER.warning("font file %s not found!" % self._stamp["font"])
 

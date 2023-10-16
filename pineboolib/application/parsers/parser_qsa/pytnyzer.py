@@ -1377,7 +1377,7 @@ class InstructionUpdate(ASTPython):
                     )
                     found_global = None
 
-                    while new_parent:
+                    while new_parent is not None:
                         if new_parent.tag == "Value":
                             for variable in new_parent.findall("*/*/Variable"):
                                 if variable.get("name") == identifier:
@@ -1389,7 +1389,7 @@ class InstructionUpdate(ASTPython):
                         if found_global is None:
                             if parent.tag == "Source":
                                 grand_parent = cast(ET.Element, parent.get("parent_"))
-                                if grand_parent and grand_parent.tag == "Source":
+                                if grand_parent is not None and grand_parent.tag == "Source":
                                     for variable_global in parent.findall(
                                         "DeclarationBlock/Variable"
                                     ):
@@ -2400,10 +2400,10 @@ class DeclarationBlock(ASTPython):
             is_valid = True
 
             grand_parent_ = cast(ET.Element, self.elem.get("parent_"))
-            if grand_parent_ and grand_parent_.tag == "Source":
+            if grand_parent_ is not None and grand_parent_.tag == "Source":
                 class_parent_ = cast(ET.Element, grand_parent_.get("parent_"))
                 if (
-                    class_parent_
+                    class_parent_ is not None
                     and class_parent_.tag == "Class"
                     and not class_parent_.get("extends")
                 ):

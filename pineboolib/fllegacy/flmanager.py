@@ -124,7 +124,7 @@ class FLManager(QtCore.QObject, IManager):
         @return A PNTableMetaData object with the metadata of the requested table
         """
 
-        if not metadata_name_or_xml:
+        if metadata_name_or_xml in (None, ""):
             return None
 
         if not self.db_:
@@ -777,7 +777,7 @@ class FLManager(QtCore.QObject, IManager):
         @param ed Value used by default for editable property
         @return PNFieldMetaData object that contains the description of the field
         """
-        if not field:
+        if field in (None, ""):
             raise ValueError("field is required")
 
         valid_types = [
@@ -1067,7 +1067,7 @@ class FLManager(QtCore.QObject, IManager):
         @param relation XML element with the description of the relationship
         @return FLRelationMetaData object that contains the description of the relationship
         """
-        if not relation:
+        if relation in (None, ""):
             raise ValueError("relation is required")
 
         foreign_table = ""

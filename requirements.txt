@@ -9,7 +9,7 @@ flake8==3.9.0
 flup==1.0.3
 fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
-lxml==4.9.1
+lxml==4.9.3
 marshmallow>=3.19.0
 ninja==1.10.0.post1
 odfpy
@@ -19,23 +19,23 @@ poppler-utils
 psycopg2
 pyroma==2.6
 pyfiglet
-pyHanko[opentype]==0.13.2
+pyHanko[opentype]==0.20.1
 pyOpenSSL==20.0.1
 pympler
 python-barcode
 python-daemon
 qrcode[pil]
-sqlalchemy==1.4.45
+sqlalchemy==1.4.49
 sqlparse==0.3.1
 twine==3.1.1
-uharfbuzz>=0.25.0
+uharfbuzz>=0.37.3
 watchdog>=0.10.2
 xades==0.2.1
 xmlsig==0.1.7
 Pillow==8.2.0
 PyYAML==5.3.1
-PyQt6==6.2.3 # 6.2.3
-PyQt6-Qt6==6.2.3 # 6.2.3
-PyQt6-sip==13.2.1 # 13.2.1
+PyQt6==6.5.3
+PyQt6-Qt6==6.5.3
+PyQt6-sip==13.6.0
 
 

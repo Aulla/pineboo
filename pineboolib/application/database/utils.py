@@ -115,8 +115,8 @@ def _next_counter2(
     _numero: int = int(_value[_len_serie:]) + 1
 
     if type_ == "string":
-        _numero = str(_numero).rjust(_len_numero, "0")
-        return "%s%s" % (_serie, _numero)
+        _numero_str: str = str(_numero).rjust(_len_numero, "0")
+        return "%s%s" % (_serie, _numero_str)
 
     elif type_ == "double":
         return _numero

@@ -13,7 +13,7 @@ import os
 
 
 from typing import Optional, Any, List, Dict, TYPE_CHECKING
-from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event, util  # type: ignore [import] # noqa: F821, F401
 
 
 if TYPE_CHECKING:
@@ -46,6 +46,8 @@ class FLSQLITE(isqldriver.ISqlDriver):
         self._text_cascade = ""
         self._parse_porc = False
         self._can_use_preping = False
+
+        util.deprecations.SILENCE_UBER_WARNING = True
 
         self._sqlalchemy_name = "sqlite"
 
@@ -164,7 +166,6 @@ class FLSQLITE(isqldriver.ISqlDriver):
         unlocks = 0
         sql_fields: List[str] = []
         for field in tmd.fieldList():
-
             type_ = field.type()
 
             sql_field = field.name()
@@ -205,7 +206,6 @@ class FLSQLITE(isqldriver.ISqlDriver):
                         % (primary_key, tmd.name(), field.name(), sql_fields)
                     )
             else:
-
                 sql_field += " UNIQUE" if field.isUnique() else ""
                 sql_field += " NULL" if field.allowNull() else " NOT NULL"
 
@@ -229,7 +229,6 @@ class FLSQLITE(isqldriver.ISqlDriver):
         for col0, field_name, field_type, allow_null, col4, is_pk in list(
             cursor.fetchall() if cursor else []
         ):
-
             field_allow_null = allow_null == 0 and is_pk == 0  # type: ignore [comparison-overlap]
             field_primary_key = is_pk == 1  # type: ignore [comparison-overlap]
             field_size = (

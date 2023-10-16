@@ -251,7 +251,7 @@ class BaseModel(object):
             original_value = getattr(self._buffer_copy, field_name, None)
             current_value = getattr(self, field_name)
 
-            if type(original_value) != type(current_value):
+            if type(original_value) != type(current_value):  # noqa: E721
                 changes[field_name] = current_value
             elif original_value != current_value:
                 changes[field_name] = current_value
@@ -1012,7 +1012,7 @@ class BaseModel(object):
     def init_serial(self) -> None:
         """Initialice serial field."""
         if (
-            self.type(self.pk_name) == "serial"
+            self.type(self.pk_name) == "serial"  # noqa E721
             and getattr(self, self.pk_name, None) is None
             and self._session is not None
         ):

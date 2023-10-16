@@ -203,7 +203,7 @@ class FormInternalObj(qsa.FormDBWidget):
         self, obj: Optional["QtCore.QObject"], event: Optional["QtCore.QEvent"]
     ) -> bool:
         """Event filter."""
-        if type(event) == qsa.AQS.Close:
+        if type(event) == qsa.AQS.Close:  # noqa: E721
             self.cerrar_clicked()
 
         return True
