@@ -47,7 +47,7 @@ class FLSQLITE(isqldriver.ISqlDriver):
         self._parse_porc = False
         self._can_use_preping = False
 
-        util.deprecations.SILENCE_UBER_WARNING = True
+        util.deprecations.SILENCE_UBER_WARNING = True  # type: ignore [attr-defined]
 
         self._sqlalchemy_name = "sqlite"
 

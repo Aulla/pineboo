@@ -777,7 +777,7 @@ class FLManager(QtCore.QObject, IManager):
         @param ed Value used by default for editable property
         @return PNFieldMetaData object that contains the description of the field
         """
-        if field in (None, ""):
+        if field in (None, ""):  # type: ignore [comparison-overlap]
             raise ValueError("field is required")
 
         valid_types = [
