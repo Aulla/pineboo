@@ -46,11 +46,9 @@ Solo existe una única aproximación a la ejecución de proyectos de Eneboo:
 
 Dependencias
 ----------------
- - Python >= 3.6.9
+ - Python >= 3.8
  - PyQt6 >= 6.0.3
  - PsycoPG2
- - Python PLY (flscriptparser)
-
 
 Alcance actual de Pineboo
 ---------------------------
