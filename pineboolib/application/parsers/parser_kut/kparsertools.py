@@ -447,5 +447,7 @@ class KParserTools(object):
         ret_ = ret_.replace("__LPAREN__", "(")
         ret_ = ret_.replace("__ASTERISK__", "*")
         ret_ = ret_.replace("__PLUS__", "+")
+        ret_ = ret_.replace("__MINUS__", "-")
+        ret_ = ret_.replace("__BLANK__", " ")
 
         return ret_

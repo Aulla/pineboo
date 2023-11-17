@@ -224,7 +224,6 @@ def ustr(*full_text: Union[bytes, str, int, "Date", None, float]) -> str:
     """Convert and concatenate types to text."""
 
     def ustr1(text_: Union[bytes, str, int, "Date", None, float]) -> str:
-
         if isinstance(text_, str):
             return text_
 
@@ -300,9 +299,9 @@ def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
             parser = ElementTree.XMLParser(encoding="ISO-8859-15")
             return ElementTree.parse(file_ptr or form_path_or_str, parser)
         except Exception:
-            LOGGER.exception(
+            """LOGGER.exception(
                 "Error cargando UI después de intentar con UTF8 e ISO \n%s", form_path_or_str
-            )
+            )"""
             raise
 
 
@@ -310,26 +309,30 @@ def _parse_for_duplicates(text: str) -> str:
     """load2xml helper for Kugar XML."""
     ret_ = ""
     text = text.replace("+", "__PLUS__")
+    text = text.replace("-", "__MINUS__")
     text = text.replace("(", "__LPAREN__")
     text = text.replace(")", "__RPAREN__")
     text = text.replace("*", "__ASTERISK__")
 
     for section_orig in text.split(">"):
         # print("section", section)
+        if "<!__MINUS____MINUS__" in section_orig:
+            continue
+
         duplicate_ = False
         attr_list: List[str] = []
 
         # print("--->", section_orig)
         ret2_ = ""
         section = ""
-        for action in section_orig.split(" "):
-
+        for num, action in enumerate(section_orig.split(" ")):
             count_ = action.count("=")
             if count_ > 1:
                 # part_ = ""
                 text_to_process = action
                 for item in range(count_):
                     pos_ini = text_to_process.find('"')
+
                     pos_fin = text_to_process[pos_ini + 1 :].find('"')
                     # print("Duplicado", item, pos_ini, pos_fin, text_to_process, "***" , text_to_process[0:pos_ini + 2 + pos_fin])
                     ret2_ += " %s " % text_to_process[0 : pos_ini + 2 + pos_fin]
@@ -350,7 +353,6 @@ def _parse_for_duplicates(text: str) -> str:
         section = section.replace('= "', '="')
 
         for attribute_ in section.split(" "):
-
             # print("attribute", attribute_)
             if attribute_.find("=") > -1:
                 attr_name = attribute_[0 : attribute_.find("=")]
@@ -372,10 +374,18 @@ def _parse_for_duplicates(text: str) -> str:
 
             duplicate_ = False
 
-        if (section.find(">") == -1 and section.find("<") > -1) or section.endswith("--"):
+        if (section.find(">") == -1 and section.find("<") > -1) or section.endswith(
+            "__MINUS____MINUS__"
+        ):
             ret_ += ">"
 
     # print(ret_)
+    ret_ = ret_.replace(">__MINUS____MINUS__", ">")
+    ret_ = ret_.replace(" __", "__BLANCK__")
+    ret_ = ret_.replace("__ ", "__BLANCK__")
+    ret_ = ret_.replace('"__', '" __')
+    ret_ = ret_.replace('__"', '__ "')
+
     return ret_
 
 

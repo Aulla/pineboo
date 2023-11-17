@@ -324,7 +324,6 @@ class Kut2FPDF(object):
             draw_if = section.get("DrawIf")
             show = True
             if draw_if:
-
                 show = data.get(draw_if) not in ("", "False", "None", False)
             if section.get("Level") == str(data_level) and show:
                 current_size = self._parser_tools.getHeight(section)
@@ -687,7 +686,6 @@ class Kut2FPDF(object):
                 return
 
         if text is not None:
-
             temporal = settings.CONFIG.value("ebcomportamiento/temp_dir")
             if text.startswith(temporal):
                 is_image = True
@@ -862,7 +860,6 @@ class Kut2FPDF(object):
                 # height_resized = True
                 array_text = self.split_text(text_line, width - 10)
             else:
-
                 array_text.append(text_line)
 
         # calculated_h = orig_h * len(array_text)
@@ -871,7 +868,6 @@ class Kut2FPDF(object):
         processed_lines = 0
         extra_size = 0
         for actual_text in array_text:
-
             processed_lines += 1
 
             if processed_lines > 1:
@@ -884,7 +880,6 @@ class Kut2FPDF(object):
                 pos_x = pos_x + (width / 2) - (self._document.get_string_width(actual_text) / 2)
                 # x = x + (width / 2) - (str_width if not height_resized else width / 2)
             elif horizontal_alignment == "2":
-
                 # Derecha
                 pos_x = (
                     pos_x + width - self._document.get_string_width(actual_text) - 2
@@ -1014,7 +1009,6 @@ class Kut2FPDF(object):
 
         if xml is not None and not self.design_mode:
             if xml.get("BorderStyle") == "1":
-
                 border_color = self.get_color(xml.get("BorderColor") or "")
                 self._document.set_draw_color(border_color[0], border_color[1], border_color[2])
                 style_ += "D"
@@ -1132,7 +1126,6 @@ class Kut2FPDF(object):
         codbartype = xml.get("CodBarType")
 
         if not os.path.exists(file_name):
-
             bar_code = flcodbar.FLCodBar(text)  # Code128
             if codbartype is not None:
                 type: int = bar_code.nameToType(codbartype.lower())
