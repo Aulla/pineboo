@@ -132,6 +132,9 @@ class KParserTools(object):
         type_ = None
         date_format_num = None
 
+        # if value is not None:
+        #    value = self.restore_text(value)
+
         if xml is not None:
             precision = int(xml.get("Precision") or 0)
             type_ = xml.get("Type")
@@ -142,7 +145,8 @@ class KParserTools(object):
 
         elif data_type == 2:  # float
             if type_ is None:
-                if value not in (None, "None"):
+                if value not in (None, "None", ""):
+                    value = self.restore_text(value)
                     value = QtCore.QLocale.system().toString(float(value), "f", precision)
 
         elif data_type == 3:  # time

@@ -671,7 +671,7 @@ class Kut2FPDF(object):
 
                 text = data_row.get(field_name) or ""
 
-        if data_type is not None:
+        if data_type not in [None, ""]:
             text = self._parser_tools.calculated(text, int(data_type), xml, data_row)
 
             if data_type == "5":
