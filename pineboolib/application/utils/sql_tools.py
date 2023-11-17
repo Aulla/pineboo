@@ -386,10 +386,13 @@ class SqlInspector(object):
                     last_was_table = False
 
                 if jump > 0:
-                    jump -= 1
-                    prev_ = table
-                    last_was_table = False
-                    continue
+                    if table == "and":
+                        jump = 0
+                    else:
+                        jump -= 1
+                        prev_ = table
+                        last_was_table = False
+                        continue
 
                 if table.find(")") > -1:
                     last_was_table = False
