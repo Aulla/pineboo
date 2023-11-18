@@ -605,7 +605,7 @@ class Kut2FPDF(object):
         data_type = xml.get("DataType")
 
         if xml.tag == "Field" and data_row is not None:
-            text = data_row.get(field_name)
+            text = data_row.get(field_name)  # type: ignore [assignment]
 
         elif xml.tag == "Special":
             alternative_text = text
@@ -671,7 +671,7 @@ class Kut2FPDF(object):
                 text = data_row.get(field_name) or ""
 
         if data_type not in [None, ""]:
-            text = self._parser_tools.calculated(text, int(data_type), xml, data_row)
+            text = self._parser_tools.calculated(text, int(data_type), xml, data_row)  # type: ignore [arg-type]
 
             if data_type == "5":
                 is_image = True

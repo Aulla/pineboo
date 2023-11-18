@@ -3,7 +3,6 @@
 import hashlib
 import datetime
 import glob
-import math
 from datetime import date
 
 from PyQt6 import QtCore  # type: ignore[import]
