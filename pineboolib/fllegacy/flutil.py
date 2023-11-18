@@ -3,6 +3,7 @@
 import hashlib
 import datetime
 import glob
+import math
 from datetime import date
 
 from PyQt6 import QtCore  # type: ignore[import]
@@ -755,7 +756,8 @@ class FLUtil(object):
         if metadata is not None:
             field_metadata = metadata.field(field_name)
             if field_metadata is not None:
-                return cls.buildNumber(value or 0.00, "float", field_metadata.partDecimal())
+                # value = 0.00 if math.isnan(value) else value
+                return cls.buildNumber(value, "float", field_metadata.partDecimal())
 
         return ""
 

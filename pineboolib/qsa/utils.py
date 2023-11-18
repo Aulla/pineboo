@@ -317,7 +317,7 @@ def parse_float(value: Any) -> float:
 
         return ret
     except Exception:
-        LOGGER.exception("parseFloat: Error converting %s to float", value)
+        LOGGER.exception("parseFloat: Error converting %s to float" % value, stack_info=True)
         return float("nan")
 
 

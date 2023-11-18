@@ -141,7 +141,9 @@ class KParserTools(object):
             date_format_num = xml.get("DateFormat")
 
         if data_type in (0, 1) and data is not None:  # str
-            value = data.get(value)
+            if data_type == 1:
+                value = data.get(value)
+            # 0 pasa porque ya viene procesado ...
 
         elif data_type == 2:  # float
             if type_ is None:

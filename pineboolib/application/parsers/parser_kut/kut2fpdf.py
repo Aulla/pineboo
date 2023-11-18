@@ -587,7 +587,6 @@ class Kut2FPDF(object):
         text: str = xml.get("Text") or ""
         # borderColor = xml.get("BorderColor")
         field_name = xml.get("Field") or ""
-
         # x,y,W,H se calcula y corrigen aquí para luego estar correctos en los diferentes destinos posibles
         width = int(xml.get("Width") or "0")
 
@@ -606,7 +605,7 @@ class Kut2FPDF(object):
         data_type = xml.get("DataType")
 
         if xml.tag == "Field" and data_row is not None:
-            text = data_row.get(field_name) or ""
+            text = data_row.get(field_name)
 
         elif xml.tag == "Special":
             alternative_text = text

@@ -385,6 +385,8 @@ def _parse_for_duplicates(text: str) -> str:
     ret_ = ret_.replace("__ ", "__BLANCK__")
     ret_ = ret_.replace('"__', '" __')
     ret_ = ret_.replace('__"', '__ "')
+    # ret_ = ret_.replace('=" __', '"__')
+    # ret_ = ret_.replace('__ "', '__"')
 
     return ret_
 

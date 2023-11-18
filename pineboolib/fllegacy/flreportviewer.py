@@ -253,7 +253,7 @@ class FLReportViewer(QtWidgets.QWidget):
                 self._w.refresh()
                 self.slotFirstPage()
             else:
-                qsatypes.SysBaseType.openUrl(pdf_file)
+                qsatypes.sysbasetype.SysBaseType.openUrl(pdf_file)
 
         return pdf_file
 

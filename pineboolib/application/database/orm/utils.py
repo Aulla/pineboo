@@ -93,7 +93,6 @@ class DynamicFilter(object):
             list_ = filter_str.split(" ")
 
             for number, part in enumerate(list_):
-
                 if part.find("_|_space_|_") > -1:
                     part = part.replace("_|_space_|_", " ")
 
@@ -103,6 +102,7 @@ class DynamicFilter(object):
 
                 if not part:
                     continue
+
                 if part.startswith("upper("):
                     item.append("upper")
                     part = part[6:-1]
@@ -114,13 +114,12 @@ class DynamicFilter(object):
 
                     part = part.replace("'", "")
 
-                elif part.lower() in ["and", "or"]:
+                elif part.lower() in ["and", "or"] and list_[number - 2] != "eq":
                     filter_list.append(item)
                     item = []
                     part = part.lower()
 
                 item.append(part)
-
             if item and item != ["1", "eq", "1"]:
                 filter_list.append(item)
 

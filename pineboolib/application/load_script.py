@@ -215,7 +215,7 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
     if script_path_py:
         if pnmtdparser.use_mtd_fields(script_path_py):
             script_path_py = pnmtdparser.populate_fields(script_path_py, "%s.mtd" % script_name)
-            LOGGER.warning(
+            LOGGER.info(
                 "El model %s no contenía legacy_metadata. Se rellena con datos de %s.mtd",
                 script_name,
                 script_name,

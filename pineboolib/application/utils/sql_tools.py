@@ -380,14 +380,17 @@ class SqlInspector(object):
             # next_is_alias = None
             prev_ = ""
             last_was_table = False
+            and_ = False
             for table in tables_list:
                 if table == "cast":
                     jump += 3
                     last_was_table = False
 
                 if jump > 0:
-                    if table == "and":
+                    if and_ and jump == 2 and table != "=":
                         jump = 0
+                        and_ = False
+                        last_was_table = False
                     else:
                         jump -= 1
                         prev_ = table
@@ -424,6 +427,7 @@ class SqlInspector(object):
 
                 elif table in ("and", "or"):
                     jump = 3
+                    and_ = table == "and"
                     last_was_table = False
 
                 else:
