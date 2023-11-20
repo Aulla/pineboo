@@ -387,7 +387,7 @@ class SqlInspector(object):
                     last_was_table = False
 
                 if jump > 0:
-                    if and_ and jump == 2 and len(table) > 2:
+                    if and_ and jump == 2 and len(table) > 2:  # entra si = <= > is ...
                         jump = 0
                         and_ = False
                         last_was_table = False
