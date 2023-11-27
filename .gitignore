@@ -41,3 +41,5 @@ mypy_report
 venv
 public/
 *.py.src
+*.pdf
+tempdata/
