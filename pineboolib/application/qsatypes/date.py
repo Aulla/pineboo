@@ -237,7 +237,7 @@ class Date(object):
         # return Date(value, "yyyy-MM-dd")
         if "T" not in value:
             value = "%sT00:00:00" % value
-        return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S").timestamp()
+        return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S").timestamp() * 1000
 
     def __str__(self) -> str:
         """Support for str()."""
