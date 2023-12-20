@@ -28,7 +28,6 @@ class TestMtdParserGeneral(unittest.TestCase):
                     mtd_name, application.PROJECT.files[mtd_name].path()
                 )
                 if file_path:
-
                     self.assertTrue(os.path.exists(file_path))
                 else:
                     self.assertTrue(False)

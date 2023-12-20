@@ -144,7 +144,6 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
             return
 
         for field in table_metadata.fieldList():
-
             mask_field_perm = mask_perm  # por defecto valores de self._perm
 
             if has_acos and (

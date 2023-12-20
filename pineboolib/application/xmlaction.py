@@ -78,7 +78,6 @@ class XMLAction(struct.ActionStruct):
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
         if not self._cursor and self._table:
-
             # LOGGER.warning("Creando cursor para %s %s", self._name, self._master_widget)
             self._cursor = pnsqlcursor.PNSqlCursor(self._name)
 

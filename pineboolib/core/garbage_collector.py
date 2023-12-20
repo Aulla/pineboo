@@ -30,7 +30,6 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
     """
 
     def checkfn() -> None:
-
         # time.sleep(2)
         list_: List[str] = []
         try:

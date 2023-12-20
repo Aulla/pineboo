@@ -112,7 +112,6 @@ class FLQPSQL(isqldriver.ISqlDriver):
         unlocks = 0
         sql_fields: List[str] = []
         for field in field_list:
-
             sql_field = field.name()
             type_ = field.type()
             if type_ == "serial":
@@ -162,7 +161,6 @@ class FLQPSQL(isqldriver.ISqlDriver):
                         % (primary_key, tmd.name(), field.name(), sql_fields)
                     )
             else:
-
                 sql_field += " UNIQUE" if field.isUnique() else ""
                 sql_field += " NULL" if field.allowNull() else " NOT NULL"
 
@@ -198,7 +196,6 @@ class FLQPSQL(isqldriver.ISqlDriver):
             field_precision,
             field_default_value,
         ) in list(cursor.fetchall() if cursor else []):
-
             if isinstance(field_default_value, str) and field_default_value:
                 field_default_value = (
                     field_default_value[0 : field_default_value.find("::character varying")]

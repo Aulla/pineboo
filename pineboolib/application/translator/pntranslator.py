@@ -85,7 +85,6 @@ class PNTranslator(QtCore.QTranslator):
             if not ret_:
                 LOGGER.warning("For some reason, i cannot load '%s.ts'", ts_file)
         else:
-
             qm_file = "%s.qm" % ts_file
             if os.path.exists(qm_file):
                 if ts_file in (None, ""):

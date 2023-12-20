@@ -38,7 +38,6 @@ def coalesce_path(*filenames) -> Optional[str]:
             return None
 
         if filename in application.PROJECT.files:
-
             return application.PROJECT.files[filename].path()
     LOGGER.error(
         "coalesce_path: Ninguno de los ficheros especificados ha sido encontrado en el proyecto: %s",

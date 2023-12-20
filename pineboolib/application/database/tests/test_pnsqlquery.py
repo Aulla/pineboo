@@ -584,7 +584,6 @@ class TestPNSqlQuery2(unittest.TestCase):
         # self.assertTrue(qry2.isValid())
 
     def test_sql_injection(self) -> None:
-
         sql = (
             "SELECT s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,"
             + "t.telefono, s.talla FROM tpv_tiendas t inner join stocks s on t.codalmacen = s.codalmacen "

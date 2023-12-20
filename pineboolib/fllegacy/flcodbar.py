@@ -383,7 +383,6 @@ class FLCodBar(object):
         if self._pixmap.isNull():
             self.barcode["valid"] = False
         else:
-
             if self.barcode["scale"] != 1.0:
                 width_scaled = self.barcode["x"] * self.barcode["scale"]
                 height_scaled = self.barcode["y"] * self.barcode["scale"]

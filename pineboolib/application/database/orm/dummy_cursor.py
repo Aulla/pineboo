@@ -99,7 +99,6 @@ class DummyCursor(object):
                 % (field_name, meta_table.name())
             )
         else:
-
             type_ = meta_field.type()  # type: ignore [union-attr]
 
             if type_ == "date":
@@ -122,7 +121,6 @@ class DummyCursor(object):
                 % (field_name, meta_table.name())
             )
         else:
-
             type_ = meta_field.type()  # type: ignore [union-attr]
 
             if type_ == "date":

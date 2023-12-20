@@ -38,7 +38,6 @@ class TestFLManager(unittest.TestCase):
         field_mtd = cursor.metadata().field("string_field")
 
         if field_mtd is not None:
-
             self.assertEqual(
                 manager_.formatAssignValue(field_mtd, "string", True),
                 "upper(fltest2.string_field) = 'STRING'",

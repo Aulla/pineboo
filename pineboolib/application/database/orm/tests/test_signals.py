@@ -134,7 +134,6 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_2, "idarea")
 
     def test_basic_6(self) -> None:
-
         global VALUE_3
 
         qsa.thread_session_new()
@@ -146,7 +145,6 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_3, True)
 
     def test_basic_7(self) -> None:
-
         global VALUE_4, VALUE_5
 
         qsa.thread_session_new()

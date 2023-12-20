@@ -91,7 +91,6 @@ def slot_done(function: Callable, signal: "QtCore.pyqtSignal") -> Callable:
     """Create a fake slot for QS connects."""
 
     def new_fn(*args: Any, **kwargs: Any) -> Any:
-
         # PyQt6-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
         original_signal_name: str = getattr(signal, "signal")
 
@@ -227,7 +226,6 @@ def solve_connection(
         return None  # pragma: no cover
 
     if remote_fn is not None:
-
         proxy_slot = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type] # noqa F821
         proxyfn = proxy_slot.getProxyFn()
         return original_signal, proxyfn

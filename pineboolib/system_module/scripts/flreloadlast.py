@@ -133,7 +133,6 @@ class FormInternalObj(qsa.FormDBWidget):
         """Compare versions."""
 
         if ver_1 and ver_2:
-
             list_1 = ver_1.split(".")
             list_2 = ver_2.split(".")
 

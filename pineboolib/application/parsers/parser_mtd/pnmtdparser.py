@@ -221,7 +221,6 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # ASSOCIATED
     if field.private.associated_field_name:
-
         field_data.append(
             "'associated':{'with' : '%s', 'by' : '%s' }"
             % (field.private.associated_field_filter_to, field.private.associated_field_name)
@@ -386,7 +385,6 @@ def _create_declaration(
     pk_found = False
 
     for field in mtd_table.fieldList():  # Crea los campos
-
         if field.isPrimaryKey():
             pk_found = True
 
@@ -395,7 +393,6 @@ def _create_declaration(
                 "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
             )
         else:
-
             field_data = []
             field_data.append("    ")
             if field.name() in RESERVER_WORDS:

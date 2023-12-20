@@ -246,7 +246,6 @@ class PdfQr:
 
         first = True
         for img_data in self._signed_data:
-
             buffer = QtCore.QBuffer()
             buffer.open(QtCore.QIODeviceBase.OpenModeFlag.ReadWrite)
             img_data.save(buffer, "PNG")

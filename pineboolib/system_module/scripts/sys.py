@@ -81,7 +81,6 @@ class FormInternalObj(qsa.FormDBWidget):
         """After commit flfiles."""
 
         if cur_files_.modeAccess() != cur_files_.Browse:
-
             value = cur_files_.valueBuffer("sha")
 
             _qry = qsa.FLSqlQuery()

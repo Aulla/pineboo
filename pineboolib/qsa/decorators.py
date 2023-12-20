@@ -23,7 +23,6 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":  # type: 
     def decorator(fun_: TYPEFN) -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-
             key = utils_base.session_id(conn_name)
             if wait:
                 _wait(key)
@@ -112,7 +111,6 @@ def serialize(conn_name: str = "default") -> "TYPEFN":  # type: ignore [type-var
                 _delete_data(conn_name)
 
             except Exception as error:
-
                 _delete_data(conn_name)
                 raise error
 
@@ -160,7 +158,6 @@ def _delete_data(conn_name: str = "", wait: bool = True) -> None:
             mng_.removeConn(item)
 
     if wait:
-
         id_thread: int = threading.current_thread().ident or -1
         key = utils_base.session_id(conn_name)
         if id_thread in application.SERIALIZE_LIST.keys():

@@ -12,7 +12,6 @@ from typing import List, Dict, Any, TYPE_CHECKING
 LOGGER = logging.get_logger(__name__)
 
 if TYPE_CHECKING:
-
     from pineboolib.interfaces import iconnection, itablemetadata
 
 
@@ -110,7 +109,6 @@ class Migration:
         folder_path = os.path.join(self._alembic_folder, "alembic", "versions")
         last = None
         for file_name in os.listdir(folder_path):
-
             if file_name.startswith("_"):
                 continue
 

@@ -49,7 +49,6 @@ class TestRelationships(unittest.TestCase):
         self.assertEqual(len(obj_area.children), 2, "no son dos => %s" % obj_area.children)
 
     def test_children_before_after_commit(self):
-
         class_area = qsa.orm_("flareas", False)
         class_modulo = qsa.orm_("flmodules", False)
 

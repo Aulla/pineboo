@@ -67,7 +67,6 @@ class TestSessions(unittest.TestCase):
         cursor.db().commit()
 
     def test_relation_session_flush(self):
-
         class_area = qsa.orm_("flareas", False)
         class_modulo = qsa.orm_("flmodules", False)
 
@@ -112,7 +111,6 @@ class TestSessions(unittest.TestCase):
         self.assertTrue(len(session.dirty) == 2)
 
     def test_session_flush(self):
-
         class_area = qsa.orm_("flareas", False)
 
         self.assertFalse(class_area is None)

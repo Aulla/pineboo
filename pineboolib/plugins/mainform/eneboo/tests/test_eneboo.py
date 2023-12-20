@@ -106,7 +106,6 @@ class TestEnebooGUI(unittest.TestCase):
         main_window = application.PROJECT.main_window
 
         if main_window is not None:
-
             key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
             settings.SETTINGS.set_value(
                 "%sopenActions" % key,

@@ -122,11 +122,9 @@ class FlFiles(object):
         """Process folder files."""
 
         for root, subdirs, files in os.walk(root_folder):
-
             root_dirs_list = pathlib.Path(root)
 
             for file_name in files:
-
                 if "test" in root_dirs_list.parts or file_name.startswith("test_"):
                     LOGGER.info("FLFILES_DIR: ignoring test %s" % os.path.join(root, file_name))
                     continue

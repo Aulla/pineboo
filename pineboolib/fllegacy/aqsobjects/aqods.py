@@ -250,7 +250,6 @@ class AQOdsRow(object):
                     self.opIn(item)
 
             elif isinstance(opt, AQOdsImage):
-
                 href = self.sheet_.spread_sheet_parent_.addPictureFromFile(opt.link_)
                 cell, style = self.__newCell__()
 

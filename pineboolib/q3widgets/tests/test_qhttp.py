@@ -19,7 +19,6 @@ class TestQHttp(unittest.TestCase):
     _buffer: QtCore.QBuffer
 
     def test_request(self) -> None:
-
         from pineboolib.q3widgets import qhttp, qbytearray
 
         host_ = "https://app.slack.com"

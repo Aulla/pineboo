@@ -91,7 +91,6 @@ class TestUintField(unittest.TestCase):
             field = mtd.field("seq")
             self.assertTrue(field is not None)
             if field is not None:
-
                 self.assertNotEqual(field, None)
                 self.assertEqual(field.name(), "seq")
                 self.assertEqual(field.alias(), "Secuencia")
@@ -132,7 +131,6 @@ class TestStringListField(unittest.TestCase):
             field = mtd.field("valor")
             self.assertTrue(field is not None)
             if field is not None:
-
                 self.assertNotEqual(field, None)
                 self.assertEqual(field.name(), "valor")
                 self.assertEqual(field.alias(), "Valor")
@@ -164,7 +162,6 @@ class TestPixmapField(unittest.TestCase):
         if mtd is not None:
             field = mtd.field("icono")
             if field is not None:
-
                 self.assertNotEqual(field, None)
                 self.assertEqual(field.name(), "icono")
                 self.assertEqual(field.isPrimaryKey(), False)
@@ -227,7 +224,6 @@ class TestBoolField(unittest.TestCase):
             field = mtd.field("bloqueo")
             self.assertNotEqual(field, None)
             if field is not None:
-
                 self.assertEqual(field.name(), "bloqueo")
                 self.assertEqual(field.alias(), "Tabla bloqueada")
                 self.assertEqual(field.isPrimaryKey(), False)
@@ -260,7 +256,6 @@ class TestDateField(unittest.TestCase):
             field = mtd.field("fecha")
             self.assertNotEqual(field, None)
             if field is not None:
-
                 self.assertEqual(field.name(), "fecha")
                 self.assertEqual(field.alias(), "Fecha")
                 self.assertEqual(field.isPrimaryKey(), False)
@@ -293,7 +288,6 @@ class TestTimeField(unittest.TestCase):
             field = mtd.field("hora")
             self.assertNotEqual(field, None)
             if field is not None:
-
                 self.assertEqual(field.name(), "hora")
                 self.assertEqual(field.alias(), "Hora")
                 self.assertEqual(field.isPrimaryKey(), False)

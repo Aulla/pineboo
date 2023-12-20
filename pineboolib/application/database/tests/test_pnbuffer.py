@@ -111,7 +111,6 @@ class TestPNBuffer(unittest.TestCase):
         self.assertTrue(buffer_ is not None)
 
         if buffer_ is not None:
-
             buffer_.set_value("string_field", "Campo texto 1 mod")
             buffer_.set_value("double_field", 1.02)
             self.assertEqual(buffer_.value("double_field"), 1.02)

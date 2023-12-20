@@ -34,7 +34,6 @@ class ProgressDialogManager(object):
         """Destroy a specific progress dialog."""
 
         for dialog in self.progress_dialog_stack:
-
             if dialog.objectName() == id_:
                 self.progress_dialog_stack.remove(dialog)
                 del dialog
