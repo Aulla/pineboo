@@ -45,4 +45,6 @@ class TestDate(unittest.TestCase):
         self.assertEqual(date2_.getDay(), 14)
 
         date3_ = date2_.parse("2019-06-02T00:00:00")
-        self.assertEqual(datetime.datetime.strptime("2019-06-02", "%Y-%m-%d").timestamp(), date3_)
+        self.assertEqual(
+            datetime.datetime.strptime("2019-06-02", "%Y-%m-%d").timestamp() * 1000, date3_
+        )
