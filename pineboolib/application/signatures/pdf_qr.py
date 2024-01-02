@@ -184,10 +184,25 @@ class PdfQr:
             if self._show_text:
                 image_qr = QtGui.QImage(self._tmp_qr_img)
                 image_label = QtGui.QImage(self._tmp_qr_img)
-                text_width = len(self._text) * 2.7
+                size_font = int(self._font_size * self._factor)
+                text_list = self._text.split("\n")
+                max_text_len = 0
+                for text in text_list:
+                    current_len = len(text)
+                    if current_len > max_text_len:
+                        max_text_len = current_len
+
+                text_width = max_text_len * (self._font_size - 1.5)
+                extra_width = text_width if text_width > (qr_image.height) else qr_image.height
+                print(
+                    "extra:%s, qr:%s, max:%s, text:%s, size: %s"
+                    % (extra_width, image_qr.width(), text_width, len(self._text), self._font_size)
+                )
+                extra_height = (self._font_size + 2) * len(text_list)
+
                 image_label_resized = image_label.scaled(
-                    int((qr_image.height + text_width) * self._factor),
-                    int((qr_image.height + (self._font_size + 2)) * self._factor),
+                    int(extra_width * self._factor),
+                    int((qr_image.height + extra_height) * self._factor),
                 )
                 image_qr = image_qr.scaled(
                     int(image_qr.width() * self._factor), int(image_qr.height() * self._factor)
@@ -202,19 +217,26 @@ class PdfQr:
                 label_painter.setFont(
                     QtGui.QFont(
                         self._font_name,
-                        int(self._font_size * self._factor),
-                        QtGui.QFont.Weight.Bold,
+                        size_font,
+                        QtGui.QFont.Weight.Normal,
                     )
                 )
+
+                proccessed_text = ""
+                for text in text_list:
+                    proccessed_text += "      %s\n" % text
+
                 label_painter.drawText(
-                    image_label_resized.rect(), QtCore.Qt.AlignmentFlag.AlignTop, " " + self._text
+                    image_label_resized.rect(),
+                    QtCore.Qt.AlignmentFlag.AlignTop,
+                    proccessed_text,
                 )
                 label_painter.setCompositionMode(
                     QtGui.QPainter.CompositionMode.CompositionMode_SourceOver
                 )
                 label_painter.drawImage(
                     image_label_resized.width() - image_qr.width(),
-                    int((self._font_size + 4) * self._factor),
+                    int(((self._font_size + 4) * len(text_list)) * self._factor),
                     image_qr,
                 )
                 label_painter.end()
