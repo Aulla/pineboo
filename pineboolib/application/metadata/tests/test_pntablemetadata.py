@@ -128,6 +128,9 @@ class TestPNTableMetaData(unittest.TestCase):
                 field_list_3 = mtd.fieldListArray(True)
                 self.assertEqual(field_list_3, ["flgroups.idgroup", "flgroups.descripcion"])
 
+                field_list_4 = mtd.fieldList(True)
+                self.assertEqual(field_list_4, ["idgroup", "descripcion"])
+
             mtd.removeFieldMD("descripcion")
             self.assertEqual(mtd.fieldIsIndex("descripcion"), -1)
             self.assertEqual(mtd.fieldIsUnique("idgroup"), False)

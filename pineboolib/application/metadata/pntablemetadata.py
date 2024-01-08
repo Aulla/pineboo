@@ -496,14 +496,14 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             else None
         )
 
-    def fieldList(self) -> List["pnfieldmetadata.PNFieldMetaData"]:
+    def fieldList(self, only_names: bool = False) -> List["pnfieldmetadata.PNFieldMetaData"]:
         """
         Return a list of field definitions.
 
         @return Object with the table field deficits list
         """
 
-        return list(self.private._fields_dict.values())
+        return self.fieldNames() if only_names else list(self.private._fields_dict.values())
 
     def fieldListArray(self, prefix_table: bool = False) -> List[str]:
         """
