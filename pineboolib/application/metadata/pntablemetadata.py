@@ -503,7 +503,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return Object with the table field deficits list
         """
 
-        return self.fieldNames() if only_names else list(self.private._fields_dict.values())
+        return self.fieldNames() if only_names else list(self.private._fields_dict.values())  # type: ignore [return-value, arg-type]
 
     def fieldListArray(self, prefix_table: bool = False) -> List[str]:
         """
