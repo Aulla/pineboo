@@ -4,6 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib import application
 from pineboolib.application.database.tests import fixture_path
 from pineboolib.core.utils import utils_base
@@ -217,7 +218,30 @@ class TestDeleteData(unittest.TestCase):
     def test_basic_3(self) -> None:
         """Delete data from a database."""
 
+        # recoger el metadata
+        metadata = application.PROJECT.conn_manager.manager().metadata("flareas")
+        # añadir relación fake
+        relation_meta = pnrelationmetadata.PNRelationMetaData(
+            "fake", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
+        )
+
         cursor = pnsqlcursor.PNSqlCursor("flareas")
+
+        field = cursor.metadata().field("idarea")
+        field.addRelationMD(relation_meta)
+
+        # comprobar si el cambio es persistente
+
+        metadata_cursor = cursor.metadata()
+        relations = metadata_cursor.field("idarea").relationList()
+        found = False
+        for relation in relations:
+            if relation.foreignTable() == "fake":
+                found = True
+                break
+
+        self.assertTrue(found, "No se encuentra la relacion FAKE")
+
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
         cursor.setValueBuffer("bloqueo", True)
@@ -225,21 +249,41 @@ class TestDeleteData(unittest.TestCase):
         cursor.setValueBuffer("descripcion", "Área de prueba T1")
         self.assertTrue(cursor.commitBuffer())
 
-        cursor2 = pnsqlcursor.PNSqlCursor("flmodules")
-        cursor2.setModeAccess(cursor2.Insert)
-        cursor2.refreshBuffer()
-        cursor2.setValueBuffer("idmodulo", "M1")
-        cursor2.setValueBuffer("idarea", "T1")
-        cursor2.setValueBuffer("descripcion", "Módulo T")
-        cursor2.setValueBuffer("version", "0.0")
-        cursor2.commitBuffer()
+        cursor.select("idarea = 'T1'")
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Del)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
 
-        cursor3 = pnsqlcursor.PNSqlCursor("flareas")
-        cursor3.select("idarea = 'T1'")
-        self.assertTrue(cursor3.first())
-        cursor3.setModeAccess(cursor3.Del)
-        cursor3.refreshBuffer()
-        self.assertFalse(cursor3.commitBuffer())
+    def test_basic_4(self) -> None:
+        """Delete with relation errors."""
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T")
+        cursor.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor.commitBuffer())
+
+        cursor.select("idarea ='T'")
+        first_result = cursor.first()
+        self.assertEqual(first_result, True)
+        size_1 = cursor.size()
+        self.assertEqual(size_1, 1, "tiene que devolver 1 y ha devuelto %s" % size_1)
+        cursor.setForwardOnly(True)
+        cursor.setModeAccess(cursor.Del)
+        cursor.refreshBuffer()
+
+        value_idarea = cursor.valueBuffer("idarea")
+        self.assertEqual(value_idarea, "T")
+        cursor.commitBuffer()
+        cursor.refresh()
+        size_2 = cursor.size()
+        self.assertEqual(size_2, 1)
+        cursor.setForwardOnly(False)
+        cursor.refresh()
+        size_3 = cursor.size()
+        self.assertEqual(size_3, 0, "Tiene que devolver 0 y ha devuelto %s" % size_3)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -759,7 +803,6 @@ class TestRelations(unittest.TestCase):
     def test_basic_relations_1(self) -> None:
         """Test basic relations 1."""
         from pineboolib.application.database import pnsqlcursor
-        from pineboolib.application.metadata import pnrelationmetadata
 
         cur_areas = pnsqlcursor.PNSqlCursor("flareas")
 

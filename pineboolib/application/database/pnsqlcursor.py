@@ -1131,9 +1131,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             LOGGER.warning(
                                 " msgCheckIntegrity. No se encuentra el valor en session: %s, transacción: %s, sql: %s, size: %s",
                                 qry.db().session(),
-                                qry.db().session().get_transaction()  # type: ignore [attr-defined]
-                                if not qry.db().session().in_nested_transaction()  # type: ignore [attr-defined]
-                                else qry.db().session().get_nested_transaction(),  # type: ignore [attr-defined]
+                                (
+                                    qry.db().session().get_transaction()  # type: ignore [attr-defined]
+                                    if not qry.db().session().in_nested_transaction()  # type: ignore [attr-defined]
+                                    else qry.db().session().get_nested_transaction()
+                                ),  # type: ignore [attr-defined]
                                 qry.sql(),
                                 qry.size(),
                             )
@@ -2448,6 +2450,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             log_func("CommitBuffer cancelado. Problema de integridad.")
             return False
 
+        manager = self.db().connManager().manager()
+
         field_name_check = None
         function_before_commit = (
             "beforeCommit_%s" % self.table() if self.activatedCommitActions() else ""
@@ -2597,10 +2601,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
                 for relation in field.relationList():
-                    cursor = PNSqlCursor(relation.foreignTable())
-                    foreign_mtd = cursor.private_cursor.metadata_
+                    foreign_mtd = manager.metadata(relation.foreignTable())
                     if foreign_mtd is None:
                         continue
+
                     foreign_field = foreign_mtd.field(relation.foreignField())
                     if foreign_field is None:
                         continue
@@ -2608,6 +2612,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     relation_m1 = foreign_field.relationM1()
 
                     if relation_m1 and relation_m1.deleteCascade():
+                        cursor = PNSqlCursor(relation.foreignTable())
                         cursor.setForwardOnly(True)
                         cursor.select(
                             self.conn()
