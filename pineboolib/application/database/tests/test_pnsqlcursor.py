@@ -218,8 +218,6 @@ class TestDeleteData(unittest.TestCase):
     def test_basic_3(self) -> None:
         """Delete data from a database."""
 
-        # recoger el metadata
-        metadata = application.PROJECT.conn_manager.manager().metadata("flareas")
         # añadir relación fake
         relation_meta = pnrelationmetadata.PNRelationMetaData(
             "fake", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
@@ -228,12 +226,19 @@ class TestDeleteData(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("flareas")
 
         field = cursor.metadata().field("idarea")
-        field.addRelationMD(relation_meta)
+        if field is not None:
+            field.addRelationMD(relation_meta)
+        else:
+            self.assertTrue(False, "No se encuentra el campo idarea (1)")
 
         # comprobar si el cambio es persistente
 
         metadata_cursor = cursor.metadata()
-        relations = metadata_cursor.field("idarea").relationList()
+        meta_field = metadata_cursor.field("idarea")
+        if meta_field is None:
+            self.assertTrue(False, "No se encuentra el campo idarea (2)")
+
+        relations = meta_field.relationList()
         found = False
         for relation in relations:
             if relation.foreignTable() == "fake":
