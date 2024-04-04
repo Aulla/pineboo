@@ -240,9 +240,9 @@ def sql_insert(
     _value_list: Union[List[Any], types.Array] = (
         value_list_.split(",")
         if isinstance(value_list_, str)
-        else value_list_
-        if isinstance(value_list_, (List, types.Array))
-        else [value_list_]  # type: ignore [list-item]
+        else (
+            value_list_ if isinstance(value_list_, (List, types.Array)) else [value_list_]
+        )  # type: ignore [list-item]
     )
 
     _field_list: Union[List[Any], types.Array] = (
@@ -296,9 +296,11 @@ def sql_update(
             for _pos in range(len(field_list_)):
                 _cursor.setValueBuffer(
                     field_list_[_pos],
-                    value_list_[_pos]
-                    if isinstance(value_list_, (List, types.Array))
-                    else value_list_,
+                    (
+                        value_list_[_pos]
+                        if isinstance(value_list_, (List, types.Array))
+                        else value_list_
+                    ),
                 )
         else:
             _cursor.setValueBuffer(field_list_, value_list_)
@@ -461,7 +463,8 @@ def resolve_qsa_value(type_: str, value: Any) -> Any:
         else:
             result = types.boolean(value)
     elif type_ == "bytearray":
-        result = bytearray(value)
+        result = bytearray(value.encode("UTF-8") if isinstance(value, str) else value)
+
     elif type_ == "timestamp":
         if isinstance(value, datetime.datetime):
             value = value.strftime("%Y-%m-%d %H:%M:%S")

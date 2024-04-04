@@ -1105,7 +1105,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     qry.setForwardOnly(True)
                     qry.exec_()
                     if qry.next():
-                        message += "\nCONN: %s" % (self.connectionName())
                         message += (
                             "\n%s:%s : Es clave primaria y requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
                             % (self.table(), field.alias(), value)

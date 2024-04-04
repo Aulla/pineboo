@@ -117,8 +117,6 @@ class AQSql(object):
             else table_or_cursor
         )
 
-        LOGGER.warn("INSERT!! BD:%s" % (cur.connectionName()))
-
         if not cur.metadata():
             return False
 
