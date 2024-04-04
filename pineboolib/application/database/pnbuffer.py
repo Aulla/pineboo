@@ -5,6 +5,7 @@ Manage buffers used by PNSqlCursor.
 
 Buffers are the data records pointed to by a PNSqlCursor.
 """
+
 from pineboolib.application import types
 from pineboolib.application.database import utils as utils_database
 from pineboolib import logging
@@ -127,6 +128,7 @@ class PNBuffer(object):
 
                     value = v_large if v_large else value
                 else:
+                    LOGGER.warning("^ FILEDNAME:%s, TYPE:%s" % (field_name, type_))
                     value = utils_database.resolve_qsa_value(type_, value)
             elif return_none is False:
                 value = utils_database.resolve_empty_qsa_value(type_)

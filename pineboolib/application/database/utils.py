@@ -463,8 +463,7 @@ def resolve_qsa_value(type_: str, value: Any) -> Any:
         else:
             result = types.boolean(value)
     elif type_ == "bytearray":
-        result = bytearray(value.encode("UTF-8") if isinstance(value, str) else value)
-
+        result = bytearray(value)
     elif type_ == "timestamp":
         if isinstance(value, datetime.datetime):
             value = value.strftime("%Y-%m-%d %H:%M:%S")
