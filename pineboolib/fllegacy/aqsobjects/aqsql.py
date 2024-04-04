@@ -112,10 +112,13 @@ class AQSql(object):
         """Insert a record in a cursor."""
         cur: "isqlcursor.ISqlCursor"
 
-        if isinstance(table_or_cursor, str):
-            cur = pnsqlcursor.PNSqlCursor(table_or_cursor, conn)
-        else:
-            cur = table_or_cursor
+        cur = (
+            pnsqlcursor.PNSqlCursor(table_or_cursor, conn)
+            if isinstance(table_or_cursor, str)
+            else table_or_cursor
+        )
+
+        LOGGER.warn("INSERT!! BD:%s" % (cur.connectionName()))
 
         if not cur.metadata():
             return False

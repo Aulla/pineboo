@@ -1070,7 +1070,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         field_mtd = self.private_cursor.metadata_.field(primary_key)
                         if field_mtd is None:
                             raise Exception("pk field is not found!")
-                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry = pnsqlquery.PNSqlQuery(None, self.connectionName())
                         qry.setTablesList(self.table())
                         qry.setSelect(field_name)
                         qry.setFrom(self.table())
@@ -1097,7 +1097,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and self.private_cursor.mode_access_ == self.Insert
                     and value is not None
                 ):
-                    qry = pnsqlquery.PNSqlQuery(None, self.db())
+                    qry = pnsqlquery.PNSqlQuery(None, self.connectionName())
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())
@@ -1105,6 +1105,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     qry.setForwardOnly(True)
                     qry.exec_()
                     if qry.next():
+                        message += "\nCONN: %s" % (self.connectionName())
                         message += (
                             "\n%s:%s : Es clave primaria y requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
                             % (self.table(), field.alias(), value)
