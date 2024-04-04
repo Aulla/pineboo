@@ -82,7 +82,7 @@ class PNSqlDriversManager(object, metaclass=Singleton):
 
         # FIXES para cuando llamamos al driver con el nombre tradicional de Abanq/Eneboo
         if driver_name == "postgresql":
-            driver_name = "flpqsql"
+            driver_name = "flqpsql"
 
         module_path = "pineboolib.plugins.sql.%s" % driver_name.lower()
         module_obj = (
