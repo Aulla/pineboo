@@ -128,7 +128,6 @@ class PNBuffer(object):
 
                     value = v_large if v_large else value
                 else:
-                    LOGGER.warning("^ FILEDNAME:%s, TYPE:%s" % (field_name, type_))
                     value = utils_database.resolve_qsa_value(type_, value)
             elif return_none is False:
                 value = utils_database.resolve_empty_qsa_value(type_)

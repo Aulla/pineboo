@@ -1,6 +1,7 @@
 """
 Data Types for QSA.
 """
+
 import codecs
 
 import os
@@ -522,7 +523,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """Return error string."""
         return self._q_file.errorString()
 
-    def read(self, bytes: bool = False) -> str:
+    def read(self, bytes_: bool = False) -> str:
         """
         Read file completely.
 
@@ -532,8 +533,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         if not self._file_name:
             raise ValueError("self._file_name is not defined!")
-
-        file_ = codecs.open(self._file_name, "r" if not bytes else "rb", encoding=self._encode)
+        if not bytes_:
+            file_ = codecs.open(self._file_name, "r", encoding=self._encode)
+        else:
+            file_ = open(self._file_name, "rb")
         ret = file_.read()
         file_.close()
         self.eof = True
@@ -541,7 +544,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     def readAll(self) -> str:
         """Read file completely."""
-        return self.read()
+        return self.read(True)
 
     def write(self, data: Union[str, bytes], length: int = -1) -> None:
         """
