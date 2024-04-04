@@ -106,7 +106,6 @@ class AQSql(object):
         table_or_cursor: Union[str, "isqlcursor.ISqlCursor"],
         fields: Union[List[str], types.Array],
         values: Union[List[Any], types.Array],
-        where: str = "",
         conn: str = "default",
     ):
         """Insert a record in a cursor."""
