@@ -381,7 +381,7 @@ class TestFile(unittest.TestCase):
         )
         contenido = "Texto escrito en bytes\n".encode("utf-8")
         types.File(temporal).write(contenido)
-        contenido_2 = types.File(temporal).read(True)
+        contenido_2 = types.File(temporal).read()
         self.assertEqual(contenido, contenido_2.encode("utf-8"))
         os.remove(temporal)
 
@@ -394,7 +394,7 @@ class TestFile(unittest.TestCase):
         )
         contenido = "Texto\n".encode("utf-8")
         types.File(temporal).write(contenido)
-        contenido_2 = types.File(temporal).read(True)
+        contenido_2 = types.File(temporal).read()
         self.assertEqual(contenido, contenido_2.encode("utf-8"))
         os.remove(temporal)
 
