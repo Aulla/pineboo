@@ -221,6 +221,17 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry.from_(), "agentes")
         self.assertEqual(qry.fieldList(), ["cast (max(codagente) as integer)", "campo_dos"])
 
+    def test_sql_injection(self) -> None:
+        """Test sql injection."""
+
+        qry = pnsqlquery.PNSqlQuery("fake")
+
+        qry.sql_inspector._check_sql_injection(["email", "=", "'ncastanaresrodriguez@gmail.com'"])
+        self.assertFalse(
+            qry.sql_inspector.suspected_injection(),
+            "SOSPECHOSO : %s" % qry.sql_inspector._suspected_injection,
+        )
+
     def test_only_inspector(self) -> None:
         """Test only inspector."""
 
