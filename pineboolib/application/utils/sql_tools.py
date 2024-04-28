@@ -618,7 +618,6 @@ class SqlInspector(object):
     def _check_sql_injection(self, where: List[str]) -> None:
         """Examine the query for suspected sql injection."""
         infected = ""
-        print("CHECK!", where)
 
         # 1 concatenado.
         for word in (item for item in where if len(item) > 30):
@@ -630,7 +629,6 @@ class SqlInspector(object):
             ]:
                 infected = word
                 break
-        print("CHECK2", infected)
         # 2 bypass
         if not infected:
             rep = dict((re.escape(character), "") for character in self._suspicious_characters)
