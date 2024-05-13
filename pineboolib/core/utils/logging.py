@@ -31,7 +31,10 @@ log_file_dir = (
 if not os.access(log_file_dir, os.W_OK):
     log_file_dir = os.path.expanduser("~")
 
-LOG_FILE_PATH: str = os.path.join(log_file_dir, "Pineboo", "pineboo.log")
+file_dir: str = os.environ.get("PINEBOODIR")
+if not file_dir:
+    file_dir = os.path.join(log_file_dir, "Pineboo")
+LOG_FILE_PATH: str = os.path.join(file_dir, "pineboo.log")
 LOG_FILE_BACKUP_COUNTS: int = 30  # ficheros de backup
 LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s"
 
