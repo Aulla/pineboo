@@ -122,7 +122,7 @@ def get_logger(name: Optional[str] = None) -> Logger:
             file_handler = handlers.TimedRotatingFileHandler(
                 LOG_FILE_PATH, backupCount=LOG_FILE_BACKUP_COUNTS, when="midnight"
             )
-            file_handler.setLevel(logger.level)
+            file_handler.setLevel(INFO)
             file_handler.setFormatter(python_logging.Formatter(LOG_FILE_FORMAT))
             file_handler.rotator = (
                 GZipRotator()
