@@ -3,9 +3,18 @@ Replacement for Python logging that adds trace and other methods.
 
 It allows MyPy/PyType to properly keep track of the new message types
 """
+
 import logging as python_logging
+from logging import handlers
 from logging import basicConfig  # noqa: F401
 from typing import Any, Set, Optional
+import os
+
+from .. import (
+    LOG_FILE_PATH,
+    LOG_FILE_BACKUP_COUNTS,
+    LOG_FILE_FORMAT,
+)
 
 CRITICAL = 50
 FATAL = CRITICAL
@@ -64,6 +73,7 @@ def get_logger(name: Optional[str] = None) -> Logger:
 
     If no name is specified, return the root logger.
     """
+
     if name:
         # print(name)
         # if not name.startswith("pineboolib."):
@@ -72,6 +82,26 @@ def get_logger(name: Optional[str] = None) -> Logger:
         Logger.PINEBOO_LOGGERS.add(logger)
         if Logger.PINEBOO_DEFAULT_LEVEL != 0 and logger.level == 0:
             logger.setLevel(Logger.PINEBOO_DEFAULT_LEVEL)
+
+        can_log_to_file = True
+        base_dir = os.path.dirname(LOG_FILE_PATH)
+        if not os.path.exists(base_dir):
+            try:
+                os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
+            except Exception:
+
+                can_log_to_file = False
+        if can_log_to_file:
+            can_log_to_file = os.access(base_dir, os.W_OK)
+
+        if not can_log_to_file:
+            logger.error("* Cannot write to log file %s (%s)" % (LOG_FILE_PATH, name))
+        else:
+            file_handler = handlers.TimedRotatingFileHandler(
+                LOG_FILE_PATH, backupCount=LOG_FILE_BACKUP_COUNTS, when="midnight"
+            )
+            file_handler.setFormatter(python_logging.Formatter(LOG_FILE_FORMAT))
+            logger.addHandler(file_handler)
 
         return logger
     else:
