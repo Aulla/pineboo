@@ -35,7 +35,7 @@ file_dir: str = os.environ.get("PINEBOODIR")
 if not file_dir:
     file_dir = os.path.join(log_file_dir, "Pineboo")
 else:
-    file_dir = os.path.join("/pineboo", "log")
+    file_dir = os.path.join("/pineboo/pineboo", "log")
 LOG_FILE_PATH: str = os.path.join(file_dir, "pineboo.log")
 LOG_FILE_BACKUP_COUNTS: int = 30  # ficheros de backup
 LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s"
