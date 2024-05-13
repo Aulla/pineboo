@@ -28,15 +28,18 @@ NOTSET = 0
 log_file_dir = (
     "/var/log" if not sys.platform.startswith("win") else os.path.join(os.environ["ProgramFiles"])
 )
+
+
 if not os.access(log_file_dir, os.W_OK):
-    log_file_dir = os.path.expanduser("~")
+    log_file_dir = os.path.join(os.path.expanduser("~"), "Pineboo", "log")
+else:
+    log_file_dir = os.path.join(log_file_dir, "Pineboo")
 
 file_dir: str = os.environ.get("PINEBOODIR")
-if not file_dir:
-    file_dir = os.path.join(log_file_dir, "Pineboo")
-else:
-    file_dir = os.path.join("/pineboo/pineboo", "log")
-LOG_FILE_PATH: str = os.path.join(file_dir, "pineboo.log")
+if file_dir:
+    log_file_dir = os.path.join(file_dir, "log")
+
+LOG_FILE_PATH: str = os.path.join(log_file_dir, "pineboo.log")
 LOG_FILE_BACKUP_COUNTS: int = 30  # ficheros de backup
 LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s"
 
