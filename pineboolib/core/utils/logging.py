@@ -9,12 +9,8 @@ from logging import handlers
 from logging import basicConfig  # noqa: F401
 from typing import Any, Set, Optional
 import os
-
-from .. import (
-    LOG_FILE_PATH,
-    LOG_FILE_BACKUP_COUNTS,
-    LOG_FILE_FORMAT,
-)
+import sys
+import gzip
 
 CRITICAL = 50
 FATAL = CRITICAL
@@ -28,6 +24,27 @@ NOTICE = 15  # NEW
 DEBUG = 10
 TRACE = 5  # NEW
 NOTSET = 0
+
+log_file_dir = (
+    "/var/log" if not sys.platform.startswith("win") else os.path.join(os.environ["ProgramFiles"])
+)
+if not os.access(log_file_dir, os.W_OK):
+    log_file_dir = os.path.expanduser("~")
+
+LOG_FILE_PATH: str = os.path.join(log_file_dir, "Pineboo", "pineboo.log")
+LOG_FILE_BACKUP_COUNTS: int = 30  # ficheros de backup
+LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s"
+
+
+class GZipRotator:
+    def __call__(self, source, dest):
+        os.rename(source, dest)
+        f_in = open(dest, "rb")
+        f_out = gzip.open("%s.gz" % dest, "wb")
+        f_out.writelines(f_in)
+        f_out.close()
+        f_in.close()
+        os.remove(dest)
 
 
 class Logger(python_logging.Logger):
@@ -101,6 +118,9 @@ def get_logger(name: Optional[str] = None) -> Logger:
                 LOG_FILE_PATH, backupCount=LOG_FILE_BACKUP_COUNTS, when="midnight"
             )
             file_handler.setFormatter(python_logging.Formatter(LOG_FILE_FORMAT))
+            file_handler.rotator = (
+                GZipRotator()
+            )  # https://stackoverflow.com/questions/8467978/python-want-logging-with-log-rotation-and-compression
             logger.addHandler(file_handler)
 
         return logger
