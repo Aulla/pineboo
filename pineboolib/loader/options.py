@@ -49,6 +49,14 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
+        "-e",
+        "--external_modules",
+        dest="external_modules",
+        help="use external folder which contains python modules to load.",
+        metavar="EXTERNAL_MODULES",
+    )
+
+    parser.add_option(
         "-v", "--verbose", action="count", default=0, help="increase verbosity level"
     )  # default a 2 para ver los logger.info, 1 no los muestra
     parser.add_option("-q", "--quiet", action="count", default=0, help="decrease verbosity level")

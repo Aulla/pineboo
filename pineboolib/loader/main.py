@@ -1,6 +1,5 @@
 """Main module for starting up Pineboo."""
 
-
 from pineboolib import application, logging
 
 from pineboolib.core import settings
@@ -341,6 +340,10 @@ def exec_main(options: "optparse.Values") -> int:
     Handles optionlist and help.
     Also initializes all the objects
     """
+
+    if options.external_modules:
+        LOGGER.warn("Using external modules from %s", options.external_modules)
+        sys.path.insert(0, options.external_modules)
 
     init_cli()
 
