@@ -53,7 +53,7 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
         "--external_modules",
         dest="external_modules",
         help="use external folder which contains python modules to load.",
-        metavar="EXTERNAL_MODULES",
+        metavar="EXTERNAL_MODULES_PATH",
     )
 
     parser.add_option(
