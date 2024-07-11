@@ -1,6 +1,5 @@
-alembic>=1.7.7 # 1.8.8
+alembic>=1.13.2
 black==23.11
-clipboard==0.0.4
 coloredlogs==14.0
 cryptography==36.0.1
 fernet==1.0.1

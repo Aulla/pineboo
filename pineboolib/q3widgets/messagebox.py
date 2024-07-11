@@ -6,7 +6,6 @@ from PyQt6 import QtWidgets  # type: ignore[import]
 from pineboolib import application
 from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
-import clipboard  # type: ignore [import] # noqa: F821
 
 from typing import Optional, List
 
@@ -88,7 +87,10 @@ class MessageBox:
 
         result = cls.msgbox("warning", *args)
         if not getattr(application, "TESTING_MODE", None):
-            clipboard.copy(str(text_))
+            clip_board = QtWidgets.QApplication.clipboard()
+            if clip_board:
+                clip_board.clear()
+                clip_board.setText(str(text_))
         return result
 
     @classmethod
@@ -98,5 +100,8 @@ class MessageBox:
         text_ = args[0] if isinstance(args[0], str) else args[2]
         result = cls.msgbox("critical", *args)
         if not getattr(application, "TESTING_MODE", None):
-            clipboard.copy(str(text_))
+            clip_board = QtWidgets.QApplication.clipboard()
+            if clip_board:
+                clip_board.clear()
+                clip_board.setText(str(text_))
         return result
