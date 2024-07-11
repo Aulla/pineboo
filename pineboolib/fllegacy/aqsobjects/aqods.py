@@ -7,13 +7,12 @@ Generate .ods files (Opendocument Spreadsheet)
 from typing import Union, List, Any, Tuple, Optional, TYPE_CHECKING
 
 
-import odf  # type: ignore
-from odf import table, style  # type: ignore
-
 from pineboolib import logging
 
 if TYPE_CHECKING:
     from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore # pragma: no cover
+    from odf import table, style  # type: ignore
+    import odf  # type: ignore
 
 
 LOGGER = logging.get_logger(__name__)
@@ -147,7 +146,7 @@ class AQOdsSheet(object):
 
     num_rows_: int
     spread_sheet_parent_: "OpenDocumentSpreadsheet"
-    sheet_: table.Table
+    sheet_: "table.Table"
 
     def __init__(self, spread_sheet: AQOdsSpreadSheet, sheet_name: str) -> None:
         """
@@ -181,8 +180,8 @@ class AQOdsRow(object):
     """AQOdsRow."""
 
     sheet_: AQOdsSheet
-    row_: table.TableRow
-    cells_list_: List[table.TableCell]
+    row_: "table.TableRow"
+    cells_list_: List["table.TableCell"]
     style_cell_text_: Optional[str]
     fix_precision_: Optional[int]
     row_color_: Optional[str]
@@ -194,6 +193,7 @@ class AQOdsRow(object):
 
         @param sheet. Parent Document Sheet.
         """
+        from odf import table  # type: ignore
 
         self.sheet_ = sheet
 
@@ -222,6 +222,7 @@ class AQOdsRow(object):
 
         from odf.text import P, Span  # type: ignore
         from odf.draw import Frame, Image  # type: ignore
+        from odf import element as odf_elem  # type: ignore
 
         if isinstance(opt, float):
             if self.fix_precision_ is not None:
@@ -267,7 +268,7 @@ class AQOdsRow(object):
                 # self.coveredCell()
                 # self.opIn(href)
                 # print("FIXME:: Vacio", href)
-            elif isinstance(opt, odf.element.Element):
+            elif isinstance(opt, odf_elem.Element):
                 if opt.tagName in ("style:paragraph-properties", "style:table-cell-properties"):
                     import copy
 
@@ -279,12 +280,14 @@ class AQOdsRow(object):
                 else:
                     LOGGER.warning("%s:Parámetro desconocido %s", __name__, opt.tagName)
 
-    def __newCell__(self) -> Tuple[table.TableCell, style.Style]:
+    def __newCell__(self) -> Tuple["table.TableCell", "style.Style"]:
         """
         Return new cell This is created by assigning the value to the previous one.
 
         @return Tuple(TableCell, Style)
         """
+
+        from odf import table, style  # type: ignore
 
         style_cell = style.Style(
             name="stylecell_%s_%s" % (len(self.cells_list_), self.sheet_.rowsCount()),
@@ -374,76 +377,84 @@ class AQOdsStyle(object):
             else:
                 raise ValueError("Unknown flag!")
 
-    def alignCenter(self) -> style.ParagraphProperties:
+    def alignCenter(self) -> "style.ParagraphProperties":
         """
         Align a cell to the center property.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         return style.ParagraphProperties(textalign="center")
 
-    def alignRight(self) -> style.ParagraphProperties:
+    def alignRight(self) -> "style.ParagraphProperties":
         """
         Align a cell to the right property.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         return style.ParagraphProperties(textalign="right")
 
-    def alignLeft(self) -> style.ParagraphProperties:
+    def alignLeft(self) -> "style.ParagraphProperties":
         """
         Align a cell to the left property.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         return style.ParagraphProperties(textalign="left")
 
-    def textBold(self) -> style.Style:
+    def textBold(self) -> "style.Style":
         """
         Return text bold property.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         bold_style = style.Style(name="Bold", family="text")
         bold_style.addElement(style.TextProperties(fontweight="bold"))
         return bold_style
 
-    def textUnderline(self) -> style.Style:
+    def textUnderline(self) -> "style.Style":
         """
         Return text bold property.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         bold_style = style.Style(name="Underline", family="text")
         bold_style.addElement(style.TextProperties(fontstyle="underline"))
         return bold_style
 
-    def textItalic(self) -> style.Style:
+    def textItalic(self) -> "style.Style":
         """
         Return italic text.
 
         @return Style Property.
         """
+        from odf import style  # type: ignore
 
         italic_style = style.Style(name="Italic", family="text")
         italic_style.addElement(style.TextProperties(fontstyle="italic"))
         return italic_style
 
-    def borderBottom(self) -> style.TableCellProperties:
+    def borderBottom(self) -> "style.TableCellProperties":
         """
         Return the property of the lower edge of a cell.
 
         @return Table cell property.
         """
 
+        from odf import style  # type: ignore
+
         return style.TableCellProperties(borderbottom="1pt solid #000000")
 
-    def borderLeft(self) -> style.TableCellProperties:
+    def borderLeft(self) -> "style.TableCellProperties":
         """
         Return the property of the left edge of a cell.
 
@@ -454,7 +465,7 @@ class AQOdsStyle(object):
 
         return style.TableCellProperties(borderleft="1pt solid #000000")
 
-    def borderRight(self) -> style.TableCellProperties:
+    def borderRight(self) -> "style.TableCellProperties":
         """
         Return the property of the right edge of a cell.
 
@@ -465,7 +476,7 @@ class AQOdsStyle(object):
 
         return style.TableCellProperties(borderright="1pt solid #000000")
 
-    def borderTop(self) -> style.TableCellProperties:
+    def borderTop(self) -> "style.TableCellProperties":
         """
         Return the property of the upper edge of a cell.
 
