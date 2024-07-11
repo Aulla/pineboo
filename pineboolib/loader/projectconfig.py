@@ -1,11 +1,10 @@
 """projectconfig module."""
 
-
 import base64
 import hashlib
 import os
 import pathlib
-import fernet  # type: ignore [import] # noqa: F821
+from cryptography import fernet  # type: ignore [import] # noqa: F821
 
 from xml.etree import ElementTree as ELT
 from typing import Tuple, Optional, Any
