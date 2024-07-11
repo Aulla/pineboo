@@ -8,12 +8,10 @@ Main entrance to the different AQS resources.
 from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # type: ignore[import]
 
 from pineboolib.core.utils import logging
-from pineboolib.fllegacy.aqsobjects import aqshttp
 
-from typing import Any, Optional, Union, cast, TYPE_CHECKING
+from typing import Any, Optional, Union, cast
 
-if TYPE_CHECKING:
-    from pineboolib.fllegacy.aqsobjects import aqods
+from pineboolib.fllegacy.aqsobjects import aqshttp, aqods
 
 LOGGER = logging.get_logger(__name__)
 
@@ -63,7 +61,7 @@ class Events(object):
     ContextMenu = QtGui.QContextMenuEvent
 
 
-class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, "aqods.OdsStyleFlags", Events):
+class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, Events):
     """AQS Class."""
 
     Box = None
