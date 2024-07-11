@@ -31,8 +31,6 @@ from pineboolib.fllegacy import (
     flspinbox,
 )
 
-from pineboolib.fllegacy.aqsobjects import aqods
-
 from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -2446,9 +2444,11 @@ class FLTableDB(QtWidgets.QWidget):
         self.moveCol(_index, self._sort_column_1)
         self._table_records.sortByColumn(
             self._sort_column_1,
-            QtCore.Qt.SortOrder.AscendingOrder
-            if self._order_asc_1
-            else QtCore.Qt.SortOrder.DescendingOrder,
+            (
+                QtCore.Qt.SortOrder.AscendingOrder
+                if self._order_asc_1
+                else QtCore.Qt.SortOrder.DescendingOrder
+            ),
         )
 
     @decorators.pyqt_slot(int)
@@ -2651,6 +2651,8 @@ class FLTableDB(QtWidgets.QWidget):
         """
         if not self.cursor() or self.cursor().private_cursor.metadata_ is None:
             return
+
+        from pineboolib.fllegacy.aqsobjects import aqods
 
         cursor = pnsqlcursor.PNSqlCursor(self.cursor().curName())
         _filter = self.cursor().curFilter()

@@ -6,6 +6,9 @@ This module provides the different classes and AQS functions to be used in the m
 """
 import sys
 
+from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
+from pineboolib.core.utils.utils_base import is_library as __is_library
+
 # AQSObjects
 from pineboolib.fllegacy.aqsobjects.aqsettings import AQSettings  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsqlquery import AQSqlQuery  # noqa: F401
@@ -23,7 +26,9 @@ from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
 
-if not getattr(sys, "frozen", False):  # FIXME: No module named 'xml.sax.expatreader' in deploy
+if (
+    not __is_deployed() and not __is_library()
+):  # FIXME: No module named 'xml.sax.expatreader' in deploy
     from pineboolib.fllegacy.aqsobjects.aqods import (  # noqa: F401
         AQOdsGenerator,
         AQOdsSpreadSheet,

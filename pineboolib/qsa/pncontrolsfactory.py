@@ -188,6 +188,7 @@ from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import (  # noqa: F401
 
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
+from pineboolib.core.utils.utils_base import is_library as __is_library
 from pineboolib.application.database.orm.utils import OrmManager
 from pineboolib.application.database.utils import ClassManager
 
@@ -202,7 +203,7 @@ from pineboolib.application.signatures.xml_digest import XmlDigest  # noqa: F401
 from pineboolib.application.signatures.pdf_digest import PdfDigest  # noqa: F401
 from pineboolib.application.signatures.pdf_qr import PdfQr  # noqa: F401
 
-if not __is_deployed():
+if not __is_deployed() and not __is_library():
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsSheet, AQOdsRow  # noqa: F401
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle  # noqa: F401

@@ -247,8 +247,9 @@ from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
 from pineboolib.qsa.pncontrolsfactory import AQSButtonGroup  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
+from pineboolib.core.utils.utils_base import is_library as __is_library
 
-if not __is_deployed():
+if not __is_deployed() and not __is_library():
     # FIXME: No module named 'xml.sax.expatreader' in deploy
     from pineboolib.qsa.pncontrolsfactory import (  # noqa: F401
         AQOdsGenerator,
