@@ -155,6 +155,7 @@ class AQOdsSheet(object):
         @param spread_sheet. Spreadsheet.
         @param sheet_name. Name of the sheet.
         """
+        from odf import table
 
         self.spread_sheet_parent_ = spread_sheet.spread_sheet
         self.num_rows_ = 0
