@@ -1,4 +1,5 @@
 """Decorators module."""
+
 from pineboolib.core.utils import logging, utils_base
 from pineboolib import application
 from pineboolib.qsa import utils
@@ -17,7 +18,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":  # type: ignore [type-var, misc]
+def atomic(conn_name: str = "default", wait: bool = True, after_commit: Callable = None) -> "TYPEFN":  # type: ignore [type-var, misc]
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -38,11 +39,13 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":  # type: 
             try:
                 try:
                     with new_session.begin():
+                        session_id = utils_base.session_id()
+                        orig_transaction = new_session.transaction
                         LOGGER.debug(
                             "New atomic session : %s, connection : %s, transaction: %s",
                             new_session,
                             conn_name,
-                            new_session.transaction,
+                            orig_transaction,
                         )
 
                         try:
@@ -53,6 +56,19 @@ def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":  # type: 
                                     fun_.__module__,
                                     fun_,
                                 )
+                            elif new_session.transaction is not orig_transaction:
+                                LOGGER.warning(
+                                    "FIXME:: LA TRANSACCION ATOMICA FINAL NO ES LA INICIAL:\nmodule:%s\nfunction:%s\ninicial:%s\nfinal:%s\n",
+                                    fun_.__module__,
+                                    fun_,
+                                    orig_transaction,
+                                    new_session.transaction,
+                                )
+
+                            elif after_commit:
+                                # Solo se ejecuta si la transaccion inicial y final es la misma
+                                after_commit(session_id)
+
                         except Exception as error:
                             LOGGER.warning(
                                 "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
