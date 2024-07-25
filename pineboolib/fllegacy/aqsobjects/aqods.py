@@ -5,7 +5,10 @@ AQOds package.
 Generate .ods files (Opendocument Spreadsheet)
 """
 from typing import Union, List, Any, Tuple, Optional, TYPE_CHECKING
+from pineboolib.core.utils import utils_base
 
+if not utils_base.is_library():
+    from odf import table, style  # type: ignore
 
 from pineboolib import logging
 
