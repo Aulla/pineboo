@@ -18,7 +18,9 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default", wait: bool = True, after_commit: Optional[Callable] = None) -> "TYPEFN":  # type: ignore [type-var, misc]
+def atomic(
+    conn_name: str = "default", wait: bool = True, after_commit: Optional[Callable] = None
+) -> "TYPEFN":  # type: ignore [type-var, misc]
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:

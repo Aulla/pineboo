@@ -239,10 +239,12 @@ def sql_insert(
     """
     _value_list: Union[List[Any], types.Array] = (
         value_list_.split(",")
-        if isinstance(value_list_, str)  # type: ignore [list-item]
+        if isinstance(value_list_, str)
         else (
-            value_list_ if isinstance(value_list_, (List, types.Array)) else [value_list_]
-        )  # type: ignore [list-item]
+            value_list_
+            if isinstance(value_list_, (List, types.Array))
+            else [value_list_]  # type: ignore [list-item]
+        )
     )
 
     _field_list: Union[List[Any], types.Array] = (
