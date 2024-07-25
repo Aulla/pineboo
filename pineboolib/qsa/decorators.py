@@ -5,7 +5,7 @@ from pineboolib import application
 from pineboolib.qsa import utils
 
 
-from typing import Callable, Any, TypeVar, cast
+from typing import Callable, Any, TypeVar, cast, Optional
 
 import threading
 import functools
@@ -18,7 +18,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default", wait: bool = True, after_commit: Callable = None) -> "TYPEFN":  # type: ignore [type-var, misc]
+def atomic(conn_name: str = "default", wait: bool = True, after_commit: Optional[Callable] = None) -> "TYPEFN":  # type: ignore [type-var, misc]
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -65,8 +65,7 @@ def atomic(conn_name: str = "default", wait: bool = True, after_commit: Callable
 
                             elif after_commit:
                                 # Solo se ejecuta si la transaccion inicial y final es la misma
-                                after_commit(session_id)
-
+                                after_commit(session_id)  # type: ignore [truthy-function]
                         except Exception as error:
                             LOGGER.warning(
                                 "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",

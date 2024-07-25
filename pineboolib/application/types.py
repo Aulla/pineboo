@@ -536,7 +536,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not bytes_:
             file_ = codecs.open(self._file_name, "r", encoding=self._encode)
         else:
-            file_ = open(self._file_name, "rb")
+            file_ = open(self._file_name, "rb")  # type: ignore [assignment] # noqa: F821
         ret = file_.read()
         file_.close()
         self.eof = True

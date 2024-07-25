@@ -238,7 +238,7 @@ class TestDeleteData(unittest.TestCase):
         if meta_field is None:
             self.assertTrue(False, "No se encuentra el campo idarea (2)")
 
-        relations = meta_field.relationList()
+        relations = meta_field.relationList() if meta_field else []
         found = False
         for relation in relations:
             if relation.foreignTable() == "fake":

@@ -35,7 +35,7 @@ if not os.access(log_file_dir, os.W_OK):
 else:
     log_file_dir = os.path.join(log_file_dir, "Pineboo")
 
-file_dir: str = os.environ.get("PINEBOODIR")
+file_dir: Optional[str] = os.environ.get("PINEBOODIR")
 if file_dir:
     log_file_dir = os.path.join("/pineboo/pineboo", "log")
 
@@ -45,7 +45,7 @@ LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %
 
 
 class GZipRotator:
-    def __call__(self, source, dest):
+    def __call__(self, source: str, dest: str):
         os.rename(source, dest)
         f_in = open(dest, "rb")
         f_out = gzip.open("%s.gz" % dest, "wb")
