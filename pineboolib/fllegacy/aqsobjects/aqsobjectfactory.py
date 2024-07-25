@@ -4,8 +4,6 @@ AQSobjectsFactory Module.
 
 This module provides the different classes and AQS functions to be used in the module scripts.
 """
-import sys
-
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 from pineboolib.core.utils.utils_base import is_library as __is_library
 

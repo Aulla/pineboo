@@ -52,17 +52,15 @@ def atomic(conn_name: str = "default", wait: bool = True, after_commit: Callable
                             result_ = fun_(*args, **kwargs)
                             if new_session.transaction is None:
                                 LOGGER.warning(
-                                    "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nmodule:%s\nfunction:%s\n",
-                                    fun_.__module__,
-                                    fun_,
+                                    "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nmodule:%s\nfunction:%s\n"
+                                    % (fun_.__module__, fun_)
                                 )
                             elif new_session.transaction is not orig_transaction:
                                 LOGGER.warning(
-                                    "FIXME:: LA TRANSACCION ATOMICA FINAL NO ES LA INICIAL:\nmodule:%s\nfunction:%s\ninicial:%s\nfinal:%s\n",
-                                    fun_.__module__,
-                                    fun_,
-                                    orig_transaction,
-                                    new_session.transaction,
+                                    "FIXME:: LA TRANSACCION ATOMICA FINAL NO ES LA INICIAL:\n module:%s\n function:%s\n"
+                                    % (fun_.__module__, fun_)
+                                    + "inicial:%s\n final:%s\n"
+                                    % (orig_transaction, new_session.transaction)
                                 )
 
                             elif after_commit:
