@@ -128,12 +128,12 @@ class FLManagerModules(object):
             if flfiles_folder and application.USE_FLFILES_FOLDER_AS_STATIC_LOAD:
                 LOGGER.warning("USING FLFILES_FOLDER AS STATIC LOAD FOLDER!")
                 num_folders += 1 if self.addFolder(flfiles_folder, event_handler) else 0
-            else:
-                self.static_db_info_.readSettings()
-                for dir_path in self.static_db_info_.dirs_:
-                    LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
-                    if dir_path.active_:
-                        num_folders += 1 if self.addFolder(dir_path.path_, event_handler) else 0
+
+            self.static_db_info_.readSettings()
+            for dir_path in self.static_db_info_.dirs_:
+                LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
+                if dir_path.active_:
+                    num_folders += 1 if self.addFolder(dir_path.path_, event_handler) else 0
 
             if num_folders > 0:
                 event_handler.on_any_event = self.static_db_info_.msg_static_changed  # type: ignore [assignment]
