@@ -119,9 +119,13 @@ class AQStaticBdInfo(object):
 
             for key in list(sys.modules.keys()):
                 # Si el modulo esta en /external. lo recargamos
-                if getattr(sys.modules[key], "__file__", "").startswith("/external/") > -1:
-                    importlib.reload(sys.modules[key])
-                    LOGGER.warning("STATIC LOADER: RELOADING EXTERNAL MODULE %s", key)
+                file_name = getattr(sys.modules[key], "__file__", "")
+                if os.path.exists(file_name) and file_name.startswith("/external/") > -1:
+                    try:
+                        importlib.reload(sys.modules[key])
+                        LOGGER.warning("STATIC LOADER: RELOADING EXTERNAL MODULE %s", key)
+                    except Exception:
+                        LOGGER.warning("STATIC LOADER: ERROR RELOADING MODULE %s", key)
             application.PROJECT.aq_app.reinit()
         else:
             LOGGER.warning(
