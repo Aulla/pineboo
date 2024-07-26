@@ -122,6 +122,7 @@ class AQStaticBdInfo(object):
                 file_name = (
                     os.path.abspath(sys.modules[key].__file__)
                     if hasattr(sys.modules[key], "__file__")
+                    and sys.modules[key].__file__ is not None
                     else None
                 )
                 if (
