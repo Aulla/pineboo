@@ -119,9 +119,9 @@ class AQStaticBdInfo(object):
 
             for key in list(sys.modules.keys()):
                 # Si el modulo esta en /external. lo recargamos
-                file_name = getattr(sys.modules[key], "__file__")
+                file_name = sys.modules[key] if hasattr(sys.modules[key], "__file__") else None
                 if (
-                    file_name is not None
+                    file_name
                     and os.path.exists(file_name)
                     and file_name.startswith("/external/") > -1
                 ):
