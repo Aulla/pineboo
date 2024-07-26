@@ -14,6 +14,8 @@ from pineboolib.core.utils import logging, utils_base
 from pineboolib import application
 
 import os
+import importlib
+import sys
 from typing import List, Optional, cast, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -115,6 +117,11 @@ class AQStaticBdInfo(object):
             while application.PROJECT.aq_app._inicializing:
                 QtWidgets.QApplication.processEvents()
 
+            for key in list(sys.modules.keys()):
+                # Si el modulo esta en /external. lo recargamos
+                if getattr(sys.modules[key], "__file__", "").startswith("/external/") > -1:
+                    importlib.reload(sys.modules[key])
+                    LOGGER.warning("STATIC LOADER: RELOADING EXTERNAL MODULE %s", key)
             application.PROJECT.aq_app.reinit()
         else:
             LOGGER.warning(
