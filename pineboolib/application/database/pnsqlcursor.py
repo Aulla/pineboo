@@ -8,18 +8,24 @@ from PyQt6 import QtCore, QtWidgets  # type: ignore[import]
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core import decorators, settings, garbage_collector
 
+from pineboolib.application import qsadictmodules
+
+from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
+
+from pineboolib.application.acls import pnaccesscontrolfactory
+
 from pineboolib.application.database import pnsqlquery, utils
 from pineboolib.application.database.orm.utils import do_flush
-from pineboolib.application import qsadictmodules
-from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
-from pineboolib.application.acls import pnaccesscontrolfactory
+from pineboolib.application.database import pnbuffer
+from pineboolib.application.database import pncursortablemodel
+
+from pineboolib.application.metadata import pnaction
 
 from pineboolib import application
 
 from pineboolib.interfaces import isqlcursor
 
-from pineboolib.application.database import pnbuffer
-from pineboolib.application.database import pncursortablemodel
+
 
 
 import weakref
@@ -36,9 +42,6 @@ if TYPE_CHECKING:
     )  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import (
         pnrelationmetadata,
-    )  # noqa: F401 # pragma: no cover
-    from pineboolib.application.metadata import (
-        pnaction,
     )  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
 
@@ -2613,6 +2616,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                     if relation_m1 and relation_m1.deleteCascade():
                         cursor = PNSqlCursor(relation.foreignTable())
+
+                        if cursor.table() != relation.foreignTable():
+                            action_alt = pnaction.PNAction(relation.foreignTable())
+                            action_alt.setTable(relation.foreignTable())
+                            cursor.setAction(action_alt)
+
                         cursor.setForwardOnly(True)
                         cursor.select(
                             self.conn()
