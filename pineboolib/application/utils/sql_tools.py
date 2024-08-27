@@ -20,6 +20,7 @@ class SqlInspector(object):
 
     _sql_list: List[str]
     _sql: str
+    _sql_original: str
     _invalid_tables: List[str]
     _mtd_fields: Dict[int, "ifieldmetadata.IFieldMetaData"]
     _field_list: Dict[str, int]
@@ -64,6 +65,7 @@ class SqlInspector(object):
         Initialize the class.
         """
         self._sql = ""
+        self._sql_original = ""
         self._list_sql = []
         self._field_list = {}
         self._table_names = []
@@ -163,6 +165,7 @@ class SqlInspector(object):
 
     def set_sql(self, sql: str) -> None:
         """Set sql query."""
+        self._sql_original = sql
         sql = sql.lower()
         sql = sql.replace("\n", " ")
         sql = sql.replace("\t", " ")
@@ -241,7 +244,9 @@ class SqlInspector(object):
         """
         for k in self._field_list.keys():
             if int(self._field_list[k]) == pos:
-                return k
+                idx_inicio = self._sql.find(k)
+                return self._sql_original[idx_inicio : idx_inicio + len(k)]
+
         raise Exception("fieldName not found! %s")
 
     def _resolve_fields(self) -> None:

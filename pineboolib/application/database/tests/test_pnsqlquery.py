@@ -51,7 +51,7 @@ class TestPNSqlQuery1(unittest.TestCase):
 
         qry2 = pnsqlquery.PNSqlQuery("fltest")
         qry2.setSelect(
-            "id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo"
+            "SUM(id),id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo"
         )
         qry2.setFrom("fltest")
         qry2.setWhere("id>='0' AND id<='1'")
@@ -59,25 +59,26 @@ class TestPNSqlQuery1(unittest.TestCase):
 
         self.assertEqual(
             qry2.sql(),
-            "SELECT id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo FROM fltest"
+            "SELECT SUM(id),id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo FROM fltest"
             + " WHERE id>='0' AND id<='1' ORDER BY string_field",
         )
 
         self.assertEqual(qry.name(), "fltest2")
         self.assertEqual(qry.where(), "id>=[from] AND id<=[to]")
         self.assertEqual(qry.orderBy(), "fltest.id")
-        qry.setSelect(["id", "fltest.string_field"])
+        qry.setSelect(["SUM(id)", "id", "fltest.string_field"])
         self.assertEqual(len(qry.parameterDict()), 2)
         self.assertEqual(len(qry.groupDict()), 1)
-        self.assertEqual(qry.fieldList(), ["id", "fltest.string_field"])
-        self.assertEqual(qry.posToFieldName(0), "id")
-        self.assertEqual(qry.posToFieldName(1), "fltest.string_field")
-        self.assertEqual(qry.fieldNameToPos("fltest.string_field"), 1)
-        self.assertEqual(qry.fieldNameToPos("string_field"), 1)
+        self.assertEqual(qry.fieldList(), ["SUM(id)", "id", "fltest.string_field"])
+        self.assertEqual(qry.posToFieldName(0), "SUM(id)")
+        self.assertEqual(qry.posToFieldName(1), "id")
+        self.assertEqual(qry.posToFieldName(2), "fltest.string_field")
+        self.assertEqual(qry.fieldNameToPos("fltest.string_field"), 2)
+        self.assertEqual(qry.fieldNameToPos("string_field"), 2)
         qry.setName("fltest2_dos")
 
         self.assertEqual(qry.name(), "fltest2_dos")
-        self.assertEqual(len(qry.fieldMetaDataList()), 2)
+        self.assertEqual(len(qry.fieldMetaDataList()), 3)
 
     def test_basic_2(self) -> None:
         """Test basic_2."""
