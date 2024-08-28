@@ -26,8 +26,6 @@ from pineboolib import application
 from pineboolib.interfaces import isqlcursor
 
 
-
-
 import weakref
 import datetime
 
@@ -250,6 +248,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else ""
         )
         return ret or ""
+
+    def setInitOrm(self, initorm: bool):
+        """
+        Set initorm flag for this cursor.
+        """
+        self.private_cursor._init_orm = initorm
 
     def action(self) -> Optional["pnaction.PNAction"]:
         """
@@ -1814,6 +1818,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 self.private_cursor.buffer_ = pnbuffer.PNBuffer(self)
 
+            self.buffer()._init_orm = self.private_cursor._init_orm
             self.buffer().prime_insert()
 
             # self.setNotGenerateds()
@@ -3251,7 +3256,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         # self.rawValues_ = False
         self._persistent_filter = None
         self.db_ = db_
-
+        self._init_orm = True
         self._id_acl = ""
         # self.nameCursor = "%s_%s" % (
         #    act_.name(),

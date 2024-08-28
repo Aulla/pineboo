@@ -63,6 +63,7 @@ class PNBuffer(object):
     _generated_fields: List[str]
     _cache_buffer: Dict[str, TVALUES]
     _cursor: "isqlcursor.ISqlCursor"
+    _init_orm: bool
 
     def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
@@ -73,6 +74,7 @@ class PNBuffer(object):
         self._orm_obj = None
         self._generated_fields = []
         self._cache_buffer = {}
+        self._init_orm = True
 
     def prime_insert(self, row: Optional[int] = None) -> None:
         """
@@ -81,7 +83,9 @@ class PNBuffer(object):
         @param row = cursor line.
         """
         self.clear()
-        self._orm_obj = self._cursor._cursor_model(session=self._cursor.db().session())
+        self._orm_obj = self._cursor._cursor_model(
+            session=self._cursor.db().session(), no_init=not self._init_orm
+        )
 
     def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""

@@ -195,6 +195,7 @@ class ICursorPrivate(QtCore.QObject):
     _id_acos = 0
     _id_cond = 0
     id_ = "000"
+    _init_orm: bool = False
 
     """ Uso interno """
     _is_system_table: bool
@@ -774,5 +775,10 @@ class ISqlCursor(QtCore.QObject):
 
     def restorePersistentFilterBeforeDelegate(self):
         """Restaura persistent filter despues de hacer commit."""
+
+        pass
+
+    def setInitOrm(self, initorm: bool) -> None:
+        """Set init orm."""
 
         pass
