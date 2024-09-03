@@ -98,7 +98,8 @@ class AQStaticBdInfo(object):
             return
 
         if event.src_path.upper().find("__PYCACHE__") > -1 or event.event_type.upper() in (
-            "OPENED"
+            "OPENED",
+            "CLOSED_NO_WRITE",
         ):
             return
 
