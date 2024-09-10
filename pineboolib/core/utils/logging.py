@@ -37,7 +37,7 @@ else:
 
 file_dir: Optional[str] = os.environ.get("PINEBOODIR")
 if file_dir:
-    log_file_dir = os.path.join("/pineboo/pineboo", "log")
+    log_file_dir = os.path.join(file_dir, "log")
 
 LOG_FILE_PATH: str = os.path.join(log_file_dir, "pineboo.log")
 LOG_FILE_BACKUP_COUNTS: int = 30  # ficheros de backup
