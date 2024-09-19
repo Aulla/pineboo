@@ -199,6 +199,13 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
+        "--external",
+        dest="external",
+        help="load external python module",
+        metavar="MODULE_DIR",
+    )
+
+    parser.add_option(
         "--parse-project",
         action="store_false",
         dest="parse_project_on_init",

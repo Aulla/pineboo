@@ -103,6 +103,13 @@ def startup(enable_gui: Optional[bool] = None) -> None:
     if application.DEVELOPER_MODE:
         LOGGER.info("Developer mode activated")
 
+    if options.external:
+        if not os.path.exists(options.external):
+            LOGGER.error("External: %s is not a valid directory", options.external)
+            sys.exit(1)
+        LOGGER.info("External: Adding %s to sys.path", options.external)
+        sys.path.insert(0, options.external)
+
     ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 
     gc.collect()
