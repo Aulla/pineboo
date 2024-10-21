@@ -97,7 +97,13 @@ class AQStaticBdInfo(object):
         if not isinstance(event.src_path, str) or not event.src_path.find(".") > -1:
             return
 
-        if event.src_path.upper().find("__PYCACHE__") > -1 or event.event_type.upper() in (
+        src_upper: str = event.src_path.upper()
+
+        if src_upper.find("__PYCACHE__") > -1:
+            return
+        if src_upper.find(".MYPY_CACHE") > -1:
+            return
+        if src_upper in (
             "OPENED",
             "CLOSED_NO_WRITE",
         ):
