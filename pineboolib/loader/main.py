@@ -68,6 +68,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if not application.PROJECT.init_conn(connection=conn_):
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
+    _load_project_config_file()
+
     _initialize_data(True)
 
 
@@ -115,21 +117,26 @@ def startup(enable_gui: Optional[bool] = None) -> None:
 
         application.PROJECT_NAME = options.project_name
 
-    if application.PROJECT_NAME:
-        path_config = os.path.join(
-            options.external or "/external", "apps", application.PROJECT_NAME, "config.py"
-        )
-        LOGGER.info("PROJECT_NAME: %s, CONFIG: %s" % (options.project_name, path_config))
-        if os.path.exists(path_config):
-            import_path("config_project", path_config)
-        else:
-            LOGGER.warning("Config file not found: %s", path_config)
+    _load_project_config_file(options.external)
 
     ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 
     gc.collect()
     LOGGER.info("Closing Pineboo...")
     sys.exit(ret if ret else 0)
+
+
+def _load_project_config_file(external: str = "/external") -> None:
+    """Load project config."""
+    if application.PROJECT_NAME:
+        path_config = os.path.abspath(
+            os.path.join(external, "apps", application.PROJECT_NAME, "config.py")
+        )
+        LOGGER.info("PROJECT_NAME: %s, CONFIG: %s" % (application.PROJECT_NAME, path_config))
+        if os.path.exists(path_config):
+            import_path("config_project", path_config)
+        else:
+            LOGGER.warning("Config file not found: %s", path_config)
 
 
 def init_logging(
