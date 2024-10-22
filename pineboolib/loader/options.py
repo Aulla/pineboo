@@ -206,6 +206,13 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
+        "--project-name",
+        dest="project_name",
+        help="Project name",
+        metavar="PROJECT_NAME",
+    )
+
+    parser.add_option(
         "--parse-project",
         action="store_false",
         dest="parse_project_on_init",

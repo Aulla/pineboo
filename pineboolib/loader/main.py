@@ -7,6 +7,7 @@ from pineboolib.core import settings
 from pineboolib.loader import dgi as dgi_module
 from pineboolib.loader import connection
 from pineboolib.core.utils import utils_base
+from pineboolib.application.load_script import import_path
 
 import gc
 import sys
@@ -109,6 +110,20 @@ def startup(enable_gui: Optional[bool] = None) -> None:
             sys.exit(1)
         LOGGER.info("External: Adding %s to sys.path", options.external)
         sys.path.insert(0, options.external)
+
+    if options.project_name:
+
+        application.PROJECT_NAME = options.project_name
+
+    if application.PROJECT_NAME:
+        path_config = os.path.join(
+            options.external or "/external", "apps", application.PROJECT_NAME, "config.py"
+        )
+        LOGGER.info("PROJECT_NAME: %s, CONFIG: %s" % (options.project_name, path_config))
+        if os.path.exists(path_config):
+            import_path("config_project", path_config)
+        else:
+            LOGGER.warning("Config file not found: %s", path_config)
 
     ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 

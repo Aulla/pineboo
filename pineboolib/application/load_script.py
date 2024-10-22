@@ -290,6 +290,12 @@ def _load(  # type: ignore [return] # noqa: F821, F723
         else:
             raise PermissionError
 
+    return import_path(module_name, script_name, capture_error)
+
+
+def import_path(module_name: str, script_name: str, capture_error: bool = True) -> "ModuleType":
+    """Import path."""
+
     try:
         spec: Optional["ModuleSpec"] = util.spec_from_file_location(module_name, script_name)
         if spec and spec.loader is not None:

@@ -14,7 +14,7 @@ SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 ID_SESSION: str = ""
 
-PINEBOO_VER = "0.99.88.1"
+PINEBOO_VER = "0.99.88.2"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CONNECTION_EVENTS: bool = False  # Enable show debug when connection is closed.
@@ -36,3 +36,4 @@ PERSISTENT: Dict[str, Any] = {}
 USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
 TESTING_MODE: bool = False  # True when testing_mode else False
 ALLOW_ALTER_TABLE: bool = True
+PROJECT_NAME: str = None  # Nombre del proyecto
