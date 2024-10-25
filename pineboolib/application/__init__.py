@@ -37,3 +37,4 @@ USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
 TESTING_MODE: bool = False  # True when testing_mode else False
 ALLOW_ALTER_TABLE: bool = True
 PROJECT_NAME: str = None  # Nombre del proyecto
+EXTERNAL_FOLDER: str = None  # Carpeta externa

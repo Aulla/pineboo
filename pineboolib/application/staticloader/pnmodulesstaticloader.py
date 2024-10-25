@@ -12,6 +12,7 @@ from pineboolib.core import settings, decorators
 from pineboolib.core.utils import logging, utils_base
 
 from pineboolib import application
+from pineboolib.application.utils import external
 
 import os
 import importlib
@@ -98,12 +99,13 @@ class AQStaticBdInfo(object):
             return
 
         src_upper: str = event.src_path.upper()
+        type_upper: str = event.event_type.upper()
 
         if src_upper.find("__PYCACHE__") > -1:
             return
         if src_upper.find(".MYPY_CACHE") > -1:
             return
-        if src_upper in (
+        if type_upper in (
             "OPENED",
             "CLOSED_NO_WRITE",
         ):
@@ -117,13 +119,13 @@ class AQStaticBdInfo(object):
         if utils_base.is_library():
             LOGGER.warning(
                 "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
-                event.src_path.upper(),
-                event.event_type.upper(),
+                src_upper,
+                type_upper,
             )
 
             while application.PROJECT.aq_app._inicializing:
                 QtWidgets.QApplication.processEvents()
-
+            reinit_external = False
             for key in list(sys.modules.keys()):
                 # Si el modulo esta en /external. lo recargamos
                 file_name = (
@@ -132,17 +134,30 @@ class AQStaticBdInfo(object):
                     and sys.modules[key].__file__ is not None
                     else None
                 )
-                if file_name and os.path.exists(file_name) and file_name.startswith("/external/"):
+                if (
+                    file_name
+                    and os.path.exists(file_name)
+                    and file_name.startswith("/external/")
+                    or (
+                        application.EXTERNAL_FOLDER
+                        and file_name.startswith(application.EXTERNAL_FOLDER)
+                    )
+                ):
                     try:
                         LOGGER.warning(
                             "STATIC LOADER: Reloading external module %s -> %s" % (key, file_name)
                         )
                         importlib.reload(sys.modules[key])
+                        reinit_external = True
+
                     except Exception as error:
                         LOGGER.warning(
                             "STATIC LOADER: Error reloading external module %s, Error: %s"
                             % (key, str(error))
                         )
+
+            if reinit_external:
+                external.load_project_config_file()
             application.PROJECT.aq_app.reinit()
         else:
             LOGGER.warning(

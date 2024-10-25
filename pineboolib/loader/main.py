@@ -1,13 +1,14 @@
 """Main module for starting up Pineboo."""
 
 from pineboolib import application, logging
+from pineboolib.application.utils import external
 
 from pineboolib.core import settings
 
 from pineboolib.loader import dgi as dgi_module
 from pineboolib.loader import connection
 from pineboolib.core.utils import utils_base
-from pineboolib.application.load_script import import_path
+
 
 import gc
 import sys
@@ -68,7 +69,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if not application.PROJECT.init_conn(connection=conn_):
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    _load_project_config_file()
+    external.load_project_config_file()
 
     _initialize_data(True)
 
@@ -112,31 +113,20 @@ def startup(enable_gui: Optional[bool] = None) -> None:
             sys.exit(1)
         LOGGER.info("External: Adding %s to sys.path", options.external)
         sys.path.insert(0, options.external)
+        application.EXTERNAL_FOLDER = options.external
 
     if options.project_name:
 
         application.PROJECT_NAME = options.project_name
 
-    _load_project_config_file(options.external)
+    if options.external:
+        external.load_project_config_file(options.external)
 
     ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 
     gc.collect()
     LOGGER.info("Closing Pineboo...")
     sys.exit(ret if ret else 0)
-
-
-def _load_project_config_file(external: str = "/external") -> None:
-    """Load project config."""
-    if application.PROJECT_NAME:
-        path_config = os.path.abspath(
-            os.path.join(external, "apps", application.PROJECT_NAME, "config.py")
-        )
-        LOGGER.info("PROJECT_NAME: %s, CONFIG: %s" % (application.PROJECT_NAME, path_config))
-        if os.path.exists(path_config):
-            import_path("config_project", path_config)
-        else:
-            LOGGER.warning("Config file not found: %s", path_config)
 
 
 def init_logging(
