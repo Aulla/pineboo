@@ -107,6 +107,9 @@ def startup(enable_gui: Optional[bool] = None) -> None:
     if application.DEVELOPER_MODE:
         LOGGER.info("Developer mode activated")
 
+    if options.project_name:
+        application.PROJECT_NAME = options.project_name
+
     if options.external:
         if not os.path.exists(options.external):
             LOGGER.error("External: %s is not a valid directory", options.external)
@@ -114,13 +117,7 @@ def startup(enable_gui: Optional[bool] = None) -> None:
         LOGGER.info("External: Adding %s to sys.path", options.external)
         sys.path.insert(0, options.external)
         application.EXTERNAL_FOLDER = options.external
-
-    if options.project_name:
-
-        application.PROJECT_NAME = options.project_name
-
-    if options.external:
-        external.load_project_config_file(options.external)
+        external.load_project_config_file()
 
     ret = exec_main_with_profiler(options) if options.enable_profiler else exec_main(options)
 

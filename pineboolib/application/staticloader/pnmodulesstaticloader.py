@@ -125,9 +125,9 @@ class AQStaticBdInfo(object):
 
             while application.PROJECT.aq_app._inicializing:
                 QtWidgets.QApplication.processEvents()
-            reinit_external = False
+
             for key in list(sys.modules.keys()):
-                # Si el modulo esta en /external. lo recargamos
+                # Si el modulo esta en application.EXTERNAL_FOLDER. lo recargamos
                 file_name = (
                     os.path.abspath(sys.modules[key].__file__)
                     if hasattr(sys.modules[key], "__file__")
@@ -136,28 +136,21 @@ class AQStaticBdInfo(object):
                 )
                 if (
                     file_name
-                    and os.path.exists(file_name)
-                    and file_name.startswith("/external/")
-                    or (
-                        application.EXTERNAL_FOLDER
-                        and file_name.startswith(application.EXTERNAL_FOLDER)
-                    )
+                    and application.EXTERNAL_FOLDER
+                    and file_name.startswith(application.EXTERNAL_FOLDER)
                 ):
                     try:
                         LOGGER.warning(
                             "STATIC LOADER: Reloading external module %s -> %s" % (key, file_name)
                         )
                         importlib.reload(sys.modules[key])
-                        reinit_external = True
-
                     except Exception as error:
                         LOGGER.warning(
                             "STATIC LOADER: Error reloading external module %s, Error: %s"
                             % (key, str(error))
                         )
 
-            if reinit_external:
-                external.load_project_config_file()
+            external.reload_project_config()
             application.PROJECT.aq_app.reinit()
         else:
             LOGGER.warning(
