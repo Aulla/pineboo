@@ -1,4 +1,5 @@
 """Sys module."""
+
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import traceback
@@ -124,3 +125,40 @@ class FormInternalObj(qsa.FormDBWidget):
         """Return default delegateCommit."""
 
         return qsa.from_project("formHTTP").iface.saveCursor(cursor)
+
+    def controlDatosCacheo(cursor) -> bool:
+        """Return default controlDatosCacheo."""
+
+        modoAcceso: str
+        if not cursor.metadata().usedCachedFields():
+            return True
+
+        if cursor.modeAccess() == cursor.Edit:
+            modoAcceso = "Update"
+
+            registros = cursor.metadata().cachedFields()
+            if registros != "*":
+                camposCacheados = cursor.metadata().cachedFields().split(",")
+                cambios = False
+                for campo in camposCacheados:
+                    if cursor.valueBuffer(campo) != cursor.valueBufferCopy(campo):
+                        cambios = True
+                        break
+                if not cambios:
+                    return True
+        elif cursor.modeAccess() == cursor.Insert:
+            modoAcceso = "Insert"
+        elif cursor.modeAccess() == cursor.Del:
+            modoAcceso = "Delete"
+
+        tableName = cursor.metadata().name()
+        pkValue = cursor.valueBuffer(cursor.metadata().primaryKey())
+
+        if not qsa.AQUtil.execSql(
+            "INSERT INTO fldatatables_cache(mode,tablename,pk_value,timestamp) VALUES ('%s', '%s', '%s',CURRENT_TIMESTAMP)"
+            % (modoAcceso, tableName, pkValue)
+        ):
+            qsa.debug("Ha fallado el insert")
+            return False
+
+        return True
