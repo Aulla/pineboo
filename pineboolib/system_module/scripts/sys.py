@@ -126,19 +126,31 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return qsa.from_project("formHTTP").iface.saveCursor(cursor)
 
-    def controlDatosCacheo(cursor) -> bool:
+    def controlDatosCacheo(cursor: "qsa.FLSqlCursor") -> bool:
         """Return default controlDatosCacheo."""
 
-        modoAcceso: str
-        if not cursor.metadata().usedCachedFields():
+        table_name: str = cursor.table()
+        qsa.debug("controlDatosCacheo: %s" % table_name)
+        meta_fldatatables_cache = cursor.db().manager().metadata("fldatatables_cache")
+        if not meta_fldatatables_cache:
             return True
+
+        if table_name.endswith("_cachelite"):
+            return True
+
+        meta = cursor.db().manager().metadata(table_name)
+
+        if not meta.useCachedFields():
+            return True
+
+        modoAcceso: str = ""
 
         if cursor.modeAccess() == cursor.Edit:
             modoAcceso = "Update"
 
-            registros = cursor.metadata().cachedFields()
+            registros: str = meta.cachedFields()
             if registros != "*":
-                camposCacheados = cursor.metadata().cachedFields().split(",")
+                camposCacheados = registros.split(",")
                 cambios = False
                 for campo in camposCacheados:
                     if cursor.valueBuffer(campo) != cursor.valueBufferCopy(campo):
@@ -151,12 +163,11 @@ class FormInternalObj(qsa.FormDBWidget):
         elif cursor.modeAccess() == cursor.Del:
             modoAcceso = "Delete"
 
-        tableName = cursor.metadata().name()
-        pkValue = cursor.valueBuffer(cursor.metadata().primaryKey())
+        pk_value = cursor.valueBuffer(cursor.metadata().primaryKey())
 
         if not qsa.AQUtil.execSql(
             "INSERT INTO fldatatables_cache(mode,tablename,pk_value,timestamp) VALUES ('%s', '%s', '%s',CURRENT_TIMESTAMP)"
-            % (modoAcceso, tableName, pkValue)
+            % (modoAcceso, table_name, pk_value)
         ):
             qsa.debug("Ha fallado el insert")
             return False

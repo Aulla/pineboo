@@ -210,3 +210,40 @@ class TestCompoundKeyPNTableMetaData(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
+
+
+class TestCachedFieldsPNTableMetaData(unittest.TestCase):
+    """TestRelationsPNTableMetaData Class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic(self) -> None:
+        """Test cachedFields."""
+
+        mtd_1 = application.PROJECT.conn_manager.manager().metadata("flusers")
+
+        self.assertTrue(mtd_1)
+        mtd_1.setCachedFields("*")
+        if mtd_1 is not None:
+            self.assertTrue(mtd_1.useCachedFields())
+            self.assertEqual(mtd_1.cachedFields(), "*")
+        else:
+            raise Exception("mtd_1 is None")
+
+        mtd_2 = application.PROJECT.conn_manager.manager().metadata("flusers")
+
+        self.assertTrue(mtd_2)
+        mtd_2.setCachedFields("iduser,description")
+        if mtd_2 is not None:
+            self.assertTrue(mtd_2.useCachedFields())
+            self.assertEqual(mtd_2.cachedFields(), "iduser,description")
+        else:
+            raise Exception("mtd_2 is None")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()

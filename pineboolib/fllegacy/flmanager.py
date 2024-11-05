@@ -245,11 +245,13 @@ class FLManager(QtCore.QObject, IManager):
             ftsfun = meta_dict["ftsfunction"] if "ftsfunction" in meta_dict.keys() else ""
             concur_warn = meta_dict["concurwarn"] if "concurwarn" in meta_dict.keys() else False
             detect_locks = meta_dict["detectlocks"] if "detectlocks" in meta_dict.keys() else False
+            cached_fields = meta_dict["cachedfields"] if "cachedfields" in meta_dict.keys() else ""
 
             table_metadata = pntablemetadata.PNTableMetaData(name, alias, query)
             table_metadata.setFTSFunction(ftsfun)
             table_metadata.setConcurWarn(concur_warn)
             table_metadata.setDetectLocks(detect_locks)
+            table_metadata.setCachedFields(cached_fields)
 
             compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
             assocs = []
@@ -280,6 +282,7 @@ class FLManager(QtCore.QObject, IManager):
             editable = True
             concur_warn = False
             detect_locks = False
+            cached_fields = ""
             child_list: List["ElementTree.Element"] = []
             for child in metadata_name_or_xml:
                 if child.tag == "field":
@@ -302,12 +305,15 @@ class FLManager(QtCore.QObject, IManager):
                     concur_warn = child.text == "true"
                 elif child.tag == "FTSFunction":
                     ftsfun = child.text or ""
+                elif child.tag == "cachedfields":
+                    cached_fields = child.text or ""
 
             table_metadata = pntablemetadata.PNTableMetaData(name, alias, query)
 
             table_metadata.setFTSFunction(ftsfun)
             table_metadata.setConcurWarn(concur_warn)
             table_metadata.setDetectLocks(detect_locks)
+            table_metadata.setCachedFields(cached_fields)
 
             compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
             assocs = []

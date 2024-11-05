@@ -671,6 +671,21 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         return True
 
+    def setCachedFields(self, cached_fields: str) -> None:
+        """Set cached fields."""
+
+        self.private._cached_fields = cached_fields
+
+    def useCachedFields(self) -> bool:
+        """Return if use cached fields."""
+
+        return self.private._cached_fields != ""
+
+    def cachedFields(self) -> str:
+        """Return cached fields."""
+
+        return self.private._cached_fields
+
 
 class PNTableMetaDataPrivate:
     """PNTableMetaData Class."""
@@ -757,6 +772,8 @@ class PNTableMetaDataPrivate:
 
     count_ = 0
 
+    _cached_fields: str
+
     def __init__(
         self,
         name: Optional[str] = None,
@@ -783,6 +800,7 @@ class PNTableMetaDataPrivate:
         self._detect_locks = True
         self._query = ""
         self._in_cache = False
+        self._cached_fields = ""
         # print("Vaciando field list ahora",  len(self._field_list))
 
         if name:
