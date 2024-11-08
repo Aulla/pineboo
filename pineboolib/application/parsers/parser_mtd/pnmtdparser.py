@@ -367,6 +367,10 @@ def _create_declaration(
     metadata_table: List = []
     metadata_table.append("'name' : '%s'" % mtd_table.name())
     metadata_table.append("'alias' : '%s'" % mtd_table.alias())
+    cached_fields = mtd_table.cachedFields()
+    if cached_fields:
+        metadata_table.append("'cachedfields' : '%s'" % cached_fields)
+
     if mtd_table.isQuery():
         metadata_table.append("'query':'%s'" % mtd_table.query())
     if mtd_table.concurWarn():

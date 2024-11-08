@@ -2,7 +2,6 @@
 Project Module.
 """
 
-
 from pineboolib import logging
 
 from pineboolib.core.utils import utils_base, struct

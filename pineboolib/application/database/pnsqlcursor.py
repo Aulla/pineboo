@@ -2522,7 +2522,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     return False
 
         updated = 0
-
+        pk_value = self.buffer().value(self.primaryKey())
         if self.modeAccess() == self.Insert:
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if (
@@ -2677,6 +2677,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         function_after_commit,
                     )
                     return False
+
+        if updated:  # Antes de cambiar de modo....
+            fun_name = "sys.controlDatosCacheo"
+            LOGGER.warning("Lanzado %s para %s" % (fun_name, self.curName()))
+            result = application.PROJECT.call(fun_name, [self, updated, str(pk_value)])
+            if not result:
+                LOGGER.warning("%s ha devuelto False" % fun_name)
+                return False
+            else:
+                LOGGER.warning("%s ha devuelto True" % fun_name)
 
         if self.modeAccess() in (self.Del, self.Edit):
             self.setModeAccess(self.Browse)

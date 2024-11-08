@@ -126,26 +126,33 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return qsa.from_project("formHTTP").iface.saveCursor(cursor)
 
-    def controlDatosCacheo(cursor: "qsa.FLSqlCursor") -> bool:
+    def controlDatosCacheo(self, cursor: "qsa.FLSqlCursor", updated: int, pk_value: str) -> bool:
         """Return default controlDatosCacheo."""
 
         table_name: str = cursor.table()
-        qsa.debug("controlDatosCacheo: %s" % table_name)
-        meta_fldatatables_cache = cursor.db().manager().metadata("fldatatables_cache")
+        qsa.debug("controlDatosCacheo: %s, updated: %s" % (table_name, updated))
+
+        cursor.transaction()
+        meta_fldatatables_cache = qsa.aqApp.db().manager().metadata("fldatatables_cache", True)
+        cursor.rollback()
+
         if not meta_fldatatables_cache:
+            qsa.debug("PASO1")
             return True
 
         if table_name.endswith("_cachelite"):
+            qsa.debug("PASO2")
             return True
 
-        meta = cursor.db().manager().metadata(table_name)
+        meta = cursor.metadata()
 
         if not meta.useCachedFields():
+            qsa.debug("PASO3")
             return True
 
         modoAcceso: str = ""
 
-        if cursor.modeAccess() == cursor.Edit:
+        if updated == 2:
             modoAcceso = "Update"
 
             registros: str = meta.cachedFields()
@@ -158,13 +165,16 @@ class FormInternalObj(qsa.FormDBWidget):
                         break
                 if not cambios:
                     return True
-        elif cursor.modeAccess() == cursor.Insert:
+        elif updated == 1:
             modoAcceso = "Insert"
-        elif cursor.modeAccess() == cursor.Del:
+        elif updated == 3:
             modoAcceso = "Delete"
 
-        pk_value = cursor.valueBuffer(cursor.metadata().primaryKey())
-
+        pk_key = cursor.primaryKey()
+        qsa.debug(
+            "PASO4 %s, valid: %s, pkKey: %s, pkValue: %s"
+            % (modoAcceso, "TRUE" if cursor.isValid() else "FALSE", pk_key, pk_value)
+        )
         if not qsa.AQUtil.execSql(
             "INSERT INTO fldatatables_cache(mode,tablename,pk_value,timestamp) VALUES ('%s', '%s', '%s',CURRENT_TIMESTAMP)"
             % (modoAcceso, table_name, pk_value)
