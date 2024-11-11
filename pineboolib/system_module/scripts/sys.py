@@ -5,6 +5,7 @@ from pineboolib.qsa import qsa
 import traceback
 from pineboolib import logging
 
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -126,34 +127,36 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return qsa.from_project("formHTTP").iface.saveCursor(cursor)
 
-    def controlDatosCacheo(self, cursor: "qsa.FLSqlCursor", updated: int, pk_value: str) -> bool:
+    def controlDatosCacheo(self, cursor: "qsa.FLSqlCursor", updated: int) -> bool:
         """Return default controlDatosCacheo."""
 
+        from pineboolib import application
+
         table_name: str = cursor.table()
-        qsa.debug("controlDatosCacheo: %s, updated: %s" % (table_name, updated))
+        pk_name = cursor.primaryKey()
+        pk_value = cursor.valueBuffer(pk_name)
 
-        cursor.transaction()
-        meta_fldatatables_cache = qsa.aqApp.db().manager().metadata("fldatatables_cache", True)
-        cursor.rollback()
-
-        if not meta_fldatatables_cache:
-            qsa.debug("PASO1")
+        if "fldatatables_cache" not in application.PROJECT.actions.keys():
+            qsa.debug("no hay ninguna acción con el nombre de fltadatable_cache")
             return True
 
         if table_name.endswith("_cachelite"):
-            qsa.debug("PASO2")
+            qsa.debug("la tabla es _cacheclite")
             return True
 
         meta = cursor.metadata()
 
         if not meta.useCachedFields():
-            qsa.debug("PASO3")
+            qsa.debug("no se usa cachedfields")
             return True
 
-        modoAcceso: str = ""
+        modoAcceso = {
+            2: "Update",
+            1: "Insert",
+            3: "Delete",
+        }
 
         if updated == 2:
-            modoAcceso = "Update"
 
             registros: str = meta.cachedFields()
             if registros != "*":
@@ -164,20 +167,12 @@ class FormInternalObj(qsa.FormDBWidget):
                         cambios = True
                         break
                 if not cambios:
+                    qsa.debug("los campos actualizados no son cacheados")
                     return True
-        elif updated == 1:
-            modoAcceso = "Insert"
-        elif updated == 3:
-            modoAcceso = "Delete"
 
-        pk_key = cursor.primaryKey()
-        qsa.debug(
-            "PASO4 %s, valid: %s, pkKey: %s, pkValue: %s"
-            % (modoAcceso, "TRUE" if cursor.isValid() else "FALSE", pk_key, pk_value)
-        )
         if not qsa.AQUtil.execSql(
             "INSERT INTO fldatatables_cache(mode,tablename,pk_value,timestamp) VALUES ('%s', '%s', '%s',CURRENT_TIMESTAMP)"
-            % (modoAcceso, table_name, pk_value)
+            % (modoAcceso[updated], table_name, pk_value)
         ):
             qsa.debug("Ha fallado el insert")
             return False
