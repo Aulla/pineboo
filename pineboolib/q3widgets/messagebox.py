@@ -34,6 +34,8 @@ class MessageBox:
                     args,
                     stack_info=True,
                 )
+                if typename in ["warning", "critical"]:
+                    raise Exception(str(args[0]))
                 return None
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)

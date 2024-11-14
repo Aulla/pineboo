@@ -1,10 +1,12 @@
 """Dgi_qt module."""
+
 # # -*- coding: utf-8 -*-
 from importlib import import_module
 
 from PyQt6 import QtWidgets, QtXml, QtGui, QtCore  # type: ignore[import]
 
 from pineboolib import logging
+from pineboolib.core.utils import utils_base
 from pineboolib.plugins.dgi import dgi_schema
 
 from typing import Any, Optional, cast, List, TYPE_CHECKING
@@ -71,6 +73,8 @@ class DgiQt(dgi_schema.DgiSchema):
         """Show a message box warning."""
 
         LOGGER.warning("%s", text)
+        if utils_base.is_library():
+            raise Exception(text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
             if parent is None:
@@ -108,6 +112,8 @@ class DgiQt(dgi_schema.DgiSchema):
         """Show a message box warning."""
 
         LOGGER.warning("%s", text)
+        if utils_base.is_library():
+            raise Exception(text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
             if parent is None:
