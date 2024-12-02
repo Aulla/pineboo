@@ -23,7 +23,11 @@ from typing import List, Optional, Any, Dict, Callable, Union, TYPE_CHECKING
 from pineboolib import application
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import (
+        dgi_schema,
+        imainwindow,
+        iconnection,
+    )  # noqa: F401 # pragma: no cover
     from pineboolib.application.database import pnconnection  # pragma: no cover
     from pineboolib.application import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
     from PyQt6 import QtWidgets  # type: ignore[import] # pragma: no cover
@@ -548,9 +552,7 @@ class Project(object):
             "flmetadata",
             "flsettings",
             "flupdates",
-            "flmetadata",
             "flseqs",
-            "flsettings",
         ):
             self.conn_manager.manager().createSystemTable(table)
 
@@ -686,6 +688,9 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
+        if self.USE_FLFILES_FOLDER and application.UPDATE_FLFILES_FROM_FLFOLDER:
+            self.update_flfiles(result_files, conn)
+
         self.conn_manager.removeConn("dbaux")
         del log_file
 
@@ -701,3 +706,75 @@ class Project(object):
                 return False
 
         return True
+
+    def update_flfiles(self, files_list: List[List[str]], conn: "iconnection.IConnection") -> None:
+        """Actualiza la tabla flfiles con el contenido de flfiles_folder."""
+
+        model_flsettins = qsadictmodules.QSADictModules.orm_("flsettings").get("sha_flfiles")
+        sha_flfiles = model_flsettins.valor if model_flsettins else None
+        sha_flfolder = ""
+        for id_module, file_name, string_sha, data in files_list:
+            sha_flfolder = utils_base.sha1("%s%s" % (sha_flfolder, string_sha))
+
+        if not sha_flfolder or sha_flfolder == sha_flfiles:
+            LOGGER.warning("SHA_FLFILES:%s" % (sha_flfiles))
+            return
+        LOGGER.warning("SHA_FLFILES CHANGED: OLD:%s, NEW:%s" % (sha_flfiles, sha_flfolder))
+        LOGGER.warning("Updating flfiles table from flfiles folder.")
+        # 1 vaciar flfiles
+        LOGGER.warning("(1/5) Deleting older data from tables ...")
+        conn.execute_query("DELETE FROM flareas")
+        conn.execute_query("DELETE FROM flmodules")
+        conn.execute_query("DELETE FROM flfiles")
+        # 2 insertar flareas
+        LOGGER.warning("(2/5) Updating flareas ...")
+        for data in self.areas.values():
+            model_areas = qsadictmodules.QSADictModules.orm_("flareas")()
+            model_areas.idarea = data.idarea
+            model_areas.descripcion = data.descripcion
+            model_areas.bloqueo = data.idarea != "sys"
+            if not model_areas.save():
+                LOGGER.error("Error saving area %s", data.idarea)
+                continue
+        LOGGER.warning("(3/5) Updating flmodules ...")
+        for data in self.modules.values():
+            model_modules = qsadictmodules.QSADictModules.orm_("flmodules")()
+            model_modules.idarea = data.areaid
+            model_modules.idmodulo = data.name
+            model_modules.descripcion = data.description
+            model_modules.icono = data.icon
+            model_modules.version = data.version
+            model_modules.bloqueo = data.name != "sys"
+            if not model_modules.save():
+                LOGGER.error("Error saving module %s", data.name)
+                continue
+
+        LOGGER.warning("(4/5) Updating flfiles ...")
+        for id_module, file_name, string_sha, data in files_list:
+            if id_module == "sys":
+                continue
+            model_files = qsadictmodules.QSADictModules.orm_("flfiles")()
+            model_files.idmodulo = id_module
+            model_files.nombre = file_name
+            model_files.sha = string_sha
+            model_files.contenido = data
+            if not model_files.save():
+                LOGGER.error("Error saving file %s", file_name)
+                continue
+
+        # 6 Limpiar/actualizar flmetadata
+        LOGGER.warning("(5/5) Updating flmetadata ...")
+        self.conn_manager.manager().cleanupMetaData()
+        # 7 actualizar sha
+        # flutil.FLUtil.writeDBSettingEntry("sha_flfiles", sha_flfolder)
+        model_settings = (
+            qsadictmodules.QSADictModules.orm_("flsettings").get("sha_flfiles")
+            or qsadictmodules.QSADictModules.orm_("flsettings")()
+        )
+        model_settings.flkey = "sha_flfiles"
+        model_settings.valor = sha_flfolder
+        if not model_settings.save():
+            LOGGER.error("Error saving sha_flfiles")
+            return
+
+        LOGGER.warning("Update completed. New sha_flfiles:%s" % (sha_flfolder))

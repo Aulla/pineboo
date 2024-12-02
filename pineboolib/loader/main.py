@@ -392,6 +392,8 @@ def exec_main(options: "optparse.Values") -> int:
 
     if options.flfiles_folder:
         application.PROJECT.USE_FLFILES_FOLDER = options.flfiles_folder
+        if options.update_flfiles:
+            application.UPDATE_FLFILES_FROM_FLFOLDER = True
 
     if options.trace_debug:
         # "sys.settrace" function could lead to arbitrary code execution

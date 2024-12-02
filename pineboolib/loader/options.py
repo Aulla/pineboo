@@ -40,6 +40,15 @@ def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     )
 
     parser.add_option(
+        "-u",
+        "--update_flfiles",
+        action="store_true",
+        dest="update_flfiles",
+        default=False,
+        help="Update flfiles table from flfiles_folder",
+    )
+
+    parser.add_option(
         "-x",
         "--exit",
         action="store_true",

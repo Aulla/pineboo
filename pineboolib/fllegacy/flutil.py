@@ -1,4 +1,5 @@
 """Flutil module."""
+
 # -*- coding: utf-8 -*-
 import hashlib
 import datetime
@@ -11,6 +12,7 @@ from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application.utils import date_conversion
 from pineboolib.application.database import utils, pnsqlquery
 from pineboolib.application import types
+from pineboolib.core.utils import utils_base
 
 from pineboolib.core import decorators, translate, settings
 from pineboolib import logging, application
@@ -984,15 +986,7 @@ class FLUtil(object):
         @param str String from which to obtain the SHA1 key.
         @return Corresponding key in hexadecimal digits.
         """
-        if value is None:
-            value = ""
-
-        if isinstance(value, str):
-            value = value.encode()
-
-        sha_ = hashlib.new("sha1", value)
-        string = "%s" % sha_.hexdigest()
-        return string.upper()
+        return utils_base.sha1(value)
 
     @classmethod
     @decorators.not_implemented_warn

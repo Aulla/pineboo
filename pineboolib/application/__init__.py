@@ -38,3 +38,4 @@ TESTING_MODE: bool = False  # True when testing_mode else False
 ALLOW_ALTER_TABLE: bool = True
 PROJECT_NAME: str = None  # Nombre del proyecto
 EXTERNAL_FOLDER: str = None  # Carpeta externa
+UPDATE_FLFILES_FROM_FLFOLDER: bool = False  # Actualizar ficheros flfiles

@@ -543,3 +543,18 @@ def empty_dir(dir_name: str) -> None:
     for root, dirs, files in os.walk(dir_name):
         for file_item in files:
             os.remove(os.path.join(root, file_item))
+
+
+def sha1(value: Union[str, bytes, None] = "") -> str:
+    """Return sha1 value."""
+
+    if value is None:
+        value = ""
+
+    if isinstance(value, str):
+        value = value.encode()
+
+    sha_ = hashlib.new("sha1", value)
+    string = "%s" % sha_.hexdigest()
+
+    return string.upper()
