@@ -174,7 +174,7 @@ class TestSysType(unittest.TestCase):
 
         list_extensions = sys.mvProjectExtensions()
         self.assertEqual(list_extensions, [])
-        self.assertEqual(sys.calculateShaGlobal(), "cfc09ed22ee2b16a0c571bb99f383b7dd4113553")
+        self.assertEqual(sys.calculateShaGlobal(), "CD2E6BE78663D365EACDEE772DE13C6DBF0FF707")
         changes = sys.localChanges()
         self.assertEqual(changes["size"], 96)
         res_ = sys.xmlFilesDefBd()
