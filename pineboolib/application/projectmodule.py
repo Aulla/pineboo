@@ -758,9 +758,15 @@ class Project(object):
             model_files.nombre = file_name
             model_files.sha = string_sha
             model_files.contenido = data
-            if not model_files.save():
-                LOGGER.error("Error saving file %s", file_name)
-                continue
+            result = False
+            error = ""
+            try:
+                result = model_files.save()
+            except Exception as err:
+                error = str(error)
+
+            if not result:
+                LOGGER.error("Error saving file %s. %s", file_name, error)
 
         # 6 Limpiar/actualizar flmetadata
         LOGGER.warning("(5/5) Updating flmetadata ...")
