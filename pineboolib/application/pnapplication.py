@@ -454,8 +454,7 @@ class PNApplication(QtCore.QObject):
         application.PROJECT.conn_manager.useConn("default")
         application.PROJECT.conn_manager.useConn("dbaux")
 
-        if application.PROJECT_NAME:
-            external.reload_project_config()
+        external.reload_project_config()
 
         application.PROJECT.run()
         # application.PROJECT.load_classes()
