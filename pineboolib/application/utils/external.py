@@ -2,6 +2,8 @@ from pineboolib import application, logging
 import os
 import importlib
 
+from typing import Callable
+
 LOGGER = logging.get_logger(__name__)
 
 
@@ -16,7 +18,8 @@ def load_project_config_file() -> None:
         if os.path.exists(path_config):
             from pineboolib.application.load_script import import_path
 
-            import_path("config_project", path_config)
+            mod_ = import_path("config_project", path_config)
+            launch_function(mod_, "cargar_dependencias")
         else:
             LOGGER.warning("Config file not found: %s", path_config)
 
@@ -27,9 +30,22 @@ def reload_project_config() -> None:
         LOGGER.warning("STATIC LOADER: Reinitializing project config file...")
         module_name = "apps.%s.config" % (application.PROJECT_NAME)
         try:
-            importlib.import_module(module_name)
+            mod_ = importlib.import_module(module_name)
+            launch_function(mod_, "cargar_dependencias")
+
         except Exception as error:
             LOGGER.warning(
                 "STATIC LOADER: Error reloading project config file %s, Error: %s"
                 % (module_name, str(error))
             )
+
+
+def launch_function(mod_: "Callable", func_name: str = None) -> None:
+    """Launch function."""
+
+    func_ = getattr(mod_, func_name, None)
+    if func_:
+        LOGGER.info("EXTERNAL: %s function found in %s" % (func_name, mod_.__name__))
+        func_()
+    else:
+        LOGGER.warning("STATIC LOADER: No %s function found in %s" % (func_name, mod_.__name__))

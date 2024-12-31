@@ -12,7 +12,6 @@ from pineboolib.core import settings, decorators
 from pineboolib.core.utils import logging, utils_base
 
 from pineboolib import application
-from pineboolib.application.utils import external
 
 import os
 import importlib
@@ -150,7 +149,6 @@ class AQStaticBdInfo(object):
                             % (key, str(error))
                         )
 
-            external.reload_project_config()
             application.PROJECT.aq_app.reinit()
         else:
             LOGGER.warning(

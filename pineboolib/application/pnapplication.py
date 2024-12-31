@@ -11,6 +11,7 @@ from pineboolib import application
 from pineboolib.application.database import DB_SIGNALS, utils
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application import qsadictmodules
+from pineboolib.application.utils import external
 
 import sys
 import os
@@ -452,6 +453,10 @@ class PNApplication(QtCore.QObject):
         application.PROJECT.files = {}
         application.PROJECT.conn_manager.useConn("default")
         application.PROJECT.conn_manager.useConn("dbaux")
+
+        if application.PROJECT_NAME:
+            external.reload_project_config()
+
         application.PROJECT.run()
         # application.PROJECT.load_classes()
         # application.PROJECT.load_orm()
