@@ -147,7 +147,7 @@ class FormInternalObj(qsa.FormDBWidget):
         meta = cursor.metadata()
 
         if not meta.useCachedFields():
-            qsa.debug("no se usa cachedfields")
+            qsa.debug("%s no usa cachedfields %s" % (table_name, meta.cachedFields()))
             return True
 
         modoAcceso = {
