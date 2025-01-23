@@ -369,6 +369,7 @@ def _create_declaration(
     metadata_table.append("'alias' : '%s'" % mtd_table.alias())
     cached_fields = mtd_table.cachedFields()
     if cached_fields:
+        LOGGER.warning("Adding cachedfields '%s' to model %s" % (cached_fields, mtd_table.name()))
         metadata_table.append("'cachedfields' : '%s'" % cached_fields)
 
     if mtd_table.isQuery():

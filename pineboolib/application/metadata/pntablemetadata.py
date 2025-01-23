@@ -673,7 +673,6 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
     def setCachedFields(self, cached_fields: str) -> None:
         """Set cached fields."""
-        LOGGER.warning("%s.setCachedFields(%s)" % (self.name(), cached_fields))
         self.private._cached_fields = cached_fields
 
     def useCachedFields(self) -> bool:

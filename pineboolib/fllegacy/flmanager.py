@@ -307,6 +307,8 @@ class FLManager(QtCore.QObject, IManager):
                     ftsfun = child.text or ""
                 elif child.tag == "cachedfields":
                     cached_fields = child.text or ""
+                    if cached_fields:
+                        LOGGER.warning("MTD(%s): cachedfields found :%s" % (name, cached_fields))
 
             table_metadata = pntablemetadata.PNTableMetaData(name, alias, query)
 
