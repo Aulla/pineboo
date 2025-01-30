@@ -41,7 +41,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     import pyfiglet  # type: ignore
 
     qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
-    init_logging(True)
+    init_logging(True, application.FRAMEWORK_DEBUG_LEVEL)
     init_cli(catch_ctrl_c=False)
 
     LOGGER.info(
@@ -49,13 +49,6 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
             "\nPINEBOO %s " % application.PROJECT.load_version(), font="starwars"
         )
     )
-
-    debug_level = 200
-    if application.DEVELOPER_MODE:
-        LOGGER.warning("Developer mode activated")
-        debug_level = 1000
-
-    application.PROJECT.setDebugLevel(debug_level)
 
     application.PROJECT.set_app(qapp)
     dgi = dgi_module.load_dgi("qt", None)
@@ -104,8 +97,6 @@ def startup(enable_gui: Optional[bool] = None) -> None:
         trace_loggers = options.trace_loggers.split(",")
 
     init_logging(logtime=options.log_time, loglevel=options.loglevel, trace_loggers=trace_loggers)
-    if application.DEVELOPER_MODE:
-        LOGGER.info("Developer mode activated")
 
     if options.project_name:
         application.PROJECT_NAME = options.project_name
@@ -363,12 +354,6 @@ def exec_main(options: "optparse.Values") -> int:
 
     init_cli()
 
-    # TODO: Refactorizar función en otras más pequeñas
-
-    application.PROJECT.setDebugLevel(options.debug_level)
-
-    # application.PROJECT.options = options
-
     app_args: List[str] = sys.argv
     if not options.enable_gui:
         app_args += ["-platform", "offscreen"]
@@ -529,9 +514,7 @@ def _initialize_data(is_framework: bool = False) -> None:
 
     if is_framework:
         LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
-    if not application.PROJECT.run():
-        if not application.DEVELOPER_MODE:
-            raise Exception("Project initialization failed!")
+    application.PROJECT.run()
 
     from pineboolib.application.acls import pnaccesscontrollists
 

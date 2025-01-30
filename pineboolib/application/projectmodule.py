@@ -48,9 +48,6 @@ class Project(object):
 
     _app: "QtWidgets.QApplication"
     _aq_app: Optional["pnapplication.PNApplication"] = None
-    # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
-    debug_level = 100
-    # options: Values
 
     main_window: Optional["imainwindow.IMainWindow"] = None
     dgi: Optional["dgi_schema.dgi_schema"] = None
@@ -214,15 +211,6 @@ class Project(object):
                 continue
 
             db_utils.process_file_class(self.files[key])
-
-    def setDebugLevel(self, level: int) -> None:
-        """
-        Set debug level for application.
-
-        @param q Número con el nivel espeficicado
-        ***DEPRECATED***
-        """
-        self.debug_level = level
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
