@@ -70,7 +70,9 @@ def atomic(
                                 after_commit(session_id)  # type: ignore [truthy-function]
                         except Exception as error:
                             LOGGER.warning(
-                                "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
+                                "ATOMIC STACKS\nARGS:%s.\nKWARGS:%s.\nAPP: %s.\nERROR: %s.",
+                                args,
+                                kwargs,
                                 "".join(traceback.format_exc(limit=None)),
                                 "".join(traceback.format_stack(limit=None)),
                                 stack_info=True,
