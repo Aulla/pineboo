@@ -118,7 +118,9 @@ def serialize(conn_name: str = "default") -> "TYPEFN":  # type: ignore [type-var
                     result_ = fun_(*args, **kwargs)
                 except Exception as error:
                     LOGGER.warning(
-                        "SERIALIZE STACKS\nAPP: %s.\nERROR: %s.",
+                        "SERIALIZE STACKS\nARGS:%s.\nKWARGS:%s.\nAPP: %s.\nERROR: %s.",
+                        args,
+                        kwargs,
                         "".join(traceback.format_exc(limit=None)),
                         "".join(traceback.format_stack(limit=None)),
                         stack_info=True,
