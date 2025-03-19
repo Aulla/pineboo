@@ -741,6 +741,13 @@ class Project(object):
         for id_module, file_name, string_sha, data in files_list:
             if id_module == "sys":
                 continue
+
+            if not file_name.endswith(
+                [".kut", ".mod", ".mtd", ".py", ".qs", ".qry", ".ts", ".ui", ".xml", ".xpm"]
+            ):
+                LOGGER.warning("\t* Skipping %s", file_name)
+                continue
+
             model_files = qsadictmodules.QSADictModules.orm_("flfiles")()
             model_files.idmodulo = id_module
             model_files.nombre = file_name
