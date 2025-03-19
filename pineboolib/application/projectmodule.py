@@ -758,7 +758,7 @@ class Project(object):
                     ".xpm",
                 )
             ):
-                LOGGER.info("\t* Skipping %s", file_name)
+                LOGGER.debug("\t* Skipping %s", file_name)
                 continue
 
             model_files = qsadictmodules.QSADictModules.orm_("flfiles")()
