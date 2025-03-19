@@ -743,7 +743,20 @@ class Project(object):
                 continue
 
             if not file_name.endswith(
-                (".kut", ".mod", ".mtd", ".py", ".qs", ".qry", ".ts", ".ui", ".xml", ".xpm")
+                (
+                    ".ar",
+                    ".jrxml",
+                    ".kut",
+                    ".mod",
+                    ".mtd",
+                    ".py",
+                    ".qs",
+                    ".qry",
+                    ".ts",
+                    ".ui",
+                    ".xml",
+                    ".xpm",
+                )
             ):
                 LOGGER.warning("\t* Skipping %s", file_name)
                 continue
