@@ -6,6 +6,7 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 
 from pineboolib.application import xmlaction, proxy, safeqsa
 from pineboolib import logging, application
+from pineboolib.core import garbage_collector
 
 import sqlalchemy  # type: ignore [import]
 import threading
@@ -52,19 +53,27 @@ class QSADictModules:
 
         id_thread = threading.current_thread().ident
         if not id_thread in cls._tree_thread.keys():
-            LOGGER.warning("NUEVO HILO %d" % (id_thread))
             cls._tree_thread[id_thread] = QSADictModulesThread()
 
+        list_threads = list([thread.ident for thread in threading.enumerate()])
+        for key in list(cls._tree_thread.keys()):
+            if key not in list_threads:
+                obj_ = cls._tree_thread[key]
+                cls._tree_thread[key] = None
+                del cls._tree_thread[key]
+                gc.collect()
+                garbage_collector.check_delete(obj_, "QSADictModulesThread")
+
         if not hasattr(cls._tree_thread[id_thread], module_name):
-            LOGGER.warning("Creando %s en el hilo %d" % (module_name, id_thread))
+            LOGGER.debug("Creando %s en el hilo %d" % (module_name, id_thread))
             ret_original = getattr(cls.qsa_dict_modules(), module_name, None)
             setattr(cls._tree_thread[id_thread], module_name, ret_original)
         else:
-            LOGGER.warning("Ya existe %s en el hilo %d" % (module_name, id_thread))
+            LOGGER.debug("Ya existe %s en el hilo %d" % (module_name, id_thread))
 
         ret_ = getattr(cls._tree_thread[id_thread], module_name, None)
         if ret_ is None and not module_name.endswith("orm"):
-            LOGGER.warning("Module %s not found!", module_name)
+            LOGGER.debug("Module %s not found!", module_name)
 
         return ret_
 
