@@ -52,12 +52,15 @@ class QSADictModules:
 
         id_thread = threading.current_thread().ident
         if not id_thread in cls._tree_thread.keys():
+            LOGGER.warning("NUEVO HILO %d" % (id_thread))
             cls._tree_thread[id_thread] = QSADictModulesThread()
 
         if not hasattr(cls._tree_thread[id_thread], module_name):
             LOGGER.warning("Creando %s en el hilo %d" % (module_name, id_thread))
             ret_original = getattr(cls.qsa_dict_modules(), module_name, None)
             setattr(cls._tree_thread[id_thread], module_name, ret_original)
+        else:
+            LOGGER.warning("Ya existe %s en el hilo %d" % (module_name, id_thread))
 
         ret_ = getattr(cls._tree_thread[id_thread], module_name, None)
         if ret_ is None and not module_name.endswith("orm"):
