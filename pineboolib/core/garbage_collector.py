@@ -78,11 +78,12 @@ def check_active_threads() -> None:
 
     current_thread_ids = [thread.ident for thread in threading.enumerate()]
     for thread_id in PROXY_ACTIONS_DICT.keys():
-        # print("Checking thread %s in %s" % (thread_id, current_thread_ids))
+
         if thread_id not in current_thread_ids:
             script_names_list = (
                 PROXY_ACTIONS_DICT[thread_id] if thread_id in PROXY_ACTIONS_DICT.keys() else []
             )
+            LOGGER.debug("Deleting thread %s." % (thread_id))
             for script_name in script_names_list:
                 delete_proxy_thread(thread_id, script_name)
 
