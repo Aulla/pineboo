@@ -1,6 +1,7 @@
 """
 Proxy Module.
 """
+
 from pineboolib import logging
 from pineboolib.core import garbage_collector
 
@@ -47,17 +48,9 @@ class DelayedObjectProxyLoader(object):
 
         @return objeto nuevo o si ya existe , cacheado
         """
+
         list_name = self._name.split(".")
         id_thread = threading.current_thread().ident
-
-        # limpieza de objetos
-        list_threads = list([thread.ident for thread in threading.enumerate()])
-        for key in list(self.loaded_obj.keys()):
-            if key not in list_threads:
-                obj_ = self.loaded_obj[key]
-                self.loaded_obj[key] = None
-                del self.loaded_obj[key]
-                garbage_collector.check_delete(obj_, "proxy.widget")
 
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():

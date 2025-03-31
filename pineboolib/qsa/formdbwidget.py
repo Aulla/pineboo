@@ -1,4 +1,5 @@
 """Formdbwidget module."""
+
 # # -*- coding: utf-8 -*-
 from PyQt6 import QtWidgets, QtCore  # type: ignore[import]
 

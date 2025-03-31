@@ -1,6 +1,7 @@
 """
 Module for garbage collector checks.
 """
+
 from typing import Any, Callable, List
 
 from pineboolib.core.utils import logging
@@ -68,3 +69,47 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
             LOGGER.warning("Error cleaning %r::%r (%r) :", typename, obj, name)
 
     threading.Thread(target=checkfn).start()
+
+
+def check_active_threads() -> None:
+    """Check active threads."""
+
+    from pineboolib.application import PROXY_ACTIONS_DICT
+
+    current_thread_ids = [thread.ident for thread in threading.enumerate()]
+    for thread_id in PROXY_ACTIONS_DICT.keys():
+        # print("Checking thread %s in %s" % (thread_id, current_thread_ids))
+        if thread_id not in current_thread_ids:
+            script_names_list = (
+                PROXY_ACTIONS_DICT[thread_id] if thread_id in PROXY_ACTIONS_DICT.keys() else []
+            )
+            for script_name in script_names_list:
+                delete_proxy_thread(thread_id, script_name)
+
+
+def delete_proxy_thread(id_thread: int, script_name: str):
+    """Delete actions from thread."""
+
+    from pineboolib.application import qsadictmodules
+
+    action_obj = qsadictmodules.QSADictModules.from_project(script_name)
+    if action_obj is not None:
+        LOGGER.warning("Deleting action %s from thread %s", script_name, id_thread)
+        obj_ = action_obj.loaded_obj[id_thread]
+        action_obj.loaded_obj[id_thread] = None
+        del action_obj.loaded_obj[id_thread]
+        check_delete(obj_, "proxy.widget")
+
+
+def register_script_name(script_name: str):
+    """Register script name."""
+
+    from pineboolib.application import PROXY_ACTIONS_DICT
+
+    check_active_threads()
+
+    id_thread = threading.current_thread().ident
+    if id_thread not in PROXY_ACTIONS_DICT.keys():
+        PROXY_ACTIONS_DICT[id_thread] = []
+
+    PROXY_ACTIONS_DICT[id_thread].append(script_name)

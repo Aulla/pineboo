@@ -10,8 +10,6 @@ from pineboolib.core import garbage_collector
 
 import sqlalchemy  # type: ignore [import]
 import threading
-import gc
-
 from typing import Any, Optional, Union, TYPE_CHECKING
 
 LOGGER = logging.get_logger(__name__)
@@ -30,7 +28,6 @@ class QSADictModules:
     """
 
     _qsa_dict_modules = None
-    _tree_thread = {}
 
     @classmethod
     def qsa_dict_modules(cls) -> Any:
@@ -50,28 +47,10 @@ class QSADictModules:
         Return project object for given name.
         """
         module_name = "sys_module" if script_name == "sys" else script_name
+        # limpieza de objetos
+        garbage_collector.register_script_name(script_name)
 
-        id_thread = threading.current_thread().ident
-        if not id_thread in cls._tree_thread.keys():
-            cls._tree_thread[id_thread] = QSADictModulesThread()
-
-        list_threads = list([thread.ident for thread in threading.enumerate()])
-        for key in list(cls._tree_thread.keys()):
-            if key not in list_threads:
-                obj_ = cls._tree_thread[key]
-                cls._tree_thread[key] = None
-                del cls._tree_thread[key]
-                gc.collect()
-                garbage_collector.check_delete(obj_, "QSADictModulesThread")
-
-        if not hasattr(cls._tree_thread[id_thread], module_name):
-            LOGGER.debug("Creando %s en el hilo %d" % (module_name, id_thread))
-            ret_original = getattr(cls.qsa_dict_modules(), module_name, None)
-            setattr(cls._tree_thread[id_thread], module_name, ret_original)
-        else:
-            LOGGER.debug("Ya existe %s en el hilo %d" % (module_name, id_thread))
-
-        ret_ = getattr(cls._tree_thread[id_thread], module_name, None)
+        ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
         if ret_ is None and not module_name.endswith("orm"):
             LOGGER.debug("Module %s not found!", module_name)
 
