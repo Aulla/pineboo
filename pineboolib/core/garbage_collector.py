@@ -112,4 +112,5 @@ def register_script_name(script_name: str):
     if id_thread not in PROXY_ACTIONS_DICT.keys():
         PROXY_ACTIONS_DICT[id_thread] = []
 
-    PROXY_ACTIONS_DICT[id_thread].append(script_name)
+    if script_name not in PROXY_ACTIONS_DICT[id_thread]:
+        PROXY_ACTIONS_DICT[id_thread].append(script_name)
