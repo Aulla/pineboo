@@ -123,5 +123,9 @@ def register_script_name(script_name: str) -> None:
 
 def periodic_gc(interval: int = 60) -> None:
     """Periodic cleaning task."""
+
+    from pineboolib import application
+
     work_thread = threading.Timer(interval=interval, function=check_active_threads, args=(True,))
     work_thread.start()
+    application.GC_THREAD = work_thread
