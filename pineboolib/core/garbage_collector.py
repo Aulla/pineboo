@@ -71,20 +71,24 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
     threading.Thread(target=checkfn).start()
 
 
-def check_active_threads() -> None:
+def check_active_threads(full: bool = False) -> None:
     """Check active threads."""
 
     from pineboolib.application import PROXY_ACTIONS_DICT
 
     current_thread_ids = [thread.ident for thread in threading.enumerate()]
-    for thread_id in PROXY_ACTIONS_DICT.keys():
-
+    proxy_keys = PROXY_ACTIONS_DICT.keys()
+    if full:
+        LOGGER.warning("CHECK ACTIVE THREADS")
+        LOGGER.warning("Active threads: %s" % (current_thread_ids))
+    for thread_id in proxy_keys:
         if thread_id not in current_thread_ids:
-            script_names_list = (
-                PROXY_ACTIONS_DICT[thread_id] if thread_id in PROXY_ACTIONS_DICT.keys() else []
-            )
-            LOGGER.debug("Deleting thread %s." % (thread_id))
+            if full:
+                LOGGER.warning("Deleting thread %s" % (thread_id))
+            script_names_list = PROXY_ACTIONS_DICT[thread_id]
             for script_name in script_names_list:
+                if full:
+                    LOGGER.warning("Deleting action %s from thread %s" % (script_name, thread_id))
                 delete_proxy_thread(thread_id, script_name)
 
 

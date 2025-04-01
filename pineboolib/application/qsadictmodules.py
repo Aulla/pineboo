@@ -9,7 +9,7 @@ from pineboolib import logging, application
 from pineboolib.core import garbage_collector
 
 import sqlalchemy  # type: ignore [import]
-import threading
+import gc
 from typing import Any, Optional, Union, TYPE_CHECKING
 
 LOGGER = logging.get_logger(__name__)
