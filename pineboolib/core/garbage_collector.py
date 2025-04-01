@@ -5,7 +5,7 @@ Module for garbage collector checks.
 from typing import Any, Callable, List
 
 from pineboolib.core.utils import logging
-from pineboolib.core import DISABLE_CHECK_MEMORY_LEAKS
+from pineboolib.core import DISABLE_CHECK_MEMORY_LEAKS, PROXY_ACTIONS_DICT, _GC_THREAD
 
 import weakref
 import threading
@@ -74,8 +74,6 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
 def check_active_threads(full: bool = False) -> None:
     """Check active threads."""
 
-    from pineboolib.application import PROXY_ACTIONS_DICT
-
     current_thread_ids = [thread.ident for thread in threading.enumerate()]
     proxy_keys = PROXY_ACTIONS_DICT.keys()
     if full:
@@ -109,8 +107,6 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
 def register_script_name(script_name: str) -> None:
     """Register script name."""
 
-    from pineboolib.application import PROXY_ACTIONS_DICT
-
     check_active_threads()
 
     id_thread = threading.current_thread().ident
@@ -124,8 +120,6 @@ def register_script_name(script_name: str) -> None:
 def periodic_gc(interval: int = 60) -> None:
     """Periodic cleaning task."""
 
-    from pineboolib import application
-
     work_thread = threading.Timer(interval=interval, function=check_active_threads, args=(True,))
     work_thread.start()
-    application.GC_THREAD = work_thread
+    _GC_THREAD = work_thread

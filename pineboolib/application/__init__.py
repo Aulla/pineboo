@@ -14,7 +14,7 @@ SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 ID_SESSION: str = ""
 
-PINEBOO_VER = "0.99.91.17"
+PINEBOO_VER = "0.99.91.18"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CONNECTION_EVENTS: bool = False  # Enable show debug when connection is closed.
@@ -39,6 +39,3 @@ PROJECT_NAME: str = None  # Nombre del proyecto
 EXTERNAL_FOLDER: str = None  # Carpeta externa
 UPDATE_FLFILES_FROM_FLFOLDER: bool = False  # Actualizar ficheros flfiles
 FRAMEWORK_DEBUG_LEVEL: int = 20  # Nivel de debug 30 .... 0 en bloques de 5
-
-PROXY_ACTIONS_DICT = {}
-GC_THREAD = None
