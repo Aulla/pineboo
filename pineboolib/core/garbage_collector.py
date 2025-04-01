@@ -92,7 +92,7 @@ def check_active_threads(full: bool = False) -> None:
                 delete_proxy_thread(thread_id, script_name)
 
 
-def delete_proxy_thread(id_thread: int, script_name: str):
+def delete_proxy_thread(id_thread: int, script_name: str) -> None:
     """Delete actions from thread."""
 
     from pineboolib.application import qsadictmodules
@@ -106,7 +106,7 @@ def delete_proxy_thread(id_thread: int, script_name: str):
         check_delete(obj_, "proxy.widget")
 
 
-def register_script_name(script_name: str):
+def register_script_name(script_name: str) -> None:
     """Register script name."""
 
     from pineboolib.application import PROXY_ACTIONS_DICT
@@ -119,3 +119,9 @@ def register_script_name(script_name: str):
 
     if script_name not in PROXY_ACTIONS_DICT[id_thread]:
         PROXY_ACTIONS_DICT[id_thread].append(script_name)
+
+
+def periodic_gc() -> None:
+    """Periodic cleaning task."""
+    work_thread = threading.Timer(interval=30, function=check_active_threads, args=(True))
+    work_thread.start()
