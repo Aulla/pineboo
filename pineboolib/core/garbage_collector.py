@@ -5,8 +5,8 @@ Module for garbage collector checks.
 from typing import Any, Callable, List
 
 from pineboolib.core.utils import logging
-from pineboolib.core import DISABLE_CHECK_MEMORY_LEAKS, PROXY_ACTIONS_DICT, _GC_THREAD
 
+from pineboolib import core
 import weakref
 import threading
 
@@ -18,7 +18,7 @@ LOGGER = logging.get_logger(__name__)
 def check_delete(obj_: Any, name: str, force: bool = False) -> bool:
     """Delete a object."""
 
-    if not DISABLE_CHECK_MEMORY_LEAKS or force:
+    if not core.DISABLE_CHECK_MEMORY_LEAKS or force:
         check_gc_referrers(obj_.__class__.__name__, weakref.ref(obj_), name)
     return True
 
@@ -75,7 +75,7 @@ def check_active_threads(full: bool = False) -> None:
     """Check active threads."""
 
     current_thread_ids = [thread.ident for thread in threading.enumerate()]
-    proxy_keys = PROXY_ACTIONS_DICT.keys()
+    proxy_keys = core.PROXY_ACTIONS_DICT.keys()
     if full:
         LOGGER.warning("CHECK ACTIVE THREADS")
         LOGGER.warning("Active threads: %s" % (current_thread_ids))
@@ -83,7 +83,7 @@ def check_active_threads(full: bool = False) -> None:
         if thread_id not in current_thread_ids:
             if full:
                 LOGGER.warning("Deleting thread %s" % (thread_id))
-            script_names_list = PROXY_ACTIONS_DICT[thread_id]
+            script_names_list = core.PROXY_ACTIONS_DICT[thread_id]
             for script_name in script_names_list:
                 if full:
                     LOGGER.warning("Deleting action %s from thread %s" % (script_name, thread_id))
@@ -110,11 +110,11 @@ def register_script_name(script_name: str) -> None:
     check_active_threads()
 
     id_thread = threading.current_thread().ident
-    if id_thread not in PROXY_ACTIONS_DICT.keys():
-        PROXY_ACTIONS_DICT[id_thread] = []
+    if id_thread not in core.PROXY_ACTIONS_DICT.keys():
+        core.PROXY_ACTIONS_DICT[id_thread] = []
 
-    if script_name not in PROXY_ACTIONS_DICT[id_thread]:
-        PROXY_ACTIONS_DICT[id_thread].append(script_name)
+    if script_name not in core.PROXY_ACTIONS_DICT[id_thread]:
+        core.PROXY_ACTIONS_DICT[id_thread].append(script_name)
 
 
 def periodic_gc(interval: int = 60) -> None:
@@ -122,4 +122,5 @@ def periodic_gc(interval: int = 60) -> None:
 
     work_thread = threading.Timer(interval=interval, function=check_active_threads, args=(True,))
     work_thread.start()
-    _GC_THREAD = work_thread
+    print("Asignando")
+    core.GC_THREAD = work_thread
