@@ -121,7 +121,7 @@ def register_script_name(script_name: str) -> None:
         PROXY_ACTIONS_DICT[id_thread].append(script_name)
 
 
-def periodic_gc() -> None:
+def periodic_gc(interval: int = 60) -> None:
     """Periodic cleaning task."""
-    work_thread = threading.Timer(interval=30, function=check_active_threads, args=(True))
+    work_thread = threading.Timer(interval=interval, function=check_active_threads, args=(True))
     work_thread.start()
