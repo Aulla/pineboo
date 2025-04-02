@@ -7,4 +7,3 @@ any dependency from other folders. So they're safe to import.
 
 DISABLE_CHECK_MEMORY_LEAKS: bool = True  # Disabled memory leaks checking.
 PROXY_ACTIONS_DICT = {}
-GC_THREAD = None

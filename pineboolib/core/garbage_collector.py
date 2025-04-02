@@ -9,6 +9,7 @@ from pineboolib.core.utils import logging
 from pineboolib import core
 import weakref
 import threading
+import time
 
 import gc
 
@@ -78,8 +79,8 @@ def check_active_threads(full: bool = False) -> None:
     proxy_keys = core.PROXY_ACTIONS_DICT.keys()
     if full:
         LOGGER.warning("CHECK ACTIVE THREADS")
-        LOGGER.warning("Active threads: %s" % (current_thread_ids))
-    for thread_id in proxy_keys:
+        # LOGGER.warning("Active threads: %s" % (current_thread_ids))
+    for thread_id in list(proxy_keys):
         if thread_id not in current_thread_ids:
             if full:
                 LOGGER.warning("Deleting thread %s" % (thread_id))
@@ -88,6 +89,8 @@ def check_active_threads(full: bool = False) -> None:
                 if full:
                     LOGGER.warning("Deleting action %s from thread %s" % (script_name, thread_id))
                 delete_proxy_thread(thread_id, script_name)
+            core.PROXY_ACTIONS_DICT[thread_id] = None
+            del core.PROXY_ACTIONS_DICT[thread_id]
 
 
 def delete_proxy_thread(id_thread: int, script_name: str) -> None:
@@ -96,18 +99,16 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
     from pineboolib.application import qsadictmodules
 
     action_obj = qsadictmodules.QSADictModules.from_project(script_name)
-    if action_obj is not None:
-        LOGGER.warning("Deleting action %s from thread %s", script_name, id_thread)
-        obj_ = action_obj.loaded_obj[id_thread]
-        action_obj.loaded_obj[id_thread] = None
-        del action_obj.loaded_obj[id_thread]
-        check_delete(obj_, "proxy.widget")
+    if hasattr(action_obj, "loaded_obj"):
+        if id_thread in action_obj.loaded_obj.keys():
+            obj_ = action_obj.loaded_obj[id_thread]
+            action_obj.loaded_obj[id_thread] = None
+            del action_obj.loaded_obj[id_thread]
+            check_delete(obj_, "proxy.widget")
 
 
 def register_script_name(script_name: str) -> None:
     """Register script name."""
-
-    check_active_threads()
 
     id_thread = threading.current_thread().ident
     if id_thread not in core.PROXY_ACTIONS_DICT.keys():
@@ -119,8 +120,8 @@ def register_script_name(script_name: str) -> None:
 
 def periodic_gc(interval: int = 60) -> None:
     """Periodic cleaning task."""
-
-    work_thread = threading.Timer(interval=interval, function=check_active_threads, args=(True,))
-    work_thread.start()
-    print("Asignando")
-    core.GC_THREAD = work_thread
+    while True:
+        LOGGER.warning("Starting periodic GC every %s seconds" % interval)
+        check_active_threads(True)
+        LOGGER.warning("Next periodic GC in %s seconds" % interval)
+        time.sleep(interval)
