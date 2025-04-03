@@ -50,6 +50,10 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
 
                     elif isinstance(ref, dict):
                         for key, value in ref.items():
+                            if (
+                                key in core.PROXY_ACTIONS_DICT.keys()
+                            ):  # Falso positivo. Esto es el listado de los hilos.
+                                continue
                             if value is obj:
                                 list_.append(
                                     "(%s.%s -> %s (%s)" % (ref.__class__.__name__, key, name, ref)
@@ -62,7 +66,13 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
                         )
                         # print(" - obj:", repr(ref), [x for x in dir(ref) if getattr(ref, x) is obj])
                 if list_:
-                    LOGGER.warning("HINT: Objetos referenciando %r::%r (%r) :", typename, obj, name)
+                    LOGGER.warning(
+                        "HINT: %d Objetos referenciando %r::%r (%r) :",
+                        len(list_),
+                        typename,
+                        obj,
+                        name,
+                    )
                     for item in list_:
                         LOGGER.warning(item)
 
@@ -85,10 +95,11 @@ def check_active_threads(full: bool = False) -> None:
             if full:
                 LOGGER.warning("Deleting thread %s" % (thread_id))
             script_names_list = core.PROXY_ACTIONS_DICT[thread_id]
-            for script_name in script_names_list:
+            for script_name in list(script_names_list):
                 if full:
                     LOGGER.warning("Deleting action %s from thread %s" % (script_name, thread_id))
                 delete_proxy_thread(thread_id, script_name)
+
             core.PROXY_ACTIONS_DICT[thread_id] = None
             del core.PROXY_ACTIONS_DICT[thread_id]
 
@@ -104,18 +115,26 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
             obj_ = action_obj.loaded_obj[id_thread]
             action_obj.loaded_obj[id_thread] = None
             del action_obj.loaded_obj[id_thread]
-            check_delete(obj_, "proxy.widget")
+            # quitar script_name de la lista core.PROXY_ACTIONS_DICT[thread_id]
+
+            if hasattr(obj_, "iface"):
+                LOGGER.warning("Deleting iface from %s" % script_name)
+                iface_obj = obj_.iface
+                obj_.iface = None
+                del iface_obj
+
+            check_delete(obj_, "proxy.%s" % script_name)
 
 
 def register_script_name(script_name: str) -> None:
     """Register script name."""
+    if not core.DISABLE_CHECK_MEMORY_LEAKS:
+        id_thread = threading.current_thread().ident
+        if id_thread not in core.PROXY_ACTIONS_DICT.keys():
+            core.PROXY_ACTIONS_DICT[id_thread] = []
 
-    id_thread = threading.current_thread().ident
-    if id_thread not in core.PROXY_ACTIONS_DICT.keys():
-        core.PROXY_ACTIONS_DICT[id_thread] = []
-
-    if script_name not in core.PROXY_ACTIONS_DICT[id_thread]:
-        core.PROXY_ACTIONS_DICT[id_thread].append(script_name)
+        if script_name not in core.PROXY_ACTIONS_DICT[id_thread]:
+            core.PROXY_ACTIONS_DICT[id_thread].append(script_name)
 
 
 def periodic_gc(interval: int = 60) -> None:
