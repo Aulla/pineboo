@@ -123,11 +123,6 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
                 iface_obj = obj_.iface
                 obj_.iface = None
                 del iface_obj
-            if hasattr(obj_, "form"):
-                LOGGER.info("Deleting form from %s, %s" % (script_name, obj_.form))
-                form_obj = obj_.form
-                obj_.form = None
-                del form_obj
 
             check_delete(obj_, "proxy.%s" % script_name)
 

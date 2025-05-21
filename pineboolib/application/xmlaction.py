@@ -2,7 +2,6 @@
 XMLAction module.
 """
 
-
 from pineboolib.core.utils import struct, utils_base
 from pineboolib.core import garbage_collector
 
@@ -164,7 +163,12 @@ class XMLAction(struct.ActionStruct):
         """
         Load master form.
         """
+        # LOGGER.warning("LOAD master widget: %s", self._master_widget)
         if not self.is_form_loaded(self._master_widget):
+            iface_val = getattr(self._master_form, "iface", None)
+
+            if iface_val is None:
+                self._master_widget = None
             if self._table or (not self._table and self._master_widget is None):
                 self._master_widget = self.load_widget(
                     self._master_script if self._table else self._name
