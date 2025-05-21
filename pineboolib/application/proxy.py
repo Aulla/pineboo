@@ -57,10 +57,11 @@ class DelayedObjectProxyLoader(object):
                 if getattr(
                     self.loaded_obj[id_thread], "_loader", True  # type: ignore [index] # noqa: F821
                 ):
+                    # print("Existe", list_name)
                     return self.loaded_obj[  # type: ignore [index, return-value] # noqa: F821, F723
                         id_thread  # type: ignore [index, return-value] # noqa: F821, F723
                     ]
-
+        # print("Nuevooo", list_name, self._obj)
         self.loaded_obj[id_thread] = self._obj(  # type: ignore [index] # noqa: F821
             *self._args, **self._kwargs
         )
@@ -75,7 +76,13 @@ class DelayedObjectProxyLoader(object):
         )
 
         return_object = self.loaded_obj[id_thread]  # type: ignore [index] # noqa: F821
-
+        """ print(
+            "RETURNANDO",
+            return_object,
+            id_thread,
+            getattr(return_object, "iface", None),
+            dir(return_object.iface),
+        ) """
         if return_object is None:
             del self.loaded_obj[id_thread]  # type: ignore [arg-type] # noqa: F821
             raise Exception("Failed to load object")
@@ -94,6 +101,6 @@ class DelayedObjectProxyLoader(object):
         @param name. Nombre del la función buscada
         @return el objecto del XMLAction afectado
         """
-
+        # print("*********", self._name, name, self)
         obj_ = self.__load()
         return getattr(obj_, name, getattr(obj_, name, None))

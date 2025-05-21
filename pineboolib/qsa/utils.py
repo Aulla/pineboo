@@ -1,6 +1,7 @@
 """
 Utility functions for QS files.
 """
+
 import traceback
 import re
 import math
@@ -572,7 +573,6 @@ def user_id() -> str:
 
 def set_user_id(user_id: str) -> None:
     """Set user id."""
-
     qsadictmodules.from_project("sys").iface.current_user = user_id
 
 

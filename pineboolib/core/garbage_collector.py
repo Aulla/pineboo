@@ -118,10 +118,16 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
             # quitar script_name de la lista core.PROXY_ACTIONS_DICT[thread_id]
 
             if hasattr(obj_, "iface"):
-                LOGGER.warning("Deleting iface from %s" % script_name)
+                LOGGER.info("Deleting iface from %s, %s" % (script_name, obj_.iface))
+
                 iface_obj = obj_.iface
                 obj_.iface = None
                 del iface_obj
+            if hasattr(obj_, "form"):
+                LOGGER.info("Deleting form from %s, %s" % (script_name, obj_.form))
+                form_obj = obj_.form
+                obj_.form = None
+                del form_obj
 
             check_delete(obj_, "proxy.%s" % script_name)
 
@@ -132,6 +138,8 @@ def register_script_name(script_name: str) -> None:
         id_thread = threading.current_thread().ident
         if id_thread not in core.PROXY_ACTIONS_DICT.keys():
             core.PROXY_ACTIONS_DICT[id_thread] = []
+
+        script_name = script_name if script_name != "sys" else "sys_module"
 
         if script_name not in core.PROXY_ACTIONS_DICT[id_thread]:
             core.PROXY_ACTIONS_DICT[id_thread].append(script_name)
