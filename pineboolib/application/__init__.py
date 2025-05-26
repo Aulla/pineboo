@@ -6,7 +6,7 @@ This package holds all functions and classes that are like side resources.
 
 from pineboolib.application.projectmodule import Project
 from pineboolib.core import settings
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 PROJECT = Project()
 
@@ -35,7 +35,7 @@ PERSISTENT: Dict[str, Any] = {}
 USE_FLFILES_FOLDER_AS_STATIC_LOAD: bool = True
 TESTING_MODE: bool = False  # True when testing_mode else False
 ALLOW_ALTER_TABLE: bool = True
-PROJECT_NAME: str = None  # Nombre del proyecto
-EXTERNAL_FOLDER: str = None  # Carpeta externa
+PROJECT_NAME: Optional[str] = None  # Nombre del proyecto
+EXTERNAL_FOLDER: Optional[str] = None  # Carpeta externa
 UPDATE_FLFILES_FROM_FLFOLDER: bool = False  # Actualizar ficheros flfiles
 FRAMEWORK_DEBUG_LEVEL: int = 20  # Nivel de debug 30 .... 0 en bloques de 5

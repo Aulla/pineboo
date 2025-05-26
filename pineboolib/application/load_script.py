@@ -293,7 +293,7 @@ def _load(  # type: ignore [return] # noqa: F821, F723
     return import_path(module_name, script_name, capture_error)
 
 
-def import_path(module_name: str, script_name: str, capture_error: bool = True) -> "ModuleType":
+def import_path(module_name: str, script_name: str, capture_error: bool = True) -> "ModuleType":  # type: ignore [return]
     """Import path."""
 
     try:

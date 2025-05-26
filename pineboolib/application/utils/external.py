@@ -4,7 +4,7 @@ from pineboolib import application, logging
 import os
 import importlib
 
-from typing import Callable
+from typing import Callable, Optional
 
 LOGGER = logging.get_logger(__name__)
 
@@ -21,7 +21,7 @@ def load_project_config_file() -> None:
             from pineboolib.application.load_script import import_path
 
             mod_ = import_path("config_project", path_config)
-            launch_function(mod_, "cargar_dependencias")
+            launch_function(mod_, "cargar_dependencias")  # type: ignore [arg-type]
         else:
             LOGGER.warning("Config file not found: %s", path_config)
 
@@ -33,7 +33,7 @@ def reload_project_config() -> None:
         module_name = "apps.%s.config" % (application.PROJECT_NAME)
         try:
             mod_ = importlib.import_module(module_name)
-            launch_function(mod_, "cargar_dependencias")
+            launch_function(mod_, "cargar_dependencias")  # type: ignore [arg-type]
 
         except Exception as error:
             LOGGER.warning(
@@ -42,10 +42,10 @@ def reload_project_config() -> None:
             )
 
 
-def launch_function(mod_: "Callable", func_name: str = None) -> None:
+def launch_function(mod_: "Callable", func_name: Optional[str] = None) -> None:
     """Launch function."""
 
-    func_ = getattr(mod_, func_name, None)
+    func_ = getattr(mod_, func_name, None) if func_name else None
     if func_:
         LOGGER.info("EXTERNAL: %s function found in %s" % (func_name, mod_.__name__))
         func_()

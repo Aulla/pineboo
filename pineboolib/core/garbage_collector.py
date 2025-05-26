@@ -100,7 +100,7 @@ def check_active_threads(full: bool = False) -> None:
                     LOGGER.warning("Deleting action %s from thread %s" % (script_name, thread_id))
                 delete_proxy_thread(thread_id, script_name)
 
-            core.PROXY_ACTIONS_DICT[thread_id] = None
+            core.PROXY_ACTIONS_DICT[thread_id].clear()
             del core.PROXY_ACTIONS_DICT[thread_id]
 
 
@@ -128,14 +128,14 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
 def register_script_name(script_name: str) -> None:
     """Register script name."""
     if not core.DISABLE_CHECK_MEMORY_LEAKS:
-        id_thread = threading.current_thread().ident
+        id_thread: int = threading.current_thread().ident  # type: ignore [assignment]
         if id_thread not in core.PROXY_ACTIONS_DICT.keys():
             core.PROXY_ACTIONS_DICT[id_thread] = []
 
         script_name = script_name if script_name != "sys" else "sys_module"
 
         if script_name not in core.PROXY_ACTIONS_DICT[id_thread]:
-            core.PROXY_ACTIONS_DICT[id_thread].append(script_name)
+            core.PROXY_ACTIONS_DICT[id_thread].append(script_name)  # type: ignore [union-attr]
 
 
 def periodic_gc(interval: int = 60) -> None:

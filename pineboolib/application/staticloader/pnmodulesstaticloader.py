@@ -128,7 +128,7 @@ class AQStaticBdInfo(object):
             for key in list(sys.modules.keys()):
                 # Si el modulo esta en application.EXTERNAL_FOLDER. lo recargamos
                 file_name = (
-                    os.path.abspath(sys.modules[key].__file__)
+                    os.path.abspath(sys.modules[key].__file__)  # type: ignore [var-annotated, type-var]
                     if hasattr(sys.modules[key], "__file__")
                     and sys.modules[key].__file__ is not None
                     else None

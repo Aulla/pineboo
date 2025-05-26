@@ -226,8 +226,9 @@ class TestCachedFieldsPNTableMetaData(unittest.TestCase):
         mtd_1 = application.PROJECT.conn_manager.manager().metadata("flusers")
 
         self.assertTrue(mtd_1)
-        mtd_1.setCachedFields("*")
+
         if mtd_1 is not None:
+            mtd_1.setCachedFields("*")
             self.assertTrue(mtd_1.useCachedFields())
             self.assertEqual(mtd_1.cachedFields(), "*")
         else:
@@ -236,8 +237,9 @@ class TestCachedFieldsPNTableMetaData(unittest.TestCase):
         mtd_2 = application.PROJECT.conn_manager.manager().metadata("flusers")
 
         self.assertTrue(mtd_2)
-        mtd_2.setCachedFields("iduser,description")
+
         if mtd_2 is not None:
+            mtd_2.setCachedFields("iduser,description")
             self.assertTrue(mtd_2.useCachedFields())
             self.assertEqual(mtd_2.cachedFields(), "iduser,description")
         else:

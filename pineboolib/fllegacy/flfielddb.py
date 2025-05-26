@@ -741,7 +741,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if not editor_int.text():
                 do_home = True
 
-            editor_int.setText(value if value else 0)
+            editor_int.setText(value if value else 0)  # type: ignore [arg-type]
 
             if do_home:
                 editor_int.home(False)

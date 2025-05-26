@@ -22,10 +22,10 @@ LOGGER = logging.get_logger(__name__)
 class TableType(Enum):
     """TableType class."""
 
-    Tables: int = 1  # pylint: disable=invalid-name
-    SystemTables: int = 2  # pylint: disable=invalid-name
-    Views: int = 3  # pylint: disable=invalid-name
-    AllTables: int = 0  # pylint: disable=invalid-name
+    Tables = 1  # pylint: disable=invalid-name
+    SystemTables = 2  # pylint: disable=invalid-name
+    Views = 3  # pylint: disable=invalid-name
+    AllTables = 0  # pylint: disable=invalid-name
 
 
 class AQSql(object):

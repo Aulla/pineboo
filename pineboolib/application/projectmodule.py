@@ -716,29 +716,29 @@ class Project(object):
         conn.execute_query("DELETE FROM flfiles")
         # 2 insertar flareas
         LOGGER.warning("(2/5) Updating flareas ...")
-        for data in self.areas.values():
+        for data_area in self.areas.values():
             model_areas = qsadictmodules.QSADictModules.orm_("flareas")()
-            model_areas.idarea = data.idarea
-            model_areas.descripcion = data.descripcion
-            model_areas.bloqueo = data.idarea != "sys"
+            model_areas.idarea = data_area.idarea
+            model_areas.descripcion = data_area.descripcion
+            model_areas.bloqueo = data_area.idarea != "sys"
             if not model_areas.save():
-                LOGGER.error("Error saving area %s", data.idarea)
+                LOGGER.error("Error saving area %s", data_area.idarea)
                 continue
         LOGGER.warning("(3/5) Updating flmodules ...")
-        for data in self.modules.values():
+        for data_module in self.modules.values():
             model_modules = qsadictmodules.QSADictModules.orm_("flmodules")()
-            model_modules.idarea = data.areaid
-            model_modules.idmodulo = data.name
-            model_modules.descripcion = data.description
-            model_modules.icono = data.icon
-            model_modules.version = data.version
-            model_modules.bloqueo = data.name != "sys"
+            model_modules.idarea = data_module.areaid
+            model_modules.idmodulo = data_module.name
+            model_modules.descripcion = data_module.description
+            model_modules.icono = data_module.icon
+            model_modules.version = data_module.version
+            model_modules.bloqueo = data_module.name != "sys"
             if not model_modules.save():
-                LOGGER.error("Error saving module %s", data.name)
+                LOGGER.error("Error saving module %s", data_module.name)
                 continue
 
         LOGGER.warning("(4/5) Updating flfiles ...")
-        for id_module, file_name, string_sha, data in files_list:
+        for id_module, file_name, string_sha, data_str in files_list:
             if id_module == "sys":
                 continue
 
@@ -765,7 +765,7 @@ class Project(object):
             model_files.idmodulo = id_module
             model_files.nombre = file_name
             model_files.sha = string_sha
-            model_files.contenido = data
+            model_files.contenido = data_str
             result = False
             error = ""
             try:

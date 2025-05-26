@@ -115,11 +115,7 @@ class Migration:
             file_path = os.path.join(folder_path, file_name)
             file_time = os.path.getctime(file_path)
 
-            if last is None:
-                last = [file_time, file_path]
-                continue
-
-            if file_time > last[0]:  # type: ignore [unreachable]
+            if last is None or file_time > last[0]:  # type: ignore [operator]
                 last = [file_time, file_path]
 
         return "" if last is None else str(last[1])
