@@ -3,7 +3,7 @@ coverage==6.0b1
 defusedxml
 flup
 mccabe
-mypy==1.4.1
+mypy==1.15.1
 mypy-extensions==1.0.0
 typing-extensions>=3.7.4
 pydocstyle
