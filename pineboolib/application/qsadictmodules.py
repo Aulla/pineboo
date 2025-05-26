@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 
 class QSADictModulesThread:
+    """QSADictModulesThread class."""
+
     pass
 
 

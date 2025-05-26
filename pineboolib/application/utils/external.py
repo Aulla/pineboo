@@ -1,3 +1,5 @@
+"""External module."""
+
 from pineboolib import application, logging
 import os
 import importlib

@@ -45,7 +45,11 @@ LOG_FILE_FORMAT: str = "%(asctime)s - %(process)d - %(name)s - %(levelname)s - %
 
 
 class GZipRotator:
+    """GZipRotator class."""
+
     def __call__(self, source: str, dest: str) -> None:
+        """Call function."""
+
         os.rename(source, dest)
         f_in = open(dest, "rb")
         f_out = gzip.open("%s.gz" % dest, "wb")
