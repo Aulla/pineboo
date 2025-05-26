@@ -1,7 +1,6 @@
 """Flutil module."""
 
 # -*- coding: utf-8 -*-
-import hashlib
 import datetime
 import glob
 from datetime import date

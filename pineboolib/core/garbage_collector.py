@@ -120,9 +120,7 @@ def delete_proxy_thread(id_thread: int, script_name: str) -> None:
             if hasattr(obj_, "iface"):
                 LOGGER.info("Deleting iface from %s, %s" % (script_name, obj_.iface))
 
-                iface_obj = obj_.iface
                 obj_.iface = None
-                del iface_obj
 
             check_delete(obj_, "proxy.%s" % script_name)
 

@@ -64,7 +64,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         parent=None,
     ) -> None:
         """Create a new cursor."""
-        global CONNECTION_CURSORS
+        global CONNECTION_CURSORS  # noqa: F824
 
         identifier = application.PROJECT.session_id()
         if identifier not in CONNECTION_CURSORS.keys():
@@ -2077,7 +2077,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param invalidate. Not used.
         """
-        global CONNECTION_CURSORS
+        global CONNECTION_CURSORS  # noqa: F824
 
         for id_conn in CONNECTION_CURSORS.keys():
             if self.id() in CONNECTION_CURSORS[id_conn]:

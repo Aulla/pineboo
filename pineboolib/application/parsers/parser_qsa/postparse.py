@@ -27,7 +27,7 @@ UNKNOWN_PARSERS = {}
 
 def parse_for(*tag_names: str) -> Callable:
     """Decorate functions for registering tags."""
-    global KNOWN_PARSERS
+    global KNOWN_PARSERS  # noqa: F824
 
     def decorator(func: Type["TagObjectBase"]) -> Type["TagObjectBase"]:
         for tag_name in tag_names:
@@ -39,7 +39,7 @@ def parse_for(*tag_names: str) -> Callable:
 
 def parse(tag_name: str, tree_data: TreeData) -> "TagObject":
     """Excecute registered function for given tagname on treedata."""
-    global KNOWN_PARSERS, UNKNOWN_PARSERS
+    global KNOWN_PARSERS, UNKNOWN_PARSERS  # noqa: F824
     if tag_name not in KNOWN_PARSERS:
         UNKNOWN_PARSERS[tag_name] = 1
         func = parse_unknown
@@ -94,7 +94,7 @@ class TagObjectFactory(type):
 
     def __init__(cls, name: str, bases: Any, dct: Any) -> None:
         """Register a new class as tag processor."""
-        global XML_CLASS_TYPES
+        global XML_CLASS_TYPES  # noqa: F824
         if issubclass(cls, TagObjectBase):
             XML_CLASS_TYPES.append(cast(Type[TagObjectBase], cls))
         else:

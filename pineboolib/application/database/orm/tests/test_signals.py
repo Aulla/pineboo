@@ -62,7 +62,7 @@ class TestSignals(unittest.TestCase):
         application.PROJECT.conn_manager.manager().createTable("fltest5")
 
     def test_basic_1(self) -> None:
-        global VALUE_1
+        global VALUE_1  # noqa: F824
 
         VALUE_1 = 0
         qsa.thread_session_new()
@@ -74,7 +74,7 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_1, 1)
 
     def test_basic_2(self) -> None:
-        global VALUE_1
+        global VALUE_1  # noqa: F824
 
         VALUE_1 = 0
         qsa.thread_session_new()
@@ -91,7 +91,7 @@ class TestSignals(unittest.TestCase):
         qsa.thread_session_free()
 
     def test_basic_3(self) -> None:
-        global VALUE_2
+        global VALUE_2  # noqa: F824
 
         VALUE_2 = ""
         qsa.thread_session_new()
@@ -103,7 +103,7 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_2, "idarea")
 
     def test_basic_4(self) -> None:
-        global VALUE_1, VALUE_2
+        global VALUE_1, VALUE_2  # noqa: F824
 
         VALUE_1 = 0
         VALUE_2 = ""
@@ -118,7 +118,7 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_2, "idarea")
 
     def test_basic_5(self) -> None:
-        global VALUE_1, VALUE_2
+        global VALUE_1, VALUE_2  # noqa: F824
 
         VALUE_1 = 0
         VALUE_2 = ""
@@ -134,7 +134,7 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_2, "idarea")
 
     def test_basic_6(self) -> None:
-        global VALUE_3
+        global VALUE_3  # noqa: F824
 
         qsa.thread_session_new()
         obj_ = qsa.orm.fltest4()
@@ -145,7 +145,7 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_3, True)
 
     def test_basic_7(self) -> None:
-        global VALUE_4, VALUE_5
+        global VALUE_4, VALUE_5  # noqa: F824
 
         qsa.thread_session_new()
         obj_ = qsa.orm.fltest4()

@@ -771,7 +771,7 @@ class Project(object):
             try:
                 result = model_files.save()
             except Exception as err:
-                error = str(error)
+                error = str(err)
 
             if not result:
                 LOGGER.error("Error saving file %s. %s", file_name, error)

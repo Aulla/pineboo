@@ -1,6 +1,7 @@
 """
 Simple parser for FacturaLUX Scripting Language (QSA).
 """
+
 import optparse
 import pprint
 import sys
@@ -90,7 +91,7 @@ def cnvrt(val: str) -> str:
 
 def p_parse(token: Any) -> None:
     """Parse a single token."""
-    global INPUT_DATA
+    global INPUT_DATA  # noqa: F824
 
     lexspan: List[int] = list(token.lexspan(0))
     # data = str(token.lexer.lexdata[lexspan[0]:lexspan[1]])
@@ -143,7 +144,7 @@ def p_parse(token: Any) -> None:
     # if str(token.slice[0]) == 'regex':
     #    print "\r\n",str(token.slice[0]) ,":" , INPUT_DATA[lexspan[0]:lexspan[1]+1]
     #    print "      " + "\n      ".join([ "%s(%r): %r" % (s.type, token.lexspan(n+1), s.value) for n,s in enumerate(token.slice[1:]) ])
-    global SEEN_TOKENS, LAST_OK_TOKEN
+    global SEEN_TOKENS, LAST_OK_TOKEN  # noqa: F824
     LAST_OK_TOKEN = token
     SEEN_TOKENS.append(
         (str(token.slice[0]), token.lineno(0), INPUT_DATA[lexspan[0] : lexspan[1] + 1])
@@ -158,10 +159,10 @@ def p_parse(token: Any) -> None:
 
 def p_error(text: Any) -> Any:
     """Process and report errors in parsing."""
-    global ERROR_COUNT
-    global OK_COUNT
-    global LAST_ERROR_TOKEN
-    global LAST_ERROR_LINE, SEEN_TOKENS, LAST_OK_TOKEN
+    global ERROR_COUNT  # noqa: F824
+    global OK_COUNT  # noqa: F824
+    global LAST_ERROR_TOKEN  # noqa: F824
+    global LAST_ERROR_LINE, SEEN_TOKENS, LAST_OK_TOKEN  # noqa: F824
     debug = False  # Poner a True para toneladas de debug.
     # if ERROR_COUNT == 0: print
     if text is not None:
@@ -195,7 +196,7 @@ def p_error(text: Any) -> Any:
     if text is None:
         if LAST_ERROR_TOKEN != "EOF":
             print("ERROR: End of the file reached.")
-            global endoffile  # pylint: disable=invalid-name
+            global endoffile  # pylint: disable=invalid-name # noqa: F824
             print("Last data:", endoffile)
 
             if LAST_LEXSPAN:
@@ -587,7 +588,7 @@ parser = yacc.yacc(
 
 def print_context(token: Any) -> None:
     """Report errors in console when parsing fails."""
-    global INPUT_DATA
+    global INPUT_DATA  # noqa: F824
     if token is None:
         return
     last_cr = INPUT_DATA.rfind("\n", 0, token.lexpos)
@@ -844,9 +845,9 @@ def printtree(
 def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     """Parse QS String."""
 
-    global INPUT_DATA
-    global ERROR_COUNT
-    global SEEN_TOKENS
+    global INPUT_DATA  # noqa: F824
+    global ERROR_COUNT  # noqa: F824
+    global SEEN_TOKENS  # noqa: F824
 
     if clean:
         data = clean_no_python_tags(data)

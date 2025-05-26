@@ -430,7 +430,7 @@ def load_action(
 
     widget: pre-created widget to store the object.
     """
-    global ICONS
+    global ICONS  # noqa: F824
 
     new_action = action_widget if action_widget is not None else QtGui.QAction(widget)
 
@@ -1041,7 +1041,7 @@ class LoadWidget:
 
 def load_icon(xml: "ET.Element") -> None:
     """Load Icon from XML."""
-    global ICONS
+    global ICONS  # noqa: F824
 
     name = xml.get("name")
     xmldata = xml.find("data")
@@ -1105,7 +1105,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
     if variant.tag == "cstring":
         return text
     elif variant.tag in ["iconset", "pixmap"]:
-        global ICONS
+        global ICONS  # noqa: F824
         if text in ICONS.keys():
             return ICONS[text]
         else:

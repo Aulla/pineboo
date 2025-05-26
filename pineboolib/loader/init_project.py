@@ -56,8 +56,6 @@ def init_project(
         try:
             project.call(args[0], args[1:] if len(args) > 1 else [])
         except Exception as error:
-            from pineboolib import application
-
             LOGGER.warning("could not be executed %s : %s", call_function, str(error))
 
         if options.quit_after_call:

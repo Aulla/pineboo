@@ -516,11 +516,6 @@ def pixmap_from_mime_source(name: str) -> Any:
     return QtGui.QPixmap(file_name) if os.path.exists(file_name) else None
 
 
-def sha1(text_: str) -> str:
-    """Get SHA1 hash from string in hex form."""
-    return hashlib.sha1(str(text_).encode("UTF-8")).hexdigest()
-
-
 def print_stack(maxsize: int = 1) -> None:
     """Print Python stack, like a traceback."""
     for item in traceback.format_list(traceback.extract_stack())[1:-2][-maxsize:]:

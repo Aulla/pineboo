@@ -3,7 +3,6 @@ Proxy Module.
 """
 
 from pineboolib import logging
-from pineboolib.core import garbage_collector
 
 from typing import Any, Optional, Dict, Callable, TYPE_CHECKING
 import threading

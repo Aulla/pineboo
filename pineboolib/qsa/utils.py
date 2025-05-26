@@ -394,7 +394,7 @@ def text(obj: Any) -> str:
 
 def start_timer(time: int, fun: Callable) -> "QtCore.QTimer":
     """Create new timer that calls a function."""
-    global TIMERS
+    global TIMERS  # noqa: F824
     timer = QtCore.QTimer()
     timer.timeout.connect(fun)  # type: ignore [attr-defined] # noqa: F821
     timer.start(time)
@@ -404,7 +404,7 @@ def start_timer(time: int, fun: Callable) -> "QtCore.QTimer":
 
 def kill_timer(timer: Optional["QtCore.QTimer"] = None) -> None:
     """Stop a given timer."""
-    global TIMERS
+    global TIMERS  # noqa: F824
     if timer is not None:
         timer.stop()
         TIMERS.remove(timer)

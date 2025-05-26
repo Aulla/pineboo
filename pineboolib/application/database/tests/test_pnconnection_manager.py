@@ -103,7 +103,7 @@ class TestPNConnectionManager(unittest.TestCase):
 
     def user_id(self) -> str:
         """Return user id."""
-        global USER_ID
+        global USER_ID  # noqa: F824
         return USER_ID
 
     @classmethod

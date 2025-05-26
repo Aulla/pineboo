@@ -712,15 +712,6 @@ class FLManagerModules(object):
         #     self.dict_info_mods_[info_module_.id_modulo.upper()] = info_module_
         # =======================================================================
 
-    def listAllIdModules(self) -> List[str]:
-        """
-        Return the list of identifiers of all modules loaded in the system.
-
-        @return List of module identifiers
-        """
-
-        return [key for key in application.PROJECT.modules.keys()]
-
     @decorators.deprecated
     def loadIdAreas(self) -> None:
         """

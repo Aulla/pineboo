@@ -36,7 +36,7 @@ def get_dependency_errors(dict_: "DependencyCheck") -> "DependencyError":
     @param exit . Exit if dependence fails.
     """
 
-    global DEPENDENCIES_CHECKED
+    global DEPENDENCIES_CHECKED  # noqa: F824
     from importlib import import_module
 
     error: DependencyError = {}

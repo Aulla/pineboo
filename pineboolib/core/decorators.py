@@ -34,7 +34,7 @@ def not_implemented_warn(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -69,7 +69,7 @@ def not_implemented_debug(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -92,7 +92,7 @@ def working_on_this(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -115,7 +115,7 @@ def beta_implementation(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -142,7 +142,7 @@ def empty(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -163,7 +163,7 @@ def incomplete(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -185,7 +185,7 @@ def need_revision(func_: "TYPEFN") -> "TYPEFN":
     """Mark the function as needs to be revised. Some bug might have been found and needs help from other devs."""
 
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
@@ -208,7 +208,7 @@ def deprecated(func_: "TYPEFN") -> "TYPEFN":
 
     @functools.wraps(func_)
     def newfn(*args: Any, **kwargs: Any) -> Any:
-        global MSG_EMITTED
+        global MSG_EMITTED  # noqa: F824
         ret = func_(*args, **kwargs)
         x_args = [clean_repr(a) for a in args] + [
             "%s=%s" % (key, clean_repr(value)) for key, value in list(kwargs.items())
