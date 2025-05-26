@@ -3,7 +3,7 @@ black==23.11
 coloredlogs==14.0
 cryptography==36.0.1
 fpdf2==2.4.2
-flake8==7.1.2
+flake8==7.2.0
 flup==1.0.3
 fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
