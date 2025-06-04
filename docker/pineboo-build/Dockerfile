@@ -6,7 +6,8 @@ RUN apt-get update && \
     moreutils make poppler-utils \
     python3-pip python3-setuptools \
     python3-psycopg2 python3-mysqldb python3-pymysql python3-venv python3-cryptography \
-    libxkbcommon-x11-0 libopengl0 libdbus-1-3 xcb libxcb-cursor0\
+    libxkbcommon-x11-0 libopengl0 libdbus-1-3 xcb libxcb-cursor0 \
+    libxml2-dev libxslt1-dev\
     && \
     rm -rf /var/lib/apt/lists/*
 
