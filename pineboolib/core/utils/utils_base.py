@@ -293,11 +293,11 @@ def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
 
     try:
         parser = ElementTree.XMLParser()
-        return ElementTree.parse(file_ptr or form_path_or_str, parser)
+        return ElementTree.parse(file_ptr or form_path_or_str, parser)  # type: ignore [return-value]
     except Exception:
         try:
             parser = ElementTree.XMLParser(encoding="ISO-8859-15")
-            return ElementTree.parse(file_ptr or form_path_or_str, parser)
+            return ElementTree.parse(file_ptr or form_path_or_str, parser)  # type: ignore [return-value]
         except Exception:
             """LOGGER.exception(
                 "Error cargando UI después de intentar con UTF8 e ISO \n%s", form_path_or_str

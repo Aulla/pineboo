@@ -91,7 +91,7 @@ class TestParser(unittest.TestCase):
         parser_tools = kparsertools.KParserTools()
         xml_data = load2xml(data.toString()).getroot()
 
-        child = xml_data.findall("Row")[0]
+        child = xml_data.findall("Row")[0]  # type: ignore [union-attr]
         element = parser_tools.convertToNode(child)
         self.assertTrue(element)
         fecha_ = str(datetime.date.__format__(datetime.date.today(), "%d-%m-%Y"))

@@ -97,12 +97,12 @@ class Kut2FPDF(object):
         @return Path to PDF file.
         """
         try:
-            self._xml = self._parser_tools.loadKut(kut).getroot()
+            self._xml = self._parser_tools.loadKut(kut).getroot()  # type: ignore [assignment]
         except Exception:
             LOGGER.exception("KUT2FPDF: Problema al procesar %s.kut", name)
             return None
         try:
-            self._xml_data = load2xml(data).getroot()
+            self._xml_data = load2xml(data).getroot()  # type: ignore [assignment]
         except Exception:
             LOGGER.exception("KUT2FPDF: Problema al procesar xml_data")
             return None

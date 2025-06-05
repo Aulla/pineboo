@@ -31,12 +31,12 @@ class AboutPineboo(QtWidgets.QDialog):
         if self.ui_ is None:
             raise Exception("Error creating UI About Dialog")
 
-        self.ui_.lbl_version.setText("Pineboo %s" % str(version_))
-        self.ui_.btn_close.clicked.connect(self.ui_.close)
-        self.ui_.btn_clipboard.clicked.connect(self.to_clipboard)
+        self.ui_.lbl_version.setText("Pineboo %s" % str(version_))  # type: ignore [attr-defined]
+        self.ui_.btn_close.clicked.connect(self.ui_.close)  # type: ignore [attr-defined]
+        self.ui_.btn_clipboard.clicked.connect(self.to_clipboard)  # type: ignore [attr-defined]
         self.ui_.show()
 
-        self.ui_.lbl_librerias.setText(self.load_components())
+        self.ui_.lbl_librerias.setText(self.load_components())  # type: ignore [attr-defined]
 
     def load_components(self) -> str:
         """Resume libraries loaded."""

@@ -370,8 +370,8 @@ class FLManagerModules(object):
 
         root_ = tree.getroot()
 
-        ui_version = root_.get("version") or "1.0"
-        wid = root_.find("widget")
+        ui_version = root_.get("version") or "1.0"  # type: ignore [union-attr]
+        wid = root_.find("widget")  # type: ignore [union-attr]
         geometry = []
 
         if wid is not None:

@@ -74,10 +74,10 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
     # if application.PROJECT.DGI.localDesktop():
     widget.hide()
 
-    for xmlimage in ROOT.findall("images//image"):
+    for xmlimage in ROOT.findall("images//image"):  # type: ignore [union-attr]
         load_icon(xmlimage)
 
-    for xmlwidget in ROOT.findall("widget"):
+    for xmlwidget in ROOT.findall("widget"):  # type: ignore [union-attr]
         LoadWidget(xmlwidget, widget, parent)
 
     # print("----------------------------------")
@@ -94,17 +94,17 @@ def load_ui(form_path: str, widget: Any, parent: Optional["QtWidgets.QWidget"] =
     #    load_action(action, widget)
 
     # Cargamos menubar ...
-    xmlmenubar = ROOT.find("menubar")
+    xmlmenubar = ROOT.find("menubar")  # type: ignore [union-attr]
     # print("Cargamos menubar!")
     if xmlmenubar is not None:
         load_menu_bar(xmlmenubar, widget)
 
     # Cargamos toolbars ...
     # print("Cargamos toolbar!")
-    for xmltoolbar in ROOT.findall("toolbars//toolbar"):
+    for xmltoolbar in ROOT.findall("toolbars//toolbar"):  # type: ignore [union-attr]
         load_tool_bar(xmltoolbar, widget)
 
-    for xmlconnection in ROOT.findall("connections//connection"):
+    for xmlconnection in ROOT.findall("connections//connection"):  # type: ignore [union-attr]
         sender_elem = xmlconnection.find("sender")
         signal_elem = xmlconnection.find("signal")
         receiv_elem = xmlconnection.find("receiver")

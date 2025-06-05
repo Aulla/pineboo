@@ -366,7 +366,7 @@ class FLCodBar(object):
 
         svg = bar_.render(render_options)
         xml_svg = load2xml(svg.decode("utf-8")).getroot()
-        xwidth, xheight = xml_svg.get("width"), xml_svg.get("height")
+        xwidth, xheight = xml_svg.get("width"), xml_svg.get("height")  # type: ignore [union-attr]
         if xwidth and xheight:
             svg_w = 3.779 * float(xwidth[0:6])
             svg_h = 3.779 * float(xheight[0:6])

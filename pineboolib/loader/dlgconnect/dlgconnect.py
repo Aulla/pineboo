@@ -68,20 +68,20 @@ class DlgConnect(QtWidgets.QWidget):
             frame_geo.moveCenter(primary_screen.geometry().center())
         self.move(frame_geo.topLeft())
 
-        self._user_interface.pbLogin.clicked.connect(self.open)
-        self._user_interface.tbOptions.clicked.connect(self.toggleOptions)
-        self._user_interface.pbSaveConnection.clicked.connect(self.saveProfile)
-        self._user_interface.tbDeleteProfile.clicked.connect(self.deleteProfile)
-        self._user_interface.tbEditProfile.clicked.connect(self.editProfile)
+        self._user_interface.pbLogin.clicked.connect(self.open)  # type: ignore [attr-defined]
+        self._user_interface.tbOptions.clicked.connect(self.toggleOptions)  # type: ignore [attr-defined]
+        self._user_interface.pbSaveConnection.clicked.connect(self.saveProfile)  # type: ignore [attr-defined]
+        self._user_interface.tbDeleteProfile.clicked.connect(self.deleteProfile)  # type: ignore [attr-defined]
+        self._user_interface.tbEditProfile.clicked.connect(self.editProfile)  # type: ignore [attr-defined]
         self.cleanProfileForm()
-        self._user_interface.cbDBType.currentIndexChanged.connect(self.updatePort)
-        self._user_interface.cbProfiles.currentIndexChanged.connect(self.enablePassword)
-        self._user_interface.cbAutoLogin.stateChanged.connect(self.cbAutoLogin_checked)
-        self._user_interface.le_profiles.setText(self.profile_dir)
-        self._user_interface.tb_profiles.clicked.connect(self.change_profile_dir)
+        self._user_interface.cbDBType.currentIndexChanged.connect(self.updatePort)  # type: ignore [attr-defined]
+        self._user_interface.cbProfiles.currentIndexChanged.connect(self.enablePassword)  # type: ignore [attr-defined]
+        self._user_interface.cbAutoLogin.stateChanged.connect(self.cbAutoLogin_checked)  # type: ignore [attr-defined]
+        self._user_interface.le_profiles.setText(self.profile_dir)  # type: ignore [attr-defined]
+        self._user_interface.tb_profiles.clicked.connect(self.change_profile_dir)  # type: ignore [attr-defined]
         self.showOptions(False)
         self.loadProfiles()
-        self._user_interface.leDescription.textChanged.connect(self.updateDBName)
+        self._user_interface.leDescription.textChanged.connect(self.updateDBName)  # type: ignore [attr-defined]
         self._user_interface.installEventFilter(self)
 
     def cleanProfileForm(self) -> None:
