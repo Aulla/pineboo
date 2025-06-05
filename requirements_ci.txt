@@ -1,5 +1,5 @@
 bandit
-coverage==6.0b1
+coverage
 defusedxml
 flup
 mccabe
