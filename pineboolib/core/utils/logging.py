@@ -118,7 +118,6 @@ def get_logger(name: Optional[str] = None) -> Logger:
             try:
                 os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
             except Exception:
-
                 can_log_to_file = False
         if can_log_to_file:
             can_log_to_file = os.access(base_dir, os.W_OK)

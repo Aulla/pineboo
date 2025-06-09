@@ -65,9 +65,9 @@ class ModuleActions(object):
         # action._form = None
         # action.table = None
         # action.scriptform = self.mod.name
-        self.project.actions[action._name] = (
-            action  # FIXME: Actions should be loaded to their parent, not the singleton
-        )
+        self.project.actions[
+            action._name
+        ] = action  # FIXME: Actions should be loaded to their parent, not the singleton
         QSADictModules.save_action_for_root_module(action)
 
         for xmlaction_item in self.root:  # type: ignore [union-attr]
@@ -80,9 +80,9 @@ class ModuleActions(object):
                 QSADictModules.save_action_for_mainform(action_xml)
                 or name not in self.project.actions.keys()
             ):
-                self.project.actions[name] = (
-                    action_xml  # FIXME: Actions should be loaded to their parent, not the singleton
-                )
+                self.project.actions[
+                    name
+                ] = action_xml  # FIXME: this should be loaded to their parent, not the singleton
             QSADictModules.save_action_for_formrecord(action_xml)
             QSADictModules.save_action_for_class(action_xml)
 

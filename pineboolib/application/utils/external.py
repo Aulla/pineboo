@@ -12,9 +12,10 @@ LOGGER = logging.get_logger(__name__)
 def load_project_config_file() -> None:
     """Load project config."""
     if application.EXTERNAL_FOLDER and application.PROJECT_NAME:
-
         path_config = os.path.abspath(
-            os.path.join(application.EXTERNAL_FOLDER, "apps", application.PROJECT_NAME, "config.py")
+            os.path.join(
+                application.EXTERNAL_FOLDER, "apps", application.PROJECT_NAME, "config.py"
+            )  # Carga ruta
         )
         LOGGER.info("PROJECT_NAME: %s, CONFIG: %s" % (application.PROJECT_NAME, path_config))
         if os.path.exists(path_config):

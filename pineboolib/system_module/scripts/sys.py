@@ -157,7 +157,6 @@ class FormInternalObj(qsa.FormDBWidget):
         }
 
         if updated == 2:
-
             registros: str = meta.cachedFields()
             if registros != "*":
                 camposCacheados = registros.split(",")
