@@ -25,7 +25,7 @@ python-daemon
 qrcode[pil]
 sqlalchemy==1.4.49
 sqlparse==0.3.1
-twine==3.1.1
+twine==6.1.0
 uharfbuzz>=0.37.3
 watchdog>=0.10.2
 xades==1.0.0
