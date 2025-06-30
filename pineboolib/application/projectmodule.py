@@ -305,10 +305,12 @@ class Project(object):
             LOGGER.info("RUN: Creating %s folder.", db_cache_folder)
             os.makedirs(db_cache_folder)
 
-        file_ver = open(cache_version_file_path, "w", encoding="UTF8")
-        file_ver.write(parser_qsa.PARSER_QSA_VERSION)
-        file_ver.close()
-        del file_ver
+        if delete_cache or not os.path.exists(cache_version_file_path):
+            LOGGER.warning("RUN: Writing %s file.", cache_version_file_path)
+            file_ver = open(cache_version_file_path, "w", encoding="UTF8")
+            file_ver.write(parser_qsa.PARSER_QSA_VERSION)
+            file_ver.close()
+            del file_ver
 
         return self.load_system_module() and self.load_database_modules()
 
