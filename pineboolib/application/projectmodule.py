@@ -249,6 +249,7 @@ class Project(object):
 
         if os.path.exists(db_cache_folder):
             if not os.path.exists(cache_version_file_path):
+                LOGGER.warning("QSA parser version not found in %s.", cache_version_file_path)
                 delete_cache = True
             else:
                 cache_ver = ""
@@ -257,6 +258,7 @@ class Project(object):
                     cache_ver = file_ver.read()
                     file_ver.close()
                 except Exception:
+                    LOGGER.warning("Error reading %s", cache_version_file_path)
                     pass
                 if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     delete_cache = True
@@ -264,8 +266,9 @@ class Project(object):
             if delete_cache:
                 if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     LOGGER.warning(
-                        "QSA parser version has changed from %s to %s!. Deleting cache.",
+                        "QSA parser version has changed from %s (%s) to %s!. Deleting cache.",
                         cache_ver,
+                        cache_version_file_path,
                         parser_qsa.PARSER_QSA_VERSION,
                     )
                 else:
