@@ -348,10 +348,8 @@ def populate_fields(dest_file_name: str, mtd_name: str) -> str:
             )
             application.PROJECT.files[new_key].filekey = "%s_model.py" % file_mtd.filekey
             new_file_path = application.PROJECT.files[new_key].path()
-            if os.path.exists(new_file_path):
-                os.remove(new_file_path)
-
-            _write_file(new_file_path, new_lines)
+            if not os.path.exists(new_file_path):
+                _write_file(new_file_path, new_lines)
 
     return new_file_path
 
