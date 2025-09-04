@@ -7,7 +7,7 @@ flake8==7.1.2
 flup==1.0.3
 fonttools>=4.27.1 # 4.33.3
 keyrings.alt>=3.4.0
-lxml==4.9.3
+lxml
 marshmallow>=3.19.0
 ninja==1.10.0.post1
 # odfpy
@@ -31,7 +31,7 @@ watchdog>=0.10.2
 xades==1.0.0
 xmlsig==0.1.7
 Pillow==10.4.0 #8.2.0
-PyYAML==6.0.1 #5.3.1
+PyYAML>=6.0.1 #5.3.1
 PyQt6==6.7.1 # python 3.8 o sup
 PyQt6-Qt6==6.7.1 # python 3.8 o sup
 PyQt6-sip==13.8.0 # python 3.8 o sup
