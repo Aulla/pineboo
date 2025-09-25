@@ -185,7 +185,7 @@ class ICursorPrivate(QtCore.QObject):
     _ac_perm_table = None
     _acos_permanent_backup_table: Dict[str, str] = {}
     _acos_table: List[str] = []
-    _acos_backup_table: Dict[str, str] = {}
+    _acos_backup_table: Dict[str, List[str]] = {}
     _acos_cond_name: Optional[str] = None
     _acos_cond: int
     _acos_cond_value = None
