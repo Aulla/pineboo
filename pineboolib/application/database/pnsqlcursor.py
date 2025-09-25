@@ -3319,19 +3319,23 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         if self.metadata_ is None:
             return
 
-        if not self._id_acl:
-            self._id_acl = "%s_%s" % (
+        id_acl_ = self._id_acl
+
+        if not id_acl_:
+            id_acl_ = "%s_%s" % (
                 application.PROJECT.session_id(),
                 self.metadata_.name(),
             )
-        if self._id_acl not in self.acl_table_.keys():
-            self.acl_table_[self._id_acl] = pnaccesscontrolfactory.PNAccessControlFactory().create(
-                "table"
-            )
-            self.acl_table_[self._id_acl].setFromObject(self.metadata_)
-            self._acos_backup_table[self._id_acl] = self.acl_table_[self._id_acl].getAcos()
-            self._acos_permanent_backup_table[self._id_acl] = self.acl_table_[self._id_acl].perm()
-            self.acl_table_[self._id_acl].clear()
+            self._id_acl = id_acl_
+        if id_acl_ not in self.acl_table_.keys():
+
+            acf_ = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
+            acf_.setFromObject(self.metadata_)
+            self._acos_backup_table[id_acl_] = acf_.getAcos()
+            self._acos_permanent_backup_table[id_acl_] = acf_.perm()
+            acf_.clear()
+            self.acl_table_[id_acl_] = acf_
+
         if self.cursor_ is None:
             raise Exception("Cursor not created yet")
         if self.mode_access_ == PNSqlCursor.Insert or (
@@ -3361,12 +3365,12 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
                 )
 
             if condition_true:
-                if self.acl_table_[self._id_acl].name() != self.id_:
-                    self.acl_table_[self._id_acl].clear()
-                    self.acl_table_[self._id_acl].setName(self.id_)
-                    self.acl_table_[self._id_acl].setPerm(self._ac_perm_table)
-                    self.acl_table_[self._id_acl].setAcos(self._acos_table)
-                    self.acl_table_[self._id_acl].processObject(self.metadata_)
+                if self.acl_table_[id_acl_].name() != self.id_:
+                    self.acl_table_[id_acl_].clear()
+                    self.acl_table_[id_acl_].setName(self.id_)
+                    self.acl_table_[id_acl_].setPerm(self._ac_perm_table)
+                    self.acl_table_[id_acl_].setAcos(self._acos_table)
+                    self.acl_table_[id_acl_].processObject(self.metadata_)
                     self._acl_done = True
 
                 return
@@ -3374,11 +3378,11 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         elif self.cursor_.isLocked() or (
             self.cursor_relation_ and self.cursor_relation_.isLocked()
         ):
-            if not self.acl_table_[self._id_acl].name() == self.id_:
-                self.acl_table_[self._id_acl].clear()
-                self.acl_table_[self._id_acl].setName(self.id_)
-                self.acl_table_[self._id_acl].setPerm("r-")
-                self.acl_table_[self._id_acl].processObject(self.metadata_)
+            if not self.acl_table_[id_acl_].name() == self.id_:
+                self.acl_table_[id_acl_].clear()
+                self.acl_table_[id_acl_].setName(self.id_)
+                self.acl_table_[id_acl_].setPerm("r-")
+                self.acl_table_[id_acl_].processObject(self.metadata_)
                 self._acl_done = True
 
             return
