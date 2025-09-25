@@ -3328,7 +3328,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
             )
             self._id_acl = id_acl_
         if id_acl_ not in self.acl_table_.keys():
-
             acf_ = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
             acf_.setFromObject(self.metadata_)  # type: ignore[attr-defined]
             self._acos_backup_table[id_acl_] = acf_.getAcos()
