@@ -98,6 +98,65 @@ class TestFunction(unittest.TestCase):
         result = fun_([data])
         self.assertEqual(result, 30)
 
+    def test_extended2(self) -> None:
+        """Extended testing."""
+
+        qsa_src = [
+            "/* Parámetros del objeto o que pueden ser usados en la fórmula:",
+            "* o.DS: Días de servicio",
+            "* o.T1: Ventas en el trimestre T1",
+            "* o.T2: Ventas en el trimestre T2",
+            "* o.T3: Ventas en el trimestre T3",
+            "* o.T4: Ventas en el trimestre T4",
+            "* o.SA: Stock actual",
+            "* o.RS: Stock reservado",
+            "* o.PR: Stock pendiente de recibir",
+            "* o.SS: Stock de seguridad",
+            "* o.sMin: Stock minimo de producto",
+            "* o.sMax : Stock máximo de producto",
+            "*/",
+            "o = arguments[0]; /// NO BORRES ESTAS LINEAS",
+            "for (d in o) ",
+            "o[d] = parseFloat(o[d]);",
+            "//////////////////////////////////////////////////",
+            "consumoMensual = (parseFloat(o.T1) + parseFloat(o.T2)) / 2;",
+            "factorSeguridad = 2;",
+            "aPedir = parseFloat(o.RS) - parseFloat(o.PR) - parseFloat(o.SA) + consumoMensual*(o.DS/30) * parseFloat(o.SS);",
+            "/// Si tenemos para un mes de consumo no pedir nada",
+            "if ((parseFloat(o.T2) + parseFloat(o.T1)) ==0 ){",
+            "aPedir = o.RS-o.PR-o.SA;",
+            "}",
+            "if ((parseFloat(o.T2) + parseFloat(o.T3)) == 0 ){",
+            "aPedir = o.RS-o.PR-o.SA;",
+            "}",
+            "if ((parseFloat(o.T3) + parseFloat(o.T4)) ==0 ){",
+            "aPedir = o.RS-o.PR-o.SA;",
+            "}",
+            "aPedir = Math.ceil(aPedir);",
+            "if (aPedir < 0) {",
+            "aPedir = 0;",
+            "}",
+            "if ((aPedir + parseFloat(o.PR)+parseFloat(o.SA)-parseFloat(o.RS)) < o.SMin ) {",
+            "aPedir = o.SMin-parseFloat(o.SA)-parseFloat(o.PR)+parseFloat(o.RS);",
+            "}",
+            "return aPedir;",
+        ]
+
+        fun_ = types.function("arguments", "\n".join(qsa_src))
+        data = types.Array()
+        data.T1 = 100
+        data.T2 = 200
+        data.DS = 6
+        data.RS = 1
+        data.PR = 2
+        data.SA = 3
+        data.SS = 10
+        data.SMin = 20
+        data.SMax = 100
+
+        result = fun_([data])
+        self.assertEqual(result, 16)
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
