@@ -27,7 +27,6 @@ from pineboolib import logging
 from typing import Union, List, Dict, Optional, cast, Any, TYPE_CHECKING
 from watchdog import observers, events  # type: ignore [import] # noqa: F821
 import os
-import codecs
 
 from xml.etree import ElementTree as ET
 
