@@ -6,7 +6,6 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import logging, application
 from pineboolib.system_module.scripts.tests import fixture_path
 from pineboolib.core.utils import utils_base
-import codecs
 
 LOGGER = logging.get_logger("eneboo_%s" % __name__)
 
@@ -95,15 +94,15 @@ class TestFlModules(unittest.TestCase):
         if qry2.first():
             data_qry_qs = qry2.value(0)
 
-        file_py = codecs.open(fixture_path("scripts/prueba.py"), "r", encoding="UTF8")
+        file_py = open(fixture_path("scripts/prueba.py"), "r", encoding="UTF8")
         data_file_py = file_py.read()
         file_py.close()
 
-        file_qs = codecs.open(fixture_path("scripts/prueba.qs"), "r", encoding="ISO-8859-1")
+        file_qs = open(fixture_path("scripts/prueba.qs"), "r", encoding="ISO-8859-1")
         data_file_qs = file_qs.read()
         file_qs.close()
 
-        file_qs_bad = codecs.open(
+        file_qs_bad = open(
             fixture_path("scripts/prueba.qs"), "r", encoding="UTF8", errors="ignore"
         )
         data_file_qs_bad = file_qs_bad.read()
