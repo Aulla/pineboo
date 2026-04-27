@@ -648,7 +648,7 @@ def ws_channel_send(msg: Any = "", group_name: str = "") -> None:
         if group_name:
             async_to_sync(channel_layer.group_send)(group_name, json)
         else:
-            async_to_sync(channel_layer.send)(user_id, json) # type: ignore[union-attr]
+            async_to_sync(channel_layer.send)(user_id, json)  # type: ignore[union-attr]
 
 
 def ws_channel_send_type(json: Dict, group_name: str = "") -> None:

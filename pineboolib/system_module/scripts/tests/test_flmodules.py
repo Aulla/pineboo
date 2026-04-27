@@ -102,9 +102,7 @@ class TestFlModules(unittest.TestCase):
         data_file_qs = file_qs.read()
         file_qs.close()
 
-        file_qs_bad = open(
-            fixture_path("scripts/prueba.qs"), "r", encoding="UTF8", errors="ignore"
-        )
+        file_qs_bad = open(fixture_path("scripts/prueba.qs"), "r", encoding="UTF8", errors="ignore")
         data_file_qs_bad = file_qs_bad.read()
         file_qs_bad.close()
 
