@@ -718,10 +718,10 @@ class ISqlDriver(object):
         return True
 
     def pre_rename_table(self, query: Any) -> None:
-        """Called just before ALTER TABLE ... RENAME TO ... in alterTable."""
+        """Run pre_rename_table actions."""
 
     def post_rename_table(self, query: Any) -> None:
-        """Called just after DROP TABLE of the old renamed table in alterTable."""
+        """Run post_rename_table actions."""
 
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
