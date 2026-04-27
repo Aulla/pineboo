@@ -2,8 +2,6 @@
 Data Types for QSA.
 """
 
-import codecs
-
 import os
 import collections
 
@@ -534,7 +532,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is not defined!")
         if not bytes_:
-            file_ = codecs.open(self._file_name, "r", encoding=self._encode)
+            file_ = open(self._file_name, "r", encoding=self._encode)
         else:
             file_ = open(self._file_name, "rb")  # type: ignore [assignment] # noqa: F821
         ret = file_.read()
@@ -561,7 +559,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not isinstance(data, str):
             data = data.decode(self._encode)
 
-        file_ = codecs.open(self._file_name, mode, encoding=self._encode, errors="replace")
+        file_ = open(self._file_name, mode, encoding=self._encode, errors="replace")
         file_.write(data)
         file_.close()
 
@@ -572,7 +570,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         data_string = data.decode(self._encode)
 
-        file_ = codecs.open(self._file_name, "w", encoding=self._encode, errors="replace")
+        file_ = open(self._file_name, "w", encoding=self._encode, errors="replace")
         file_.write(data_string)
         file_.close()
 
@@ -609,12 +607,11 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @param data. Datos a añadir en el _file_name
         """
-        import codecs
 
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        file_ = codecs.open(self._file_name, encoding=self._encode, mode="a")
+        file_ = open(self._file_name, encoding=self._encode, mode="a")
         file_.write("%s\n" % data if len is None else data[0:len])
         file_.close()
 
@@ -625,14 +622,12 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @return cadena de texto con los datos de la linea actual
         """
 
-        import codecs
-
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        file_ = codecs.open(self._file_name, "r", encoding=self._encode)
+        file_ = open(self._file_name, "r", encoding=self._encode)
         file_.seek(self._last_seek)
-        ret = file_.readline(self._last_seek)
+        ret = file_.readline()
         self._last_seek += len(ret)
         self.eof = True if ret else False
 
@@ -651,9 +646,8 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             raise ValueError("self._file_name is empty!")
 
         ret: List[str]
-        import codecs
 
-        file_ = codecs.open(self._file_name, encoding=self._encode, mode="a")
+        file_ = open(self._file_name, "a", encoding=self._encode)
         file_.seek(self._last_seek)
         ret = file_.readlines()
         file_.close()
@@ -770,7 +764,7 @@ class FileStatic(FileBaseClass):
         @return contenido del fichero
         """
 
-        with codecs.open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as file_obj:
+        with open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as file_obj:
             ret = file_obj.read()
 
         return ret
