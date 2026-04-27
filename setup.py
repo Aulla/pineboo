@@ -3,6 +3,7 @@
 import setuptools  # type: ignore
 import pathlib
 import subprocess
+import sys
 from pineboolib import application
 
 
@@ -28,9 +29,27 @@ files.extend([str(fil) for fil in lang_path.glob("**/*.ui")])
 for exclude in exclude_uis:
     files.remove(exclude)
 
+_PYLUPDATE_PATCH = """\
+import ast
+import PyQt6.lupdate.python_source as _ps
+
+@staticmethod
+def _get_str(node, allow_none=False):
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, str):
+            return node.value
+        if allow_none and node.value is None:
+            return ''
+    return None
+
+_ps.Visitor._get_str = _get_str
+from PyQt6.lupdate.pylupdate import main
+raise SystemExit(main())
+"""
+
 for lang in languages:
     ts_file = pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
-    if subprocess.call(["pylupdate6", "-ts", ts_file, *files]):
+    if subprocess.call([sys.executable, "-c", _PYLUPDATE_PATCH, "-ts", str(ts_file), *files]):
         raise Exception("Error updating %s file!" % ts_file)
 
 
