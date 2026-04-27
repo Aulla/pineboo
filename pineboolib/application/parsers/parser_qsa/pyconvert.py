@@ -97,6 +97,8 @@ class PythonifyItem(object):
     len: int = 1
     known: Dict[str, Tuple[str, str]] = {}
 
+    ignore_no_python_tags: bool = False
+
     def __init__(
         self, src: str, dst: str, number: int, len: int, known: Dict[str, Tuple[str, str]]
     ):
@@ -106,10 +108,12 @@ class PythonifyItem(object):
         self.number = number
         self.len = len
         self.known = known
+        self.ignore_no_python_tags = parser_qsa.IGNORE_NO_PYTHON_TAGS
 
 
 def pythonify_item(item: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
+    parser_qsa.IGNORE_NO_PYTHON_TAGS = item.ignore_no_python_tags
     if parser_qsa.USE_THREADS:
         LOGGER.info("(%.2f%%) Parsing QS %r", 100 * item.number / item.len, item.src_path)
     try:
