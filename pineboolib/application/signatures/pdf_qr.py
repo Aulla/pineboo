@@ -179,7 +179,7 @@ class PdfQr:
                 "%s.%s"
                 % (QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"), self._ext),
             )
-            qr_image.save(self._tmp_qr_img, self._ext)
+            qr_image.save(self._tmp_qr_img, self._ext)  # type: ignore[arg-type] # noqa: F821
 
             if self._show_text:
                 image_qr = QtGui.QImage(self._tmp_qr_img)
@@ -193,7 +193,7 @@ class PdfQr:
                         max_text_len = current_len
 
                 text_width = max_text_len * (self._font_size - 1.5)
-                extra_width = text_width if text_width > (qr_image.height) else qr_image.height
+                extra_width = text_width if text_width > (qr_image.height) else qr_image.height  # type: ignore[union-attr]
                 print(
                     "extra:%s, qr:%s, max:%s, text:%s, size: %s"
                     % (extra_width, image_qr.width(), text_width, len(self._text), self._font_size)
@@ -202,7 +202,7 @@ class PdfQr:
 
                 image_label_resized = image_label.scaled(
                     int(extra_width * self._factor),
-                    int((qr_image.height + extra_height) * self._factor),
+                    int((qr_image.height + extra_height) * self._factor),  # type: ignore[union-attr]
                 )
                 image_qr = image_qr.scaled(
                     int(image_qr.width() * self._factor), int(image_qr.height() * self._factor)

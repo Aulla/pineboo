@@ -82,12 +82,12 @@ class Kut2FPDF(object):
         self._actual_append_page_no = -1
         self.reset_page_count = False
         self.new_page = False
-        self._document = None
+        self._document = None  # type: ignore[assignment]
         self.last_register = False
 
     def parse(
-        self, name: str, kut: str, data: str, report: "FPDF" = None, flags: List[int] = []
-    ) -> Optional[str]:
+        self, name: str, kut: str, data: str, report: Optional["FPDF"] = None, flags: List[int] = []
+    ) -> Optional["FPDF"]:
         """
         Parse string containing ".kut" file into a pdf and return its file path.
 
@@ -122,7 +122,7 @@ class Kut2FPDF(object):
             import fpdf
 
             self._actual_append_page_no = 0
-            self._document = fpdf.FPDF(self._page_orientation, "pt", self._page_size)
+            self._document = fpdf.FPDF(self._page_orientation, "pt", self._page_size)  # type: ignore [arg-type]
             for font in self._document.core_fonts:
                 LOGGER.debug("KUT2FPDF :: Adding font %s", font)
                 self._avalible_fonts.append(font)
@@ -162,12 +162,12 @@ class Kut2FPDF(object):
         self.processDetails(not page_break)
 
         # FIXME:Alguno valores no se encuentran
-        for pages in self._document.pages.keys():
-            page_content = self._document.pages[pages]["content"]
+        for pages in self._document.pages.keys():  # type: ignore [index]
+            page_content = self._document.pages[pages]["content"]  # type: ignore [index]
             for header in self.draws_at_header.keys():
                 page_content = page_content.replace(header, str(self.draws_at_header[header]))
 
-            self._document.pages[pages]["content"] = page_content
+            self._document.pages[pages]["content"] = page_content  # type: ignore [index]
 
         self._document.set_title(self.name_)
         self._document.set_author("Pineboo - kut2fpdf plugin")
@@ -185,8 +185,8 @@ class Kut2FPDF(object):
         if self._document is not None:
             self._document.output(pdf_name)
             return pdf_name
-        else:
-            return None
+
+        return None  # type: ignore[unreachable]
 
     def topSection(self) -> int:
         """
@@ -210,7 +210,7 @@ class Kut2FPDF(object):
         """
         Add a new page to the document.
         """
-        self._document.add_page(self._page_orientation)
+        self._document.add_page(self._page_orientation)  # type: ignore[arg-type]
         self._page_top[int(self._document.page_no())] = self._top_margin
         self._document.set_margins(
             self._left_margin, self._top_margin, self._right_margin
@@ -443,7 +443,7 @@ class Kut2FPDF(object):
         if xml.tag == "DetailFooter":
             if xml.get("PlaceAtBottom") == "true":
                 height = self._parser_tools.getHeight(xml)
-                self.setTopSection(self._document.h - height - self.increase_section_size)
+                self.setTopSection(int(self._document.h - height - self.increase_section_size))
                 size_updated = True
 
         if xml.tag == "PageFooter":
@@ -555,7 +555,7 @@ class Kut2FPDF(object):
         @param x. Position to check.
         @return Revised position.
         """
-        limit = self._document.w - self._right_margin
+        limit = int(self._document.w - self._right_margin)
         ret_: int
 
         if fix_ratio:
@@ -808,7 +808,7 @@ class Kut2FPDF(object):
                         font_style,
                         font_found,
                     )
-                self._document.add_font(font_name, font_style, font_found, True)
+                self._document.add_font(font_name, font_style, font_found, True)  # type: ignore[arg-type]
                 self._avalible_fonts.append(font_full_name)
 
             else:
@@ -824,7 +824,7 @@ class Kut2FPDF(object):
         if font_name is not font_name_orig and font_name_orig.lower().find("narrow") > -1:
             font_w = 85
 
-        self._document.set_font(font_name, font_style, font_size)
+        self._document.set_font(font_name, font_style, font_size)  # type: ignore[arg-type]
         self._document.set_stretching(font_w)
         # Corregir alineación
         vertical_alignment = xml.get("VAlignment")  # 0 izquierda, 1 centrado,2 derecha
@@ -876,12 +876,12 @@ class Kut2FPDF(object):
 
             if horizontal_alignment == "1":  # sobre X
                 # Centrado
-                pos_x = pos_x + (width / 2) - (self._document.get_string_width(actual_text) / 2)
+                pos_x = pos_x + (width / 2) - (self._document.get_string_width(actual_text) / 2)  # type: ignore[assignment]
                 # x = x + (width / 2) - (str_width if not height_resized else width / 2)
             elif horizontal_alignment == "2":
                 # Derecha
                 pos_x = (
-                    pos_x + width - self._document.get_string_width(actual_text) - 2
+                    pos_x + width - self._document.get_string_width(actual_text) - 2  # type: ignore[assignment]
                 )  # -2 de margen
                 # x = x + width - str_width if not height_resized else width
             else:
@@ -1081,7 +1081,7 @@ class Kut2FPDF(object):
         self._document.text(pos_x, pos_y + height, text)
         self._document.text_color = orig_color
         # self._document.set_xy(orig_x, orig_y)
-        self._document.set_font(current_font_family, current_font_style, current_font_size)
+        self._document.set_font(current_font_family, current_font_style, current_font_size)  # type: ignore[arg-type]
 
     def draw_image(
         self, pos_x: int, pos_y: int, width: int, height: int, xml: "Element", file_name: str

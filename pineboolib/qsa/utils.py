@@ -641,11 +641,14 @@ def ws_channel_send(msg: Any = "", group_name: str = "") -> None:
         json = {"type": "send.msg", "content": msg}
 
         channel_layer = get_channel_layer()
+        if not channel_layer:
+            LOGGER.warning("Channel layer not available")
+            return
         user_id = application.PROJECT.session_id()
         if group_name:
             async_to_sync(channel_layer.group_send)(group_name, json)
         else:
-            async_to_sync(channel_layer.send)(user_id, json)
+            async_to_sync(channel_layer.send)(user_id, json) # type: ignore[union-attr]
 
 
 def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
@@ -656,6 +659,9 @@ def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
         from channels.layers import get_channel_layer  # type: ignore [import] # noqa: F723
 
         channel_layer = get_channel_layer()
+        if not channel_layer:
+            LOGGER.warning("Channel layer not available")
+            return
         user_id = application.PROJECT.session_id()
         if group_name:
             async_to_sync(channel_layer.group_send)(group_name, json)
