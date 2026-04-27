@@ -19,6 +19,7 @@ import itertools
 import locale
 import os
 import datetime
+import weakref
 
 
 from typing import Any, Optional, List, Dict, Tuple, cast, Callable, Union, TYPE_CHECKING
@@ -693,6 +694,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 where_filter,
             )
 
+        if self._data_proxy is not None:
+            self._data_proxy.close()
         self._data_proxy = None
         # print("COUNT", sql_count)
 
@@ -713,6 +716,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             result_count = self.session.execute(sql_count)  # type: ignore [arg-type]
             rows_loaded = result_count.fetchone()[0]  # type: ignore [index]
+            try:
+                result_count.close()
+            except Exception:
+                pass
 
         if rows_loaded > 0:
             self._data_proxy = ProxyIndex(result_query, rows_loaded)
@@ -1079,16 +1086,18 @@ class ProxyIndex:
     _qry_rows_loaded: int
     _last_current_size: int
 
+    _active_proxies: "weakref.WeakSet[ProxyIndex]"
+
     def __init__(self, result_query: Any, rows: int) -> None:
         """Initialize."""
 
         self._query = result_query
         self._qry_rows_total = self._total_rows = int(rows)
-
         self._qry_rows_loaded = 0
         self._last_current_size = 0
         self._cached_data = []
 
+        ProxyIndex._active_proxies.add(self)
         self.fetch_more(2000 if rows > 2000 else rows)
 
     def __getitem__(self, index: int) -> Any:
@@ -1108,6 +1117,21 @@ class ProxyIndex:
 
         return self._cached_data.index(value)
 
+    def close(self) -> None:
+        """Close the underlying query cursor if still open."""
+        if self._query is not None:
+            try:
+                self._query.close()
+            except Exception:
+                pass
+            self._query = None
+
+    @classmethod
+    def close_all(cls) -> None:
+        """Close all active query cursors (call before DDL to release read locks)."""
+        for proxy in list(cls._active_proxies):
+            proxy.close()
+
     def fetch_more(self, fetch_size: int = 2000) -> bool:
         """Fetch more data to cached data."""
 
@@ -1123,6 +1147,8 @@ class ProxyIndex:
                 self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
                 self._qry_rows_loaded += fetch_size
                 self._last_current_size += fetch_size
+                if self._qry_rows_loaded >= self._qry_rows_total:
+                    self.close()
                 return True
             except exc.InterfaceError:
                 LOGGER.warning(
@@ -1166,3 +1192,6 @@ class ProxyIndex:
             return True
 
         return False
+
+
+ProxyIndex._active_proxies = weakref.WeakSet()

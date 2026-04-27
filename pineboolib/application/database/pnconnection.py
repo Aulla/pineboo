@@ -559,6 +559,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         #    % ("LEGACY" if application.USE_ALTER_TABLE_LEGACY else "ALEMBIC", new_metadata.name())
         # )
         if application.USE_ALTER_TABLE_LEGACY:
+            from pineboolib.application.database.pncursortablemodel import ProxyIndex
+
+            ProxyIndex.close_all()
             return self.connManager().dbAux().driver().alterTable(new_metadata)
 
         alm = alembic_tools.Migration(self.connManager().dbAux())

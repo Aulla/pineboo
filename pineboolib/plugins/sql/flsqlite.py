@@ -302,6 +302,14 @@ class FLSQLITE(isqldriver.ISqlDriver):
 
         return True
 
+    def pre_rename_table(self, query: Any) -> None:
+        """Prevent SQLite 3.26+ from auto-updating view references during RENAME."""
+        query.db().execute_query("PRAGMA legacy_alter_table = ON")
+
+    def post_rename_table(self, query: Any) -> None:
+        """Restore default RENAME behaviour."""
+        query.db().execute_query("PRAGMA legacy_alter_table = OFF")
+
     def connection(self) -> "base.Connection":
         """Retrun connection."""
 

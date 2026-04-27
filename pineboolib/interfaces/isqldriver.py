@@ -717,6 +717,12 @@ class ISqlDriver(object):
 
         return True
 
+    def pre_rename_table(self, query: Any) -> None:
+        """Called just before ALTER TABLE ... RENAME TO ... in alterTable."""
+
+    def post_rename_table(self, query: Any) -> None:
+        """Called just after DROP TABLE of the old renamed table in alterTable."""
+
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
@@ -767,6 +773,7 @@ class ISqlDriver(object):
                 session_.rollback()
                 return False
 
+            self.pre_rename_table(query)
             if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
                 session_.rollback()
                 return False
@@ -842,6 +849,7 @@ class ISqlDriver(object):
 
             if new_metadata.name() not in self.tables("Views"):
                 query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
+                self.post_rename_table(query)
 
         util.destroyProgressDialog()
 
